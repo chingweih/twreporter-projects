@@ -15,4 +15,8 @@ ctb-tile -f Mesh -C -N -o -l terrain dem_20m.tif # 生成圖層敘述檔 `layer.
 ```s
 ````
 
-- 上傳到 GCS，網址會是：`https://{base}/terrain/{level}/{x}/{y}.terrain`
+- 上傳到 GCS，網址會是：`https://{base}/terrain/{level}/{x}/{y}.terrain`，注意因為 CTB 產出的高度圖磚經過 gzip，所以需要設定 `content-encoding` Header 為 gzip
+
+```bash
+gcloud storage cp -r * gs://{bucket}/terrain/ --content-encoding=gzip
+```
