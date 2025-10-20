@@ -17,5 +17,5 @@
     "checkJs": true,
     "moduleDetection": "force"
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "cesium.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }
