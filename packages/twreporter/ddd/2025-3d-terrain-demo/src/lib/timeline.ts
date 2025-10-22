@@ -1,4 +1,11 @@
-export const timeline = [
+export const timeline: {
+  id: string
+  y: number
+  position: [number, number, number]
+  heading: number
+  pitch: number
+  roll: number
+}[] = [
   {
     id: 'start',
     y: 0,
