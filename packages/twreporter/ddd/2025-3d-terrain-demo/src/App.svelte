@@ -1,5 +1,9 @@
 <script lang="ts">
   import Cesium from './Cesium.svelte'
+  import CesiumEdit from './CesiumEdit.svelte'
+
+  const searchParams = new URLSearchParams(window.location.search)
+  const editMode = searchParams.has('edit')
 </script>
 
 <link
@@ -24,7 +28,11 @@
 />
 
 <main>
-  <Cesium />
+  {#if editMode}
+    <CesiumEdit />
+  {:else}
+    <Cesium />
+  {/if}
 </main>
 
 <style>
