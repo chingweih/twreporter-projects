@@ -1,14 +1,15 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
   import * as Cesium from 'cesium'
   import 'cesium/Build/Cesium/Widgets/widgets.css'
+  import { onMount } from 'svelte'
+  import { getTimeline, getTimelineById, timeline } from './lib/timeline'
 
   let editMode = $state()
 
   let viewer: Cesium.Viewer | undefined = $state()
   const containerId = 'cesiumContainer'
   const terrainServer =
-    'https://storage.googleapis.com/data-reporter-infographics/dev/2025-3d-terrain-demo/terrain?no-cache'
+    'https://storage.googleapis.com/data-reporter-infographics/dev/2025-3d-terrain-demo/terrain'
 
   // Taiwan bounding box
   // 25.45679248899884, 120.14837985134528
@@ -61,26 +62,35 @@
     }
   })
 
-  function handleScroll() {
-    const scrolledY = window.scrollY
+  let activeTimelineId = $state<string | null>(null)
 
+  function handleScroll() {
     if (!viewer) return
 
-    if (scrolledY > 1000) {
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(
-          121.28693223633375,
-          23.679494411877414,
-          8000
-        ),
-        orientation: {
-          heading: Cesium.Math.toRadians(15.0),
-          pitch: Cesium.Math.toRadians(-60.0),
-          roll: 0.0,
-        },
-      })
-    }
+    const scrolledY = window.scrollY
+
+    activeTimelineId = getTimeline(scrolledY)?.id ?? null
   }
+
+  $effect(() => {
+    console.log(activeTimelineId)
+
+    const activeTimeline = getTimelineById(activeTimelineId)
+
+    if (!activeTimeline) {
+      return
+    }
+
+    viewer?.camera.flyTo({
+      destination: new Cesium.Cartesian3(...activeTimeline?.position),
+      orientation: {
+        heading: activeTimeline.heading,
+        pitch: activeTimeline.pitch,
+        roll: activeTimeline.roll,
+      },
+      duration: 2,
+    })
+  })
 </script>
 
 <svelte:document onscroll={handleScroll} />
@@ -94,10 +104,20 @@
     <div class="background">
       <div id={containerId} class="map"></div>
     </div>
-    <div class="scroll"><div>Hello</div></div>
+    <div class="scroll" style:position="relative">
+      {#each timeline as card}
+        <div
+          style:position="absolute"
+          style:top={`calc(${card.y}px + 50vh)`}
+          style="height: 100px; background: white; width: 50%;"
+        >
+          {card.id}
+        </div>
+      {/each}
+    </div>
   </div>
 
-  <p style:height="500px">Some Additional Content</p>
+  <p style:height="500px">內文內文內文</p>
 {/if}
 
 <style>
@@ -114,7 +134,7 @@
   }
 
   .scroll {
-    height: 10000px;
+    height: 5000px;
     position: relative;
     z-index: 1;
   }
