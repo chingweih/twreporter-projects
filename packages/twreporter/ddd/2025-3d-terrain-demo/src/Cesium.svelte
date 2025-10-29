@@ -45,14 +45,12 @@
 
       if (!cardElement) continue
 
-      const cardTop = cardElement.offsetTop
+      const cardTop = cardElement.getBoundingClientRect().top
       const cardBottom = cardTop + cardElement.offsetHeight
 
-      if (
-        scrolledY + viewportHeight / 2 >= cardTop &&
-        scrolledY + viewportHeight / 2 < cardBottom
-      ) {
-        // Center of viewport is within the card
+      const triggerPoint = viewportHeight / 3
+
+      if (cardTop <= triggerPoint && cardBottom >= triggerPoint) {
         activeCardName = card.name
         break
       }
@@ -125,7 +123,6 @@
   }
 
   .scroll {
-    height: 5000px;
     position: relative;
     z-index: 1;
   }
