@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "deploy:dev": "npm run build && cd dist && gcloud storage cp assets/* gs://data-reporter-infographics/dev/2025-3d-terrain-demo/assets && gcloud storage cp *.html gs://data-reporter-infographics/dev/2025-3d-terrain-demo --cache-control='public, max-age=300'",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
