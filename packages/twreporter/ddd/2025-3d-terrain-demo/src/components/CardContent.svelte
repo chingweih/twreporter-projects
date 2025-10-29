@@ -12,6 +12,8 @@
       ></video>
     {:else if card.audio}
       <audio src={card.audio} controls style="width:300px"></audio>
+    {:else if card.embed}
+      {@html card.embed}
     {/if}
     {#if card.contents}
       {#each card.contents as content}

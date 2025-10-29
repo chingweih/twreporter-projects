@@ -26,6 +26,7 @@ export type Card = {
   style?: 'fullscreen'
   video?: string
   audio?: string
+  embed?: string
 }
 
 export type Content = {
