@@ -2,10 +2,11 @@
   import * as Cesium from 'cesium'
   import 'cesium/Build/Cesium/Widgets/widgets.css'
   import { onMount } from 'svelte'
-  import { getTimeline, getTimelineById, timeline } from './lib/timeline'
   import { cesiumConfig } from './lib/cesium'
+  import { getCard, getContent, parseCamera } from './lib/content'
 
   let viewer: Cesium.Viewer | undefined = $state()
+  const content = getContent()
 
   onMount(() => {
     viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
@@ -18,31 +19,56 @@
     viewer.scene.screenSpaceCameraController.enableLook = false
   })
 
-  let activeTimelineId = $state<string | null>(null)
+  let activeCardName = $state<string | null>(null)
+  let activeCard = $derived(getCard({ content, name: activeCardName }))
 
   function handleScroll() {
     if (!viewer) return
 
     const scrolledY = window.scrollY
+    const viewportHeight = window.innerHeight
+    const cards = content.cards
 
-    activeTimelineId = getTimeline(scrolledY)?.id ?? null
+    for (let i = 0; i < cards.length; i++) {
+      const card = cards[i]
+      const cardElement = document.getElementById(card.name)
+
+      if (!cardElement) continue
+
+      const cardTop = cardElement.offsetTop
+      const cardBottom = cardTop + cardElement.offsetHeight
+
+      if (
+        scrolledY + viewportHeight / 2 >= cardTop &&
+        scrolledY + viewportHeight / 2 < cardBottom
+      ) {
+        // Center of viewport is within the card
+        activeCardName = card.name
+        break
+      }
+    }
   }
 
   $effect(() => {
-    console.log(activeTimelineId)
+    console.log(activeCardName)
 
-    const activeTimeline = getTimelineById(activeTimelineId)
-
-    if (!activeTimeline) {
+    if (!activeCard) {
       return
     }
 
+    const { position, orientation } = parseCamera(activeCard.camera)
+    console.log(position, orientation)
+
     viewer?.camera.flyTo({
-      destination: new Cesium.Cartesian3(...activeTimeline?.position),
+      destination: Cesium.Cartesian3.fromArray([
+        position.x,
+        position.y,
+        position.z,
+      ]),
       orientation: {
-        heading: activeTimeline.heading,
-        pitch: activeTimeline.pitch,
-        roll: activeTimeline.roll,
+        heading: orientation.heading,
+        pitch: orientation.pitch,
+        roll: orientation.roll,
       },
       duration: 2,
     })
@@ -56,13 +82,13 @@
     <div id={cesiumConfig.id} class="map"></div>
   </div>
   <div class="scroll" style:position="relative">
-    {#each timeline as card}
-      <div
-        style:position="absolute"
-        style:top={`calc(${card.y}px + 50vh)`}
-        style="height: 100px; background: white; width: 50%;"
-      >
-        {card.id}
+    {#each content.cards as card}
+      <div class="card" id={card.name}>
+        <div class="content">
+          {#each card.contents as content}
+            <p>{content}</p>
+          {/each}
+        </div>
       </div>
     {/each}
   </div>
@@ -91,6 +117,28 @@
 
   .map {
     height: 100%;
+  }
+
+  .card {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: start;
+    justify-content: start;
+  }
+
+  .card .content {
+    max-width: 400px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 20px;
+  }
+
+  .card .content * {
+    color: white;
   }
 
   :global(.cesium-viewer) {

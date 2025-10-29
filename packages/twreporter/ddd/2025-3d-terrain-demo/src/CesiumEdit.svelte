@@ -13,23 +13,16 @@
 
   onMount(() => {
     viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
-  })
-
-  $effect(() => {
-    if (!viewer) return
 
     const handleCameraMove = () => {
       if (!viewer) return
 
       position = viewer.camera.position.toString()
-      perspective = `${viewer.camera.heading};${viewer.camera.pitch};${viewer.camera.roll}`
+      perspective = `${viewer.camera.heading.toString()};${viewer.camera.pitch.toString()};${viewer.camera.roll.toString()}`
       console.log(position)
     }
 
-    const removeListener =
-      viewer.camera.changed.addEventListener(handleCameraMove)
-
-    return removeListener
+    viewer.camera.changed.addEventListener(handleCameraMove)
   })
 </script>
 

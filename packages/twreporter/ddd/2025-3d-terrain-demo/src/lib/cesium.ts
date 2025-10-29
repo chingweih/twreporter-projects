@@ -20,7 +20,10 @@ const containerId = 'cesium-container'
 const terrainServer =
   'https://storage.googleapis.com/data-reporter-infographics/dev/2025-3d-terrain-demo/terrain'
 
-export const cesiumConfig = {
+export const cesiumConfig: {
+  id: string
+  viewerConfig: Cesium.Viewer.ConstructorOptions
+} = {
   id: containerId,
   viewerConfig: {
     terrainProvider: await Cesium.CesiumTerrainProvider.fromUrl(terrainServer),
@@ -30,7 +33,6 @@ export const cesiumConfig = {
         maximumLevel: 20,
       })
     ),
-    sceneMode: Cesium.SceneMode.COLUMBUS_VIEW,
     timeline: false,
     animation: false,
     fullscreenButton: false,
