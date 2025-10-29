@@ -6,6 +6,10 @@
   let viewer: Cesium.Viewer | undefined = $state()
   let position: string | undefined = $state()
   let perspective: string | undefined = $state()
+  let cameraString = $derived(
+    position && perspective ? `${position}|${perspective}` : ''
+  )
+  let copied: boolean = $state(false)
 
   onMount(() => {
     viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
@@ -31,9 +35,25 @@
 
 <div id={cesiumConfig.id} class="map"></div>
 <div class="info">
-  <h1>相機資訊（按著 Control 可拖動視角）</h1>
-  <p>{position}</p>
-  <p>{perspective}</p>
+  <h1>
+    編輯模式<span style:margin-left="5px">按住 Control 可拖動視角</span>
+  </h1>
+  <textarea disabled>{cameraString}</textarea>
+  <div style="display:flex;gap:10px;align-items:center">
+    <button
+      onclick={() => {
+        navigator.clipboard.writeText(cameraString).then(() => {
+          copied = true
+          setTimeout(() => {
+            copied = false
+          }, 3000)
+        })
+      }}>複製</button
+    >
+    {#if copied}
+      <span>已複製成功</span>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -46,14 +66,45 @@
     position: absolute;
     top: 10px;
     left: 10px;
-    background: white;
+    background: rgba(0, 0, 0, 0.6);
     padding: 10px 20px;
-    border-radius: 5px;
     font-size: 0.8rem;
+    color: white;
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .info * {
+    color: white;
   }
 
   .info h1 {
     font-weight: bold;
-    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+  }
+
+  .info span {
+    font-size: 0.65rem;
+  }
+
+  textarea {
+    resize: none;
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    width: 250px;
+    font-family: monospace;
+    font-size: 0.5rem;
+    height: 50px;
+  }
+
+  button {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+    padding: 4px 8px;
   }
 </style>
