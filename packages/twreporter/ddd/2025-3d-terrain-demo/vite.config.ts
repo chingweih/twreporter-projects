@@ -21,4 +21,5 @@ export default defineConfig({
   define: {
     CESIUM_BASE_URL: JSON.stringify(cesiumBaseUrl),
   },
+  base: '/data-reporter-infographics/dev/2025-3d-terrain-demo/',
 })
