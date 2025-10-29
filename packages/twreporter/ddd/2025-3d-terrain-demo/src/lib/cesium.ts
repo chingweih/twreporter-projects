@@ -1,24 +1,21 @@
 import * as Cesium from 'cesium'
 import { source } from '../constants/imagery'
+import { terrainServer } from '../constants/terrain'
 
 // Taiwan bounding box
 // 25.45679248899884, 120.14837985134528
 // 21.897146905114784, 121.79268072509971
 
-const defaultRectangle = Cesium.Rectangle.fromDegrees(
-  120.14837985134528,
-  21.897146905114784,
-  121.79268072509971,
-  25.45679248899884
-)
-
-Cesium.Camera.DEFAULT_VIEW_RECTANGLE = defaultRectangle
-Cesium.Camera.DEFAULT_VIEW_FACTOR = 0
+export const rectangles = {
+  taiwan: Cesium.Rectangle.fromDegrees(
+    120.14837985134528,
+    21.897146905114784,
+    121.79268072509971,
+    25.45679248899884
+  ),
+}
 
 const containerId = 'cesium-container'
-
-const terrainServer =
-  'https://storage.googleapis.com/data-reporter-infographics/dev/2025-3d-terrain-demo/terrain'
 
 export const cesiumConfig: {
   id: string

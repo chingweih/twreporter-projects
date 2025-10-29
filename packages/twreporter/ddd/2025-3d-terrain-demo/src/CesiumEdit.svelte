@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Cesium from 'cesium'
   import { onMount } from 'svelte'
-  import { cesiumConfig } from './lib/cesium'
+  import { cesiumConfig, rectangles } from './lib/cesium'
 
   let viewer: Cesium.Viewer | undefined = $state()
   let position: string | undefined = $state()
@@ -10,6 +10,9 @@
     position && perspective ? `${position}|${perspective}` : ''
   )
   let copied: boolean = $state(false)
+
+  Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangles.taiwan
+  Cesium.Camera.DEFAULT_VIEW_FACTOR = 0
 
   onMount(() => {
     viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
