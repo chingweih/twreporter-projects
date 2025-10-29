@@ -27,7 +27,7 @@
     }
 
     const removeListener =
-      viewer.camera.moveEnd.addEventListener(handleCameraMove)
+      viewer.camera.changed.addEventListener(handleCameraMove)
 
     return removeListener
   })
