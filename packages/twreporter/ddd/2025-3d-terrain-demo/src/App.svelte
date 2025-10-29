@@ -43,6 +43,7 @@
 <style>
   :global(*) {
     --tr-text: #404040;
+    --tr-background: #f1f1f1;
     color: var(--tr-text);
     font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif;
     text-align: left !important;

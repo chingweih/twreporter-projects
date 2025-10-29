@@ -18,13 +18,19 @@ export async function getDoc() {
   return doc
 }
 
+export type Card = {
+  name: string
+  title?: string
+  camera: string
+  contents?: string[]
+  style?: 'fullscreen'
+  video?: string
+  audio?: string
+}
+
 export type Content = {
   tiles: string[]
-  cards: {
-    name: string
-    camera: string
-    contents: string[]
-  }[]
+  cards: Card[]
 }
 
 export async function getContent() {

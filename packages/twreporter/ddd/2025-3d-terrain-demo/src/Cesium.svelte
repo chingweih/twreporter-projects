@@ -6,6 +6,7 @@
   import { getCard, getContent, parseCamera } from './lib/content'
   import { createQuery } from '@tanstack/svelte-query'
   import Loading from './components/Loading.svelte'
+  import CardContent from './components/CardContent.svelte'
 
   let viewer: Cesium.Viewer | undefined = $state()
 
@@ -78,7 +79,7 @@
         pitch: orientation.pitch,
         roll: orientation.roll,
       },
-      duration: 2,
+      duration: 1.5,
     })
   })
 </script>
@@ -95,13 +96,7 @@
   <div class="scroll" style:position="relative">
     {#if content}
       {#each content.cards as card}
-        <div class="card" id={card.name}>
-          <div class="content">
-            {#each card.contents as content}
-              <p>{content}</p>
-            {/each}
-          </div>
-        </div>
+        <CardContent {card} />
       {/each}
     {/if}
   </div>
@@ -129,28 +124,6 @@
 
   .map {
     height: 100%;
-  }
-
-  .card {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: start;
-    justify-content: start;
-  }
-
-  .card .content {
-    max-width: 400px;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 20px 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-left: 20px;
-  }
-
-  .card .content * {
-    color: white;
   }
 
   .loading-screen {
