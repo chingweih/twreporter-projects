@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium'
+import { source } from '../constants/imagery'
 
 // Taiwan bounding box
 // 25.45679248899884, 120.14837985134528
@@ -25,8 +26,8 @@ export const cesiumConfig = {
     terrainProvider: await Cesium.CesiumTerrainProvider.fromUrl(terrainServer),
     baseLayer: new Cesium.ImageryLayer(
       new Cesium.UrlTemplateImageryProvider({
-        url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}',
-        maximumLevel: 19,
+        url: source.arcGIS,
+        maximumLevel: 20,
       })
     ),
     sceneMode: Cesium.SceneMode.COLUMBUS_VIEW,
