@@ -28,7 +28,7 @@
     display: flex;
     align-items: start;
     justify-content: start;
-    margin-bottom: 50vh;
+    padding-bottom: 50vh;
   }
 
   .card.fullscreen {
@@ -53,7 +53,6 @@
     margin: 0;
     align-items: center;
     justify-content: center;
-    margin-bottom: 100px;
   }
 
   .card .content * {
