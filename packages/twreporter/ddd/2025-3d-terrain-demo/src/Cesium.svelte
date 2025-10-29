@@ -4,9 +4,17 @@
   import { onMount } from 'svelte'
   import { cesiumConfig } from './lib/cesium'
   import { getCard, getContent, parseCamera } from './lib/content'
+  import { createQuery } from '@tanstack/svelte-query'
+  import Loading from './components/Loading.svelte'
 
   let viewer: Cesium.Viewer | undefined = $state()
-  const content = getContent()
+
+  export const contentQuery = createQuery(() => ({
+    queryKey: ['content'],
+    queryFn: getContent,
+  }))
+
+  let content = $derived(contentQuery.data)
 
   onMount(() => {
     viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
@@ -20,10 +28,12 @@
   })
 
   let activeCardName = $state<string | null>(null)
-  let activeCard = $derived(getCard({ content, name: activeCardName }))
+  let activeCard = $derived(
+    content && getCard({ content, name: activeCardName })
+  )
 
   function handleScroll() {
-    if (!viewer) return
+    if (!viewer || !content) return
 
     const scrolledY = window.scrollY
     const viewportHeight = window.innerHeight
@@ -79,18 +89,23 @@
 
 <div class="base">
   <div class="background">
+    {#if contentQuery.isLoading}
+      <div class="loading-screen"><Loading /></div>
+    {/if}
     <div id={cesiumConfig.id} class="map"></div>
   </div>
   <div class="scroll" style:position="relative">
-    {#each content.cards as card}
-      <div class="card" id={card.name}>
-        <div class="content">
-          {#each card.contents as content}
-            <p>{content}</p>
-          {/each}
+    {#if content}
+      {#each content.cards as card}
+        <div class="card" id={card.name}>
+          <div class="content">
+            {#each card.contents as content}
+              <p>{content}</p>
+            {/each}
+          </div>
         </div>
-      </div>
-    {/each}
+      {/each}
+    {/if}
   </div>
 </div>
 
@@ -139,6 +154,21 @@
 
   .card .content * {
     color: white;
+  }
+
+  .loading-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    z-index: 10;
   }
 
   :global(.cesium-viewer) {

@@ -1,9 +1,12 @@
 <script lang="ts">
   import Cesium from './Cesium.svelte'
   import CesiumEdit from './CesiumEdit.svelte'
+  import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query'
 
   const searchParams = new URLSearchParams(window.location.search)
   const editMode = searchParams.has('edit')
+
+  const queryClient = new QueryClient()
 </script>
 
 <link
@@ -27,13 +30,15 @@
   crossorigin="anonymous"
 />
 
-<main>
-  {#if editMode}
-    <CesiumEdit />
-  {:else}
-    <Cesium />
-  {/if}
-</main>
+<QueryClientProvider client={queryClient}>
+  <main>
+    {#if editMode}
+      <CesiumEdit />
+    {:else}
+      <Cesium />
+    {/if}
+  </main>
+</QueryClientProvider>
 
 <style>
   :global(*) {
