@@ -7,6 +7,7 @@
   import { createQuery } from '@tanstack/svelte-query'
   import Loading from './components/Loading.svelte'
   import CardContent from './components/CardContent.svelte'
+  import { source } from './constants/imagery'
 
   let viewer: Cesium.Viewer | undefined = $state()
 
@@ -16,6 +17,7 @@
   }))
 
   let content = $derived(contentQuery.data)
+  let tiles = $derived(content?.tiles)
 
   onMount(() => {
     viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
@@ -80,6 +82,19 @@
         roll: orientation.roll,
       },
       duration: 1.5,
+    })
+  })
+
+  $effect(() => {
+    if (!viewer || !tiles) return
+
+    tiles.forEach((tile) => {
+      viewer?.imageryLayers.addImageryProvider(
+        new Cesium.UrlTemplateImageryProvider({
+          url: `${source.selfhostedBaseUrl}/${tile}/{z}/{x}/{y}.png`,
+          maximumLevel: 19,
+        })
+      )
     })
   })
 </script>

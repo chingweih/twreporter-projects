@@ -27,7 +27,7 @@ export const cesiumConfig: {
     baseLayer: new Cesium.ImageryLayer(
       new Cesium.UrlTemplateImageryProvider({
         url: source.arcGIS,
-        maximumLevel: 20,
+        maximumLevel: 19,
       })
     ),
     timeline: false,
