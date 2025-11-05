@@ -4,7 +4,12 @@
   let { card }: { card: Card } = $props()
 </script>
 
-<div class="card" id={card.name} class:fullscreen={card.style === 'fullscreen'}>
+<div
+  class="card"
+  id={card.name}
+  class:fullscreen={card.style === 'fullscreen'}
+  class:right={card.style === 'right'}
+>
   <div class="content" class:fullscreen={card.style === 'fullscreen'}>
     <h2>{card.title}</h2>
     {#if card.video}
@@ -45,7 +50,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-left: 20px;
+    margin: 0 20px;
   }
 
   .card .content.fullscreen {
@@ -55,6 +60,10 @@
     margin: 0;
     align-items: center;
     justify-content: center;
+  }
+
+  .card.right {
+    justify-content: end;
   }
 
   .card .content * {
