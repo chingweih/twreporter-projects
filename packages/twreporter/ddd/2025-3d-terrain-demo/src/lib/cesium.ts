@@ -26,9 +26,13 @@ export const cesiumConfig: {
     terrainProvider: await Cesium.CesiumTerrainProvider.fromUrl(terrainServer),
     baseLayer: new Cesium.ImageryLayer(
       new Cesium.UrlTemplateImageryProvider({
-        url: source.arcGIS,
+        url: source.google,
         maximumLevel: 19,
-      })
+      }),
+      {
+        brightness: 0.5,
+        contrast: 1.2,
+      }
     ),
     timeline: false,
     animation: false,
