@@ -18,6 +18,8 @@
 
   let content = $derived(contentQuery.data)
   let tiles = $derived(content?.tiles)
+  let start = $derived(content?.start)
+  let vectors = $derived(content?.vectors)
 
   onMount(() => {
     viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
@@ -38,7 +40,6 @@
   function handleScroll() {
     if (!viewer || !content) return
 
-    const scrolledY = window.scrollY
     const viewportHeight = window.innerHeight
     const cards = content.cards
 
@@ -81,21 +82,61 @@
         pitch: orientation.pitch,
         roll: orientation.roll,
       },
-      duration: 1.5,
+      duration: 2.5,
+      maximumHeight: 100,
+      easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT,
     })
   })
 
   $effect(() => {
-    if (!viewer || !tiles) return
+    if (!viewer) return
 
-    tiles.forEach((tile) => {
-      viewer?.imageryLayers.addImageryProvider(
-        new Cesium.UrlTemplateImageryProvider({
-          url: `${source.selfhostedBaseUrl}/${tile}/{z}/{x}/{y}.png`,
-          maximumLevel: 19,
-        })
-      )
-    })
+    if (tiles) {
+      tiles.forEach((tile) => {
+        const pattern = /^([^.;]+)(?:\.([^;]+))?(?:;(.+))?$/
+        const match = tile.match(pattern)
+        console.log(match)
+        if (!match) return
+        const tileName = match[1]
+        const tileExt = match[2] ?? 'png'
+        const tileMax = Number(match[3]) ?? 19
+
+        viewer?.imageryLayers.addImageryProvider(
+          new Cesium.UrlTemplateImageryProvider({
+            url: `${source.selfhostedBaseUrl}/${tileName}/{z}/{x}/{y}.${tileExt}`,
+            maximumLevel: tileMax,
+          })
+        )
+      })
+    }
+
+    if (start) {
+      const { position, orientation } = parseCamera(start)
+      viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromArray([
+          position.x,
+          position.y,
+          position.z,
+        ]),
+        orientation: {
+          heading: orientation.heading,
+          pitch: orientation.pitch,
+          roll: orientation.roll,
+        },
+      })
+    }
+
+    if (vectors) {
+      Cesium.GeoJsonDataSource.clampToGround = true
+      vectors.forEach((vector) => {
+        viewer?.dataSources.add(
+          Cesium.GeoJsonDataSource.load(vector, {
+            fill: Cesium.Color.TRANSPARENT,
+            strokeWidth: 10,
+          })
+        )
+      })
+    }
   })
 </script>
 
