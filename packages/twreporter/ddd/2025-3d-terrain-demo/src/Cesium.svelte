@@ -132,7 +132,8 @@
         viewer?.dataSources.add(
           Cesium.GeoJsonDataSource.load(vector, {
             fill: Cesium.Color.TRANSPARENT,
-            strokeWidth: 10,
+            strokeWidth: 2,
+            clampToGround: true,
           })
         )
       })
