@@ -23,7 +23,7 @@ export type Card = {
   title?: string
   camera: string
   contents?: string[]
-  style?: 'fullscreen'
+  style?: 'fullscreen' | 'right'
   video?: string
   audio?: string
   embed?: string
@@ -32,6 +32,8 @@ export type Card = {
 export type Content = {
   tiles: string[]
   cards: Card[]
+  start?: string
+  vectors: string[]
 }
 
 export async function getContent() {
