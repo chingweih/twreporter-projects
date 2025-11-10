@@ -1,3 +1,4 @@
+import { createQuery } from '@tanstack/svelte-query'
 import archieml from 'archieml'
 
 export async function getDoc() {
@@ -43,6 +44,12 @@ export async function getContent() {
 
   return content
 }
+
+export const queryContent = () =>
+  createQuery(() => ({
+    queryKey: ['content'],
+    queryFn: getContent,
+  }))
 
 export function getCard({
   content,

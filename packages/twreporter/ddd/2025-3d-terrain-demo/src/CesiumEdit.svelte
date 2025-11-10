@@ -2,6 +2,8 @@
   import * as Cesium from 'cesium'
   import { onMount } from 'svelte'
   import { cesiumConfig, rectangles } from './lib/cesium'
+  import { queryContent } from './lib/content'
+  import { source } from './constants/imagery'
 
   let viewer: Cesium.Viewer | undefined = $state()
   let position: string | undefined = $state()
@@ -13,6 +15,11 @@
 
   Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangles.taiwan
   Cesium.Camera.DEFAULT_VIEW_FACTOR = 0
+
+  const contentQuery = queryContent()
+
+  let content = $derived(contentQuery.data)
+  let tiles = $derived(content?.tiles)
 
   onMount(() => {
     viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
@@ -26,6 +33,29 @@
     }
 
     viewer.camera.changed.addEventListener(handleCameraMove)
+  })
+
+  $effect(() => {
+    if (!viewer) return
+
+    if (tiles) {
+      tiles.forEach((tile) => {
+        const pattern = /^([^.;]+)(?:\.([^;]+))?(?:;(.+))?$/
+        const match = tile.match(pattern)
+        console.log(match)
+        if (!match) return
+        const tileName = match[1]
+        const tileExt = match[2] ?? 'png'
+        const tileMax = Number(match[3]) ?? 19
+
+        viewer?.imageryLayers.addImageryProvider(
+          new Cesium.UrlTemplateImageryProvider({
+            url: `${source.selfhostedBaseUrl}/${tileName}/{z}/{x}/{y}.${tileExt}`,
+            maximumLevel: tileMax,
+          })
+        )
+      })
+    }
   })
 </script>
 

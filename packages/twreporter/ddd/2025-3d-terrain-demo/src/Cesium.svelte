@@ -3,7 +3,7 @@
   import 'cesium/Build/Cesium/Widgets/widgets.css'
   import { onMount } from 'svelte'
   import { cesiumConfig } from './lib/cesium'
-  import { getCard, getContent, parseCamera } from './lib/content'
+  import { getCard, getContent, parseCamera, queryContent } from './lib/content'
   import { createQuery } from '@tanstack/svelte-query'
   import Loading from './components/Loading.svelte'
   import CardContent from './components/CardContent.svelte'
@@ -11,10 +11,7 @@
 
   let viewer: Cesium.Viewer | undefined = $state()
 
-  export const contentQuery = createQuery(() => ({
-    queryKey: ['content'],
-    queryFn: getContent,
-  }))
+  const contentQuery = queryContent()
 
   let content = $derived(contentQuery.data)
   let tiles = $derived(content?.tiles)
