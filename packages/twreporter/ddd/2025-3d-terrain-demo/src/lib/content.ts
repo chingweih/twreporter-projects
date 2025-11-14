@@ -28,6 +28,8 @@ export type Card = {
   video?: string
   audio?: string
   embed?: string
+  tile?: string
+  vector?: string
 }
 
 export type Content = {
@@ -62,7 +64,10 @@ export function getCard({
     return null
   }
 
-  return content.cards.find((card) => card.name === name)
+  return {
+    card: content.cards.find((card) => card.name === name),
+    index: content.cards.findIndex((card) => card.name === name),
+  }
 }
 
 export function parseCamera(camera: string) {

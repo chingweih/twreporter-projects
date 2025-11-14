@@ -5,6 +5,7 @@
   import Loading from './components/Loading.svelte'
   import { getCard, parseCamera } from './lib/content'
   import { cesiumContainerId, useCesium } from './lib/runes/cesium.svelte'
+  import { getTile } from './lib/tiles'
 
   const cesium = useCesium({ containerId: cesiumContainerId })
   let viewer = $derived(cesium.viewer)
@@ -17,6 +18,7 @@
   let activeCard = $derived(
     content && getCard({ content, name: activeCardName })
   )
+  let lastCardIndex = $state<number | null>(null)
 
   function handleScroll() {
     if (!viewer || !cards) return
@@ -42,16 +44,11 @@
   }
 
   $effect(() => {
-    console.log(activeCardName)
+    if (!activeCard?.card || !viewer) return
 
-    if (!activeCard) {
-      return
-    }
+    const { position, orientation } = parseCamera(activeCard.card.camera)
 
-    const { position, orientation } = parseCamera(activeCard.camera)
-    console.log(position, orientation)
-
-    viewer?.camera.flyTo({
+    viewer.camera.flyTo({
       destination: Cesium.Cartesian3.fromArray([
         position.x,
         position.y,
@@ -66,6 +63,90 @@
       maximumHeight: 100,
       easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT,
     })
+
+    const shouldLoadMore =
+      lastCardIndex !== null && lastCardIndex < activeCard.index
+
+    // Handle vectors (dataSources)
+    const vectors = cards
+      ?.map((card, index) =>
+        card.vector ? ([index, card.vector] as [number, string]) : undefined
+      )
+      .filter((v) => v !== undefined) as [number, string][]
+
+    const vectorsToDiff = vectors?.filter((v) => {
+      if (lastCardIndex === null) return v[0] <= activeCard.index
+      if (shouldLoadMore) {
+        return v[0] > lastCardIndex && v[0] <= activeCard.index
+      } else {
+        return v[0] > activeCard.index && v[0] <= lastCardIndex
+      }
+    })
+
+    if (vectorsToDiff) {
+      if (shouldLoadMore || lastCardIndex === null) {
+        // Add new dataSources
+        vectorsToDiff.forEach(([, vectorUrl]) => {
+          Cesium.GeoJsonDataSource.load(vectorUrl).then((dataSource) => {
+            viewer.dataSources.add(dataSource)
+          })
+        })
+      } else {
+        // Remove dataSources
+        vectorsToDiff.forEach(([, vectorUrl]) => {
+          const name = vectorUrl.split('/').at(-1)
+
+          if (!name) return
+
+          const dataSource = viewer.dataSources.getByName(name)[0]
+
+          if (dataSource) {
+            viewer.dataSources.remove(dataSource)
+          }
+        })
+      }
+    }
+
+    // Handle tiles (imageryLayers)
+    const tiles = cards
+      ?.map((card, index) => (card.tile ? [index, card.tile] : undefined))
+      .filter((v) => v !== undefined) as [number, string][]
+
+    const tilesToDiff = tiles?.filter((v) => {
+      if (lastCardIndex === null) return v[0] <= activeCard.index
+      if (shouldLoadMore) {
+        return v[0] > lastCardIndex && v[0] <= activeCard.index
+      } else {
+        return v[0] > activeCard.index && v[0] <= lastCardIndex
+      }
+    })
+
+    if (tilesToDiff) {
+      if (shouldLoadMore || lastCardIndex === null) {
+        // Add new imageryLayers
+        tilesToDiff.forEach(([, tile]) => {
+          const { url, max } = getTile(tile)
+
+          if (!url) return
+
+          viewer.imageryLayers.addImageryProvider(
+            new Cesium.UrlTemplateImageryProvider({ url, maximumLevel: max })
+          )
+        })
+      } else {
+        // Remove imageryLayers
+        tilesToDiff.forEach(() => {
+          const layer = viewer.imageryLayers.get(
+            viewer.imageryLayers.length - 1
+          )
+          if (layer) {
+            viewer.imageryLayers.remove(layer)
+          }
+        })
+      }
+    }
+
+    lastCardIndex = activeCard.index
   })
 </script>
 

@@ -4,6 +4,7 @@ import { onMount } from 'svelte'
 import { terrainServer } from '../../constants/terrain'
 import { source } from '../../constants/imagery'
 import type { CreateQueryResult } from '@tanstack/svelte-query'
+import { getTile } from '../tiles'
 
 // Taiwan bounding box
 // 25.45679248899884, 120.14837985134528
@@ -111,18 +112,14 @@ export function useCesium({
 
     if (tiles) {
       tiles.forEach((tile) => {
-        const pattern = /^([^.;]+)(?:\.([^;]+))?(?:;(.+))?$/
-        const match = tile.match(pattern)
-        console.log(match)
-        if (!match) return
-        const tileName = match[1]
-        const tileExt = match[2] ?? 'png'
-        const tileMax = Number(match[3]) ?? 19
+        const { url, max } = getTile(tile)
+
+        if (!url) return
 
         result.viewer?.imageryLayers.addImageryProvider(
           new Cesium.UrlTemplateImageryProvider({
-            url: `${source.selfhostedBaseUrl}/${tileName}/{z}/{x}/{y}.${tileExt}`,
-            maximumLevel: tileMax,
+            url,
+            maximumLevel: max,
           })
         )
       })
