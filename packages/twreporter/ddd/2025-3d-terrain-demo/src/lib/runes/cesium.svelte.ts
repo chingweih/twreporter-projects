@@ -36,8 +36,26 @@ export function useCesium({
   let result: {
     viewer?: Cesium.Viewer
     query: CreateQueryResult<Content, Error>
+    toStart?: () => void
   } = $state({
     query: queryContent(),
+    toStart: () => {
+      if (!result.viewer || !start) return
+
+      const { position, orientation } = parseCamera(start)
+      result.viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromArray([
+          position.x,
+          position.y,
+          position.z,
+        ]),
+        orientation: {
+          heading: orientation.heading,
+          pitch: orientation.pitch,
+          roll: orientation.roll,
+        },
+      })
+    },
   })
 
   let content = $derived(result.query.data)
@@ -111,19 +129,9 @@ export function useCesium({
     }
 
     if (start) {
-      const { position, orientation } = parseCamera(start)
-      result.viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromArray([
-          position.x,
-          position.y,
-          position.z,
-        ]),
-        orientation: {
-          heading: orientation.heading,
-          pitch: orientation.pitch,
-          roll: orientation.roll,
-        },
-      })
+      if (!result.toStart) return
+
+      result.toStart()
     }
 
     if (vectors) {

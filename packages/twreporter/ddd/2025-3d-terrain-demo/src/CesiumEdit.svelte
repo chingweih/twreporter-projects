@@ -1,10 +1,21 @@
 <script lang="ts">
-  import { cesiumContainerId, useCesium } from './lib/runes/cesium.svelte'
+  import * as Cesium from 'cesium'
+  import {
+    cesiumContainerId,
+    rectangles,
+    useCesium,
+  } from './lib/runes/cesium.svelte'
 
-  let { viewer } = useCesium({
+  Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangles.taiwan
+  Cesium.Camera.DEFAULT_VIEW_FACTOR = 0
+
+  let result = useCesium({
     containerId: cesiumContainerId,
     options: {
       interaction: true,
+    },
+    viewerConfig: {
+      navigationHelpButton: true,
     },
     onViewerMount: (viewer) => {
       const handleCameraMove = () => {
@@ -19,6 +30,8 @@
     },
   })
 
+  let viewer = $derived(result.viewer)
+
   let position: string | undefined = $state()
   let perspective: string | undefined = $state()
   let cameraString = $derived(
@@ -29,9 +42,38 @@
 
 <div id={cesiumContainerId} class="map"></div>
 <div class="info">
-  <h1>
-    編輯模式<span style:margin-left="5px">按住 Control 可拖動視角</span>
-  </h1>
+  <h1>編輯模式</h1>
+  <p>按住 Control 可拖動視角</p>
+  <div class="camera-control">
+    <button
+      onclick={() => {
+        if (!viewer) return
+
+        viewer.camera.setView({
+          orientation: {
+            heading: 0,
+          },
+        })
+      }}>轉回正北</button
+    >
+    <button
+      onclick={() => {
+        if (!result.toStart) return
+
+        result.toStart()
+      }}
+    >
+      回敘事起點
+    </button>
+    <button
+      onclick={() => {
+        if (!viewer) return
+
+        viewer.camera.flyHome(0)
+      }}>回全景</button
+    >
+  </div>
+  <h1>鏡頭資訊</h1>
   <textarea disabled>{cameraString}</textarea>
   <div style="display:flex;gap:10px;align-items:center">
     <button
@@ -100,5 +142,13 @@
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 2px;
     padding: 4px 8px;
+  }
+
+  .camera-control {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    gap: 10px;
   }
 </style>
