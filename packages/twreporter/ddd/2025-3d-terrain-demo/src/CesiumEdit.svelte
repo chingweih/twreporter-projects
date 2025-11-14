@@ -1,40 +1,33 @@
 <script lang="ts">
-  import * as Cesium from 'cesium'
-  import { onMount } from 'svelte'
-  import { cesiumConfig, rectangles } from './lib/cesium'
-  import { createCustomLayers } from './lib/layers.svelte'
+  import { cesiumContainerId, useCesium } from './lib/runes/cesium.svelte'
 
-  let viewer: Cesium.Viewer | undefined = $state()
+  let { viewer } = useCesium({
+    containerId: cesiumContainerId,
+    options: {
+      interaction: true,
+    },
+    onViewerMount: (viewer) => {
+      const handleCameraMove = () => {
+        if (!viewer) return
+
+        position = viewer.camera.position.toString()
+        perspective = `${viewer.camera.heading.toString()};${viewer.camera.pitch.toString()};${viewer.camera.roll.toString()}`
+        console.log(position)
+      }
+
+      viewer.camera.changed.addEventListener(handleCameraMove)
+    },
+  })
+
   let position: string | undefined = $state()
   let perspective: string | undefined = $state()
   let cameraString = $derived(
     position && perspective ? `${position}|${perspective}` : ''
   )
   let copied: boolean = $state(false)
-
-  Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangles.taiwan
-  Cesium.Camera.DEFAULT_VIEW_FACTOR = 0
-
-  onMount(() => {
-    viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
-
-    const handleCameraMove = () => {
-      if (!viewer) return
-
-      position = viewer.camera.position.toString()
-      perspective = `${viewer.camera.heading.toString()};${viewer.camera.pitch.toString()};${viewer.camera.roll.toString()}`
-      console.log(position)
-    }
-
-    viewer.camera.changed.addEventListener(handleCameraMove)
-  })
-
-  $effect(() => {
-    createCustomLayers(viewer)
-  })
 </script>
 
-<div id={cesiumConfig.id} class="map"></div>
+<div id={cesiumContainerId} class="map"></div>
 <div class="info">
   <h1>
     編輯模式<span style:margin-left="5px">按住 Control 可拖動視角</span>

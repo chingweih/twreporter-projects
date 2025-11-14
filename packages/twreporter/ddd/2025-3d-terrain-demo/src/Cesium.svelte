@@ -1,33 +1,17 @@
 <script lang="ts">
   import * as Cesium from 'cesium'
   import 'cesium/Build/Cesium/Widgets/widgets.css'
-  import { onMount } from 'svelte'
-  import { cesiumConfig } from './lib/cesium'
-  import { getCard, getContent, parseCamera, queryContent } from './lib/content'
-  import { createQuery } from '@tanstack/svelte-query'
-  import Loading from './components/Loading.svelte'
   import CardContent from './components/CardContent.svelte'
-  import { source } from './constants/imagery'
+  import Loading from './components/Loading.svelte'
+  import { getCard, parseCamera } from './lib/content'
+  import { cesiumContainerId, useCesium } from './lib/runes/cesium.svelte'
 
-  let viewer: Cesium.Viewer | undefined = $state()
+  const cesium = useCesium({ containerId: cesiumContainerId })
+  let viewer = $derived(cesium.viewer)
+  let contentQuery = $derived(cesium.query)
 
-  const contentQuery = queryContent()
-
-  let content = $derived(contentQuery.data)
-  let tiles = $derived(content?.tiles)
-  let start = $derived(content?.start)
-  let vectors = $derived(content?.vectors)
-
-  onMount(() => {
-    viewer = new Cesium.Viewer(cesiumConfig.id, cesiumConfig.viewerConfig)
-
-    // Disable user interactions
-    viewer.scene.screenSpaceCameraController.enableRotate = false
-    viewer.scene.screenSpaceCameraController.enableTranslate = false
-    viewer.scene.screenSpaceCameraController.enableZoom = false
-    viewer.scene.screenSpaceCameraController.enableTilt = false
-    viewer.scene.screenSpaceCameraController.enableLook = false
-  })
+  let content = $derived(contentQuery?.data)
+  let cards = $derived(contentQuery?.data?.cards)
 
   let activeCardName = $state<string | null>(null)
   let activeCard = $derived(
@@ -35,10 +19,9 @@
   )
 
   function handleScroll() {
-    if (!viewer || !content) return
+    if (!viewer || !cards) return
 
     const viewportHeight = window.innerHeight
-    const cards = content.cards
 
     for (let i = 0; i < cards.length; i++) {
       const card = cards[i]
@@ -84,58 +67,6 @@
       easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT,
     })
   })
-
-  $effect(() => {
-    if (!viewer) return
-
-    if (tiles) {
-      tiles.forEach((tile) => {
-        const pattern = /^([^.;]+)(?:\.([^;]+))?(?:;(.+))?$/
-        const match = tile.match(pattern)
-        console.log(match)
-        if (!match) return
-        const tileName = match[1]
-        const tileExt = match[2] ?? 'png'
-        const tileMax = Number(match[3]) ?? 19
-
-        viewer?.imageryLayers.addImageryProvider(
-          new Cesium.UrlTemplateImageryProvider({
-            url: `${source.selfhostedBaseUrl}/${tileName}/{z}/{x}/{y}.${tileExt}`,
-            maximumLevel: tileMax,
-          })
-        )
-      })
-    }
-
-    if (start) {
-      const { position, orientation } = parseCamera(start)
-      viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromArray([
-          position.x,
-          position.y,
-          position.z,
-        ]),
-        orientation: {
-          heading: orientation.heading,
-          pitch: orientation.pitch,
-          roll: orientation.roll,
-        },
-      })
-    }
-
-    if (vectors) {
-      Cesium.GeoJsonDataSource.clampToGround = true
-      vectors.forEach((vector) => {
-        viewer?.dataSources.add(
-          Cesium.GeoJsonDataSource.load(vector, {
-            fill: Cesium.Color.TRANSPARENT,
-            strokeWidth: 2,
-            clampToGround: true,
-          })
-        )
-      })
-    }
-  })
 </script>
 
 <svelte:document onscroll={handleScroll} />
@@ -145,14 +76,12 @@
     {#if contentQuery.isLoading}
       <div class="loading-screen"><Loading /></div>
     {/if}
-    <div id={cesiumConfig.id} class="map"></div>
+    <div id={cesiumContainerId} class="map"></div>
   </div>
   <div class="scroll" style:position="relative">
-    {#if content}
-      {#each content.cards as card}
-        <CardContent {card} />
-      {/each}
-    {/if}
+    {#each cards as card}
+      <CardContent {card} />
+    {/each}
   </div>
 </div>
 
