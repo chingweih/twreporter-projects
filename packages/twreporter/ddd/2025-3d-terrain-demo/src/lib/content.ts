@@ -23,7 +23,7 @@ export type Card = {
   name: string
   title?: string
   camera: string
-  contents?: string[]
+  contents?: string
   style?: 'fullscreen' | 'right'
   video?: string
   audio?: string

@@ -21,9 +21,7 @@
       {@html card.embed}
     {/if}
     {#if card.contents}
-      {#each card.contents as content}
-        <p>{content}</p>
-      {/each}
+      <p style="white-space: pre-line">{card.contents}</p>
     {/if}
   </div>
 </div>
