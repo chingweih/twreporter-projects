@@ -129,9 +129,26 @@
 
           if (!url) return
 
-          viewer.imageryLayers.addImageryProvider(
+          const layer = viewer.imageryLayers.addImageryProvider(
             new Cesium.UrlTemplateImageryProvider({ url, maximumLevel: max })
           )
+          layer.alpha = 0
+
+          // Animate opacity
+          const startTime = performance.now()
+          const duration = 1000 // 1 second
+
+          const animate = () => {
+            const elapsed = performance.now() - startTime
+            const progress = Math.min(elapsed / duration, 1)
+            layer.alpha = progress
+
+            if (progress < 1) {
+              requestAnimationFrame(animate)
+            }
+          }
+
+          requestAnimationFrame(animate)
         })
       } else {
         // Remove imageryLayers
