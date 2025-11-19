@@ -1,8 +1,10 @@
 import { createQuery } from '@tanstack/svelte-query'
 import archieml from 'archieml'
+import { useSearchParam } from './runes/search-params.svelte'
 
 export async function getDoc() {
-  const docsId = '161tO0T2cmU4jb6VI8RCaIM1MPxCNH4mXMv2_Mz6DmF0'
+  const paramDoc = useSearchParam('doc')
+  const docsId = paramDoc ?? '161tO0T2cmU4jb6VI8RCaIM1MPxCNH4mXMv2_Mz6DmF0'
 
   const response = await fetch(
     `https://docs.google.com/document/d/${docsId}/export?format=txt`,
