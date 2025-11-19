@@ -114,8 +114,20 @@ export function useCesium({
     if (!result.viewer) return
 
     if (basemap === 'no') {
-      result.viewer.scene.imageryLayers.get(0).brightness = 0
-      result.viewer.scene.globe.baseColor = Cesium.Color.BLACK
+      result.viewer.scene.imageryLayers.removeAll()
+
+      result.viewer.scene.imageryLayers.add(
+        new Cesium.ImageryLayer(
+          new Cesium.SingleTileImageryProvider({
+            url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+            tileHeight: 1,
+            tileWidth: 1,
+          })
+        )
+      )
+
+      result.viewer.scene.globe.baseColor =
+        Cesium.Color.fromCssColorString('#F1F1F1')
 
       if (!options?.interaction) {
         result.viewer.scene.morphTo2D(0)

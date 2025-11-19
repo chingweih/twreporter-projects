@@ -30,6 +30,7 @@ export type Card = {
   tile?: string
   vector?: string
   image?: string
+  photo?: string
 }
 
 type Option = 'yes' | 'no'
