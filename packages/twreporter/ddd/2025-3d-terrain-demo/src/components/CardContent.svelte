@@ -19,6 +19,9 @@
       <audio src={card.audio} controls style="width:300px"></audio>
     {:else if card.embed}
       {@html card.embed}
+    {:else if card.photo}
+      <!-- TODO: Replace alt caption -->
+      <img src={card.photo} style="width:100%;height:auto" alt="圖說" />
     {/if}
     {#if card.contents}
       <p style="white-space: pre-line">{card.contents}</p>
