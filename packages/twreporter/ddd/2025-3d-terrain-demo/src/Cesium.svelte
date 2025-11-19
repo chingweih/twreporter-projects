@@ -12,6 +12,7 @@
   let contentQuery = $derived(cesium.query)
 
   let content = $derived(contentQuery?.data)
+  let animation = $derived(contentQuery?.data?.animation)
   let cards = $derived(contentQuery?.data?.cards)
 
   let activeCardName = $state<string | null>(null)
@@ -59,7 +60,7 @@
         pitch: orientation.pitch,
         roll: orientation.roll,
       },
-      duration: 2.5,
+      duration: animation ? parseInt(animation) : 2.5,
       maximumHeight: 100,
       easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT,
     })
@@ -153,6 +154,66 @@
       } else {
         // Remove imageryLayers
         tilesToDiff.forEach(() => {
+          const layer = viewer.imageryLayers.get(
+            viewer.imageryLayers.length - 1
+          )
+          if (layer) {
+            viewer.imageryLayers.remove(layer)
+          }
+        })
+      }
+    }
+
+    // Handle images (SingleTileImageryProvider)
+    const images = cards
+      ?.map((card, index) => (card.image ? [index, card.image] : undefined))
+      .filter((v) => v !== undefined) as [number, string][]
+
+    const imagesToDiff = images?.filter((v) => {
+      if (lastCardIndex === null) return v[0] <= activeCard.index
+      if (shouldLoadMore) {
+        return v[0] > lastCardIndex && v[0] <= activeCard.index
+      } else {
+        return v[0] > activeCard.index && v[0] <= lastCardIndex
+      }
+    })
+
+    if (imagesToDiff) {
+      if (shouldLoadMore || lastCardIndex === null) {
+        // Add new imageryLayers
+        imagesToDiff.forEach(([, image]) => {
+          const layer = Cesium.ImageryLayer.fromProviderAsync(
+            Cesium.SingleTileImageryProvider.fromUrl(image, {
+              /** TODO: change to dynamic size and location */
+              rectangle: Cesium.Rectangle.fromDegrees(
+                121.5353550179566,
+                25.01039707562923,
+                121.53852914474925,
+                25.012477589373418
+              ),
+            })
+          )
+          viewer.imageryLayers.add(layer)
+
+          // Animate opacity
+          const startTime = performance.now()
+          const duration = 1000 // 1 second
+
+          const animate = () => {
+            const elapsed = performance.now() - startTime
+            const progress = Math.min(elapsed / duration, 1)
+            layer.alpha = progress
+
+            if (progress < 1) {
+              requestAnimationFrame(animate)
+            }
+          }
+
+          requestAnimationFrame(animate)
+        })
+      } else {
+        // Remove imageryLayers
+        imagesToDiff.forEach(() => {
           const layer = viewer.imageryLayers.get(
             viewer.imageryLayers.length - 1
           )

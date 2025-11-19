@@ -7,10 +7,7 @@ export async function getDoc() {
   const docsId = paramDoc ?? '161tO0T2cmU4jb6VI8RCaIM1MPxCNH4mXMv2_Mz6DmF0'
 
   const response = await fetch(
-    `https://docs.google.com/document/d/${docsId}/export?format=txt`,
-    {
-      method: 'GET',
-    }
+    `https://docs.google.com/document/d/${docsId}/export?format=txt`
   )
 
   if (!response.ok) {
@@ -32,13 +29,19 @@ export type Card = {
   embed?: string
   tile?: string
   vector?: string
+  image?: string
 }
+
+type Option = 'yes' | 'no'
 
 export type Content = {
   tiles: string[]
   cards: Card[]
   start?: string
   vectors: string[]
+  images?: string[]
+  basemap?: Option
+  animation?: string
 }
 
 export async function getContent() {

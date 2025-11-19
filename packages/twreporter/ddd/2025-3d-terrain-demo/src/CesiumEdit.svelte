@@ -78,6 +78,8 @@
   <div style="display:flex;gap:10px;align-items:center">
     <button
       onclick={() => {
+        position = result.viewer?.camera.position.toString()
+        perspective = `${result.viewer?.camera.heading.toString()};${result.viewer?.camera.pitch.toString()};${result.viewer?.camera.roll.toString()}`
         navigator.clipboard.writeText(cameraString).then(() => {
           copied = true
           setTimeout(() => {

@@ -6,10 +6,11 @@ import { source } from '../../constants/imagery'
 import type { CreateQueryResult } from '@tanstack/svelte-query'
 import { getTile } from '../tiles'
 
-// Taiwan bounding box
-// 25.45679248899884, 120.14837985134528
-// 21.897146905114784, 121.79268072509971
-
+/**
+ * Taiwan bounding box
+ * North-West: 25.45679248899884, 120.14837985134528
+ * South-East: 21.897146905114784, 121.79268072509971
+ */
 export const rectangles = {
   taiwan: Cesium.Rectangle.fromDegrees(
     120.14837985134528,
@@ -63,6 +64,8 @@ export function useCesium({
   let tiles = $derived(content?.tiles)
   let start = $derived(content?.start)
   let vectors = $derived(content?.vectors)
+  let images = $derived(content?.images)
+  let basemap = $derived(content?.basemap)
 
   onMount(async () => {
     result.viewer = new Cesium.Viewer(containerId, {
@@ -110,6 +113,15 @@ export function useCesium({
   $effect(() => {
     if (!result.viewer) return
 
+    if (basemap === 'no') {
+      result.viewer.scene.imageryLayers.get(0).brightness = 0
+      result.viewer.scene.globe.baseColor = Cesium.Color.BLACK
+
+      if (!options?.interaction) {
+        result.viewer.scene.morphTo2D(0)
+      }
+    }
+
     if (tiles) {
       tiles.forEach((tile) => {
         const { url, max } = getTile(tile)
@@ -139,6 +151,22 @@ export function useCesium({
             fill: Cesium.Color.TRANSPARENT,
             strokeWidth: 2,
             clampToGround: true,
+          })
+        )
+      })
+    }
+
+    if (images) {
+      images.forEach(async (image) => {
+        result.viewer?.imageryLayers.addImageryProvider(
+          await Cesium.SingleTileImageryProvider.fromUrl(image, {
+            /** TODO: change to dynamic size and location */
+            rectangle: Cesium.Rectangle.fromDegrees(
+              121.5353550179566,
+              25.01039707562923,
+              121.53852914474925,
+              25.012477589373418
+            ),
           })
         )
       })
