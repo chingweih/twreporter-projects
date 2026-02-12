@@ -3,6 +3,7 @@
 
 <script lang="ts">
     import { domToPng } from "modern-screenshot";
+    import InteractiveMusic from "./InteractiveMusic.svelte";
     let container: HTMLDivElement | null = null;
 
     // 使用 `?download` 檢查是否要開啟下載選項
@@ -22,6 +23,8 @@
 <div class="outer">
     <div class="container" bind:this={container}>
         <div class="header"><h1>{name}</h1></div>
+
+        <InteractiveMusic />
 
         <div class="footer">
             <div class="footnotes">
