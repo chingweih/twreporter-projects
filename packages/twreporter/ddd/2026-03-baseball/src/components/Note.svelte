@@ -1,5 +1,5 @@
 <script lang="ts">
-    let { length = 8, active = false } = $props();
+    let { length = 8, active = false, rest = false } = $props();
     let pulse = $state(false);
 
     $effect(() => {
@@ -9,7 +9,7 @@
     });
 </script>
 
-<div class={`note-${length}`}>
+<div class={`note-${length}`} style:opacity={rest ? 0 : 1}>
     <div
         class="note"
         class:active={pulse}
@@ -37,7 +37,7 @@
     .active {
         animation-name: active;
         animation-duration: 0.5s;
-        animation-timing-function: ease;
+        animation-timing-function: ease-out;
     }
 
     @keyframes active {

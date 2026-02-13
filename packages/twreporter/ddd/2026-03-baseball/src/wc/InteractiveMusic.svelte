@@ -15,14 +15,13 @@
         <p>合成器</p>
     </div>
     <div class="notes">
-        <Note active={playerProgress === 0} />
+        <Note active={playerProgress === 0} rest />
         <Note length={4} active={playerProgress >= 1 / 8} />
         <Note active={playerProgress >= 3 / 8} />
-        <Note active={playerProgress >= 4 / 8} />
-        <Note active={playerProgress >= 5 / 8} />
+        <Note length={4} active={playerProgress >= 4 / 8} />
         <Note length={4} active={playerProgress >= 6 / 8} />
 
-        <Note active={playerProgress === 0} />
+        <Note active={playerProgress === 0} rest />
         <Note length={4} active={playerProgress >= 1 / 8} />
         <Note active={playerProgress >= 3 / 8} />
         <Note active={playerProgress >= 4 / 8} />
@@ -82,9 +81,11 @@
         grid-template-rows: repeat(2, 50px);
         align-items: center;
         justify-content: center;
-        gap: 5px;
         width: 80%;
         position: relative;
+        background-image: linear-gradient(to right, #ccc 1px, transparent 1px);
+        background-size: 12.5% 100%;
+        background-position: left 4px top 0;
     }
 
     .player-head {
