@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Note from "../components/Note.svelte";
+
     let player: HTMLAudioElement;
     let isPaused = $state(true);
     let isPlaying = $derived(!isPaused);
@@ -13,18 +15,20 @@
         <p>合成器</p>
     </div>
     <div class="notes">
-        <div>0</div>
-        <div class="note-4">X</div>
-        <div>X</div>
-        <div>X</div>
-        <div>X</div>
-        <div class="note-4">X</div>
-        <div>0</div>
-        <div class="note-4">X</div>
-        <div>X</div>
-        <div>X</div>
-        <div>X</div>
-        <div class="note-4">X</div>
+        <Note active={playerProgress === 0} />
+        <Note length={4} active={playerProgress >= 1 / 8} />
+        <Note active={playerProgress >= 3 / 8} />
+        <Note active={playerProgress >= 4 / 8} />
+        <Note active={playerProgress >= 5 / 8} />
+        <Note length={4} active={playerProgress >= 6 / 8} />
+
+        <Note active={playerProgress === 0} />
+        <Note length={4} active={playerProgress >= 1 / 8} />
+        <Note active={playerProgress >= 3 / 8} />
+        <Note active={playerProgress >= 4 / 8} />
+        <Note active={playerProgress >= 5 / 8} />
+        <Note length={4} active={playerProgress >= 6 / 8} />
+
         <div class="player-head" style:left={`${playerProgress * 100}%`}></div>
     </div>
 </div>
@@ -83,10 +87,6 @@
         position: relative;
     }
 
-    .note-4 {
-        grid-column: span 2;
-    }
-
     .player-head {
         position: absolute;
         height: 100%;
@@ -94,5 +94,6 @@
         background-color: #333;
         opacity: 0.5;
         will-change: left;
+        margin-left: 3px;
     }
 </style>
