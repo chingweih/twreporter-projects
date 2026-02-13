@@ -1,5 +1,5 @@
 <script lang="ts">
-    let { length = 8, active = false, rest = false } = $props();
+    let { note = 8, active = false, rest = false } = $props();
     let pulse = $state(false);
 
     $effect(() => {
@@ -9,7 +9,7 @@
     });
 </script>
 
-<div class={`note-${length}`} style:opacity={rest ? 0 : 1}>
+<div class={`note-${note}`} style:opacity={rest ? 0 : 1}>
     <div
         class="note"
         class:active={pulse}
@@ -42,7 +42,7 @@
 
     @keyframes active {
         50% {
-            transform: scale(1.25);
+            transform: scale(1.5);
         }
     }
 </style>
