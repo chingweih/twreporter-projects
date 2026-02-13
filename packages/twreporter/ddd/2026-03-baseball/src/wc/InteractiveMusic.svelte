@@ -1,6 +1,7 @@
 <script lang="ts">
     let player: HTMLAudioElement;
-    let isPlaying = $state(false);
+    let isPaused = $state(true);
+    let isPlaying = $derived(!isPaused);
     let playerFullTime = $state(0);
     let playerCurrentTime = $state(0);
     let playerProgress = $derived(playerCurrentTime / playerFullTime);
@@ -46,10 +47,12 @@
     onpause={() => {
         isPlaying = false;
     }}
-    ontimeupdate={() => {
-        playerFullTime = player.duration;
-        playerCurrentTime = player.currentTime;
+    onended={() => {
+        isPlaying = false;
     }}
+    bind:duration={playerFullTime}
+    bind:currentTime={playerCurrentTime}
+    bind:paused={isPaused}
     loop
 ></audio>
 
@@ -90,6 +93,6 @@
         width: 4px;
         background-color: #333;
         opacity: 0.5;
-        transition: all 0.5s ease;
+        will-change: left;
     }
 </style>
