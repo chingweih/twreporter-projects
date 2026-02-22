@@ -71,8 +71,6 @@
             ),
         )
         .flat();
-
-    $inspect(notes);
 </script>
 
 <div class="container">
