@@ -51,6 +51,21 @@
     let top = $state(0.1);
     let threshold = $state(0.5);
     let bottom = $state(0.9);
+
+    let transformStyle = $derived.by(() => {
+        switch (index) {
+            case 0:
+                return "scale(1)";
+            case 1:
+                return "scale(2.5) translate(100px, -100px)";
+            case 2:
+                return "scale(3.5) translate(-100px, -100px)";
+            case 3:
+                return "scale(5) translate(-300px, -100px)";
+            default:
+                return "scale(1)";
+        }
+    });
 </script>
 
 <!--
@@ -75,7 +90,7 @@
     query="div.step"
 >
     {#snippet backgroundSnippet()}
-        <div class="background">
+        <div class="background" style:transform={transformStyle}>
             <SvelteFlow
                 bind:nodes
                 bind:edges
