@@ -1,7 +1,38 @@
 <script lang="ts">
     import { ScrollerBase } from "@reuters-graphics/graphics-components";
+    import {
+        SvelteFlow,
+        type DefaultEdgeOptions,
+        type Edge,
+        type FitViewOptions,
+        type Node,
+    } from "@xyflow/svelte";
 
-    // Optional: Bind your own variables to use them in your code.
+    let nodes = $state.raw<Node[]>([
+        {
+            id: "1",
+            type: "input",
+            data: { label: "Node 1" },
+            position: { x: 5, y: 5 },
+        },
+        {
+            id: "2",
+            type: "default",
+            data: { label: "Node 2" },
+            position: { x: 5, y: 100 },
+        },
+    ]);
+
+    let edges = $state.raw<Edge[]>([{ id: "e1-2", source: "1", target: "2" }]);
+
+    const fitViewOptions: FitViewOptions = {
+        padding: 0.2,
+    };
+
+    const defaultEdgeOptions: DefaultEdgeOptions = {
+        animated: true,
+    };
+
     let count = $state(1);
     let index = $state(0);
     let offset = $state(0);
@@ -10,6 +41,17 @@
     let threshold = $state(0.5);
     let bottom = $state(0.9);
 </script>
+
+<!--
+    Currently, importing css file in Svelte custom components
+    doesn't inject it into the shadown dom,
+    instead link it directly from jsDelivr force it to be avaliable
+-->
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@xyflow/svelte/dist/style.css"
+    crossorigin="anonymous"
+/>
 
 <ScrollerBase
     {top}
@@ -22,20 +64,17 @@
     query="div.step-foreground-container"
 >
     {#snippet backgroundSnippet()}
-        <!-- Add custom background HTML or component -->
-        <p class="mb-0">
-            Current step: <strong>{index + 1}/{count}</strong>
-        </p>
-        <progress class="mb-4" value={(index + 1) / count}></progress>
-
-        <p class="mb-0">Offset in current step</p>
-        <progress class="mb-4" value={offset}></progress>
-
-        <p class="mb-0">Total progress</p>
-        <progress class="mb-4" value={progress}></progress>
+        <div class="background">
+            <SvelteFlow
+                bind:nodes
+                bind:edges
+                fitView
+                {fitViewOptions}
+                {defaultEdgeOptions}
+            ></SvelteFlow>
+        </div>
     {/snippet}
     {#snippet foregroundSnippet()}
-        <!-- Add custom foreground HTML or component -->
         <div class="step-foreground-container">Step 1</div>
         <div class="step-foreground-container">Step 2</div>
         <div class="step-foreground-container">Step 3</div>
@@ -44,7 +83,12 @@
     {/snippet}
 </ScrollerBase>
 
-<style lang="scss">
+<style>
+    .background {
+        width: 100vw;
+        height: 100vh;
+    }
+
     .step-foreground-container {
         height: 100vh;
         width: 50%;
