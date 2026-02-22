@@ -5,8 +5,8 @@
     import Shell from "../components/Shell.svelte";
     import ImageKaraoke from "./ImageKaraoke.svelte";
 
-    const name = "image karaoke";
-    const footnotes = ["註：1234"];
+    const name = "棒球音樂具有短樂句的特徵";
+    const footnotes = ["音樂來源：...", "註：..."];
 </script>
 
 <Shell {name} {footnotes}>
