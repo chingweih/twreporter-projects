@@ -1,37 +1,48 @@
 <script lang="ts">
     import { ScrollerBase } from "@reuters-graphics/graphics-components";
+    import { SvelteFlow, type Edge, type Node } from "@xyflow/svelte";
     import {
-        SvelteFlow,
-        type DefaultEdgeOptions,
-        type Edge,
-        type FitViewOptions,
-        type Node,
-    } from "@xyflow/svelte";
+        COL_GAP,
+        columns,
+        headerId,
+        itemId,
+        ROW_GAP,
+    } from "../lib/svelte-flow/constants";
 
-    let nodes = $state.raw<Node[]>([
-        {
-            id: "1",
-            type: "input",
-            data: { label: "Node 1" },
-            position: { x: 5, y: 5 },
-        },
-        {
-            id: "2",
-            type: "default",
-            data: { label: "Node 2" },
-            position: { x: 5, y: 100 },
-        },
-    ]);
+    let nodes = $state.raw<Node[]>(
+        columns.flatMap((col, colIdx) => [
+            {
+                id: headerId({ colIdx }),
+                type: "input" as const,
+                data: { label: col.header },
+                position: { x: colIdx * COL_GAP, y: 0 },
+            },
+            ...col.items.map((item, itemIdx) => ({
+                id: itemId({ colIdx, itemIdx }),
+                type: "default" as const,
+                data: { label: item },
+                position: { x: colIdx * COL_GAP, y: (itemIdx + 1) * ROW_GAP },
+            })),
+        ]),
+    );
 
-    let edges = $state.raw<Edge[]>([{ id: "e1-2", source: "1", target: "2" }]);
-
-    const fitViewOptions: FitViewOptions = {
-        padding: 0.2,
-    };
-
-    const defaultEdgeOptions: DefaultEdgeOptions = {
-        animated: true,
-    };
+    let edges = $state.raw<Edge[]>(
+        columns.flatMap((col, colIdx) =>
+            col.items.map((_, itemIdx) => {
+                const colPrefix = `c${colIdx + 1}`;
+                const source =
+                    itemIdx === 0
+                        ? `${colPrefix}-header`
+                        : `${colPrefix}-${itemIdx}`;
+                const target = `${colPrefix}-${itemIdx + 1}`;
+                return {
+                    id: `e-${source}-${target}`,
+                    source,
+                    target,
+                };
+            }),
+        ),
+    );
 
     let count = $state(1);
     let index = $state(0);
@@ -61,7 +72,7 @@
     bind:index
     bind:offset
     bind:progress
-    query="div.step-foreground-container"
+    query="div.step"
 >
     {#snippet backgroundSnippet()}
         <div class="background">
@@ -69,17 +80,20 @@
                 bind:nodes
                 bind:edges
                 fitView
-                {fitViewOptions}
-                {defaultEdgeOptions}
+                fitViewOptions={{
+                    padding: 0.2,
+                }}
+                defaultEdgeOptions={{
+                    animated: true,
+                }}
             ></SvelteFlow>
         </div>
     {/snippet}
     {#snippet foregroundSnippet()}
-        <div class="step-foreground-container">Step 1</div>
-        <div class="step-foreground-container">Step 2</div>
-        <div class="step-foreground-container">Step 3</div>
-        <div class="step-foreground-container">Step 4</div>
-        <div class="step-foreground-container">Step 5</div>
+        <div class="step"><div class="card">第一段</div></div>
+        <div class="step"><div class="card">第二段</div></div>
+        <div class="step"><div class="card">第三段</div></div>
+        <div class="step"><div class="card">第四段</div></div>
     {/snippet}
 </ScrollerBase>
 
@@ -87,15 +101,23 @@
     .background {
         width: 100vw;
         height: 100vh;
+        transition: all ease 0.5s;
     }
 
-    .step-foreground-container {
+    .step {
         height: 100vh;
-        width: 50%;
-        background-color: rgba(0, 0, 0, 0.2);
-        padding: 1em;
+        width: 80%;
+        padding: 1em 50px;
         margin: 0 0 2em 0;
-        position: relative;
-        left: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: end;
+    }
+
+    .card {
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px 20px;
+        min-width: 300px;
     }
 </style>
