@@ -1,12 +1,12 @@
 <script lang="ts">
+    import { getAudioContext } from "svelte-audio-player";
     import Note from "../components/Note.svelte";
+    import { toggle } from "svelte-audio-player/utils";
 
-    let player: HTMLAudioElement;
-    let isPaused = $state(true);
-    let isPlaying = $derived(!isPaused);
-    let playerFullTime = $state(0);
-    let playerCurrentTime = $state(0);
-    let playerProgress = $derived(playerCurrentTime / playerFullTime);
+    const { currentTime, duration, paused, repeat } = getAudioContext();
+    repeat.set(true);
+
+    let playerProgress = $derived($currentTime / $duration);
 
     const instruments: {
         name: string;
@@ -97,34 +97,9 @@
 </div>
 
 <div class="controls">
-    <button
-        onclick={() => {
-            if (isPlaying) {
-                player.pause();
-            } else {
-                player.play();
-            }
-        }}>{isPlaying ? "Pause" : "Play"}</button
-    >
+    <button onclick={() => toggle(paused)}>{$paused ? "Play" : "Pause"}</button>
     <button>Reset</button>
 </div>
-<audio
-    src="https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/audios/tsg-sample.mp3"
-    bind:this={player}
-    onplay={() => {
-        isPlaying = true;
-    }}
-    onpause={() => {
-        isPlaying = false;
-    }}
-    onended={() => {
-        isPlaying = false;
-    }}
-    bind:duration={playerFullTime}
-    bind:currentTime={playerCurrentTime}
-    bind:paused={isPaused}
-    loop
-></audio>
 
 <style>
     .container {
