@@ -130,9 +130,16 @@
     }
 
     .card {
-        background-color: rgba(0, 0, 0, 0.7);
+        background: linear-gradient(
+            180deg,
+            rgba(0, 112, 207, 1) 0%,
+            rgba(18, 148, 233, 1) 49%,
+            rgba(0, 112, 207, 1) 100%
+        );
         color: white;
         padding: 10px 20px;
         min-width: 300px;
+        border-radius: 5px;
+        border: 2px solid #004987;
     }
 </style>
