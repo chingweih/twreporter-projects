@@ -6,8 +6,8 @@
     import InteractiveMusic from "./InteractiveMusic.svelte";
     import { AudioPlayer } from "svelte-audio-player";
 
-    const name = "interactive music";
-    const footnotes = ["註：1234"];
+    const name = "棒球音樂使用反拍製造速度感";
+    const footnotes = ["音樂來源：...", "註：..."];
 </script>
 
 <Shell {name} {footnotes}>
