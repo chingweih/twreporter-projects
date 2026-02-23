@@ -8,64 +8,49 @@
         itemId,
         ROW_GAP,
     } from "../lib/svelte-flow/constants";
+    import ViewportController, {
+        type ViewState,
+    } from "./ViewportController.svelte";
 
-    let nodes = $state.raw<Node[]>(
-        columns.flatMap((col, colIdx) => [
-            {
-                id: headerId({ colIdx }),
-                type: "input" as const,
-                data: { label: col.header },
-                position: { x: colIdx * COL_GAP, y: 0 },
-            },
-            ...col.items.map((item, itemIdx) => ({
-                id: itemId({ colIdx, itemIdx }),
-                type: "default" as const,
-                data: { label: item },
-                position: { x: colIdx * COL_GAP, y: (itemIdx + 1) * ROW_GAP },
-            })),
-        ]),
+    const nodes: Node[] = columns.flatMap((col, colIdx) => [
+        {
+            id: headerId({ colIdx }),
+            type: "input" as const,
+            data: { label: col.header },
+            position: { x: colIdx * COL_GAP, y: 0 },
+        },
+        ...col.items.map((item, itemIdx) => ({
+            id: itemId({ colIdx, itemIdx }),
+            type: "default" as const,
+            data: { label: item },
+            position: { x: colIdx * COL_GAP, y: (itemIdx + 1) * ROW_GAP },
+        })),
+    ]);
+
+    const edges: Edge[] = columns.flatMap((col, colIdx) =>
+        col.items.map((_, itemIdx) => {
+            const colPrefix = `c${colIdx + 1}`;
+            const source =
+                itemIdx === 0
+                    ? `${colPrefix}-header`
+                    : `${colPrefix}-${itemIdx}`;
+            const target = `${colPrefix}-${itemIdx + 1}`;
+            return {
+                id: `e-${source}-${target}`,
+                source,
+                target,
+            };
+        }),
     );
 
-    let edges = $state.raw<Edge[]>(
-        columns.flatMap((col, colIdx) =>
-            col.items.map((_, itemIdx) => {
-                const colPrefix = `c${colIdx + 1}`;
-                const source =
-                    itemIdx === 0
-                        ? `${colPrefix}-header`
-                        : `${colPrefix}-${itemIdx}`;
-                const target = `${colPrefix}-${itemIdx + 1}`;
-                return {
-                    id: `e-${source}-${target}`,
-                    source,
-                    target,
-                };
-            }),
-        ),
-    );
-
-    let count = $state(1);
     let index = $state(0);
-    let offset = $state(0);
-    let progress = $state(0);
-    let top = $state(0.1);
-    let threshold = $state(0.5);
-    let bottom = $state(0.9);
 
-    let transformStyle = $derived.by(() => {
-        switch (index) {
-            case 0:
-                return "scale(1)";
-            case 1:
-                return "scale(2.5) translate(100px, -100px)";
-            case 2:
-                return "scale(3.5) translate(-100px, -100px)";
-            case 3:
-                return "scale(5) translate(-300px, -100px)";
-            default:
-                return "scale(1)";
-        }
-    });
+    const viewStates: ViewState[] = [
+        { padding: 0.2 },
+        { nodeIds: ["c2-5"], zoom: 2.5, padding: 0.3 },
+        { nodeIds: ["c5-1", "c5-2", "c5-3"], zoom: 2, padding: 0.3 },
+        { nodeIds: ["c9-4"], zoom: 3, padding: 0.3 },
+    ];
 </script>
 
 <!--
@@ -80,28 +65,29 @@
 />
 
 <ScrollerBase
-    {top}
-    {threshold}
-    {bottom}
-    bind:count
+    top={0.1}
+    threshold={0.5}
+    bottom={0.9}
     bind:index
-    bind:offset
-    bind:progress
     query="div.step"
 >
     {#snippet backgroundSnippet()}
-        <div class="background" style:transform={transformStyle}>
+        <div class="background">
             <SvelteFlow
-                bind:nodes
-                bind:edges
+                {nodes}
+                {edges}
                 fitView
-                fitViewOptions={{
-                    padding: 0.2,
-                }}
-                defaultEdgeOptions={{
-                    animated: true,
-                }}
-            ></SvelteFlow>
+                fitViewOptions={{ padding: 0.2 }}
+                defaultEdgeOptions={{ animated: true }}
+                panOnDrag={false}
+                zoomOnScroll={false}
+                zoomOnPinch={false}
+                zoomOnDoubleClick={false}
+                nodesDraggable={false}
+                preventScrolling={false}
+            >
+                <ViewportController {viewStates} {index} />
+            </SvelteFlow>
         </div>
     {/snippet}
     {#snippet foregroundSnippet()}
@@ -114,13 +100,12 @@
 
 <style>
     .background {
-        width: 100vw;
-        height: 100vh;
-        transition: all ease 0.5s;
+        width: 100%;
+        height: 100dvh;
     }
 
     .step {
-        height: 100vh;
+        height: 100dvh;
         width: 80%;
         padding: 1em 50px;
         margin: 0 0 2em 0;
