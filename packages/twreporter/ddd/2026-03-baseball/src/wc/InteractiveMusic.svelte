@@ -1,8 +1,8 @@
 <script lang="ts">
     import { getAudioContext } from "svelte-audio-player";
-    import Pause from "../components/icons/pause.svelte";
-    import Play from "../components/icons/play.svelte";
     import Note from "../components/Note.svelte";
+    import PlayControls from "../components/PlayControls.svelte";
+    import SongCard from "../components/SongCard.svelte";
     import { tracks } from "../lib/interactive-music/constants";
     import { interactiveMusicState } from "../lib/interactive-music/state.svelte";
 
@@ -51,14 +51,7 @@
 </script>
 
 <div class="controls">
-    <div class="control">
-        <button onclick={() => paused.set(false)}>
-            <Play />
-        </button>
-        <button onclick={() => paused.set(true)}>
-            <Pause />
-        </button>
-    </div>
+    <PlayControls {paused} />
     <div class="control">
         <button onclick={() => (interactiveMusicState.active = tracks.notSwing)}
             >去除反拍</button
@@ -70,18 +63,12 @@
 </div>
 
 <div class="container">
-    <div class="song-card">
-        <div class="song-card-header">
-            <div class="song-dot"></div>
-            <p class="song-title">{songTitle}</p>
-        </div>
-        <div class="song-card-content">
-            <img
-                src="https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg"
-                alt={songTitle}
-            />
-        </div>
-    </div>
+    <SongCard title={songTitle}>
+        <img
+            src="https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg"
+            alt={songTitle}
+        />
+    </SongCard>
 
     <div class="player">
         <div class="instruments">
@@ -120,52 +107,6 @@
         display: flex;
         align-items: stretch;
         gap: 10px;
-    }
-
-    .song-card {
-        width: 130px;
-        background: white;
-        border-radius: 5px;
-        padding: 0px 5px 5px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .song-card-header {
-        background: white;
-        padding: 5px 0;
-        border-radius: 10px 10px 0 0;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .song-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: var(--blue-primary);
-        flex-shrink: 0;
-    }
-
-    .song-title {
-        font-size: 11px;
-        color: var(--black-900);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .song-card-content {
-        background: var(--box-background);
-        padding: 18px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        box-shadow: inset 0 5px 10px rgba(202, 197, 187, 0.5);
-        flex-grow: 1;
     }
 
     .player {
