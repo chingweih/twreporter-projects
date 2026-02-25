@@ -1,17 +1,16 @@
 <script lang="ts">
     import { getAudioContext } from "svelte-audio-player";
-    import Note from "../components/Note.svelte";
     import { toggle } from "svelte-audio-player/utils";
-    import {
-        tracks,
-        type TrackConfig,
-    } from "../lib/interactive-music/constants";
+    import Note from "../components/Note.svelte";
+    import { interactiveMusicState } from "../lib/interactive-music/state.svelte";
+    import Play from "../components/icons/play.svelte";
+    import Pause from "../components/icons/pause.svelte";
+    import { tracks } from "../lib/interactive-music/constants";
 
     const songTitle = "台剛雄鷹〈氣蓋山河〉";
     const totalBeats = 16;
     const endingPadding = 3;
     const repeatPadding = 0.5;
-    const trackConfig = $state<TrackConfig>(tracks.default);
 
     const { currentTime, duration, paused, repeat } = getAudioContext();
     repeat.set(true);
@@ -27,7 +26,7 @@
     });
 
     const instruments = $derived(
-        trackConfig.map((instrument) => ({
+        interactiveMusicState.active.tracks.map((instrument) => ({
             ...instrument,
             notes: instrument.notes.reduce(
                 (acc, { length, rest }, i) => {
@@ -52,6 +51,25 @@
     );
 </script>
 
+<div class="controls">
+    <div class="control">
+        <button onclick={() => paused.set(false)}>
+            <Play />
+        </button>
+        <button onclick={() => paused.set(true)}>
+            <Pause />
+        </button>
+    </div>
+    <div class="control">
+        <button onclick={() => (interactiveMusicState.active = tracks.notSwing)}
+            >去除反拍</button
+        >
+        <button onclick={() => (interactiveMusicState.active = tracks.default)}
+            >原曲加入反拍</button
+        >
+    </div>
+</div>
+
 <div class="container">
     <div class="song-card">
         <div class="song-card-header">
@@ -74,7 +92,10 @@
                 </div>
             {/each}
         </div>
-        <div class="tracks">
+        <div
+            class="tracks"
+            style:--background-size-frac={`${(100 / totalBeats) * 2}%`}
+        >
             {#each instruments as { notes }}
                 <div class="notes" style:--total-beats={totalBeats}>
                     {#each notes as { sum, note, rest, length }}
@@ -93,18 +114,6 @@
             ></div>
         </div>
     </div>
-</div>
-
-<div class="controls">
-    <button onclick={() => toggle(paused)}>{$paused ? "Play" : "Pause"}</button>
-    <button
-        onclick={() => {
-            currentTime.set(0);
-            if (!$paused) {
-                toggle(paused);
-            }
-        }}>Reset</button
-    >
 </div>
 
 <style>
@@ -195,6 +204,9 @@
         flex-direction: column;
         gap: 9px;
         position: relative;
+        background-image: linear-gradient(to right, #ccc 1px, transparent 1px);
+        background-size: calc(var(--background-size-frac, 12.5%) - 2px) 100%;
+        background-position: left 15.6px top 0;
     }
 
     .notes {
@@ -222,22 +234,31 @@
     }
 
     .controls {
-        padding: 15px 0 5px;
+        padding: 5px 0 15px;
         display: flex;
         gap: 10px;
-        justify-content: center;
+        align-items: center;
+        justify-content: start;
     }
 
-    .controls button {
-        background: var(--black-900);
-        color: white;
-        border-radius: 100px;
-        padding: 5px 18px;
-        font-size: 12px;
+    .control {
+        background-color: white;
+        border-radius: 10000px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        height: 30px;
+        padding: 6px 20px;
+    }
+
+    .control button {
+        color: var(--blue-primary);
+        font-size: 15px;
         cursor: pointer;
 
         &:hover {
-            background: var(--black-700);
+            color: var(--blue-primary);
         }
     }
 </style>

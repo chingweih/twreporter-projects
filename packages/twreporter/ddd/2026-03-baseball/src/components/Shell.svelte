@@ -10,9 +10,15 @@
 
     const {
         name,
+        description,
         footnotes,
         children,
-    }: { name: string; footnotes: string[]; children: Snippet } = $props();
+    }: {
+        name: string;
+        description?: string;
+        footnotes: string[];
+        children: Snippet;
+    } = $props();
 </script>
 
 <link
@@ -24,6 +30,9 @@
 <div class="outer">
     <div class="container" bind:this={container}>
         <div class="header"><h1>{name}</h1></div>
+        {#if description}
+            <div class="description"><h2>{description}</h2></div>
+        {/if}
 
         {@render children()}
 
@@ -105,34 +114,18 @@
         padding: 5px 0 0;
     }
 
-    @media (min-width: 500px) {
-        .header h1 {
-            padding: 5px 0 15px;
-        }
-    }
-
     .header h1 {
         font-size: 24px;
         font-weight: 300;
+    }
+
+    .description {
         padding: 0 0 20px 0;
     }
 
-    @media (min-width: 500px) {
-        .header h1 {
-            font-size: 28px;
-        }
-    }
-
-    @media (min-width: 500px) {
-        .container {
-            --btn-size: 14px;
-        }
-    }
-
-    @media (min-width: 670px) {
-        .container {
-            --btn-size: 16px;
-        }
+    .description h2 {
+        font-size: 16px;
+        font-weight: 300;
     }
 
     .footer {

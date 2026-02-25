@@ -9,7 +9,7 @@
     });
 </script>
 
-<div class={`note-${note}`} style:opacity={rest ? 0 : 1}>
+<div class={`note note-${note}`} style:opacity={rest ? 0 : 1}>
     <svg
         class="star"
         class:active={pulse}
@@ -26,6 +26,10 @@
 </div>
 
 <style>
+    .note {
+        transition: all 0.5s ease;
+    }
+
     .star {
         width: 15px;
         height: 15px;
