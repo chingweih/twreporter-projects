@@ -96,7 +96,14 @@
 
 <div class="controls">
     <button onclick={() => toggle(paused)}>{$paused ? "Play" : "Pause"}</button>
-    <button>Reset</button>
+    <button
+        onclick={() => {
+            currentTime.set(0);
+            if (!$paused) {
+                toggle(paused);
+            }
+        }}>Reset</button
+    >
 </div>
 
 <style>
