@@ -2,75 +2,44 @@
     import { getAudioContext } from "svelte-audio-player";
     import Note from "../components/Note.svelte";
     import { toggle } from "svelte-audio-player/utils";
+    import {
+        tracks,
+        type TrackConfig,
+    } from "../lib/interactive-music/constants";
 
     const songTitle = "台剛雄鷹〈氣蓋山河〉";
-    const totalBeats = 18;
-    const instrumentsConfig: {
-        name: string;
-        notes: { length: number; rest?: boolean }[];
-    }[] = [
-        {
-            name: "Bass",
-            notes: [
-                { length: 1, rest: true },
-                { length: 2 },
-                { length: 2 },
-                { length: 2 },
-            ],
-        },
-        {
-            name: "合成器",
-            notes: [
-                {
-                    length: 1,
-                    rest: true,
-                },
-                { length: 2 },
-                { length: 1 },
-                { length: 1 },
-                { length: 1 },
-                { length: 2 },
-            ],
-        },
-        {
-            name: "Other",
-            notes: [
-                { length: 1, rest: true },
-                { length: 2 },
-                { length: 1 },
-                { length: 2 },
-                { length: 2 },
-            ],
-        },
-    ];
+    const totalBeats = 16;
+    const trackConfig = $state<TrackConfig>(tracks.default);
 
     const { currentTime, duration, paused, repeat } = getAudioContext();
     repeat.set(true);
 
     let playerProgress = $derived($currentTime / $duration);
 
-    const instruments = instrumentsConfig.map((instrument) => ({
-        ...instrument,
-        notes: instrument.notes.reduce(
-            (acc, { length, rest }, i) => {
-                return [
-                    ...acc,
-                    {
-                        sum: (acc[i - 1]?.sum ?? 0) + (length ?? 0),
-                        rest,
-                        note: length === 2 ? 4 : 8,
-                        length,
-                    },
-                ];
-            },
-            [] as {
-                sum: number;
-                rest?: boolean;
-                note: number;
-                length: number;
-            }[],
-        ),
-    }));
+    const instruments = $derived(
+        trackConfig.map((instrument) => ({
+            ...instrument,
+            notes: instrument.notes.reduce(
+                (acc, { length, rest }, i) => {
+                    return [
+                        ...acc,
+                        {
+                            sum: (acc[i - 1]?.sum ?? 0) + (length ?? 0),
+                            rest,
+                            note: length === 2 ? 4 : 8,
+                            length,
+                        },
+                    ];
+                },
+                [] as {
+                    sum: number;
+                    rest?: boolean;
+                    note: number;
+                    length: number;
+                }[],
+            ),
+        })),
+    );
 </script>
 
 <div class="container">
@@ -222,7 +191,8 @@
         flex: 1;
         height: 40px;
         background: rgba(239, 237, 233, 0.2);
-        border-radius: 20px;
+        padding: 0px 8px;
+        border-radius: 10px;
         display: grid;
         grid-template-columns: repeat(var(--total-beats, 8), 1fr);
         align-items: center;

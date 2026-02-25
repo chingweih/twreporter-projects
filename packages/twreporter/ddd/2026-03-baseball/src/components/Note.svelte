@@ -46,8 +46,7 @@
 
     .active {
         animation-name: active;
-        animation-duration: 0.5s;
-        animation-timing-function: ease-out;
+        animation-duration: 300ms;
     }
 
     @keyframes active {
