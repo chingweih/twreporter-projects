@@ -79,11 +79,7 @@
                 fitView
                 fitViewOptions={{ padding: 0.2 }}
                 defaultEdgeOptions={{ animated: true }}
-                panOnDrag={false}
                 zoomOnScroll={false}
-                zoomOnPinch={false}
-                zoomOnDoubleClick={false}
-                nodesDraggable={false}
                 preventScrolling={false}
             >
                 <ViewportController {viewStates} {index} />
@@ -99,6 +95,15 @@
 </ScrollerBase>
 
 <style>
+    /* Background interactive, foreground pass-through to make flow chart interactive */
+    :global(svelte-scroller-background-container) {
+        pointer-events: auto !important;
+    }
+
+    :global(svelte-scroller-foreground) {
+        pointer-events: none;
+    }
+
     .background {
         width: 100%;
         height: 100dvh;
@@ -115,6 +120,7 @@
     }
 
     .card {
+        pointer-events: auto;
         background: linear-gradient(
             180deg,
             rgba(0, 112, 207, 1) 0%,
