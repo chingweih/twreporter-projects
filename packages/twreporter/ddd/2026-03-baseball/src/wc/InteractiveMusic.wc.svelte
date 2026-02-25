@@ -12,7 +12,7 @@
 
 <Shell {name} {footnotes}>
     <AudioPlayer
-        src="https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/audios/tsg-sample.mp3"
+        src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/01.mp3"
     >
         <InteractiveMusic />
     </AudioPlayer>

@@ -9,12 +9,22 @@
 
     const songTitle = "台剛雄鷹〈氣蓋山河〉";
     const totalBeats = 16;
+    const endingPadding = 3;
+    const repeatPadding = 0.5;
     const trackConfig = $state<TrackConfig>(tracks.default);
 
     const { currentTime, duration, paused, repeat } = getAudioContext();
     repeat.set(true);
 
-    let playerProgress = $derived($currentTime / $duration);
+    let playerProgress = $derived(
+        Math.min($currentTime / ($duration - endingPadding), 1),
+    );
+
+    $effect(() => {
+        if ($currentTime > $duration - endingPadding + repeatPadding) {
+            currentTime.set(0);
+        }
+    });
 
     const instruments = $derived(
         trackConfig.map((instrument) => ({

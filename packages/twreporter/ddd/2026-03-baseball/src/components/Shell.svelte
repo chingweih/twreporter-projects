@@ -113,8 +113,8 @@
 
     .header h1 {
         font-size: 24px;
-        font-weight: bold;
-        padding: 5px 0 10px;
+        font-weight: 300;
+        padding: 0 0 20px 0;
     }
 
     @media (min-width: 500px) {
@@ -167,6 +167,7 @@
     .footer p {
         color: var(--black-900);
         font-size: calc(10px * var(--footer-scale));
+        font-weight: 200;
     }
 
     .footer .logo {
