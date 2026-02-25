@@ -144,19 +144,22 @@
     }
 
     .controls {
-        padding: 20px 0;
+        padding: 15px 0 5px;
         display: flex;
-        gap: 15px;
+        gap: 10px;
+        justify-content: center;
     }
 
     .controls button {
-        background-color: #333;
+        background: var(--black-900);
         color: white;
-        border-radius: 10000000px;
-        padding: 4px 16px;
+        border-radius: 100px;
+        padding: 5px 18px;
+        font-size: 12px;
+        cursor: pointer;
 
         &:hover {
-            background-color: #222;
+            background: var(--black-700);
         }
     }
 </style>
