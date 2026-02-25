@@ -3,12 +3,9 @@
     import Note from "../components/Note.svelte";
     import { toggle } from "svelte-audio-player/utils";
 
-    const { currentTime, duration, paused, repeat } = getAudioContext();
-    repeat.set(true);
-
-    let playerProgress = $derived($currentTime / $duration);
-
-    const instruments: {
+    const songTitle = "台剛雄鷹〈氣蓋山河〉";
+    const totalBeats = 18;
+    const instrumentsConfig: {
         name: string;
         notes: { length: number; rest?: boolean }[];
     }[] = [
@@ -17,7 +14,6 @@
             notes: [
                 { length: 1, rest: true },
                 { length: 2 },
-                { length: 1 },
                 { length: 2 },
                 { length: 2 },
             ],
@@ -48,49 +44,75 @@
         },
     ];
 
-    const notes = instruments
-        .map((instrument) =>
-            instrument.notes.reduce(
-                (acc, { length, rest }, i) => {
-                    return [
-                        ...acc,
-                        {
-                            sum: (acc[i - 1]?.sum ?? 0) + (length ?? 0),
-                            rest,
-                            note: length === 2 ? 4 : 8,
-                            length,
-                        },
-                    ];
-                },
-                [] as {
-                    sum: number;
-                    rest?: boolean;
-                    note: number;
-                    length: number;
-                }[],
-            ),
-        )
-        .flat();
+    const { currentTime, duration, paused, repeat } = getAudioContext();
+    repeat.set(true);
+
+    let playerProgress = $derived($currentTime / $duration);
+
+    const instruments = instrumentsConfig.map((instrument) => ({
+        ...instrument,
+        notes: instrument.notes.reduce(
+            (acc, { length, rest }, i) => {
+                return [
+                    ...acc,
+                    {
+                        sum: (acc[i - 1]?.sum ?? 0) + (length ?? 0),
+                        rest,
+                        note: length === 2 ? 4 : 8,
+                        length,
+                    },
+                ];
+            },
+            [] as {
+                sum: number;
+                rest?: boolean;
+                note: number;
+                length: number;
+            }[],
+        ),
+    }));
 </script>
 
 <div class="container">
-    <div
-        class="instruments"
-        style:grid-template-rows={`repeat(${instruments.length}, 50px)`}
-    >
-        {#each instruments as instrument}
-            <p>{instrument.name}</p>
-        {/each}
+    <div class="song-card">
+        <div class="song-card-header">
+            <div class="song-dot"></div>
+            <p class="song-title">{songTitle}</p>
+        </div>
+        <div class="song-card-content">
+            <img
+                src="https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg"
+                alt={songTitle}
+            />
+        </div>
     </div>
-    <div
-        class="notes"
-        style:grid-template-rows={`repeat(${instruments.length}, 50px)`}
-    >
-        {#each notes as { sum, note, rest, length }}
-            <Note active={playerProgress >= (sum - length) / 8} {rest} {note} />
-        {/each}
 
-        <div class="player-head" style:left={`${playerProgress * 100}%`}></div>
+    <div class="player">
+        <div class="instruments">
+            {#each instruments as { name }}
+                <div class="instrument">
+                    <p>{name}</p>
+                </div>
+            {/each}
+        </div>
+        <div class="tracks">
+            {#each instruments as { notes }}
+                <div class="notes" style:--total-beats={totalBeats}>
+                    {#each notes as { sum, note, rest, length }}
+                        <Note
+                            active={playerProgress >=
+                                (sum - length) / totalBeats}
+                            {rest}
+                            {note}
+                        />
+                    {/each}
+                </div>
+            {/each}
+            <div
+                class="player-head"
+                style:left={`${playerProgress * 100}%`}
+            ></div>
+        </div>
     </div>
 </div>
 
@@ -109,38 +131,114 @@
 <style>
     .container {
         display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .song-card {
+        width: 130px;
+        background: white;
+        border-radius: 5px;
+        padding: 0px 5px 5px;
+        height: 100%;
+    }
+
+    .song-card-header {
+        background: white;
+        padding: 5px 0;
+        border-radius: 10px 10px 0 0;
+        display: flex;
         align-items: center;
-        justify-content: space-between;
-        width: 500px;
+        gap: 6px;
+    }
+
+    .song-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--blue-primary);
+        flex-shrink: 0;
+    }
+
+    .song-title {
+        font-size: 11px;
+        color: var(--black-900);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .song-card-content {
+        background: var(--box-background);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        box-shadow: inset 0 5px 10px rgba(202, 197, 187, 0.5);
+    }
+
+    .player {
+        display: flex;
+        gap: 9px;
+        position: relative;
+        width: 100%;
     }
 
     .instruments {
-        display: grid;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        width: 80px;
+    }
+
+    .instrument {
+        flex-shrink: 0;
+        width: 80px;
+        height: 40px;
+        background: rgba(239, 237, 233, 0.5);
+        border-radius: 10px;
+        display: flex;
         align-items: center;
-        justify-content: start;
-        width: 20%;
+        padding: 0 10px;
+        overflow: hidden;
+    }
+
+    .instrument p {
+        font-weight: bold;
+        font-size: 14px;
+        color: var(--track-background);
+        white-space: nowrap;
+    }
+
+    .tracks {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        position: relative;
     }
 
     .notes {
+        flex: 1;
+        height: 40px;
+        background: rgba(239, 237, 233, 0.2);
+        border-radius: 20px;
         display: grid;
-        grid-template-columns: repeat(8, 1fr);
+        grid-template-columns: repeat(var(--total-beats, 8), 1fr);
         align-items: center;
-        justify-content: center;
-        width: 80%;
-        position: relative;
-        background-image: linear-gradient(to right, #ccc 1px, transparent 1px);
-        background-size: 12.5% 100%;
-        background-position: left 4px top 0;
+        justify-items: start;
+        min-width: 0;
     }
 
     .player-head {
         position: absolute;
-        height: 100%;
-        width: 4px;
-        background-color: #333;
-        opacity: 0.5;
+        top: 0;
+        bottom: 0;
+        width: 5px;
+        background: var(--blue-primary);
+        border-radius: 3px;
         will-change: left;
-        margin-left: 3px;
+        filter: drop-shadow(2px 0 4px rgba(0, 0, 0, 0.25));
     }
 
     .controls {
