@@ -20,6 +20,16 @@
             rel="stylesheet"
             crossorigin="anonymous"
         />
+        <style>
+            @font-face {
+                font-family: "Geist Pixel Line";
+                src: url("https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/fonts/GeistPixel-Line.woff2")
+                    format("woff2");
+                font-weight: 500;
+                font-style: normal;
+                font-display: swap;
+            }
+        </style>
         <!-- [FONTS] End -->
 
         <title>2026-03-baseball</title>
@@ -27,10 +37,18 @@
     <body style="background-color: #f1f1f1">
         <script type="module" src="/src/main.ts"></script>
 
-        <twreporter-interactive-music></twreporter-interactive-music>
+        <div class="wrapper">
+            <twreporter-interactive-music></twreporter-interactive-music>
+        </div>
+
         <div class="spacer"></div>
-        <twreporter-image-karaoke></twreporter-image-karaoke>
+
+        <div class="wrapper">
+            <twreporter-image-karaoke></twreporter-image-karaoke>
+        </div>
+
         <div class="spacer"></div>
+
         <twreporter-scroll-diagram></twreporter-scroll-diagram>
 
         <style>

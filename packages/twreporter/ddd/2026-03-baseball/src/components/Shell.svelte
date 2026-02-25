@@ -67,6 +67,18 @@
 <style>
     * {
         --tr-text: #404040;
+
+        --background: #c3c3c3;
+        --track-background: #8090a7;
+        --blue-primary: #3285f1;
+        --box-background: #efede9;
+        --box-background-20: #efede914; /* 20% */
+        --box-background-50: #efede932; /* 50% */
+        --black-900: #262626;
+        --black-700: #42464c;
+
+        --font-pixel: "Geist Pixel Line";
+
         color: var(--tr-text);
         font-family: "Roboto Slab", "Noto Sans TC", sans-serif;
         text-align: left !important;
@@ -81,6 +93,7 @@
 
     .container {
         max-width: 600px;
+        width: 100%;
         position: relative;
         padding: 8px 10px;
         background: #f1f1f1;
