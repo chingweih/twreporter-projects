@@ -1,13 +1,12 @@
 <script lang="ts">
     import { getAudioContext } from "svelte-audio-player";
-    import { toggle } from "svelte-audio-player/utils";
-    import Note from "../components/Note.svelte";
-    import { interactiveMusicState } from "../lib/interactive-music/state.svelte";
-    import Play from "../components/icons/play.svelte";
     import Pause from "../components/icons/pause.svelte";
+    import Play from "../components/icons/play.svelte";
+    import Note from "../components/Note.svelte";
     import { tracks } from "../lib/interactive-music/constants";
+    import { interactiveMusicState } from "../lib/interactive-music/state.svelte";
 
-    const songTitle = "台剛雄鷹〈氣蓋山河〉";
+    const songTitle = "氣蓋山河";
     const totalBeats = 16;
     const endingPadding = 3;
     const repeatPadding = 0.5;
@@ -119,7 +118,7 @@
 <style>
     .container {
         display: flex;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 10px;
     }
 
@@ -128,7 +127,8 @@
         background: white;
         border-radius: 5px;
         padding: 0px 5px 5px;
-        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     .song-card-header {
@@ -161,8 +161,11 @@
         padding: 18px;
         display: flex;
         flex-direction: column;
+        align-items: center;
+        justify-content: center;
         gap: 4px;
         box-shadow: inset 0 5px 10px rgba(202, 197, 187, 0.5);
+        flex-grow: 1;
     }
 
     .player {
