@@ -79,7 +79,7 @@
 
         --font-pixel: "Geist Pixel Line";
 
-        color: var(--tr-text);
+        color: var(--black-700);
         font-family: "Roboto Slab", "Noto Sans TC", sans-serif;
         text-align: left !important;
     }
@@ -92,20 +92,13 @@
     }
 
     .container {
-        max-width: 600px;
+        max-width: 730px;
         width: 100%;
         position: relative;
-        padding: 8px 10px;
-        background: #f1f1f1;
+        padding: 10px 20px;
+        background: var(--background);
+        border-radius: 3px;
         --btn-size: 9px;
-        border-top: #e2e2e2 1px solid;
-        border-bottom: #e2e2e2 1px solid;
-    }
-
-    @media (min-width: 500px) {
-        .container {
-            padding: 10px 10px;
-        }
     }
 
     .header {
@@ -172,7 +165,7 @@
     }
 
     .footer p {
-        color: #acacac;
+        color: var(--black-900);
         font-size: calc(10px * var(--footer-scale));
     }
 
