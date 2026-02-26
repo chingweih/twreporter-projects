@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { Snippet } from 'svelte'
+    import type { Snippet } from "svelte";
 
-    let { title, children }: { title: string; children: Snippet } = $props()
+    let { title, children }: { title: string; children: Snippet } = $props();
 </script>
 
 <div class="song-card">
@@ -22,6 +22,12 @@
         padding: 0px 5px 5px;
         display: flex;
         flex-direction: column;
+    }
+
+    @media (max-width: 700px) {
+        .song-card {
+            display: none;
+        }
     }
 
     .song-card-header {
