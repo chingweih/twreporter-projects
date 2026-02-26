@@ -52,5 +52,44 @@
                 height: 20px;
             }
         </style>
+
+        <!--
+            Embed code style snippet, see
+            https://github.com/twreporter/www-public-monorepo/blob/dev/packages/cms/lists/views/wysiwyg-editor/style/style.ts#L66-L79
+            for latest definition
+        -->
+        <style>
+            :root {
+                --body-width: calc(300 / 375 * 100%);
+            }
+
+            @media (max-width: 767px) {
+                :root {
+                    --body-width: calc(300 / 375 * 100%);
+                }
+            }
+            @media (min-width: 768px) and (max-width: 1023px) {
+                :root {
+                    --body-width: 513px;
+                }
+            }
+
+            @media (min-width: 1024px) and (max-width: 1439px) {
+                :root {
+                    --body-width: 550px;
+                }
+            }
+
+            @media (min-width: 1440px) {
+                :root {
+                    --body-width: 730px;
+                }
+            }
+
+            .embed-code-container {
+                width: 100vw;
+                margin-left: calc((100vw - var(--body-width)) / 2 * -1);
+            }
+        </style>
     </body>
 </html>
