@@ -56,7 +56,7 @@
     }
 
     .song-card-content {
-        background: var(--box-background);
+        background: var(--background);
         padding: 18px;
         display: flex;
         flex-direction: column;

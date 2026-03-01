@@ -77,14 +77,15 @@
     * {
         --tr-text: #404040;
 
-        --background: #c3c3c3;
-        --track-background: #8090a7;
-        --blue-primary: #3285f1;
-        --box-background: #efede9;
-        --box-background-20: #efede914; /* 20% */
-        --box-background-50: #efede932; /* 50% */
+        --background: #efede9;
+        --background-muted: rgba(255, 255, 255, 0.7);
+        --track-background: #fff;
+        --blue-primary: #006bff;
+        --box-background: #ffffff;
+        --box-background-20: #ffffff14; /* 20% */
+        --box-background-50: #ffffff32; /* 50% */
         --black-900: #262626;
-        --black-700: #42464c;
+        --black-700: #8090a7;
 
         --font-pixel: "Geist Pixel Line";
 
@@ -158,7 +159,7 @@
     }
 
     .footer p {
-        color: var(--black-900);
+        color: var(--black-700);
         font-size: calc(10px * var(--footer-scale));
         font-weight: 200;
     }

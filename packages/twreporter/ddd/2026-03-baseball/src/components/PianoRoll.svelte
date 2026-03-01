@@ -203,7 +203,7 @@
     .white-key {
         flex: 1 0 0;
         min-height: 1px;
-        background: #f1f1f1;
+        background: var(--track-background);
         border-radius: 0 5px 5px 0;
         transition: background 0.15s ease;
     }
@@ -264,7 +264,7 @@
     }
 
     .row-even {
-        background: #efede9;
+        background: var(--track-background);
     }
 
     .row-odd {
@@ -282,7 +282,7 @@
         top: 0;
         height: 100%;
         width: 2px;
-        background: var(--track-background);
+        background: var(--black-700);
     }
 
     .note-bars {

@@ -127,7 +127,7 @@
         flex-shrink: 0;
         width: 80px;
         height: 40px;
-        background: rgba(239, 237, 233, 0.5);
+        background: var(--track-background);
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -138,7 +138,7 @@
     .instrument p {
         font-weight: bold;
         font-size: 14px;
-        color: var(--track-background);
+        color: var(--black-700);
         white-space: nowrap;
     }
 
@@ -148,15 +148,15 @@
         flex-direction: column;
         gap: 9px;
         position: relative;
-        background-image: linear-gradient(to right, #ccc 1px, transparent 1px);
-        background-size: calc(var(--background-size-frac, 12.5%) - 2px) 100%;
-        background-position: left 15.6px top 0;
     }
 
     .notes {
         flex: 1;
         height: 40px;
-        background: rgba(239, 237, 233, 0.2);
+        background: var(--background-muted);
+        background-image: linear-gradient(to right, #ccc 1px, transparent 1px);
+        background-size: calc(var(--background-size-frac, 12.5%) - 2px) 100%;
+        background-position: left 15.6px top 0;
         padding: 0px 8px;
         border-radius: 10px;
         display: grid;
