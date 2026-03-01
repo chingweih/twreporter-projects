@@ -5,7 +5,7 @@ export type TrackConfig = {
   src: string;
   tracks: {
     name: string;
-    notes: { length: number; rest?: boolean }[];
+    notes: { length: number; rest?: boolean; text?: string }[];
   }[];
 };
 
@@ -28,11 +28,11 @@ export const keys: Record<
             name: "口號",
             notes: [
               { length: 4, rest: true },
-              { length: 2 },
-              { length: 2 },
+              { length: 2, text: "He" },
+              { length: 2, text: "ro" },
               { length: 4, rest: true },
-              { length: 2 },
-              { length: 2 },
+              { length: 2, text: "Hi" },
+              { length: 2, text: "to" },
             ],
           },
           {
@@ -71,11 +71,11 @@ export const keys: Record<
             name: "口號",
             notes: [
               { length: 4, rest: true },
-              { length: 2 },
-              { length: 2 },
+              { length: 2, text: "He" },
+              { length: 2, text: "ro" },
               { length: 4, rest: true },
-              { length: 2 },
-              { length: 2 },
+              { length: 2, text: "Hi" },
+              { length: 2, text: "to" },
             ],
           },
           {
@@ -116,20 +116,20 @@ export const keys: Record<
           {
             name: "口號",
             notes: [
-              { length: 1 },
-              { length: 1 },
-              { length: 1 },
-              { length: 1 },
-              { length: 2 },
-              { length: 2 },
+              { length: 1, text: "台" },
+              { length: 1, text: "鋼" },
+              { length: 1, text: "雄" },
+              { length: 1, text: "鷹" },
+              { length: 2, text: "安" },
+              { length: 2, text: "打" },
 
-              { length: 1 },
-              { length: 1 },
-              { length: 1 },
-              { length: 1 },
-              { length: 1 },
-              { length: 1 },
-              { length: 2 },
+              { length: 1, text: "台" },
+              { length: 1, text: "鋼" },
+              { length: 1, text: "雄" },
+              { length: 1, text: "鷹" },
+              { length: 1, text: "全" },
+              { length: 1, text: "壘" },
+              { length: 2, text: "打" },
             ],
           },
           {

@@ -42,7 +42,7 @@
         active?.tracks.map((instrument) => ({
             ...instrument,
             notes: instrument.notes.reduce(
-                (acc, { length, rest }, i) => {
+                (acc, { length, rest, text }, i) => {
                     return [
                         ...acc,
                         {
@@ -50,6 +50,7 @@
                             rest,
                             note: 8 / length,
                             length,
+                            text,
                         },
                     ];
                 },
@@ -58,6 +59,7 @@
                     rest?: boolean;
                     note: number;
                     length: number;
+                    text?: string;
                 }[],
             ),
         })),
@@ -98,12 +100,13 @@
         >
             {#each instruments as { notes }}
                 <div class="notes" style:--total-beats={totalBeats}>
-                    {#each notes as { sum, note, rest, length }}
+                    {#each notes as { sum, note, rest, length, text }}
                         <Note
                             active={playerProgress >=
                                 (sum - length) / totalBeats}
                             {rest}
                             {note}
+                            {text}
                         />
                     {/each}
                 </div>

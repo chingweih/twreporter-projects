@@ -1,5 +1,16 @@
 <script lang="ts">
-    let { note = 8, active = false, rest = false } = $props();
+    let {
+        note = 8,
+        active = false,
+        rest = false,
+        text,
+    }: {
+        note?: number;
+        active?: boolean;
+        rest?: boolean;
+        text?: string;
+    } = $props();
+
     let pulse = $state(false);
 
     $effect(() => {
@@ -10,19 +21,25 @@
 </script>
 
 <div class={`note note-${note}`} style:opacity={rest ? 0 : 1}>
-    <svg
-        class="star"
-        class:active={pulse}
-        onanimationend={() => (pulse = false)}
-        viewBox="0 0 22 22"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-    >
-        <path
-            d="M10.534 1.586C10.8.6 12.2.6 12.466 1.586l1.536 5.706a1.15 1.15 0 00.706.706l5.706 1.536c.986.266.986 1.666 0 1.932l-5.706 1.536a1.15 1.15 0 00-.706.706l-1.536 5.706c-.266.986-1.666.986-1.932 0L9.998 13.712a1.15 1.15 0 00-.706-.706L3.586 11.47c-.986-.266-.986-1.666 0-1.932l5.706-1.536a1.15 1.15 0 00.706-.706L10.534 1.586z"
-            fill="var(--blue-primary)"
-        />
-    </svg>
+    <div class="start" class:active={pulse}>
+        {#if text}
+            <p>{text}</p>
+        {:else}
+            <svg
+                width="15px"
+                height="15px"
+                onanimationend={() => (pulse = false)}
+                viewBox="0 0 22 22"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    d="M10.534 1.586C10.8.6 12.2.6 12.466 1.586l1.536 5.706a1.15 1.15 0 00.706.706l5.706 1.536c.986.266.986 1.666 0 1.932l-5.706 1.536a1.15 1.15 0 00-.706.706l-1.536 5.706c-.266.986-1.666.986-1.932 0L9.998 13.712a1.15 1.15 0 00-.706-.706L3.586 11.47c-.986-.266-.986-1.666 0-1.932l5.706-1.536a1.15 1.15 0 00.706-.706L10.534 1.586z"
+                    fill="var(--blue-primary)"
+                />
+            </svg>
+        {/if}
+    </div>
 </div>
 
 <style>
