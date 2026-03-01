@@ -3,12 +3,16 @@
     import PlayControls from "./PlayControls.svelte";
     import SongCard from "./SongCard.svelte";
     import {
-        TOTAL_SEMITONES,
+        pitchToSemitone,
         type PianoNote,
         type PianoScoreConfig,
     } from "../lib/interactive-piano/constants";
 
     const { score }: { score: PianoScoreConfig } = $props();
+
+    const totalSemis = $derived(
+        score.trackRange[1] - score.trackRange[0] + 1,
+    );
 
     const { currentTime, duration, paused } = getAudioContext();
 
@@ -103,7 +107,8 @@
             {#each WHITE_KEY_SEMITONES as semitone}
                 <div
                     class="white-key"
-                    class:active={activeNote?.pitch === semitone}
+                    class:active={activeNote?.pitch != null &&
+                        pitchToSemitone(activeNote.pitch) === semitone}
                 ></div>
             {/each}
         </div>
@@ -112,7 +117,8 @@
                 {@const wk = whiteKeyAbove}
                 <div
                     class="black-key"
-                    class:active={activeNote?.pitch === semitone}
+                    class:active={activeNote?.pitch != null &&
+                        pitchToSemitone(activeNote.pitch) === semitone}
                     style:top={`calc(${wk + 1} * (100% - 18px) / 7 + ${wk} * 3px + 1.5px - ${BLACK_KEY_HEIGHT / 2}px)`}
                     style:height={`${BLACK_KEY_HEIGHT}px`}
                 ></div>
@@ -133,7 +139,7 @@
                 style:flex={range.beats}
             >
                 <div class="rows">
-                    {#each Array(TOTAL_SEMITONES) as _, i}
+                    {#each Array(totalSemis) as _, i}
                         <div
                             class="row"
                             class:row-even={i % 2 === 0}
@@ -159,8 +165,8 @@
                             class:active={activeNote === note}
                             style:left={`${((note.start - range.start) / range.beats) * 100}%`}
                             style:width={`${(note.duration / range.beats) * 100}%`}
-                            style:top={`${((TOTAL_SEMITONES - 1 - note.pitch) / TOTAL_SEMITONES) * 100}%`}
-                            style:height={`${(1 / TOTAL_SEMITONES) * 100}%`}
+                            style:top={`${(((score.trackRange[1] - (note.pitch ?? score.trackRange[0])) / totalSemis) * 100)}%`}
+                            style:height={`${(1 / totalSemis) * 100}%`}
                         >
                             {note.text}
                         </div>

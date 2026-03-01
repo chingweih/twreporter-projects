@@ -1,13 +1,15 @@
 import type { GraphicConfig } from "../layout/types";
 
 /**
- * Semitone index within a single octave (C to C').
- * 0=C, 1=C#, 2=D, 3=D#, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=A#, 11=B, 12=C'
+ * Pitch value within a score's track range.
+ * 1=C, 2=C#, 3=D, 4=D#, 5=E, 6=F, 7=F#, 8=G, 9=G#, 10=A, 11=A#, 12=B
+ * 13=C', 14=C#', ... (continues for higher octaves)
+ * 0=B(below), -1=A#(below), ... (continues for lower octaves)
  */
-export type Pitch = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | -1;
+export type Pitch = number;
 
 export type PianoNoteInput = {
-  pitch: Pitch;
+  pitch?: Pitch;
   duration: number;
   rest?: boolean;
   text?: string;
@@ -24,11 +26,13 @@ export type PianoScoreConfig = {
   totalBeats: number;
   endingPadding: number;
   repeatPadding: number;
+  /** [minPitch, maxPitch] defining the visible range of the piano roll grid */
+  trackRange: [number, number];
   segments: PianoSegment[];
 };
 
 export type PianoNote = {
-  pitch: Pitch;
+  pitch?: Pitch;
   start: number;
   duration: number;
   rest?: boolean;
@@ -37,7 +41,10 @@ export type PianoNote = {
   text?: string;
 };
 
-export const TOTAL_SEMITONES = 13;
+/** Maps any pitch value to a 0-11 semitone index within an octave (for piano key highlighting). */
+export function pitchToSemitone(pitch: number): number {
+  return (((pitch - 1) % 12) + 12) % 12;
+}
 
 export const keys: Record<
   string,
@@ -57,6 +64,7 @@ export const keys: Record<
         totalBeats: 16,
         endingPadding: 3,
         repeatPadding: 0.5,
+        trackRange: [1, 13],
         segments: [
           {
             notes: [
@@ -97,10 +105,11 @@ export const keys: Record<
         totalBeats: 16,
         endingPadding: 3,
         repeatPadding: 0.5,
+        trackRange: [-3, 9],
         segments: [
           {
             notes: [
-              { pitch: 10, duration: 2, text: "台" },
+              { pitch: -2, duration: 2, text: "台" },
               { pitch: 5, duration: 1, text: "鋼" },
               { pitch: 5, duration: 1, text: "的" },
               { pitch: 8, duration: 2, text: "鷹" },
@@ -127,6 +136,7 @@ export const keys: Record<
         totalBeats: 16,
         endingPadding: 3,
         repeatPadding: 0.5,
+        trackRange: [1, 14],
         segments: [
           {
             notes: [
@@ -137,7 +147,7 @@ export const keys: Record<
               { pitch: 6, duration: 1 },
               { pitch: 8, duration: 2 },
               { pitch: 6, duration: 1 },
-              { pitch: 1, duration: 1 },
+              { pitch: 13, duration: 1 },
               { pitch: 10, duration: 1.5 },
               { pitch: 8, duration: 0.5 },
               { pitch: 6, duration: 1 },
@@ -149,9 +159,9 @@ export const keys: Record<
             notes: [
               { pitch: 3, duration: 1 },
               { pitch: 1, duration: 1 },
-              { pitch: 11, duration: 1.5 },
+              { pitch: -1, duration: 1.5 },
               { pitch: 1, duration: 1.5 },
-              { pitch: 2, duration: 1 },
+              { pitch: 3, duration: 1 },
               { pitch: 1, duration: 2 },
               { pitch: 3, duration: 1 },
               { pitch: 5, duration: 1 },
@@ -171,13 +181,14 @@ export const keys: Record<
         totalBeats: 16,
         endingPadding: 3,
         repeatPadding: 0.5,
+        trackRange: [2, 16],
         segments: [
           {
             notes: [
               { pitch: 3, duration: 1 },
               { pitch: 8, duration: 1 },
               { pitch: 12, duration: 3 },
-              { pitch: 3, duration: 1 },
+              { pitch: 15, duration: 1 },
               { pitch: 12, duration: 2 },
               { pitch: 12, duration: 1 },
               { pitch: 10, duration: 1 },
@@ -190,18 +201,17 @@ export const keys: Record<
               { pitch: 8, duration: 1 },
               { pitch: 10, duration: 1 },
               { pitch: 12, duration: 3 },
-              { pitch: 5, duration: 1 },
-              { pitch: 3, duration: 2 },
-              { pitch: 5, duration: 1 },
-              { pitch: 3, duration: 1 },
-              { pitch: 3, duration: 0.5 },
+              { pitch: 17, duration: 1 },
+              { pitch: 15, duration: 2 },
+              { pitch: 17, duration: 1 },
+              { pitch: 15, duration: 1 },
+              { pitch: 15, duration: 0.5 },
               { pitch: 12, duration: 0.5 },
               { pitch: 10, duration: 0.5 },
               { pitch: 8, duration: 0.5 },
               { pitch: 12, duration: 0.5 },
               { pitch: 10, duration: 1.5 },
               { pitch: 10, duration: 3 },
-              { pitch: -1, duration: 1 },
             ],
           },
         ],
