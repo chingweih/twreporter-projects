@@ -58,9 +58,9 @@ export const keys: Record<
     scores: [
       {
         name: "台灣尚勇",
-        src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/01.mp3",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A01/01.mp3",
         image:
-          "https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg",
+          "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A01/01.svg",
         totalBeats: 16,
         endingPadding: 3,
         repeatPadding: 0.5,
@@ -99,9 +99,9 @@ export const keys: Record<
     scores: [
       {
         name: "氣蓋山河",
-        src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/01.mp3",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A03/01.mp3",
         image:
-          "https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg",
+          "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A03/01.svg",
         totalBeats: 16,
         endingPadding: 3,
         repeatPadding: 0.5,
@@ -130,9 +130,9 @@ export const keys: Record<
     scores: [
       {
         name: "Team Taiwan",
-        src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/01.mp3",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A05/01.mp3",
         image:
-          "https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg",
+          "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A05/01.svg",
         totalBeats: 16,
         endingPadding: 3,
         repeatPadding: 0.5,
@@ -175,9 +175,9 @@ export const keys: Record<
       },
       {
         name: "黃昏的故鄉",
-        src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/02.mp3",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A05/02.mp3",
         image:
-          "https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg",
+          "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A05/05.svg",
         totalBeats: 16,
         endingPadding: 3,
         repeatPadding: 0.5,
