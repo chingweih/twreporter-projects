@@ -135,6 +135,7 @@
         {#each segmentRanges as range, segIdx}
             {@const segMeasures = Math.floor(range.beats / 4)}
             {@const notes = segmentNotes[segIdx]}
+            {@const segment = score.segments[segIdx]}
             {@const inSegment =
                 currentBeat >= range.start &&
                 currentBeat < range.start + range.beats}
@@ -143,6 +144,7 @@
                 class:dimmed={activeSegment !== -1 && segIdx !== activeSegment}
                 style:flex={range.beats}
             >
+                <div class="segment-name">{segment.name}</div>
                 <div class="rows">
                     {#each Array(totalSemis) as _, i}
                         <div
@@ -261,6 +263,13 @@
 
     .segment.dimmed {
         opacity: 0.3;
+    }
+
+    .segment-name {
+        position: absolute;
+        padding: 2px 10px;
+        color: var(--black-800);
+        z-index: 50;
     }
 
     .rows {

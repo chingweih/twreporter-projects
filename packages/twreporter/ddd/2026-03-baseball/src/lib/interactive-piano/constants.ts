@@ -17,6 +17,7 @@ export type PianoNoteInput = {
 
 export type PianoSegment = {
   notes: PianoNoteInput[];
+  name?: string;
 };
 
 export type PianoScoreConfig = {
@@ -135,6 +136,7 @@ export const keys: Record<
         trackRange: [1, 14],
         segments: [
           {
+            name: "樂句一",
             notes: [
               { pitch: 6, duration: 1 },
               { pitch: 5, duration: 1 },
@@ -152,6 +154,7 @@ export const keys: Record<
             ],
           },
           {
+            name: "樂句二",
             notes: [
               { pitch: 3, duration: 1 },
               { pitch: 1, duration: 1 },
@@ -179,6 +182,7 @@ export const keys: Record<
         trackRange: [2, 18],
         segments: [
           {
+            name: "樂句一",
             notes: [
               { pitch: 3, duration: 1 },
               { pitch: 8, duration: 1 },
