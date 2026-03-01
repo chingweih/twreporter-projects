@@ -21,14 +21,17 @@
 </script>
 
 <div class={`note note-${note}`} style:opacity={rest ? 0 : 1}>
-    <div class="start" class:active={pulse}>
+    <div
+        class="start"
+        class:active={pulse}
+        onanimationend={() => (pulse = false)}
+    >
         {#if text}
             <p>{text}</p>
         {:else}
             <svg
                 width="15px"
                 height="15px"
-                onanimationend={() => (pulse = false)}
                 viewBox="0 0 22 22"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
