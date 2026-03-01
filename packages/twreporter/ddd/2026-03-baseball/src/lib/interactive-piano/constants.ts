@@ -133,7 +133,7 @@ export const keys: Record<
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A05/01.svg",
         endingPadding: 0,
         repeatPadding: 0,
-        trackRange: [1, 14],
+        trackRange: [-2, 14],
         segments: [
           {
             name: "樂句一",
