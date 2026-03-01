@@ -14,10 +14,10 @@ export type TrackStates = Record<"default" | "alternative", TrackConfig>;
 export const keys: Record<
   string,
   GraphicConfig & {
-    songTitle: string
-    endingPadding: number
-    repeatPadding: number
-    states: TrackStates
+    songTitle: string;
+    endingPadding: number;
+    repeatPadding: number;
+    states: TrackStates;
   }
 > = {
   A02: {
@@ -112,7 +112,7 @@ export const keys: Record<
     },
   },
   A04: {
-    title: "利用反拍設計，在音樂上帶改球迷跳躍感",
+    title: "利用反拍設計，在音樂上帶給球迷跳躍感",
     subtitle: "〈氣蓋山河〉節錄",
     songTitle: "氣蓋山河",
     endingPadding: 3,
