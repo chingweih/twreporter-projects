@@ -206,6 +206,12 @@
         flex-shrink: 0;
     }
 
+    @media (max-width: 700px) {
+        .piano-keys {
+            width: 50px;
+        }
+    }
+
     .white-keys {
         display: flex;
         flex-direction: column;

@@ -145,9 +145,15 @@
         width: 80px;
     }
 
+    @media (max-width: 700px) {
+        .instruments {
+            width: 60px;
+        }
+    }
+
     .instrument {
         flex-shrink: 0;
-        width: 80px;
+        width: 100%;
         height: 40px;
         background: var(--track-background);
         border-radius: 10px;
