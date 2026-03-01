@@ -4,18 +4,27 @@
 <script lang="ts">
     import { AudioPlayer } from "svelte-audio-player";
     import Shell from "../components/Shell.svelte";
-    import { interactiveMusicState } from "../lib/interactive-music/state.svelte";
+    import { keys, type TrackConfig } from "../lib/interactive-music/constants";
     import InteractiveMusic from "./InteractiveMusic.svelte";
 
-    const name = "棒球音樂使用反拍製造速度感";
-    const description = "來聽聽看你有沒有發現吧！";
-    const footnotes = ["音樂來源：...", "註：..."];
-
     const { key }: { key: string } = $props();
+
+    const config = keys[key];
+
+    const footnotes = [
+        ...(config.footnotes ?? []),
+        "資料整理：黃靖緯、許詩愷｜設計：江世民",
+    ];
+
+    let activeMusic: TrackConfig = $state(config.states.default);
 </script>
 
-<Shell {name} {footnotes} {description}>
-    <AudioPlayer src={interactiveMusicState.active.src}>
-        <InteractiveMusic />
+<Shell name={config.title} {footnotes} description={config.subtitle}>
+    <AudioPlayer src={activeMusic.src}>
+        <InteractiveMusic
+            states={config.states}
+            bind:active={activeMusic}
+            songTitle={config.songTitle}
+        />
     </AudioPlayer>
 </Shell>

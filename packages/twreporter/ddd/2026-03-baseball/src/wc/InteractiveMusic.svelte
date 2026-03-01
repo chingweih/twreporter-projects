@@ -3,11 +3,25 @@
     import Note from "../components/Note.svelte";
     import PlayControls from "../components/PlayControls.svelte";
     import SongCard from "../components/SongCard.svelte";
-    import { tracks } from "../lib/interactive-music/constants";
-    import { interactiveMusicState } from "../lib/interactive-music/state.svelte";
+    import type {
+        TrackConfig,
+        TrackStates,
+    } from "../lib/interactive-music/constants";
 
-    const songTitle = "氣蓋山河";
-    const totalBeats = 16;
+    let {
+        songTitle,
+        states,
+        active = $bindable(),
+    }: {
+        songTitle: string;
+        states: TrackStates;
+        active: TrackConfig;
+    } = $props();
+
+    const totalBeats = $derived(
+        active?.tracks[0].notes.reduce((acc, item) => acc + item.length, 0) ??
+            0,
+    );
     const endingPadding = 3;
     const repeatPadding = 0.5;
 
@@ -25,7 +39,7 @@
     });
 
     const instruments = $derived(
-        interactiveMusicState.active.tracks.map((instrument) => ({
+        active?.tracks.map((instrument) => ({
             ...instrument,
             notes: instrument.notes.reduce(
                 (acc, { length, rest }, i) => {
@@ -34,7 +48,7 @@
                         {
                             sum: (acc[i - 1]?.sum ?? 0) + (length ?? 0),
                             rest,
-                            note: length === 2 ? 4 : 8,
+                            note: 8 / length,
                             length,
                         },
                     ];
@@ -53,11 +67,11 @@
 <div class="controls">
     <PlayControls {paused} />
     <div class="control">
-        <button onclick={() => (interactiveMusicState.active = tracks.notSwing)}
-            >去除反拍</button
+        <button onclick={() => (active = states.default)}
+            >{states.default.name}</button
         >
-        <button onclick={() => (interactiveMusicState.active = tracks.default)}
-            >原曲加入反拍</button
+        <button onclick={() => (active = states.alternative)}
+            >{states.alternative.name}</button
         >
     </div>
 </div>

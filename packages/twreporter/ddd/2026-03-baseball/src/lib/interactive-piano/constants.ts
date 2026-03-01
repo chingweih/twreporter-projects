@@ -1,3 +1,5 @@
+import type { GraphicConfig } from "../layout/types";
+
 /**
  * Semitone index within a single octave (C to C').
  * 0=C, 1=C#, 2=D, 3=D#, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=A#, 11=B, 12=C'
@@ -37,10 +39,7 @@ export const TOTAL_SEMITONES = 13;
 
 export const keys: Record<
   string,
-  {
-    title: string;
-    subtitle: string;
-    footnotes?: string[];
+  GraphicConfig & {
     scores: PianoScoreConfig[];
   }
 > = {

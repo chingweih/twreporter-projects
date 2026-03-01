@@ -1,4 +1,7 @@
+import type { GraphicConfig } from "../layout/types";
+
 export type TrackConfig = {
+  name: string;
   src: string;
   tracks: {
     name: string;
@@ -6,124 +9,227 @@ export type TrackConfig = {
   }[];
 };
 
-export const tracks = {
-  default: {
-    src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/01.mp3",
-    tracks: [
-      {
-        name: "口號",
-        notes: [
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 2 },
-          { length: 2 },
+export type TrackStates = Record<"default" | "alternative", TrackConfig>;
 
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 2 },
-        ],
-      },
-      {
-        name: "主旋律",
-        notes: [
+export const keys: Record<
+  string,
+  GraphicConfig & { songTitle: string; states: TrackStates }
+> = {
+  A02: {
+    title: "利用節奏轉折點提示球迷、舞者的動作",
+    subtitle: "〈統一尚勇〉節錄",
+    songTitle: "統一尚勇",
+    states: {
+      default: {
+        name: "原曲",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A02/01.mp3",
+        tracks: [
           {
-            length: 1,
-            rest: true,
+            name: "口號",
+            notes: [
+              { length: 4, rest: true },
+              { length: 2 },
+              { length: 2 },
+              { length: 4, rest: true },
+              { length: 2 },
+              { length: 2 },
+            ],
           },
-          { length: 2 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 2 },
-
           {
-            length: 1,
-            rest: true,
+            name: "大鼓",
+            notes: [
+              { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 4, rest: true },
+              { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 4, rest: true },
+            ],
           },
-          { length: 2 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 2 },
+          {
+            name: "BASS",
+            notes: [
+              { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 4, rest: true },
+              { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 4, rest: true },
+            ],
+          },
         ],
       },
-      {
-        name: "BASS",
-        notes: [
-          { length: 1, rest: true },
-          { length: 2 },
-          { length: 1 },
-          { length: 2 },
-          { length: 2 },
-
-          { length: 1, rest: true },
-          { length: 2 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 2 },
+      alternative: {
+        name: "去除反拍",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A02/02.mp3",
+        tracks: [
+          {
+            name: "口號",
+            notes: [
+              { length: 4, rest: true },
+              { length: 2 },
+              { length: 2 },
+              { length: 4, rest: true },
+              { length: 2 },
+              { length: 2 },
+            ],
+          },
+          {
+            name: "大鼓",
+            notes: [
+              { length: 2 },
+              { length: 2 },
+              { length: 4, rest: true },
+              { length: 2 },
+              { length: 2 },
+              { length: 4, rest: true },
+            ],
+          },
+          {
+            name: "BASS",
+            notes: [
+              { length: 2 },
+              { length: 2 },
+              { length: 4, rest: true },
+              { length: 2 },
+              { length: 2 },
+              { length: 4, rest: true },
+            ],
+          },
         ],
       },
-    ],
+    },
   },
-  notSwing: {
-    src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/02.mp3",
-    tracks: [
-      {
-        name: "口號",
-        notes: [
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 2 },
-          { length: 2 },
+  A04: {
+    title: "利用反拍設計，在音樂上帶改球迷跳躍感",
+    subtitle: "〈氣蓋山河〉節錄",
+    songTitle: "氣蓋山河",
+    states: {
+      default: {
+        name: "原曲",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A04/01.mp3",
+        tracks: [
+          {
+            name: "口號",
+            notes: [
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 2 },
+              { length: 2 },
 
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
-          { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 2 },
+            ],
+          },
+          {
+            name: "主旋律",
+            notes: [
+              {
+                length: 1,
+                rest: true,
+              },
+              { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 2 },
+
+              {
+                length: 1,
+                rest: true,
+              },
+              { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 2 },
+            ],
+          },
+          {
+            name: "BASS",
+            notes: [
+              { length: 1, rest: true },
+              { length: 2 },
+              { length: 1 },
+              { length: 2 },
+              { length: 2 },
+
+              { length: 1, rest: true },
+              { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 2 },
+            ],
+          },
         ],
       },
-      {
-        name: "主旋律",
-        notes: [
-          { length: 2 },
-          { length: 2 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
+      alternative: {
+        name: "去除反拍",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A04/02.mp3",
+        tracks: [
+          {
+            name: "口號",
+            notes: [
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 2 },
+              { length: 2 },
 
-          { length: 2 },
-          { length: 2 },
-          { length: 1 },
-          { length: 1 },
-          { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+              { length: 2 },
+            ],
+          },
+          {
+            name: "主旋律",
+            notes: [
+              { length: 2 },
+              { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+
+              { length: 2 },
+              { length: 2 },
+              { length: 1 },
+              { length: 1 },
+              { length: 1 },
+            ],
+          },
+          {
+            name: "BASS",
+            notes: [
+              { length: 2 },
+              { length: 2 },
+              { length: 2 },
+              { length: 2 },
+
+              { length: 2 },
+              { length: 2 },
+              { length: 2 },
+              { length: 2 },
+            ],
+          },
         ],
       },
-      {
-        name: "BASS",
-        notes: [
-          { length: 2 },
-          { length: 2 },
-          { length: 2 },
-          { length: 2 },
-
-          { length: 2 },
-          { length: 2 },
-          { length: 2 },
-          { length: 2 },
-        ],
-      },
-    ],
+    },
   },
-} satisfies Record<string, TrackConfig>;
+};
