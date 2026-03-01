@@ -40,13 +40,14 @@
         score.segments.map((seg, segIdx) => {
             let cursor = segmentRanges[segIdx].start;
             const notes: PianoNote[] = [];
-            for (const { pitch, duration, rest } of seg.notes) {
+            for (const { pitch, duration, rest, text } of seg.notes) {
                 notes.push({
                     start: cursor,
                     pitch,
                     duration,
                     rest,
                     segment: segIdx,
+                    text,
                 });
                 cursor += duration;
             }
@@ -152,16 +153,17 @@
 
                 <div class="note-bars">
                     {#each notes as note}
-                        {#if !note.rest}
-                            <div
-                                class="note-bar"
-                                class:active={activeNote === note}
-                                style:left={`${((note.start - range.start) / range.beats) * 100}%`}
-                                style:width={`${(note.duration / range.beats) * 100}%`}
-                                style:top={`${((TOTAL_SEMITONES - 1 - note.pitch) / TOTAL_SEMITONES) * 100}%`}
-                                style:height={`${(1 / TOTAL_SEMITONES) * 100}%`}
-                            ></div>
-                        {/if}
+                        <div
+                            class="note-bar"
+                            class:rest={note.rest}
+                            class:active={activeNote === note}
+                            style:left={`${((note.start - range.start) / range.beats) * 100}%`}
+                            style:width={`${(note.duration / range.beats) * 100}%`}
+                            style:top={`${((TOTAL_SEMITONES - 1 - note.pitch) / TOTAL_SEMITONES) * 100}%`}
+                            style:height={`${(1 / TOTAL_SEMITONES) * 100}%`}
+                        >
+                            {note.text}
+                        </div>
                     {/each}
                 </div>
 
@@ -294,10 +296,20 @@
         background: var(--black-700);
         border-radius: 2px;
         transition: background 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
     }
 
     .note-bar.active {
         background: var(--blue-primary);
+    }
+
+    .note-bar.rest {
+        color: var(--black-700);
+        background: transparent;
     }
 
     .play-line {

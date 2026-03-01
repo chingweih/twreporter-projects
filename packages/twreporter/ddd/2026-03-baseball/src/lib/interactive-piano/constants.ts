@@ -34,6 +34,7 @@ export type PianoNote = {
   rest?: boolean;
   /** Index of the segment this note belongs to */
   segment: number;
+  text?: string;
 };
 
 export const TOTAL_SEMITONES = 13;
@@ -76,8 +77,8 @@ export const keys: Record<
               { pitch: 7, duration: 1 },
               { pitch: 5, duration: 1 },
               { pitch: 4, duration: 4 },
-              { pitch: -1, duration: 2, rest: true, text: "台" },
-              { pitch: -1, duration: 2, rest: true, text: "灣" },
+              { pitch: 6, duration: 2, rest: true, text: "台" },
+              { pitch: 6, duration: 2, rest: true, text: "灣" },
             ],
           },
         ],
@@ -99,16 +100,15 @@ export const keys: Record<
         segments: [
           {
             notes: [
-              { pitch: 10, duration: 2 },
-              { pitch: 5, duration: 1 },
-              { pitch: 5, duration: 1 },
-              { pitch: 5, duration: 1 },
-              { pitch: 8, duration: 1 },
-              { pitch: 5, duration: 2 },
-              { pitch: 3, duration: 2 },
-              { pitch: 1, duration: 1 },
-              { pitch: 3, duration: 1 },
-              { pitch: 5, duration: 4 },
+              { pitch: 10, duration: 2, text: "台" },
+              { pitch: 5, duration: 1, text: "鋼" },
+              { pitch: 5, duration: 1, text: "的" },
+              { pitch: 8, duration: 2, text: "鷹" },
+              { pitch: 5, duration: 2, text: "雄" },
+              { pitch: 3, duration: 2, text: "攻" },
+              { pitch: 1, duration: 1, text: "無" },
+              { pitch: 3, duration: 1, text: "不" },
+              { pitch: 5, duration: 4, text: "克" },
             ],
           },
         ],
