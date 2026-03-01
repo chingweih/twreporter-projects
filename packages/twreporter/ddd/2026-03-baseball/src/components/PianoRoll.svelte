@@ -10,9 +10,7 @@
 
     const { score }: { score: PianoScoreConfig } = $props();
 
-    const totalSemis = $derived(
-        score.trackRange[1] - score.trackRange[0] + 1,
-    );
+    const totalSemis = $derived(score.trackRange[1] - score.trackRange[0] + 1);
 
     const { currentTime, duration, paused } = getAudioContext();
 
@@ -165,7 +163,7 @@
                             class:active={activeNote === note}
                             style:left={`${((note.start - range.start) / range.beats) * 100}%`}
                             style:width={`${(note.duration / range.beats) * 100}%`}
-                            style:top={`${(((score.trackRange[1] - (note.pitch ?? score.trackRange[0])) / totalSemis) * 100)}%`}
+                            style:top={`${((score.trackRange[1] - (note.pitch ?? score.trackRange[0])) / totalSemis) * 100}%`}
                             style:height={`${(1 / totalSemis) * 100}%`}
                         >
                             {note.text}
