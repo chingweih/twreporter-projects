@@ -12,13 +12,20 @@
 
     const totalSemis = $derived(score.trackRange[1] - score.trackRange[0] + 1);
 
+    const totalBeats = $derived(
+        score.segments.reduce(
+            (sum, seg) => sum + seg.notes.reduce((s, n) => s + n.duration, 0),
+            0,
+        ),
+    );
+
     const { currentTime, duration, paused } = getAudioContext();
 
     let playerProgress = $derived(
         Math.min($currentTime / ($duration - score.endingPadding), 1),
     );
 
-    let currentBeat = $derived(playerProgress * score.totalBeats);
+    let currentBeat = $derived(playerProgress * totalBeats);
 
     $effect(() => {
         // Reset player after audio finished.

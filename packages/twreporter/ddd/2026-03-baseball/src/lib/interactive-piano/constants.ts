@@ -23,7 +23,6 @@ export type PianoScoreConfig = {
   name: string;
   src: string;
   image: string;
-  totalBeats: number;
   endingPadding: number;
   repeatPadding: number;
   /** [minPitch, maxPitch] defining the visible range of the piano roll grid */
@@ -61,9 +60,8 @@ export const keys: Record<
         src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A01/01.mp3",
         image:
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A01/01.svg",
-        totalBeats: 16,
-        endingPadding: 3,
-        repeatPadding: 0.5,
+        endingPadding: 0,
+        repeatPadding: 0,
         trackRange: [1, 13],
         segments: [
           {
@@ -102,9 +100,8 @@ export const keys: Record<
         src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A03/01.mp3",
         image:
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A03/01.svg",
-        totalBeats: 16,
-        endingPadding: 3,
-        repeatPadding: 0.5,
+        endingPadding: 0,
+        repeatPadding: 0,
         trackRange: [-3, 9],
         segments: [
           {
@@ -133,9 +130,8 @@ export const keys: Record<
         src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A05/01.mp3",
         image:
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A05/01.svg",
-        totalBeats: 16,
-        endingPadding: 3,
-        repeatPadding: 0.5,
+        endingPadding: 0,
+        repeatPadding: 0,
         trackRange: [1, 14],
         segments: [
           {
@@ -178,10 +174,9 @@ export const keys: Record<
         src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A05/02.mp3",
         image:
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A05/05.svg",
-        totalBeats: 16,
-        endingPadding: 3,
-        repeatPadding: 0.5,
-        trackRange: [2, 16],
+        endingPadding: 0,
+        repeatPadding: 0,
+        trackRange: [2, 18],
         segments: [
           {
             notes: [
