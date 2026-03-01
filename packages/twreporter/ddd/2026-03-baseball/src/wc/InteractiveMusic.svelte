@@ -70,10 +70,14 @@
 <div class="controls">
     <PlayControls {paused} />
     <div class="control">
-        <button onclick={() => (active = states.default)}
+        <button
+            onclick={() => (active = states.default)}
+            class:active={active.name == states.default.name}
             >{states.default.name}</button
         >
-        <button onclick={() => (active = states.alternative)}
+        <button
+            onclick={() => (active = states.alternative)}
+            class:active={active.name == states.alternative.name}
             >{states.alternative.name}</button
         >
     </div>
@@ -211,16 +215,29 @@
         justify-content: center;
         gap: 10px;
         height: 30px;
-        padding: 6px 20px;
+        padding: 3px 10px;
     }
 
     .control button {
         color: var(--blue-primary);
         font-size: 15px;
         cursor: pointer;
+        padding: 1px 10px;
+        border-radius: 99vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        flex-grow: 1;
 
         &:hover {
             color: var(--blue-primary);
         }
+    }
+
+    .control button.active {
+        background: var(--blue-primary);
+        color: white;
     }
 </style>
