@@ -85,6 +85,7 @@
         --box-background-20: #ffffff14; /* 20% */
         --box-background-50: #ffffff32; /* 50% */
         --black-900: #262626;
+        --black-800: #42464c;
         --black-700: #8090a7;
 
         --font-pixel: "Geist Pixel Line";

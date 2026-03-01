@@ -304,8 +304,7 @@
 
     .note-bar {
         position: absolute;
-        background: var(--black-700);
-        border-radius: 2px;
+        background: var(--black-800);
         transition: background 0.15s ease;
         display: flex;
         align-items: center;
@@ -319,7 +318,7 @@
     }
 
     .note-bar.rest {
-        color: var(--black-700);
+        color: var(--black-800);
         background: transparent;
     }
 
