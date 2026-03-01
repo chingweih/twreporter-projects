@@ -4,12 +4,13 @@ import type { GraphicConfig } from "../layout/types";
  * Semitone index within a single octave (C to C').
  * 0=C, 1=C#, 2=D, 3=D#, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=A#, 11=B, 12=C'
  */
-export type Pitch = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+export type Pitch = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | -1;
 
 export type PianoNoteInput = {
   pitch: Pitch;
   duration: number;
   rest?: boolean;
+  text?: string;
 };
 
 export type PianoSegment = {
@@ -58,19 +59,25 @@ export const keys: Record<
         segments: [
           {
             notes: [
-              { pitch: 7, duration: 3 },
-              { pitch: 4, duration: 1 },
-              { pitch: 7, duration: 3 },
+              { pitch: 2, duration: 2 },
+              { pitch: 5, duration: 1 },
+              { pitch: 2, duration: 1 },
+              { pitch: 9, duration: 3 },
               { pitch: 9, duration: 1 },
-            ],
-          },
-          {
-            notes: [
-              { pitch: 11, duration: 1, rest: true },
-              { pitch: 4, duration: 1 },
-              { pitch: 7, duration: 3 },
+              { pitch: 10, duration: 1 },
               { pitch: 9, duration: 1 },
-              { pitch: 11, duration: 2 },
+              { pitch: 7, duration: 1 },
+              { pitch: 10, duration: 1 },
+              { pitch: 9, duration: 4 },
+              { pitch: 7, duration: 2 },
+              { pitch: 9, duration: 1 },
+              { pitch: 7, duration: 1 },
+              { pitch: 5, duration: 2 },
+              { pitch: 7, duration: 1 },
+              { pitch: 5, duration: 1 },
+              { pitch: 4, duration: 4 },
+              { pitch: -1, duration: 2, rest: true, text: "台" },
+              { pitch: -1, duration: 2, rest: true, text: "灣" },
             ],
           },
         ],
@@ -92,10 +99,16 @@ export const keys: Record<
         segments: [
           {
             notes: [
-              { pitch: 7, duration: 3 },
-              { pitch: 4, duration: 1 },
-              { pitch: 7, duration: 3 },
-              { pitch: 9, duration: 1 },
+              { pitch: 10, duration: 2 },
+              { pitch: 5, duration: 1 },
+              { pitch: 5, duration: 1 },
+              { pitch: 5, duration: 1 },
+              { pitch: 8, duration: 1 },
+              { pitch: 5, duration: 2 },
+              { pitch: 3, duration: 2 },
+              { pitch: 1, duration: 1 },
+              { pitch: 3, duration: 1 },
+              { pitch: 5, duration: 4 },
             ],
           },
         ],
@@ -117,19 +130,35 @@ export const keys: Record<
         segments: [
           {
             notes: [
-              { pitch: 7, duration: 3 },
-              { pitch: 4, duration: 1 },
-              { pitch: 7, duration: 3 },
-              { pitch: 9, duration: 1 },
+              { pitch: 6, duration: 1 },
+              { pitch: 5, duration: 1 },
+              { pitch: 3, duration: 1.5 },
+              { pitch: 5, duration: 1.5 },
+              { pitch: 6, duration: 1 },
+              { pitch: 8, duration: 2 },
+              { pitch: 6, duration: 1 },
+              { pitch: 1, duration: 1 },
+              { pitch: 10, duration: 1.5 },
+              { pitch: 8, duration: 0.5 },
+              { pitch: 6, duration: 1 },
+              { pitch: 5, duration: 1 },
+              { pitch: 3, duration: 2 },
             ],
           },
           {
             notes: [
-              { pitch: 11, duration: 1, rest: true },
-              { pitch: 4, duration: 1 },
-              { pitch: 7, duration: 3 },
-              { pitch: 9, duration: 1 },
-              { pitch: 11, duration: 2 },
+              { pitch: 3, duration: 1 },
+              { pitch: 1, duration: 1 },
+              { pitch: 11, duration: 1.5 },
+              { pitch: 1, duration: 1.5 },
+              { pitch: 2, duration: 1 },
+              { pitch: 1, duration: 2 },
+              { pitch: 3, duration: 1 },
+              { pitch: 5, duration: 1 },
+              { pitch: 5, duration: 1.5 },
+              { pitch: 6, duration: 1.5 },
+              { pitch: 8, duration: 1 },
+              { pitch: 10, duration: 2 },
             ],
           },
         ],
@@ -145,19 +174,34 @@ export const keys: Record<
         segments: [
           {
             notes: [
-              { pitch: 5, duration: 2 },
-              { pitch: 7, duration: 2 },
-              { pitch: 9, duration: 2 },
-              { pitch: 5, duration: 1, rest: true },
-              { pitch: 7, duration: 1 },
-            ],
-          },
-          {
-            notes: [
+              { pitch: 3, duration: 1 },
+              { pitch: 8, duration: 1 },
               { pitch: 12, duration: 3 },
-              { pitch: 9, duration: 1 },
-              { pitch: 7, duration: 2 },
-              { pitch: 5, duration: 2 },
+              { pitch: 3, duration: 1 },
+              { pitch: 12, duration: 2 },
+              { pitch: 12, duration: 1 },
+              { pitch: 10, duration: 1 },
+              { pitch: 8, duration: 2 },
+              { pitch: 8, duration: 0.5 },
+              { pitch: 10, duration: 0.5 },
+              { pitch: 8, duration: 0.5 },
+              { pitch: 5, duration: 0.5 },
+              { pitch: 3, duration: 2 },
+              { pitch: 8, duration: 1 },
+              { pitch: 10, duration: 1 },
+              { pitch: 12, duration: 3 },
+              { pitch: 5, duration: 1 },
+              { pitch: 3, duration: 2 },
+              { pitch: 5, duration: 1 },
+              { pitch: 3, duration: 1 },
+              { pitch: 3, duration: 0.5 },
+              { pitch: 12, duration: 0.5 },
+              { pitch: 10, duration: 0.5 },
+              { pitch: 8, duration: 0.5 },
+              { pitch: 12, duration: 0.5 },
+              { pitch: 10, duration: 1.5 },
+              { pitch: 10, duration: 3 },
+              { pitch: -1, duration: 1 },
             ],
           },
         ],
