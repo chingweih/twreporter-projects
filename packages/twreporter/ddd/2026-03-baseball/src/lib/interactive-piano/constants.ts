@@ -17,6 +17,7 @@ export type PianoSegment = {
 export type PianoScoreConfig = {
   name: string;
   src: string;
+  image: string;
   totalBeats: number;
   endingPadding: number;
   repeatPadding: number;
@@ -34,57 +35,134 @@ export type PianoNote = {
 
 export const TOTAL_SEMITONES = 13;
 
-export const pianoScores: PianoScoreConfig[] = [
+export const keys: Record<
+  string,
   {
-    name: "Team Taiwan",
-    src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/01.mp3",
-    totalBeats: 16,
-    endingPadding: 3,
-    repeatPadding: 0.5,
-    segments: [
+    title: string;
+    subtitle: string;
+    footnotes?: string[];
+    scores: PianoScoreConfig[];
+  }
+> = {
+  A01: {
+    title: "國家隊版本〈台灣尚勇〉",
+    subtitle: "前奏節錄",
+    scores: [
       {
-        notes: [
-          { pitch: 7, duration: 3 },
-          { pitch: 4, duration: 1 },
-          { pitch: 7, duration: 3 },
-          { pitch: 9, duration: 1 },
-        ],
-      },
-      {
-        notes: [
-          { pitch: 11, duration: 1, rest: true },
-          { pitch: 4, duration: 1 },
-          { pitch: 7, duration: 3 },
-          { pitch: 9, duration: 1 },
-          { pitch: 11, duration: 2 },
+        name: "台灣尚勇",
+        src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/01.mp3",
+        image:
+          "https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg",
+        totalBeats: 16,
+        endingPadding: 3,
+        repeatPadding: 0.5,
+        segments: [
+          {
+            notes: [
+              { pitch: 7, duration: 3 },
+              { pitch: 4, duration: 1 },
+              { pitch: 7, duration: 3 },
+              { pitch: 9, duration: 1 },
+            ],
+          },
+          {
+            notes: [
+              { pitch: 11, duration: 1, rest: true },
+              { pitch: 4, duration: 1 },
+              { pitch: 7, duration: 3 },
+              { pitch: 9, duration: 1 },
+              { pitch: 11, duration: 2 },
+            ],
+          },
         ],
       },
     ],
   },
-  {
-    name: "黃昏的故鄉",
-    src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/02.mp3",
-    totalBeats: 16,
-    endingPadding: 3,
-    repeatPadding: 0.5,
-    segments: [
+  A03: {
+    title: "棒球應援曲使用音階的急升帶動氣氛",
+    subtitle: "台鋼雄鷹嗆司曲〈氣蓋山河〉",
+    scores: [
       {
-        notes: [
-          { pitch: 5, duration: 2 },
-          { pitch: 7, duration: 2 },
-          { pitch: 9, duration: 2 },
-          { pitch: 5, duration: 1, rest: true },
-          { pitch: 7, duration: 1 },
-        ],
-      },
-      {
-        notes: [
-          { pitch: 12, duration: 3 },
-          { pitch: 9, duration: 1 },
-          { pitch: 7, duration: 2 },
-          { pitch: 5, duration: 2 },
+        name: "氣蓋山河",
+        src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/01.mp3",
+        image:
+          "https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg",
+        totalBeats: 16,
+        endingPadding: 3,
+        repeatPadding: 0.5,
+        segments: [
+          {
+            notes: [
+              { pitch: 7, duration: 3 },
+              { pitch: 4, duration: 1 },
+              { pitch: 7, duration: 3 },
+              { pitch: 9, duration: 1 },
+            ],
+          },
         ],
       },
     ],
   },
-];
+  A05: {
+    title: "棒球應援曲利用短「樂句」呼應棒球場上節奏",
+    subtitle: "Team Taiwan 與流行樂〈黃昏的故鄉〉對比",
+    scores: [
+      {
+        name: "Team Taiwan",
+        src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/01.mp3",
+        image:
+          "https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg",
+        totalBeats: 16,
+        endingPadding: 3,
+        repeatPadding: 0.5,
+        segments: [
+          {
+            notes: [
+              { pitch: 7, duration: 3 },
+              { pitch: 4, duration: 1 },
+              { pitch: 7, duration: 3 },
+              { pitch: 9, duration: 1 },
+            ],
+          },
+          {
+            notes: [
+              { pitch: 11, duration: 1, rest: true },
+              { pitch: 4, duration: 1 },
+              { pitch: 7, duration: 3 },
+              { pitch: 9, duration: 1 },
+              { pitch: 11, duration: 2 },
+            ],
+          },
+        ],
+      },
+      {
+        name: "黃昏的故鄉",
+        src: "https://storage.googleapis.com/projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/tsg/02.mp3",
+        image:
+          "https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg",
+        totalBeats: 16,
+        endingPadding: 3,
+        repeatPadding: 0.5,
+        segments: [
+          {
+            notes: [
+              { pitch: 5, duration: 2 },
+              { pitch: 7, duration: 2 },
+              { pitch: 9, duration: 2 },
+              { pitch: 5, duration: 1, rest: true },
+              { pitch: 7, duration: 1 },
+            ],
+          },
+          {
+            notes: [
+              { pitch: 12, duration: 3 },
+              { pitch: 9, duration: 1 },
+              { pitch: 7, duration: 2 },
+              { pitch: 5, duration: 2 },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+};

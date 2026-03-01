@@ -10,23 +10,21 @@
 
     const { score }: { score: PianoScoreConfig } = $props();
 
-    const { currentTime, duration, paused, repeat } = getAudioContext();
-    repeat.set(true);
+    const { currentTime, duration, paused } = getAudioContext();
 
     let playerProgress = $derived(
         Math.min($currentTime / ($duration - score.endingPadding), 1),
     );
 
+    let currentBeat = $derived(playerProgress * score.totalBeats);
+
     $effect(() => {
-        if (
-            $currentTime >
-            $duration - score.endingPadding + score.repeatPadding
-        ) {
+        // Reset player after audio finished.
+        if (playerProgress === 1) {
+            paused.set(true);
             currentTime.set(0);
         }
     });
-
-    let currentBeat = $derived(playerProgress * score.totalBeats);
 
     const segmentRanges = $derived.by(() => {
         let cursor = 0;
@@ -96,7 +94,7 @@
 
 <div class="container">
     <SongCard title={score.name}>
-        <img src="" alt={score.name} />
+        <img src={score.image} alt={score.name} />
     </SongCard>
 
     <div class="piano-keys">

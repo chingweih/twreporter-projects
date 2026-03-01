@@ -3,13 +3,18 @@
 
 <script lang="ts">
     import Shell from "../components/Shell.svelte";
+    import { keys } from "../lib/interactive-piano/constants";
     import InteractivePiano from "./InteractivePiano.svelte";
 
-    const name = "棒球音樂具有短樂句的特徵";
-    const description = "測試測試";
-    const footnotes = ["音樂來源：...", "註：..."];
+    const { key }: { key: string } = $props();
+    const config = keys[key];
+
+    const footnotes = [
+        ...(config.footnotes ?? []),
+        "資料整理：黃靖緯、許詩愷｜設計：江世民",
+    ];
 </script>
 
-<Shell {name} {footnotes} {description}>
-    <InteractivePiano />
+<Shell name={config.title} {footnotes} description={config.subtitle}>
+    <InteractivePiano scores={config.scores} />
 </Shell>
