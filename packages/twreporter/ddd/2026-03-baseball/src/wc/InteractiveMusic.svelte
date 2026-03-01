@@ -202,7 +202,6 @@
         background: var(--blue-primary);
         border-radius: 3px;
         will-change: left;
-        filter: drop-shadow(2px 0 4px rgba(0, 0, 0, 0.25));
     }
 
     .controls {
