@@ -11,10 +11,14 @@
     let {
         songTitle,
         states,
+        endingPadding,
+        repeatPadding,
         active = $bindable(),
     }: {
         songTitle: string;
         states: TrackStates;
+        endingPadding: number;
+        repeatPadding: number;
         active: TrackConfig;
     } = $props();
 
@@ -22,9 +26,6 @@
         active?.tracks[0].notes.reduce((acc, item) => acc + item.length, 0) ??
             0,
     );
-    const endingPadding = 3;
-    const repeatPadding = 0.5;
-
     const { currentTime, duration, paused, repeat } = getAudioContext();
     repeat.set(true);
 

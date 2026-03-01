@@ -25,6 +25,8 @@
             states={config.states}
             bind:active={activeMusic}
             songTitle={config.songTitle}
+            endingPadding={config.endingPadding}
+            repeatPadding={config.repeatPadding}
         />
     </AudioPlayer>
 </Shell>

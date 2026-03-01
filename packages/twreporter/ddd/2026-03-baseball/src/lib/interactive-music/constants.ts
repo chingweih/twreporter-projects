@@ -13,12 +13,19 @@ export type TrackStates = Record<"default" | "alternative", TrackConfig>;
 
 export const keys: Record<
   string,
-  GraphicConfig & { songTitle: string; states: TrackStates }
+  GraphicConfig & {
+    songTitle: string
+    endingPadding: number
+    repeatPadding: number
+    states: TrackStates
+  }
 > = {
   A02: {
     title: "利用節奏轉折點提示球迷、舞者的動作",
     subtitle: "〈統一尚勇〉節錄",
     songTitle: "統一尚勇",
+    endingPadding: 0,
+    repeatPadding: 0,
     states: {
       default: {
         name: "原曲",
@@ -108,6 +115,8 @@ export const keys: Record<
     title: "利用反拍設計，在音樂上帶改球迷跳躍感",
     subtitle: "〈氣蓋山河〉節錄",
     songTitle: "氣蓋山河",
+    endingPadding: 3,
+    repeatPadding: 0.5,
     states: {
       default: {
         name: "原曲",
