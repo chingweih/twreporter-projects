@@ -1,12 +1,12 @@
 <script lang="ts">
     import { getAudioContext } from "svelte-audio-player";
-    import PlayControls from "./PlayControls.svelte";
-    import SongCard from "./SongCard.svelte";
     import {
         pitchToSemitone,
         type PianoNote,
         type PianoScoreConfig,
-    } from "../lib/interactive-piano/constants";
+    } from "../../constants/interactive-piano";
+    import SongCard from "../player/SongCard.svelte";
+    import PlayControls from "../player/PlayControls.svelte";
 
     const { score }: { score: PianoScoreConfig } = $props();
 

@@ -7,7 +7,7 @@
         headerId,
         itemId,
         ROW_GAP,
-    } from "../lib/svelte-flow/constants";
+    } from "../lib/constants/svelte-flow";
     import ViewportController, {
         type ViewState,
     } from "./ViewportController.svelte";

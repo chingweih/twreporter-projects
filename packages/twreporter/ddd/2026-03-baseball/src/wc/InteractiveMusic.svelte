@@ -1,12 +1,12 @@
 <script lang="ts">
     import { getAudioContext } from "svelte-audio-player";
-    import Note from "../components/Note.svelte";
-    import PlayControls from "../components/PlayControls.svelte";
-    import SongCard from "../components/SongCard.svelte";
+    import Note from "../lib/components/rhythm/Note.svelte";
+    import PlayControls from "../lib/components/player/PlayControls.svelte";
+    import SongCard from "../lib/components/player/SongCard.svelte";
     import type {
         TrackConfig,
         TrackStates,
-    } from "../lib/interactive-music/constants";
+    } from "../lib/constants/interactive-music";
 
     let {
         songTitle,

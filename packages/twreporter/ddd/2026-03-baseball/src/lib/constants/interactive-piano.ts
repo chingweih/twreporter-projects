@@ -1,4 +1,4 @@
-import type { GraphicConfig } from "../layout/types";
+import type { GraphicConfig } from "../components/layout/types";
 
 /**
  * Pitch value within a score's track range.

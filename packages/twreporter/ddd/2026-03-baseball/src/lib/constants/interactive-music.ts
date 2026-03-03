@@ -1,4 +1,4 @@
-import type { GraphicConfig } from "../layout/types";
+import type { GraphicConfig } from "../components/layout/types";
 
 export type TrackConfig = {
   name: string;

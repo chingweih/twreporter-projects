@@ -2,11 +2,10 @@
 <svelte:options customElement={{ tag: "twreporter-interactive-music" }} />
 
 <script lang="ts">
-    import { AudioPlayer } from "svelte-audio-player";
-    import Shell from "../components/Shell.svelte";
-    import { keys, type TrackConfig } from "../lib/interactive-music/constants";
+    import Shell from "../lib/components/layout/Shell.svelte";
+    import AudioProvider from "../lib/components/audio/AudioProvider.svelte";
+    import { keys, type TrackConfig } from "../lib/constants/interactive-music";
     import InteractiveMusic from "./InteractiveMusic.svelte";
-    import AudioController from "../components/AudioController.svelte";
 
     const { key }: { key: string } = $props();
 
@@ -21,15 +20,13 @@
 </script>
 
 <Shell name={config.title} {footnotes} description={config.subtitle}>
-    <AudioPlayer src={activeMusic.src}>
-        <AudioController>
-            <InteractiveMusic
-                states={config.states}
-                bind:active={activeMusic}
-                songTitle={config.songTitle}
-                endingPadding={config.endingPadding}
-                repeatPadding={config.repeatPadding}
-            />
-        </AudioController>
-    </AudioPlayer>
+    <AudioProvider src={activeMusic.src}>
+        <InteractiveMusic
+            states={config.states}
+            bind:active={activeMusic}
+            songTitle={config.songTitle}
+            endingPadding={config.endingPadding}
+            repeatPadding={config.repeatPadding}
+        />
+    </AudioProvider>
 </Shell>

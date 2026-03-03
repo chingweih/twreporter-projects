@@ -2,8 +2,8 @@
 <svelte:options customElement={{ tag: "twreporter-interactive-piano" }} />
 
 <script lang="ts">
-    import Shell from "../components/Shell.svelte";
-    import { keys } from "../lib/interactive-piano/constants";
+    import Shell from "../lib/components/layout/Shell.svelte";
+    import { keys } from "../lib/constants/interactive-piano";
     import InteractivePiano from "./InteractivePiano.svelte";
 
     const { key }: { key: string } = $props();

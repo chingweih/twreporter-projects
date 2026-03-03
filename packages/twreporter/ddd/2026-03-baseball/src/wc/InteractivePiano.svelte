@@ -1,19 +1,16 @@
 <script lang="ts">
-    import { AudioPlayer } from "svelte-audio-player";
-    import PianoRoll from "../components/PianoRoll.svelte";
-    import type { PianoScoreConfig } from "../lib/interactive-piano/constants";
-    import AudioController from "../components/AudioController.svelte";
+    import AudioProvider from "../lib/components/audio/AudioProvider.svelte";
+    import PianoRoll from "../lib/components/piano/PianoRoll.svelte";
+    import type { PianoScoreConfig } from "../lib/constants/interactive-piano";
 
     const { scores }: { scores: PianoScoreConfig[] } = $props();
 </script>
 
 <div class="scores">
     {#each scores as score}
-        <AudioPlayer src={score.src}>
-            <AudioController>
-                <PianoRoll {score} />
-            </AudioController>
-        </AudioPlayer>
+        <AudioProvider src={score.src}>
+            <PianoRoll {score} />
+        </AudioProvider>
     {/each}
 </div>
 

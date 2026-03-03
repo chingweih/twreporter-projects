@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { Writable } from 'svelte/store'
-    import Pause from './icons/pause.svelte'
-    import Play from './icons/play.svelte'
+    import type { Writable } from "svelte/store";
+    import Pause from "../icons/pause.svelte";
+    import Play from "../icons/play.svelte";
 
-    let { paused }: { paused: Writable<boolean> } = $props()
+    let { paused }: { paused: Writable<boolean> } = $props();
 </script>
 
 <div class="pill">
