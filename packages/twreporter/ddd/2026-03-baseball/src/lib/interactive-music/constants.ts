@@ -166,7 +166,7 @@ export const keys: Record<
             ],
           },
           {
-            name: "BASS",
+            name: "低音",
             notes: [
               { length: 1, rest: true },
               { length: 2 },
@@ -214,17 +214,17 @@ export const keys: Record<
               { length: 2 },
               { length: 1 },
               { length: 1 },
-              { length: 1 },
+              { length: 2 },
 
               { length: 2 },
               { length: 2 },
               { length: 1 },
               { length: 1 },
-              { length: 1 },
+              { length: 2 },
             ],
           },
           {
-            name: "BASS",
+            name: "低音",
             notes: [
               { length: 2 },
               { length: 2 },

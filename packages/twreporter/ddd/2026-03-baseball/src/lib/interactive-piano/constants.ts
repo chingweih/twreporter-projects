@@ -124,7 +124,7 @@ export const keys: Record<
   },
   A05: {
     title: "棒球應援曲利用短「樂句」呼應棒球場上節奏",
-    subtitle: "Team Taiwan 與流行樂〈黃昏的故鄉〉對比",
+    subtitle: "〈Team Taiwan〉與流行樂〈黃昏的故鄉〉對比",
     scores: [
       {
         name: "Team Taiwan",
