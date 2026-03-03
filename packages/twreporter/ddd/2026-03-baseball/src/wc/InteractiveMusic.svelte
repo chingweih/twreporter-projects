@@ -182,7 +182,11 @@
         flex: 1;
         height: 40px;
         background: var(--background-muted);
-        background-image: linear-gradient(to right, #ccc 1px, transparent 1px);
+        background-image: linear-gradient(
+            to right,
+            var(--background) 1px,
+            transparent 1px
+        );
         background-size: calc(var(--background-size-frac, 12.5%) - 2px) 100%;
         background-position: left 15.6px top 0;
         padding: 0px 8px;
