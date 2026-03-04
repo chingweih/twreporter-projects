@@ -57,7 +57,7 @@ export const keys: Record<
     subtitle: "前奏節錄",
     scores: [
       {
-        name: "台灣尚勇",
+        name: "〈台灣尚勇〉",
         src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A01/01.mp3",
         image:
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A01/01.svg",
@@ -97,7 +97,7 @@ export const keys: Record<
     subtitle: "台鋼雄鷹嗆司曲〈氣蓋山河〉",
     scores: [
       {
-        name: "氣蓋山河",
+        name: "〈氣蓋山河〉",
         src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A03/01.mp3",
         image:
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A03/01.svg",
@@ -127,8 +127,8 @@ export const keys: Record<
     subtitle: "〈Team Taiwan〉與流行樂〈黃昏的故鄉〉對比",
     scores: [
       {
-        name: "Team Taiwan",
-        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A05/01.mp3",
+        name: "〈Team Taiwan〉",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A05/01.mp3?1",
         image:
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A05/01.svg",
         endingPadding: 0,
@@ -136,7 +136,7 @@ export const keys: Record<
         trackRange: [-2, 14],
         segments: [
           {
-            name: "樂句一",
+            name: "段落一",
             notes: [
               { pitch: 6, duration: 1 },
               { pitch: 5, duration: 1 },
@@ -154,7 +154,7 @@ export const keys: Record<
             ],
           },
           {
-            name: "樂句二",
+            name: "段落二",
             notes: [
               { pitch: 3, duration: 1 },
               { pitch: 1, duration: 1 },
@@ -173,43 +173,47 @@ export const keys: Record<
         ],
       },
       {
-        name: "黃昏的故鄉",
-        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A05/02.mp3",
+        name: "〈曾經瘋狂〉",
+        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/A05/02.mp3?1",
         image:
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A05/05.svg",
-        endingPadding: 0.75,
+        endingPadding: 0,
         repeatPadding: 0,
         trackRange: [2, 18],
         segments: [
           {
-            name: "樂句一",
+            name: "段落一",
             notes: [
-              { pitch: 3, duration: 1 },
-              { pitch: 8, duration: 1 },
-              { pitch: 12, duration: 3 },
+              { pitch: 5, duration: 1 },
+              { pitch: 5, duration: 1 },
+              { pitch: 17, duration: 1 },
+              { pitch: 17, duration: 1 },
               { pitch: 15, duration: 1 },
-              { pitch: 12, duration: 2 },
+              { pitch: 15, duration: 1 },
+              { pitch: 14, duration: 1 },
               { pitch: 12, duration: 1 },
               { pitch: 10, duration: 1 },
-              { pitch: 8, duration: 2 },
-              { pitch: 8, duration: 0.5 },
-              { pitch: 10, duration: 0.5 },
-              { pitch: 8, duration: 0.5 },
-              { pitch: 5, duration: 0.5 },
-              { pitch: 3, duration: 2 },
-              { rest: true, duration: 1 },
+              { pitch: 12, duration: 1 },
               { pitch: 10, duration: 1 },
-              { pitch: 12, duration: 3 },
+              { pitch: 12, duration: 1 },
               { pitch: 17, duration: 1 },
-              { pitch: 15, duration: 2 },
+              { pitch: 14, duration: 1 },
+              { pitch: 17, duration: 2 },
               { pitch: 17, duration: 1 },
-              { pitch: 15, duration: 2 },
-              { pitch: 15, duration: 0.5 },
-              { pitch: 12, duration: 0.5 },
-              { pitch: 12, duration: 0.5 },
-              { pitch: 10, duration: 0.5 },
-              { pitch: 8, duration: 1 },
-              { pitch: 10, duration: 3.5 },
+              { pitch: 17, duration: 1 },
+              { pitch: 17, duration: 1 },
+              { pitch: 17, duration: 1 },
+              { pitch: 15, duration: 1 },
+              { pitch: 15, duration: 1 },
+              { pitch: 13, duration: 1 },
+              { pitch: 12, duration: 1 },
+              { pitch: 10, duration: 1 },
+              { pitch: 12, duration: 1 },
+              { pitch: 10, duration: 1 },
+              { pitch: 12, duration: 1 },
+              { pitch: 17, duration: 1 },
+              { pitch: 17, duration: 1 },
+              { pitch: 14, duration: 3 },
             ],
           },
         ],
