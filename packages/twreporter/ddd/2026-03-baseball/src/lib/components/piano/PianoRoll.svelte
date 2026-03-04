@@ -7,6 +7,8 @@
     } from "../../constants/interactive-piano";
     import PlayControls from "../player/PlayControls.svelte";
     import PlayerHead from "../player/PlayerHead.svelte";
+    import SongTitle from "../player/SongTitle.svelte";
+    import OutlineText from "../typography/OutlineText.svelte";
 
     const { score }: { score: PianoScoreConfig } = $props();
 
@@ -100,6 +102,10 @@
     const WHITE_KEY_SEMITONES = [11, 9, 7, 5, 4, 2, 0] as const;
 </script>
 
+<div class="title">
+    <SongTitle title={score.name} />
+</div>
+
 <div class="container">
     <div class="piano-keys">
         <div class="white-keys">
@@ -172,7 +178,7 @@
                             style:top={`${((score.trackRange[1] - (note.pitch ?? score.trackRange[0])) / totalSemis) * 100}%`}
                             style:height={`${(1 / totalSemis) * 100}%`}
                         >
-                            <p>{note.text}</p>
+                            <OutlineText text={note.text} />
                         </div>
                     {/each}
                 </div>
@@ -192,11 +198,39 @@
 </div>
 
 <style>
+    .title {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        margin-top: -60px;
+    }
+
     .container {
         display: flex;
         align-items: stretch;
         gap: 10px;
         min-height: 235px;
+        margin-top: 30px;
+    }
+
+    .container:has(.segment-name) {
+        margin-top: 40px;
+    }
+
+    @media (max-width: 550px) {
+        .title {
+            justify-content: start;
+            margin-top: unset;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .container:has(.segment-name) {
+            margin-top: 30px;
+        }
     }
 
     .piano-keys {
@@ -204,6 +238,7 @@
         width: 105px;
         flex-shrink: 0;
         border-radius: 5px;
+        overflow: hidden;
     }
 
     @media (max-width: 700px) {
@@ -362,16 +397,21 @@
         position: absolute;
         color: #f2f1ed;
         top: -30px;
-        font-weight: 700;
+        font-weight: 900;
         font-size: 20px;
         text-align: center;
-        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
         z-index: 0;
-        text-shadow:
-            -1px -1px 0 var(--blue-primary),
-            1px -1px 0 var(--blue-primary),
-            -1px 1px 0 var(--blue-primary),
-            1px 1px 0 var(--blue-primary);
+        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
+        -webkit-text-stroke: 6px var(--blue-primary);
+    }
+
+    .note-bar p::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: attr(data-text);
+        color: #f2f1ed;
+        -webkit-text-stroke: 0;
     }
 
     @media (max-width: 550px) {

@@ -86,7 +86,7 @@
                 <div class="notes" style:--total-beats={totalBeats}>
                     {#each notes as { sum, note, rest, length, text, swing }}
                         <Note
-                            active={playerProgress >=
+                            active={playerProgress >
                                 (sum - length) / totalBeats}
                             {rest}
                             {note}
@@ -248,6 +248,7 @@
 
         -webkit-background-clip: text;
         background-clip: text;
+        padding-bottom: 1px;
 
         text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.1);
     }

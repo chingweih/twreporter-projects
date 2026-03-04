@@ -64,6 +64,10 @@
         font-size: var(--size, 20px);
     }
 
+    .start:has(p) {
+        height: calc(var(--size, 20px) + 10px);
+    }
+
     .start.swing {
         transform: rotate(180deg);
         animation-composition: add;
@@ -94,15 +98,20 @@
 
     p {
         color: #f2f1ed;
-        font-weight: 700;
+        font-weight: 900;
         text-align: center;
-        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
         z-index: 0;
-        text-shadow:
-            -1px -1px 0 var(--blue-primary),
-            1px -1px 0 var(--blue-primary),
-            -1px 1px 0 var(--blue-primary),
-            1px 1px 0 var(--blue-primary);
+        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
+        -webkit-text-stroke: 6px var(--blue-primary);
+    }
+
+    p::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: attr(data-text);
+        color: #f2f1ed;
+        -webkit-text-stroke: 0;
     }
 
     @media (max-width: 550px) {

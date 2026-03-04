@@ -82,7 +82,9 @@
         --background-muted: rgba(255, 255, 255, 0.7);
         --track-background: #fff;
         --blue-primary: #006bff;
+        --background-primary: var(--blue-primary);
         --pink-primary: #ff0088;
+        --pink-muted: #efede9;
         --red-primary: #ff4713;
         --box-background: #ffffff;
         --box-background-20: #ffffff14; /* 20% */
