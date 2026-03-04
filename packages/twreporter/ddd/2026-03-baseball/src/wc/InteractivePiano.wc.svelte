@@ -6,7 +6,10 @@
     import { keys } from "../lib/constants/interactive-piano";
     import InteractivePiano from "./InteractivePiano.svelte";
 
-    const { key }: { key: string } = $props();
+    const {
+        key,
+        "background-style": backgroundStyle = "default",
+    }: { key: string; "background-style"?: "default" | "double" } = $props();
     const config = keys[key];
 
     const footnotes = [
@@ -15,6 +18,11 @@
     ];
 </script>
 
-<Shell name={config.title} {footnotes} description={config.subtitle}>
+<Shell
+    name={config.title}
+    {footnotes}
+    description={config.subtitle}
+    {backgroundStyle}
+>
     <InteractivePiano scores={config.scores} />
 </Shell>

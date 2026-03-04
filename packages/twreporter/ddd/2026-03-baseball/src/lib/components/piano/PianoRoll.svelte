@@ -352,6 +352,13 @@
             1px 1px 0 var(--blue-primary);
     }
 
+    @media (max-width: 550px) {
+        .note-bar p {
+            top: -20px;
+            font-size: 16px;
+        }
+    }
+
     .controls {
         margin-top: 20px;
     }

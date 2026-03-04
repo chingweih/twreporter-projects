@@ -2,6 +2,7 @@
     import { domToPng } from "modern-screenshot";
     import type { Snippet } from "svelte";
     import Background from "../icons/Background.svelte";
+    import DoubleBackground from "../icons/DoubleBackground.svelte";
 
     let container: HTMLDivElement | null = null;
 
@@ -13,12 +14,14 @@
         name,
         children,
         headerChildren,
+        backgroundStyle = "default",
     }: {
         name: string;
         description?: string;
         footnotes: string[];
         children: Snippet;
         headerChildren?: Snippet;
+        backgroundStyle?: "default" | "double";
     } = $props();
 </script>
 
@@ -29,8 +32,16 @@
 />
 
 <div class="outer">
-    <div class="container" bind:this={container}>
-        <Background />
+    <div
+        class="container"
+        bind:this={container}
+        class:double={backgroundStyle === "double"}
+    >
+        {#if backgroundStyle === "default"}
+            <Background />
+        {:else if backgroundStyle === "double"}
+            <DoubleBackground />
+        {/if}
 
         <div class="header">
             <h1>{name}</h1>
@@ -106,6 +117,10 @@
         background: var(--background);
         border-radius: 3px;
         --btn-size: 9px;
+    }
+
+    .container.double {
+        padding-bottom: 20px;
     }
 
     @media (max-width: 550px) {

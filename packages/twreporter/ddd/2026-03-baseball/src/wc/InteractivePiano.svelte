@@ -18,6 +18,6 @@
     .scores {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 50px;
     }
 </style>
