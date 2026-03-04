@@ -25,4 +25,11 @@
         color: #f2f1ed;
         -webkit-text-stroke: 0;
     }
+
+    @media (max-width: 550px) {
+        p {
+            top: -20px;
+            font-size: 16px;
+        }
+    }
 </style>

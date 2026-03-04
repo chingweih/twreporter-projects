@@ -393,34 +393,6 @@
         box-shadow: none;
     }
 
-    .note-bar p {
-        position: absolute;
-        color: #f2f1ed;
-        top: -30px;
-        font-weight: 900;
-        font-size: 20px;
-        text-align: center;
-        z-index: 0;
-        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
-        -webkit-text-stroke: 6px var(--blue-primary);
-    }
-
-    .note-bar p::before {
-        position: absolute;
-        top: 0;
-        left: 0;
-        content: attr(data-text);
-        color: #f2f1ed;
-        -webkit-text-stroke: 0;
-    }
-
-    @media (max-width: 550px) {
-        .note-bar p {
-            top: -20px;
-            font-size: 16px;
-        }
-    }
-
     .controls {
         margin-top: 20px;
     }
