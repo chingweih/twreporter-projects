@@ -137,8 +137,11 @@
                 class="segment"
                 class:dimmed={activeSegment !== -1 && segIdx !== activeSegment}
                 style:flex={range.beats}
+                class:with-name={Boolean(segment.name)}
             >
-                <div class="segment-name">{segment.name}</div>
+                {#if Boolean(segment.name)}
+                    <div class="segment-name"><span>{segment.name}</span></div>
+                {/if}
                 <div class="rows">
                     {#each Array(totalSemis) as _, i}
                         <div
@@ -201,7 +204,6 @@
         width: 105px;
         flex-shrink: 0;
         border-radius: 5px;
-        overflow: hidden;
     }
 
     @media (max-width: 700px) {
@@ -254,25 +256,45 @@
         display: flex;
         gap: 4px;
         flex-grow: 1;
-        overflow: hidden;
     }
 
     .segment {
         position: relative;
         flex-shrink: 0;
-        overflow: hidden;
         transition: opacity 0.15s ease;
     }
 
-    .segment.dimmed {
-        opacity: 0.3;
+    .segment.with-name {
+        margin-top: 10px;
     }
 
     .segment-name {
         position: absolute;
-        padding: 2px 10px;
-        color: var(--black-800);
-        z-index: 50;
+        width: 100%;
+        height: 30px;
+        top: -30px;
+        border-radius: 5px 5px 0 0;
+        background: rgba(255, 255, 255, 0.5);
+        box-shadow: 2px 2px 4px 0 rgba(255, 255, 255, 0.25) inset;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .segment-name span {
+        font-weight: 500;
+        background-color: white;
+
+        color: transparent;
+
+        -webkit-background-clip: text;
+        background-clip: text;
+
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .segment.dimmed {
+        opacity: 0.3;
     }
 
     .rows {
@@ -287,11 +309,11 @@
     }
 
     .row-even {
-        background: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.3);
     }
 
     .row-odd {
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.5);
     }
 
     .grid-lines {

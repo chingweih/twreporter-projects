@@ -7,8 +7,8 @@
         top: 0;
         bottom: 0;
         width: 8px;
-        height: calc(100% + 30px);
-        margin-top: -15px;
+        height: calc(100% + 20px);
+        margin-top: -10px;
         background: white;
         border-radius: 3px;
         will-change: left;
