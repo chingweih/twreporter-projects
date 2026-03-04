@@ -1,101 +1,164 @@
 <script lang="ts">
-    import { ScrollerBase } from "@reuters-graphics/graphics-components";
-    import { SvelteFlow, type Edge, type Node } from "@xyflow/svelte";
+    import { ScrollerBase } from '@reuters-graphics/graphics-components'
+    import Source from '../lib/components/diagram/Source.svelte'
     import {
-        COL_GAP,
-        columns,
-        headerId,
-        itemId,
-        ROW_GAP,
-    } from "../lib/constants/svelte-flow";
-    import ViewportController, {
-        type ViewState,
-    } from "./ViewportController.svelte";
+        nodes,
+        steps,
+        type NodeMeta,
+        type ScrollStep,
+    } from '../lib/constants/scroll-diagram'
+    import {
+        computeNodePositions,
+        attachNodeClickHandlers,
+    } from '../lib/utils/svg-nodes'
+    import { MouseDrag } from '../lib/utils/mouse-drag.svelte'
 
-    const nodes: Node[] = columns.flatMap((col, colIdx) => [
-        {
-            id: headerId({ colIdx }),
-            type: "input" as const,
-            data: { label: col.header },
-            position: { x: colIdx * COL_GAP, y: 0 },
-        },
-        ...col.items.map((item, itemIdx) => ({
-            id: itemId({ colIdx, itemIdx }),
-            type: "default" as const,
-            data: { label: item },
-            position: { x: colIdx * COL_GAP, y: (itemIdx + 1) * ROW_GAP },
-        })),
-    ]);
+    let index = $state(0)
+    let selectedNode: NodeMeta | null = $state(null)
+    let canvasEl: HTMLDivElement | undefined = $state()
+    let viewportEl: HTMLDivElement | undefined = $state()
+    let nodePositions: Map<string, { cx: number; cy: number }> = $state(
+        new Map(),
+    )
+    let svgWidth = $state(952)
+    let svgHeight = $state(616)
 
-    const edges: Edge[] = columns.flatMap((col, colIdx) =>
-        col.items.map((_, itemIdx) => {
-            const colPrefix = `c${colIdx + 1}`;
-            const source =
-                itemIdx === 0
-                    ? `${colPrefix}-header`
-                    : `${colPrefix}-${itemIdx}`;
-            const target = `${colPrefix}-${itemIdx + 1}`;
-            return {
-                id: `e-${source}-${target}`,
-                source,
-                target,
-            };
-        }),
-    );
+    const nodeMap = new Map(nodes.map((n) => [n.id, n]))
+    const drag = new MouseDrag()
 
-    let index = $state(0);
+    $effect(() => {
+        if (!canvasEl) return
+        const svg = canvasEl.querySelector('svg')
+        if (!svg) return
+        svgWidth = svg.viewBox.baseVal.width || 952
+        svgHeight = svg.viewBox.baseVal.height || 616
+        nodePositions = computeNodePositions(canvasEl)
+    })
 
-    const viewStates: ViewState[] = [
-        { padding: 0.2 },
-        { nodeIds: ["c2-5"], zoom: 2.5, padding: 0.3 },
-        { nodeIds: ["c5-1", "c5-2", "c5-3"], zoom: 2, padding: 0.3 },
-        { nodeIds: ["c9-4"], zoom: 3, padding: 0.3 },
-    ];
+    $effect(() => {
+        if (!canvasEl) return
+        return attachNodeClickHandlers(canvasEl, nodeMap, (meta) => {
+            selectedNode = selectedNode?.id === meta.id ? null : meta
+        })
+    })
+
+    $effect(() => {
+        void index
+        drag.reset()
+    })
+
+    let audioEl: HTMLAudioElement | undefined
+
+    $effect(() => {
+        const src = steps[index]?.audio
+        if (audioEl) {
+            audioEl.pause()
+            audioEl = undefined
+        }
+        if (!src) return
+        const audio = new Audio(src)
+        audio.loop = true
+        audio.play().catch(() => {})
+        audioEl = audio
+        return () => audio.pause()
+    })
+
+    function resolveView(step: ScrollStep) {
+        const pos = nodePositions.get(step.to)
+        if (!pos) return { x: svgWidth / 2, y: svgHeight / 2, scale: 1 }
+        return { x: pos.cx, y: pos.cy, scale: step.scale ?? 2.5 }
+    }
+
+    const currentStep = $derived(steps[index] ?? steps[0])
+
+    const transform = $derived.by(() => {
+        if (!viewportEl || nodePositions.size === 0) {
+            return 'translate(0px, 0px) scale(1)'
+        }
+        const { x, y, scale } = resolveView(currentStep)
+        const tx = viewportEl.clientWidth / 2 - x * scale + drag.offset.x
+        const ty = viewportEl.clientHeight / 2 - y * scale + drag.offset.y
+        return `translate(${tx}px, ${ty}px) scale(${scale})`
+    })
+
+    const transitionStyle = $derived(
+        drag.isDragging ? 'none' : 'transform 800ms ease-out',
+    )
 </script>
 
-<!--
-    Currently, importing css file in Svelte custom components
-    doesn't inject it into the shadown dom,
-    instead link it directly from jsDelivr force it to be avaliable
--->
-<link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/@xyflow/svelte/dist/style.css"
-    crossorigin="anonymous"
-/>
-
 <ScrollerBase
-    top={0.1}
+    top={0}
     threshold={0.5}
-    bottom={0.9}
+    bottom={1}
     bind:index
-    query="div.step"
+    query='div.step'
 >
     {#snippet backgroundSnippet()}
-        <div class="background">
-            <SvelteFlow
-                {nodes}
-                {edges}
-                fitView
-                fitViewOptions={{ padding: 0.2 }}
-                defaultEdgeOptions={{ animated: true }}
-                zoomOnScroll={false}
-                preventScrolling={false}
+        <div
+            class="viewport"
+            class:draggable={drag.isMousePointer}
+            class:dragging={drag.isDragging}
+            bind:this={viewportEl}
+            onpointerdown={drag.handlePointerDown}
+            onpointermove={drag.handlePointerMove}
+            onpointerup={drag.handlePointerUp}
+            onpointercancel={drag.handlePointerUp}
+            onclick={(e) => {
+                if ((e.target as Element).closest('[id^="node__"]')) return
+                selectedNode = null
+            }}
+        >
+            <div
+                class="canvas"
+                style="transform: {transform}; transition: {transitionStyle};"
+                bind:this={canvasEl}
             >
-                <ViewportController {viewStates} {index} />
-            </SvelteFlow>
+                <Source />
+            </div>
         </div>
     {/snippet}
     {#snippet foregroundSnippet()}
-        <div class="step"><div class="card">第一段</div></div>
-        <div class="step"><div class="card">第二段</div></div>
-        <div class="step"><div class="card">第三段</div></div>
-        <div class="step"><div class="card">第四段</div></div>
+        {#each steps as step}
+            <div class="step">
+                {#if step.text}
+                    <div class="card">{step.text}</div>
+                {/if}
+            </div>
+        {/each}
     {/snippet}
 </ScrollerBase>
 
+{#if selectedNode}
+    <aside class="sidebar">
+        <button class="sidebar-close" onclick={() => (selectedNode = null)}>
+            X
+        </button>
+        <h3 class="sidebar-title">{selectedNode.label}</h3>
+        {#if selectedNode.team}
+            <p class="sidebar-field">
+                <span class="sidebar-label">Team</span>
+                {selectedNode.team}
+            </p>
+        {/if}
+        {#if selectedNode.song}
+            <p class="sidebar-field">
+                <span class="sidebar-label">Song</span>
+                {selectedNode.song}
+            </p>
+        {/if}
+        {#if selectedNode.genre}
+            <p class="sidebar-field">
+                <span class="sidebar-label">Genre</span>
+                {selectedNode.genre}
+            </p>
+        {/if}
+        {#if selectedNode.description}
+            <p class="sidebar-desc">{selectedNode.description}</p>
+        {/if}
+    </aside>
+{/if}
+
 <style>
-    /* Background interactive, foreground pass-through to make flow chart interactive */
     :global(svelte-scroller-background-container) {
         pointer-events: auto !important;
     }
@@ -104,9 +167,33 @@
         pointer-events: none;
     }
 
-    .background {
-        width: 90vw;
+    .viewport {
+        width: 100vw;
         height: 100dvh;
+        overflow: hidden;
+        position: relative;
+        touch-action: pan-y;
+    }
+
+    .viewport.draggable {
+        cursor: grab;
+    }
+
+    .viewport.dragging {
+        cursor: grabbing;
+        user-select: none;
+    }
+
+    .canvas {
+        transform-origin: 0 0;
+        will-change: transform;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .canvas :global(svg) {
+        display: block;
     }
 
     .step {
@@ -119,11 +206,67 @@
 
     .card {
         pointer-events: auto;
-        background: rgba(255, 255, 255, 0.8);
-        color: var(--back-900);
-        padding: 10px 20px;
-        min-width: 100px;
-        border-radius: 5px;
-        backdrop-filter: blur(5px);
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--back-900, #1a1a1a);
+        padding: 16px 24px;
+        max-width: 360px;
+        border-radius: 8px;
+        backdrop-filter: blur(8px);
+        line-height: 1.6;
+        font-size: 16px;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 320px;
+        max-width: 90vw;
+        height: 100dvh;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        padding: 24px;
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        overflow-y: auto;
+        color: var(--back-900, #1a1a1a);
+    }
+
+    .sidebar-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        border: none;
+        background: none;
+        font-size: 18px;
+        cursor: pointer;
+        color: var(--back-900, #1a1a1a);
+        padding: 4px 8px;
+    }
+
+    .sidebar-title {
+        font-size: 24px;
+        font-weight: 900;
+        margin: 0 0 16px;
+    }
+
+    .sidebar-field {
+        margin: 8px 0;
+        font-size: 15px;
+    }
+
+    .sidebar-label {
+        font-weight: 700;
+        margin-right: 8px;
+        opacity: 0.6;
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+
+    .sidebar-desc {
+        margin: 16px 0 0;
+        font-size: 15px;
+        line-height: 1.6;
+        opacity: 0.8;
     }
 </style>
