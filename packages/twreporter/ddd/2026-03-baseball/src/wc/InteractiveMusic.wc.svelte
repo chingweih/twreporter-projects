@@ -6,6 +6,7 @@
     import AudioProvider from "../lib/components/audio/AudioProvider.svelte";
     import { keys, type TrackConfig } from "../lib/constants/interactive-music";
     import InteractiveMusic from "./InteractiveMusic.svelte";
+    import SongTitle from "../lib/components/player/SongTitle.svelte";
 
     const { key }: { key: string } = $props();
 
@@ -29,4 +30,7 @@
             repeatPadding={config.repeatPadding}
         />
     </AudioProvider>
+    {#snippet headerChildren()}
+        <SongTitle title={config.songTitle} />
+    {/snippet}
 </Shell>

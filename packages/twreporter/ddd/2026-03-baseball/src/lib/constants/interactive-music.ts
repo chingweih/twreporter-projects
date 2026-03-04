@@ -1,11 +1,14 @@
 import type { GraphicConfig } from "../components/layout/types";
 
+export type TrackStyle = "drum" | "bass" | "note";
+
 export type TrackConfig = {
   name: string;
   src: string;
   tracks: {
     name: string;
-    notes: { length: number; rest?: boolean; text?: string }[];
+    style?: TrackStyle;
+    notes: { length: number; rest?: boolean; text?: string; swing?: true }[];
   }[];
 };
 
@@ -21,7 +24,7 @@ export const keys: Record<
   }
 > = {
   A02: {
-    title: "利用節奏轉折點提示球迷、舞者的動作",
+    title: "利用節奏轉折點\n提示球迷、舞者的動作",
     subtitle: "〈統一尚勇〉節錄",
     songTitle: "統一尚勇",
     endingPadding: 0,
@@ -44,27 +47,29 @@ export const keys: Record<
           },
           {
             name: "大鼓",
+            style: "drum",
             notes: [
               { length: 2 },
               { length: 1 },
-              { length: 1 },
+              { length: 1, swing: true },
               { length: 4, rest: true },
               { length: 2 },
               { length: 1 },
-              { length: 1 },
+              { length: 1, swing: true },
               { length: 4, rest: true },
             ],
           },
           {
-            name: "BASS",
+            name: "低音",
+            style: "bass",
             notes: [
               { length: 2 },
               { length: 1 },
-              { length: 1 },
+              { length: 1, swing: true },
               { length: 4, rest: true },
               { length: 2 },
               { length: 1 },
-              { length: 1 },
+              { length: 1, swing: true },
               { length: 4, rest: true },
             ],
           },
@@ -87,6 +92,7 @@ export const keys: Record<
           },
           {
             name: "大鼓",
+            style: "drum",
             notes: [
               { length: 2 },
               { length: 2 },
@@ -97,7 +103,8 @@ export const keys: Record<
             ],
           },
           {
-            name: "BASS",
+            name: "低音",
+            style: "bass",
             notes: [
               { length: 2 },
               { length: 2 },
@@ -112,7 +119,7 @@ export const keys: Record<
     },
   },
   A04: {
-    title: "利用反拍設計，在音樂上帶給球迷跳躍感",
+    title: "利用反拍設計，\n在音樂上帶給球迷跳躍感",
     subtitle: "〈氣蓋山河〉節錄",
     songTitle: "氣蓋山河",
     endingPadding: 3,
@@ -142,14 +149,15 @@ export const keys: Record<
             ],
           },
           {
-            name: "主旋律",
+            name: "旋律",
+            style: "note",
             notes: [
               {
                 length: 1,
                 rest: true,
               },
-              { length: 2 },
-              { length: 1 },
+              { length: 2, swing: true },
+              { length: 1, swing: true },
               { length: 1 },
               { length: 1 },
               { length: 2 },
@@ -158,8 +166,8 @@ export const keys: Record<
                 length: 1,
                 rest: true,
               },
-              { length: 2 },
-              { length: 1 },
+              { length: 2, swing: true },
+              { length: 1, swing: true },
               { length: 1 },
               { length: 1 },
               { length: 2 },
@@ -167,16 +175,17 @@ export const keys: Record<
           },
           {
             name: "低音",
+            style: "bass",
             notes: [
               { length: 1, rest: true },
-              { length: 2 },
-              { length: 1 },
+              { length: 2, swing: true },
+              { length: 1, swing: true },
               { length: 2 },
               { length: 2 },
 
               { length: 1, rest: true },
-              { length: 2 },
-              { length: 1 },
+              { length: 2, swing: true },
+              { length: 1, swing: true },
               { length: 1 },
               { length: 1 },
               { length: 2 },
@@ -208,7 +217,8 @@ export const keys: Record<
             ],
           },
           {
-            name: "主旋律",
+            name: "旋律",
+            style: "note",
             notes: [
               { length: 2 },
               { length: 2 },
@@ -225,6 +235,7 @@ export const keys: Record<
           },
           {
             name: "低音",
+            style: "bass",
             notes: [
               { length: 2 },
               { length: 2 },

@@ -1,12 +1,12 @@
 <script lang="ts">
     import { getAudioContext } from "svelte-audio-player";
+    import PlayStop from "../lib/components/player/PlayStop.svelte";
     import Note from "../lib/components/rhythm/Note.svelte";
-    import PlayControls from "../lib/components/player/PlayControls.svelte";
-    import SongCard from "../lib/components/player/SongCard.svelte";
     import type {
         TrackConfig,
         TrackStates,
     } from "../lib/constants/interactive-music";
+    import Reset from "../lib/components/player/Reset.svelte";
 
     let {
         songTitle,
@@ -26,7 +26,7 @@
         active?.tracks[0].notes.reduce((acc, item) => acc + item.length, 0) ??
             0,
     );
-    const { currentTime, duration, paused, repeat } = getAudioContext();
+    const { currentTime, duration, repeat } = getAudioContext();
     repeat.set(true);
 
     let playerProgress = $derived(
@@ -43,7 +43,7 @@
         active?.tracks.map((instrument) => ({
             ...instrument,
             notes: instrument.notes.reduce(
-                (acc, { length, rest, text }, i) => {
+                (acc, { length, rest, text, swing }, i) => {
                     return [
                         ...acc,
                         {
@@ -52,6 +52,7 @@
                             note: 8 / length,
                             length,
                             text,
+                            swing,
                         },
                     ];
                 },
@@ -61,36 +62,14 @@
                     note: number;
                     length: number;
                     text?: string;
+                    swing?: true;
                 }[],
             ),
         })),
     );
 </script>
 
-<div class="controls">
-    <PlayControls {paused} />
-    <div class="control">
-        <button
-            onclick={() => (active = states.default)}
-            class:active={active.name == states.default.name}
-            >{states.default.name}</button
-        >
-        <button
-            onclick={() => (active = states.alternative)}
-            class:active={active.name == states.alternative.name}
-            >{states.alternative.name}</button
-        >
-    </div>
-</div>
-
 <div class="container">
-    <SongCard title={songTitle}>
-        <img
-            src="https://storage.googleapis.com/data-reporter-infographics/dev/2026-03-baseball/assets/test.svg"
-            alt={songTitle}
-        />
-    </SongCard>
-
     <div class="player">
         <div class="instruments">
             {#each instruments as { name }}
@@ -103,15 +82,17 @@
             class="tracks"
             style:--background-size-frac={`${(100 / totalBeats) * 2}%`}
         >
-            {#each instruments as { notes }}
+            {#each instruments as { notes, style }}
                 <div class="notes" style:--total-beats={totalBeats}>
-                    {#each notes as { sum, note, rest, length, text }}
+                    {#each notes as { sum, note, rest, length, text, swing }}
                         <Note
                             active={playerProgress >=
                                 (sum - length) / totalBeats}
                             {rest}
                             {note}
                             {text}
+                            {style}
+                            {swing}
                         />
                     {/each}
                 </div>
@@ -121,6 +102,25 @@
                 style:left={`${playerProgress * 100}%`}
             ></div>
         </div>
+    </div>
+</div>
+
+<div class="controls">
+    <div class="player-control">
+        <PlayStop />
+        <Reset />
+    </div>
+    <div class="state-control">
+        <button
+            onclick={() => (active = states.default)}
+            class:active={active.name == states.default.name}
+            ><span>{states.default.name}</span></button
+        >
+        <button
+            onclick={() => (active = states.alternative)}
+            class:active={active.name == states.alternative.name}
+            ><span>{states.alternative.name}</span></button
+        >
     </div>
 </div>
 
@@ -156,6 +156,7 @@
         width: 100%;
         height: 40px;
         background: var(--track-background);
+        box-shadow: var(--inner-shadow);
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -165,9 +166,11 @@
 
     .instrument p {
         font-weight: bold;
-        font-size: 14px;
-        color: var(--black-700);
+        font-size: 16px;
+        color: var(--blue-primary);
         white-space: nowrap;
+        width: 100%;
+        text-align: center;
     }
 
     .tracks {
@@ -184,28 +187,32 @@
         background: var(--background-muted);
         background-image: linear-gradient(
             to right,
-            var(--background) 1px,
-            transparent 1px
+            var(--blue-primary) 2px,
+            transparent 2px
         );
-        background-size: calc(var(--background-size-frac, 12.5%) - 2px) 100%;
-        background-position: left 15.6px top 0;
-        padding: 0px 8px;
+        background-size: calc(var(--background-size-frac, 12.5%) - 5px) 100%;
+        background-position: left 29.6px top 0;
+        padding: 0px 20px;
         border-radius: 10px;
         display: grid;
         grid-template-columns: repeat(var(--total-beats, 8), 1fr);
         align-items: center;
         justify-items: start;
         min-width: 0;
+        box-shadow: var(--inner-shadow);
     }
 
     .player-head {
         position: absolute;
         top: 0;
         bottom: 0;
-        width: 5px;
-        background: var(--blue-primary);
+        width: 8px;
+        height: calc(100% + 30px);
+        margin-top: -15px;
+        background: white;
         border-radius: 3px;
         will-change: left;
+        box-shadow: var(--inner-shadow);
     }
 
     .controls {
@@ -213,40 +220,59 @@
         display: flex;
         gap: 10px;
         align-items: center;
-        justify-content: start;
+        justify-content: space-between;
+        margin-top: 15px;
     }
 
-    .control {
-        background-color: white;
-        border-radius: 10000px;
+    .player-control {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        height: 30px;
-        padding: 3px 10px;
+        gap: 8px;
     }
 
-    .control button {
+    .state-control {
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: var(--rounded-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 30px;
+    }
+
+    .state-control button {
         color: var(--blue-primary);
         font-size: 15px;
         cursor: pointer;
-        padding: 1px 10px;
-        border-radius: 99vw;
+        padding: 0 15px;
+        border-radius: var(--rounded-full);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 4px;
-        flex-grow: 1;
+        height: 100%;
 
         &:hover {
             color: var(--blue-primary);
         }
     }
 
-    .control button.active {
-        background: var(--blue-primary);
-        color: white;
+    .state-control button span {
+        font-weight: 500;
+        background-color: var(--blue-primary);
+
+        color: transparent;
+
+        -webkit-background-clip: text;
+        background-clip: text;
+
+        text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.1);
+    }
+
+    .state-control button.active {
+        background: white;
+        color: var(--blue-primary);
+        box-shadow: var(--inner-shadow);
     }
 </style>

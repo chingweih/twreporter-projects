@@ -1,6 +1,7 @@
 <script lang="ts">
     import { domToPng } from "modern-screenshot";
     import type { Snippet } from "svelte";
+    import Background from "../icons/Background.svelte";
 
     let container: HTMLDivElement | null = null;
 
@@ -10,14 +11,14 @@
 
     const {
         name,
-        description,
-        footnotes,
         children,
+        headerChildren,
     }: {
         name: string;
         description?: string;
         footnotes: string[];
         children: Snippet;
+        headerChildren?: Snippet;
     } = $props();
 </script>
 
@@ -29,25 +30,14 @@
 
 <div class="outer">
     <div class="container" bind:this={container}>
-        <div class="header"><h1>{name}</h1></div>
-        {#if description}
-            <div class="description"><h2>{description}</h2></div>
-        {/if}
+        <Background />
+
+        <div class="header">
+            <h1>{name}</h1>
+            {@render headerChildren?.()}
+        </div>
 
         {@render children()}
-
-        <div class="footer">
-            <div class="footnotes">
-                {#each footnotes as footnote}
-                    <p>{footnote}</p>
-                {/each}
-            </div>
-            <img
-                src="https://projects.twreporter.org/twreporter/ddd/2025-12-roundabouts/assets/logo-black.png"
-                class="logo"
-                alt="報導者 The Reporter"
-            />
-        </div>
     </div>
 
     {#if showDownload}
@@ -77,27 +67,30 @@
     * {
         --tr-text: #404040;
 
-        --background: #efede9;
+        --background: transparent;
         --background-muted: rgba(255, 255, 255, 0.7);
         --track-background: #fff;
         --blue-primary: #006bff;
+        --pink-primary: #ff0088;
         --box-background: #ffffff;
         --box-background-20: #ffffff14; /* 20% */
         --box-background-50: #ffffff32; /* 50% */
         --black-900: #262626;
         --black-800: #42464c;
-        --black-700: #8090a7;
+        --black-700: white;
 
-        --font-pixel: "Geist Pixel Line";
+        --rounded-full: 100vw;
+        --inner-shadow: -2px -2px 4px 0 rgba(0, 0, 0, 0.25) inset;
 
         color: var(--black-700);
-        font-family: "Roboto Slab", "Noto Sans TC", sans-serif;
+        font-family: "Noto Sans TC", sans-serif;
         text-align: left !important;
     }
 
     .outer {
         width: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
     }
@@ -106,7 +99,7 @@
         max-width: 730px;
         width: 100%;
         position: relative;
-        padding: 10px 20px;
+        padding: 5px 20px 80px 20px;
         background: var(--background);
         border-radius: 3px;
         --btn-size: 9px;
@@ -114,60 +107,16 @@
 
     .header {
         padding: 5px 0 0;
-    }
-
-    .header h1 {
-        font-size: 24px;
-        font-weight: 300;
-    }
-
-    .description {
-        padding: 0 0 20px 0;
-    }
-
-    .description h2 {
-        font-size: 16px;
-        font-weight: 300;
-    }
-
-    .footer {
-        padding: 10px 0 10px 0;
+        margin-bottom: 30px;
         display: flex;
         align-items: end;
         justify-content: space-between;
-        --footer-scale: 1;
-        --footer-logo-scale: 1.25;
     }
 
-    @media (min-width: 500px) {
-        .footer {
-            padding: 15px 0 10px 0;
-            --footer-scale: 1.6;
-            --footer-logo-scale: 2;
-        }
-    }
-
-    .footnotes {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    @media (min-width: 500px) {
-        .footnotes {
-            gap: 5px;
-        }
-    }
-
-    .footer p {
-        color: var(--black-700);
-        font-size: calc(10px * var(--footer-scale));
-        font-weight: 200;
-    }
-
-    .footer .logo {
-        width: calc(14.5px * var(--footer-logo-scale));
-        height: calc(15.5px * var(--footer-logo-scale));
+    .header h1 {
+        white-space: pre-wrap;
+        font-size: 36px;
+        font-weight: 900;
     }
 
     .download-control {

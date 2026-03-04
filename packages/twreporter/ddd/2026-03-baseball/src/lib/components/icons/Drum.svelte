@@ -1,15 +1,66 @@
 <svg
-    width="24"
-    height="27"
-    viewBox="0 0 24 27"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="22"
+    viewBox="0 0 20 22"
+    fill="none"
 >
-    <ellipse cx="12" cy="21.5" rx="12" ry="5.5" fill="currentColor" />
-    <rect y="5.5" width="24" height="16" fill="currentColor" />
-    <path
-        d="M12 1C15.2033 1 18.055 1.59684 20.0684 2.51953C22.1691 3.48237 23 4.61009 23 5.5C23 6.38991 22.1691 7.51763 20.0684 8.48047C18.055 9.40316 15.2033 10 12 10C8.79667 10 5.94499 9.40316 3.93164 8.48047C1.83091 7.51763 1 6.38991 1 5.5C1 4.61009 1.83091 3.48237 3.93164 2.51953C5.94499 1.59684 8.79667 1 12 1Z"
-        stroke="currentColor"
-        stroke-width="2"
-    />
+    <g filter="url(#filter0_i_787_6879)">
+        <ellipse
+            cx="10"
+            cy="17.3462"
+            rx="10"
+            ry="4.65381"
+            fill="var(--color, currentColor)"
+        />
+        <rect
+            y="4.23047"
+            width="20"
+            height="13.5384"
+            fill="var(--color, currentColor)"
+        />
+        <path
+            d="M10 1C12.6493 1 14.9994 1.50164 16.6494 2.26953C18.3814 3.07562 19 3.98997 19 4.6543C18.9997 5.31858 18.381 6.23219 16.6494 7.03809C14.9994 7.80597 12.6493 8.30762 10 8.30762C7.35066 8.30762 5.0006 7.80597 3.35059 7.03809C1.61899 6.23219 1.0003 5.31858 1 4.6543C1 3.98997 1.61857 3.07562 3.35059 2.26953C5.0006 1.50164 7.35066 1 10 1Z"
+            fill="#F1F1F1"
+            stroke="var(--color, currentColor)"
+            stroke-width="2"
+        />
+    </g>
+    <defs>
+        <filter
+            id="filter0_i_787_6879"
+            x="-1"
+            y="-1"
+            width="21"
+            height="23"
+            filterUnits="userSpaceOnUse"
+            color-interpolation-filters="sRGB"
+        >
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend
+                mode="normal"
+                in="SourceGraphic"
+                in2="BackgroundImageFix"
+                result="shape"
+            />
+            <feColorMatrix
+                in="SourceAlpha"
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha"
+            />
+            <feOffset dx="-1" dy="-1" />
+            <feGaussianBlur stdDeviation="1" />
+            <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+            <feColorMatrix
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
+            />
+            <feBlend
+                mode="normal"
+                in2="shape"
+                result="effect1_innerShadow_787_6879"
+            />
+        </filter>
+    </defs>
 </svg>
