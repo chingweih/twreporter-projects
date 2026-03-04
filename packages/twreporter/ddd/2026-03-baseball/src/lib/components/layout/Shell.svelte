@@ -122,6 +122,12 @@
         justify-content: space-between;
     }
 
+    .header h1 {
+        white-space: pre-wrap;
+        font-size: 36px;
+        font-weight: 900;
+    }
+
     @media (max-width: 550px) {
         .header {
             flex-direction: column;
@@ -129,12 +135,10 @@
             align-items: start;
             margin-bottom: 20px;
         }
-    }
 
-    .header h1 {
-        white-space: pre-wrap;
-        font-size: 36px;
-        font-weight: 900;
+        .header h1 {
+            font-size: 24px;
+        }
     }
 
     .download-control {
