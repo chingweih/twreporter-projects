@@ -7,6 +7,8 @@
         TrackStates,
     } from "../lib/constants/interactive-music";
     import Reset from "../lib/components/player/Reset.svelte";
+    import PlayerHead from "../lib/components/player/PlayerHead.svelte";
+    import PlayControls from "../lib/components/player/PlayControls.svelte";
 
     let {
         songTitle,
@@ -97,19 +99,13 @@
                     {/each}
                 </div>
             {/each}
-            <div
-                class="player-head"
-                style:left={`${playerProgress * 100}%`}
-            ></div>
+            <PlayerHead --progress={`${playerProgress * 100}%`}></PlayerHead>
         </div>
     </div>
 </div>
 
 <div class="controls">
-    <div class="player-control">
-        <PlayStop />
-        <Reset />
-    </div>
+    <PlayControls />
     <div class="state-control">
         <button
             onclick={() => (active = states.default)}
@@ -211,19 +207,6 @@
         box-shadow: var(--inner-shadow);
     }
 
-    .player-head {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 8px;
-        height: calc(100% + 30px);
-        margin-top: -15px;
-        background: white;
-        border-radius: 3px;
-        will-change: left;
-        box-shadow: var(--inner-shadow);
-    }
-
     .controls {
         padding: 5px 0 15px;
         display: flex;
@@ -231,13 +214,6 @@
         align-items: center;
         justify-content: space-between;
         margin-top: 15px;
-    }
-
-    .player-control {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
     }
 
     .state-control {

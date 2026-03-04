@@ -5,8 +5,8 @@
         type PianoNote,
         type PianoScoreConfig,
     } from "../../constants/interactive-piano";
-    import SongCard from "../player/SongCard.svelte";
     import PlayControls from "../player/PlayControls.svelte";
+    import PlayerHead from "../player/PlayerHead.svelte";
 
     const { score }: { score: PianoScoreConfig } = $props();
 
@@ -100,18 +100,12 @@
     const WHITE_KEY_SEMITONES = [11, 9, 7, 5, 4, 2, 0] as const;
 </script>
 
-<PlayControls {paused} />
-
 <div class="container">
-    <SongCard title={score.name}>
-        <img src={score.image} alt={score.name} />
-    </SongCard>
-
     <div class="piano-keys">
         <div class="white-keys">
             {#each WHITE_KEY_SEMITONES as semitone}
                 <div
-                    class="white-key"
+                    class="key white-key"
                     class:active={activeNote?.pitch != null &&
                         pitchToSemitone(activeNote.pitch) === semitone}
                 ></div>
@@ -121,7 +115,7 @@
             {#each BLACK_KEYS as { semitone, whiteKeyAbove }}
                 {@const wk = whiteKeyAbove}
                 <div
-                    class="black-key"
+                    class="key black-key"
                     class:active={activeNote?.pitch != null &&
                         pitchToSemitone(activeNote.pitch) === semitone}
                     style:top={`calc(${wk + 1} * (100% - 18px) / 7 + ${wk} * 3px + 1.5px - ${BLACK_KEY_HEIGHT / 2}px)`}
@@ -175,20 +169,23 @@
                             style:top={`${((score.trackRange[1] - (note.pitch ?? score.trackRange[0])) / totalSemis) * 100}%`}
                             style:height={`${(1 / totalSemis) * 100}%`}
                         >
-                            {note.text}
+                            <p>{note.text}</p>
                         </div>
                     {/each}
                 </div>
 
                 {#if inSegment}
-                    <div
-                        class="play-line"
-                        style:left={`${((currentBeat - range.start) / range.beats) * 100}%`}
-                    ></div>
+                    <PlayerHead
+                        --progress={`${((currentBeat - range.start) / range.beats) * 100}%`}
+                    ></PlayerHead>
                 {/if}
             </div>
         {/each}
     </div>
+</div>
+
+<div class="controls">
+    <PlayControls />
 </div>
 
 <style>
@@ -197,13 +194,14 @@
         align-items: stretch;
         gap: 10px;
         min-height: 235px;
-        margin-top: 20px;
     }
 
     .piano-keys {
         position: relative;
         width: 105px;
         flex-shrink: 0;
+        border-radius: 5px;
+        overflow: hidden;
     }
 
     @media (max-width: 700px) {
@@ -219,16 +217,20 @@
         height: 100%;
     }
 
+    .key {
+        transition: background 0.15s ease;
+        box-shadow: var(--inner-shadow);
+    }
+
+    .key.active {
+        background: var(--red-primary);
+    }
+
     .white-key {
         flex: 1 0 0;
         min-height: 1px;
         background: var(--track-background);
         border-radius: 0 5px 5px 0;
-        transition: background 0.15s ease;
-    }
-
-    .white-key.active {
-        background: var(--blue-primary);
     }
 
     .black-keys-layer {
@@ -246,11 +248,6 @@
         width: 100%;
         background: var(--black-900);
         border-radius: 0 3px 3px 0;
-        transition: background 0.15s ease;
-    }
-
-    .black-key.active {
-        background: var(--blue-primary);
     }
 
     .piano-roll {
@@ -290,11 +287,11 @@
     }
 
     .row-even {
-        background: var(--track-background);
+        background: rgba(255, 255, 255, 0.5);
     }
 
     .row-odd {
-        background: rgba(239, 237, 233, 0.2);
+        background: rgba(255, 255, 255, 0.3);
     }
 
     .grid-lines {
@@ -308,7 +305,7 @@
         top: 0;
         height: 100%;
         width: 2px;
-        background: var(--black-700);
+        background: var(--blue-primary);
     }
 
     .note-bars {
@@ -319,31 +316,43 @@
 
     .note-bar {
         position: absolute;
-        background: var(--black-800);
+        background: white;
         transition: background 0.15s ease;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-size: 12px;
+        box-shadow: var(--inner-shadow-heavy);
     }
 
     .note-bar.active {
-        background: var(--blue-primary);
+        background: var(--red-primary);
     }
 
     .note-bar.rest {
         color: var(--black-800);
         background: transparent;
+        box-shadow: none;
     }
 
-    .play-line {
+    .note-bar p {
         position: absolute;
-        top: -4px;
-        bottom: -4px;
-        width: 5px;
-        background: var(--blue-primary);
-        border-radius: 3px;
-        will-change: left;
+        color: #f2f1ed;
+        top: -30px;
+        font-weight: 700;
+        font-size: 20px;
+        text-align: center;
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+        z-index: 0;
+        text-shadow:
+            -1px -1px 0 var(--blue-primary),
+            1px -1px 0 var(--blue-primary),
+            -1px 1px 0 var(--blue-primary),
+            1px 1px 0 var(--blue-primary);
+    }
+
+    .controls {
+        margin-top: 20px;
     }
 </style>

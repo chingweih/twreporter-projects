@@ -93,7 +93,7 @@ export const keys: Record<
     ],
   },
   A03: {
-    title: "棒球應援曲使用音階的急升帶動氣氛",
+    title: "棒球應援曲使用\n音階的急升帶動氣氛",
     subtitle: "台鋼雄鷹嗆司曲〈氣蓋山河〉",
     scores: [
       {
@@ -103,7 +103,7 @@ export const keys: Record<
           "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/A03/01.svg",
         endingPadding: 0,
         repeatPadding: 0,
-        trackRange: [-3, 9],
+        trackRange: [-4, 10],
         segments: [
           {
             notes: [
@@ -123,7 +123,7 @@ export const keys: Record<
     ],
   },
   A05: {
-    title: "棒球應援曲利用短「樂句」呼應棒球場上節奏",
+    title: "棒球應援曲利用短「樂句」\n呼應棒球場上節奏",
     subtitle: "〈Team Taiwan〉與流行樂〈黃昏的故鄉〉對比",
     scores: [
       {
