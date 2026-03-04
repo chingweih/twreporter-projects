@@ -106,12 +106,27 @@
         --btn-size: 9px;
     }
 
+    @media (max-width: 550px) {
+        .container {
+            padding-bottom: 10px;
+        }
+    }
+
     .header {
         padding: 5px 0 0;
         margin-bottom: 30px;
         display: flex;
         align-items: end;
         justify-content: space-between;
+    }
+
+    @media (max-width: 550px) {
+        .header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: start;
+            margin-bottom: 20px;
+        }
     }
 
     .header h1 {
