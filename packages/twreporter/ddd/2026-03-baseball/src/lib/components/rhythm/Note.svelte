@@ -55,10 +55,13 @@
 </div>
 
 <style>
-    .star {
-        width: 15px;
-        height: 15px;
+    .start {
+        --size: 20px;
+
+        width: var(--size, 20px);
+        height: var(--size, 20px);
         transform-origin: center center;
+        font-size: var(--size, 20px);
     }
 
     .start.swing {
@@ -92,7 +95,6 @@
     p {
         color: #f2f1ed;
         font-weight: 700;
-        font-size: 20px;
         text-align: center;
         text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
         z-index: 0;
@@ -101,5 +103,12 @@
             1px -1px 0 var(--blue-primary),
             -1px 1px 0 var(--blue-primary),
             1px 1px 0 var(--blue-primary);
+    }
+
+    @media (max-width: 550px) {
+        .start {
+            --size: 18px;
+            margin-left: calc((20px - var(--size)) / 2 + 1px);
+        }
     }
 </style>

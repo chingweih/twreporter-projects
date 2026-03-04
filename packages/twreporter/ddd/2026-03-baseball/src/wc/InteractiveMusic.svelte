@@ -1,14 +1,12 @@
 <script lang="ts">
     import { getAudioContext } from "svelte-audio-player";
-    import PlayStop from "../lib/components/player/PlayStop.svelte";
+    import PlayControls from "../lib/components/player/PlayControls.svelte";
+    import PlayerHead from "../lib/components/player/PlayerHead.svelte";
     import Note from "../lib/components/rhythm/Note.svelte";
     import type {
         TrackConfig,
         TrackStates,
     } from "../lib/constants/interactive-music";
-    import Reset from "../lib/components/player/Reset.svelte";
-    import PlayerHead from "../lib/components/player/PlayerHead.svelte";
-    import PlayControls from "../lib/components/player/PlayControls.svelte";
 
     let {
         songTitle,
@@ -164,8 +162,7 @@
     @media (max-width: 550px) {
         .instrument {
             height: 50px;
-            writing-mode: vertical-lr;
-            padding: 5px 3px;
+            padding: 5px 8px;
         }
     }
 
@@ -173,7 +170,7 @@
         font-weight: bold;
         font-size: 16px;
         color: var(--blue-primary);
-        white-space: nowrap;
+        white-space: wrap;
         width: 100%;
         text-align: center;
     }

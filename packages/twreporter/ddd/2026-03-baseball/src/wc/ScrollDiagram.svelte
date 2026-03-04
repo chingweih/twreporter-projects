@@ -105,15 +105,13 @@
     }
 
     .background {
-        width: 100%;
+        width: 90vw;
         height: 100dvh;
     }
 
     .step {
         height: 100dvh;
-        width: 80%;
-        padding: 1em 50px;
-        margin: 0 0 2em 0;
+        width: 80vw;
         display: flex;
         align-items: center;
         justify-content: end;
@@ -121,16 +119,11 @@
 
     .card {
         pointer-events: auto;
-        background: linear-gradient(
-            180deg,
-            rgba(0, 112, 207, 1) 0%,
-            rgba(18, 148, 233, 1) 49%,
-            rgba(0, 112, 207, 1) 100%
-        );
-        color: white;
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--back-900);
         padding: 10px 20px;
-        min-width: 300px;
+        min-width: 100px;
         border-radius: 5px;
-        border: 2px solid #004987;
+        backdrop-filter: blur(5px);
     }
 </style>
