@@ -1,19 +1,35 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
+    import { onDestroy } from "svelte";
     import type { HTMLButtonAttributes } from "svelte/elements";
+
+    // @ts-expect-error: Currently, web-haptics/svelte doesn't have type declearation files.
+    import { createWebHaptics } from "web-haptics/svelte";
 
     const {
         children,
+        raw = false,
+        onclick,
         ...buttonProps
-    }: { children: Snippet } & HTMLButtonAttributes = $props();
+    }: { children: Snippet; raw?: boolean } & HTMLButtonAttributes = $props();
+
+    const { trigger, destroy } = createWebHaptics();
+    onDestroy(destroy);
 </script>
 
-<button {...buttonProps}>
+<button
+    {...buttonProps}
+    onclick={(e) => {
+        trigger();
+        onclick?.(e);
+    }}
+    class:default-style={!raw}
+>
     {@render children()}
 </button>
 
 <style>
-    button {
+    .default-style {
         color: var(--color);
         display: flex;
         justify-content: center;

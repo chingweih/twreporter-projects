@@ -8,6 +8,13 @@
         TrackStates,
     } from "../lib/constants/interactive-music";
 
+    // @ts-expect-error: Currently, web-haptics/svelte doesn't have type declearation files.
+    import { createWebHaptics } from "web-haptics/svelte";
+    import { onDestroy } from "svelte";
+
+    const { trigger, destroy } = createWebHaptics();
+    onDestroy(destroy);
+
     let {
         songTitle,
         states,
@@ -106,12 +113,18 @@
     <PlayControls />
     <div class="state-control">
         <button
-            onclick={() => (active = states.default)}
+            onclick={() => {
+                trigger();
+                active = states.default;
+            }}
             class:active={active.name == states.default.name}
             ><span>{states.default.name}</span></button
         >
         <button
-            onclick={() => (active = states.alternative)}
+            onclick={() => {
+                trigger();
+                active = states.alternative;
+            }}
             class:active={active.name == states.alternative.name}
             ><span>{states.alternative.name}</span></button
         >
