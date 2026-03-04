@@ -93,6 +93,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        margin: 60px 0;
     }
 
     .container {
