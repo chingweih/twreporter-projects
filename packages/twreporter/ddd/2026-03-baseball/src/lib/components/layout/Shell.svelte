@@ -72,6 +72,7 @@
         --track-background: #fff;
         --blue-primary: #006bff;
         --pink-primary: #ff0088;
+        --red-primary: #ff4713;
         --box-background: #ffffff;
         --box-background-20: #ffffff14; /* 20% */
         --box-background-50: #ffffff32; /* 50% */
@@ -81,6 +82,7 @@
 
         --rounded-full: 100vw;
         --inner-shadow: -2px -2px 4px 0 rgba(0, 0, 0, 0.25) inset;
+        --inner-shadow-heavy: -2px -2px 4px 0 rgba(0, 0, 0, 0.5) inset;
 
         color: var(--black-700);
         font-family: "GenJyuuGothicL", sans-serif;
@@ -100,7 +102,7 @@
         max-width: 730px;
         width: 100%;
         position: relative;
-        padding: 5px 20px 80px 20px;
+        padding: 5px 20px 50px 20px;
         background: var(--background);
         border-radius: 3px;
         --btn-size: 9px;
