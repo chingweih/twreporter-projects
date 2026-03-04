@@ -83,7 +83,7 @@
         --inner-shadow: -2px -2px 4px 0 rgba(0, 0, 0, 0.25) inset;
 
         color: var(--black-700);
-        font-family: "Noto Sans TC", sans-serif;
+        font-family: "GenJyuuGothicL", sans-serif;
         text-align: left !important;
     }
 
