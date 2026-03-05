@@ -403,11 +403,5 @@ export const steps: ScrollStep[] = [
     to: "node__6-b-i-1-a",
     path: "direct",
     text: "近年球場硬體設備提升，應援又有舞蹈需求，以電子樂構成主旋律，融合電吉他、爵士鼓加強熱血感的樂曲也開始出現。",
-    audios: [
-      {
-        src: "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/audios/D01/04.mp3",
-        name: "統一獅「陳傑憲」應援曲",
-      },
-    ],
   },
 ];
