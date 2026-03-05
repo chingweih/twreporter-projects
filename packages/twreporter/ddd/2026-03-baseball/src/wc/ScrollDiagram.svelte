@@ -16,7 +16,20 @@
     import { computeGroupView } from "../lib/utils/svg-nodes";
     import { getYouTubeEmbedUrl } from "../lib/utils/youtube-link";
 
+    const CDN_BASE =
+        "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets";
+    const MOBILE_BREAKPOINT = 768;
+
     const diagramBounds = diagramData.bounds;
+    const isMobile =
+        typeof window !== "undefined" && window.innerWidth <= MOBILE_BREAKPOINT;
+
+    const scaleFactor = isMobile ? 0.5 : 1;
+    const canvasWidth = diagramData.width * scaleFactor;
+    const canvasHeight = diagramData.height * scaleFactor;
+    const diagramSrc = isMobile
+        ? `${CDN_BASE}/diagram-1.png` // Mobile version exported at a different scale factor
+        : `${CDN_BASE}/diagram.png`;
 
     let index = $state(0);
     let selectedNode: NodeMeta | null = $state(null);
@@ -43,9 +56,10 @@
         if (!viewportEl) return "translate(0px, 0px) scale(1)";
 
         const { cx, cy, scale } = resolveView(currentStep, viewportEl);
+        const adjustedScale = scale / scaleFactor;
         const tx = viewportEl.clientWidth / 2 - cx * scale + drag.offset.x;
         const ty = viewportEl.clientHeight / 2 - cy * scale + drag.offset.y;
-        return `translate(${tx}px, ${ty}px) scale(${scale})`;
+        return `translate(${tx}px, ${ty}px) scale(${adjustedScale})`;
     });
 
     const transition = $derived(
@@ -58,7 +72,7 @@
         const fallback = {
             cx: diagramData.width / 2,
             cy: diagramData.height / 2,
-            scale: 1,
+            scale: scaleFactor,
         };
         const group = computeGroupView(
             step.to,
@@ -90,10 +104,10 @@
         >
             <div class="canvas" style:transform style:transition>
                 <img
-                    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/diagram.png?030520"
+                    src={diagramSrc}
                     alt="系譜圖"
-                    style:width="{diagramData.width}px"
-                    style:height="{diagramData.height}px"
+                    style:width="{canvasWidth}px"
+                    style:height="{canvasHeight}px"
                     style:max-width="none"
                     draggable="false"
                 />
@@ -101,10 +115,10 @@
                     <button
                         class="hit-target"
                         aria-label={t.meta.label}
-                        style:left="{t.x}px"
-                        style:top="{t.y}px"
-                        style:width="{t.width}px"
-                        style:height="{t.height}px"
+                        style:left="{t.x * scaleFactor}px"
+                        style:top="{t.y * scaleFactor}px"
+                        style:width="{t.width * scaleFactor}px"
+                        style:height="{t.height * scaleFactor}px"
                         onclick={(e) => {
                             e.stopPropagation();
                             selectedNode =
@@ -163,6 +177,7 @@
 <style>
     :global(svelte-scroller-background-container) {
         pointer-events: auto !important;
+        will-change: auto !important;
     }
 
     :global(svelte-scroller-foreground) {
@@ -221,11 +236,10 @@
 
     .card {
         pointer-events: auto;
-        background: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.92);
         color: var(--back-900, #1a1a1a);
         padding: 16px 24px;
         max-width: 360px;
-        backdrop-filter: blur(8px);
         line-height: 1.6;
         font-size: 16px;
     }
