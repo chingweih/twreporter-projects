@@ -1,8 +1,10 @@
 <script lang="ts">
     import { ScrollerBase } from "@reuters-graphics/graphics-components";
     import { untrack } from "svelte";
+    import AudioProvider from "../lib/components/audio/AudioProvider.svelte";
     import Button from "../lib/components/Button.svelte";
-    import Background from "../lib/components/icons/Background.svelte";
+    import AudioWave from "../lib/components/diagram/AudioWave.svelte";
+    import PopupBackground from "../lib/components/icons/PopupBackground.svelte";
     import diagramData from "../lib/constants/diagram-bounds.generated.json";
     import {
         nodes,
@@ -10,8 +12,6 @@
         type NodeMeta,
         type ScrollStep,
     } from "../lib/constants/scroll-diagram";
-    import AudioProvider from "../lib/components/audio/AudioProvider.svelte";
-    import AudioWave from "../lib/components/diagram/AudioWave.svelte";
     import { MouseDrag } from "../lib/utils/mouse-drag.svelte";
     import { computeGroupView } from "../lib/utils/svg-nodes";
     import { getYouTubeEmbedUrl } from "../lib/utils/youtube-link";
@@ -90,7 +90,7 @@
         >
             <div class="canvas" style:transform style:transition>
                 <img
-                    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/diagram.png?0305"
+                    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/diagram.png?030520"
                     alt="系譜圖"
                     style:width="{diagramData.width}px"
                     style:height="{diagramData.height}px"
@@ -136,12 +136,14 @@
     {/snippet}
 </ScrollerBase>
 
-{#if selectedNode}
+{#if selectedNode && selectedNode.youtube}
     <div class="popup">
-        <Background />
+        <PopupBackground />
         <div class="popup-content">
             <div class="popup-close">
-                <Button onclick={() => (selectedNode = null)}>X</Button>
+                <Button raw onclick={() => (selectedNode = null)}
+                    ><span style:color="white">X</span></Button
+                >
             </div>
             <h3 class="popup-title">{selectedNode.label}</h3>
             {#if selectedNode.youtube}
@@ -236,12 +238,18 @@
 
     .popup {
         position: fixed;
-        top: 75px;
-        right: 24px;
-        width: 320px;
-        padding: 20px;
-        max-width: calc(90vw - 48px);
+        top: 85px;
+        right: 60px;
+        width: clamp(250px, 70vw, 500px);
+        padding: 0;
+        padding-left: 30px;
         z-index: 100;
+    }
+
+    @media (max-width: 550px) {
+        .popup {
+            padding-left: 10px;
+        }
     }
 
     .popup-content {
@@ -252,8 +260,8 @@
 
     .popup-close {
         position: absolute;
-        top: 8px;
-        right: 12px;
+        top: 30px;
+        right: 40px;
     }
 
     .popup-title {
