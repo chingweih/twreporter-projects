@@ -28,8 +28,8 @@
     const canvasWidth = diagramData.width * scaleFactor;
     const canvasHeight = diagramData.height * scaleFactor;
     const diagramSrc = isMobile
-        ? `${CDN_BASE}/diagram-1.png` // Mobile version exported at a different scale factor
-        : `${CDN_BASE}/diagram.png`;
+        ? `${CDN_BASE}/diagram-1.png?030600` // Mobile version exported at a different scale factor
+        : `${CDN_BASE}/diagram.png?030600`;
 
     let index = $state(0);
     let selectedNode: NodeMeta | null = $state(null);
@@ -192,7 +192,7 @@
         touch-action: pan-y;
         border-top: 2px dashed #cac5bb;
         border-bottom: 2px dashed #cac5bb;
-        background-image: url("https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/umpire/pattern.svg");
+        background-image: url("https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/pattern.svg");
     }
 
     .viewport.draggable {
@@ -226,7 +226,7 @@
     }
 
     .step {
-        height: 60vh;
+        height: 60svh;
         width: 100%;
         display: flex;
         align-items: center;
@@ -283,6 +283,16 @@
         font-weight: 900;
         margin: 0 0 12px;
         color: white;
+        max-width: 80%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    @media (max-width: 550px) {
+        .popup-title {
+            font-size: 18px;
+        }
     }
 
     .popup-youtube {

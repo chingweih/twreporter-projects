@@ -48,7 +48,11 @@ export const nodes: NodeMeta[] = [
     label: "林安可",
     youtube: "https://www.youtube.com/watch?v=J03Fqg2mEp4",
   },
-  { id: "node__1-b-3", label: "林智勝" },
+  {
+    id: "node__1-b-3",
+    label: "林智勝",
+    youtube: "https://www.youtube.com/watch?v=NIjbvfAI32E",
+  },
   { id: "node__1-c", label: "日本動漫與電玩" },
   {
     id: "node__1-c-1",
@@ -70,7 +74,11 @@ export const nodes: NodeMeta[] = [
     label: "高志綱",
     youtube: "https://www.youtube.com/watch?v=D15POH1zy4M",
   },
-  { id: "node__1-c-5", label: "葉君璋" },
+  {
+    id: "node__1-c-5",
+    label: "葉君璋",
+    youtube: "https://www.youtube.com/watch?v=EAw8bbP7Aa4",
+  },
 
   // ── 2. 現代流行樂 ──
   { id: "node__2", label: "現代流行樂" },
@@ -167,13 +175,13 @@ export const nodes: NodeMeta[] = [
   },
   {
     id: "node__3-c-2",
-    label: "台鋼雄鷹〈氣蓋山河〉過門",
+    label: "台鋼雄鷹〈氣蓋山河〉",
     youtube: "https://www.youtube.com/watch?v=X1fxomeRgTk",
   },
   { id: "node__3-d", label: "俄羅斯" },
   {
     id: "node__3-d-1",
-    label: "台鋼雄鷹〈氣蓋山河〉前奏",
+    label: "台鋼雄鷹〈氣蓋山河〉",
     youtube: "https://www.youtube.com/watch?v=X1fxomeRgTk",
   },
 
@@ -207,7 +215,7 @@ export const nodes: NodeMeta[] = [
   },
   {
     id: "node__4-a-6",
-    label: "布雷T.B（When Johnny Comes Marching Home）",
+    label: "布雷T.B",
     youtube: "https://www.youtube.com/watch?v=RbQK-L5uFl8",
   },
 
@@ -226,18 +234,18 @@ export const nodes: NodeMeta[] = [
   { id: "node__5-a", label: "兒歌" },
   {
     id: "node__5-a-1",
-    label: "大力水手（I'm Popeye the Sailor Man）",
+    label: "大力水手",
     youtube: "https://www.youtube.com/watch?v=jzSddlZKc8M",
   },
   {
     id: "node__5-a-2",
-    label: "王老先生有塊地（Old MacDonald Had a Farm）",
+    label: "王老先生有塊地",
     youtube:
       "https://www.youtube.com/watch?v=_6HzoUcx3eo&pp=ygUYT2xkIE1hY0RvbmFsZCBIYWQgYSBGYXJt",
   },
   {
     id: "node__5-a-3",
-    label: "伊比呀呀（She'll Be Coming 'Round the Mountain）",
+    label: "伊比呀呀",
     youtube: "https://www.youtube.com/watch?v=CeXXT2MRlv8",
   },
 
@@ -347,7 +355,7 @@ export const steps: ScrollStep[] = [
   // Section 1
   { to: "node__", path: "direct" },
   {
-    to: "node__1-b-1",
+    to: "node__1-b",
     path: "direct",
     text: "從吉力吉撈・鞏冠的「西部牛仔」風到大師兄林智勝《少林足球》主題曲、林立《洛克人2》電玩配樂，影視與動漫、電玩一直是台灣應援曲的靈感來源大宗。",
     audios: [
@@ -356,7 +364,6 @@ export const steps: ScrollStep[] = [
         name: "統一獅「林安可」應援曲",
       },
     ],
-    scale: 1,
   },
   { to: "node__2", path: "direct" },
 
@@ -366,12 +373,11 @@ export const steps: ScrollStep[] = [
     path: "direct",
     text: "其實台灣應援曲中，不只有本土元素，還藏著世界各文化圈獨有的音色、節奏、音程結構。",
   },
-  { to: "node__3", path: "direct", scale: 0.5 },
-  { to: "node__4", path: "direct" },
+  { to: "node__", path: "direct" },
 
   // Section 3
   {
-    to: "node__4-a",
+    to: "node__4",
     path: "direct",
     text: "進一步以「樂種」進行分類，台灣重砲手們，以及歷史悠久的中信兄弟，依然保持著從古典樂延伸的進行曲、軍歌風格。",
     audios: [
@@ -381,6 +387,7 @@ export const steps: ScrollStep[] = [
       },
     ],
   },
+  { to: "node__4", path: "direct" },
 
   // Section 4
   {
@@ -388,15 +395,15 @@ export const steps: ScrollStep[] = [
     path: "direct",
     text: "構成台灣應援曲的一大根基，還有職棒早期大量由歐美民謠、童謠改編的「傳統應援」。",
   },
+  { to: "node__5", path: "direct" },
 
   // Section 5
   {
-    to: "node__6",
+    to: "node__6-a",
     path: "direct",
     text: "美國「藍調音樂」身為現代流行樂種的根源，自然也是棒球應援曲的重要支派，尤其在台灣進入「現代應援」時期後，大量以電吉他編曲的音樂，成為當代棒球場的核心聲響。",
   },
   { to: "node__6", path: "direct" },
-  { to: "node__6-b", path: "direct" },
 
   // Section 6
   {
@@ -404,4 +411,5 @@ export const steps: ScrollStep[] = [
     path: "direct",
     text: "近年球場硬體設備提升，應援又有舞蹈需求，以電子樂構成主旋律，融合電吉他、爵士鼓加強熱血感的樂曲也開始出現。",
   },
+  { to: "node__6-b-i-1-a", path: "direct" },
 ];
