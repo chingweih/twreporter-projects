@@ -90,7 +90,7 @@
         >
             <div class="canvas" style:transform style:transition>
                 <img
-                    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/diagram.png"
+                    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/diagram.png?0305"
                     alt="系譜圖"
                     style:width="{diagramData.width}px"
                     style:height="{diagramData.height}px"
@@ -209,7 +209,7 @@
     }
 
     .step {
-        height: 100dvh;
+        height: 60vh;
         width: 100%;
         display: flex;
         align-items: center;
