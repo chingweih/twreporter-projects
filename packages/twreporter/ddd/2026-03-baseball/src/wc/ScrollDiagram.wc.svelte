@@ -2,7 +2,10 @@
 <svelte:options customElement={{ tag: "twreporter-scroll-diagram" }} />
 
 <script lang="ts">
+    import Shell from "../lib/components/layout/Shell.svelte";
     import ScrollDiagram from "./ScrollDiagram.svelte";
 </script>
 
-<ScrollDiagram />
+<Shell raw name="系譜圖">
+    <ScrollDiagram />
+</Shell>

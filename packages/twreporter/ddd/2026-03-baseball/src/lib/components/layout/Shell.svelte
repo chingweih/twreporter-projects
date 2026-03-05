@@ -4,7 +4,7 @@
     import Background from "../icons/Background.svelte";
     import DoubleBackground from "../icons/DoubleBackground.svelte";
 
-    let container: HTMLDivElement | null = null;
+    let container: HTMLDivElement | null = $state(null);
 
     // 使用 `?download` 檢查是否要開啟下載選項
     const urlParams = new URLSearchParams(window.location.search);
@@ -15,13 +15,15 @@
         children,
         headerChildren,
         backgroundStyle = "default",
+        raw = false,
     }: {
         name: string;
         description?: string;
-        footnotes: string[];
+        footnotes?: string[];
         children: Snippet;
         headerChildren?: Snippet;
         backgroundStyle?: "default" | "double";
+        raw?: boolean;
     } = $props();
 </script>
 
@@ -31,48 +33,54 @@
     crossorigin="anonymous"
 />
 
-<div class="outer">
-    <div
-        class="container"
-        bind:this={container}
-        class:double={backgroundStyle === "double"}
-    >
-        {#if backgroundStyle === "default"}
-            <Background />
-        {:else if backgroundStyle === "double"}
-            <DoubleBackground />
-        {/if}
-
-        <div class="header">
-            <h1>{name}</h1>
-            {@render headerChildren?.()}
-        </div>
-
+{#if raw}
+    <div>
         {@render children()}
     </div>
+{:else}
+    <div class="outer">
+        <div
+            class="container"
+            bind:this={container}
+            class:double={backgroundStyle === "double"}
+        >
+            {#if backgroundStyle === "default"}
+                <Background />
+            {:else if backgroundStyle === "double"}
+                <DoubleBackground />
+            {/if}
 
-    {#if showDownload}
-        <div class="download-control">
-            <p>
-                視窗寬度：{innerWidth}px（下載前請拉寬到超過730px）
-            </p>
-            <button
-                class="dl-button"
-                onclick={() =>
-                    container &&
-                    domToPng(container, {
-                        quality: 1,
-                        scale: 3,
-                    }).then((dataUrl) => {
-                        const a = document.createElement("a");
-                        a.href = dataUrl;
-                        a.download = `${name ?? "圖表"}／報導者.png`;
-                        a.click();
-                    })}>下載 PNG</button
-            >
+            <div class="header">
+                <h1>{name}</h1>
+                {@render headerChildren?.()}
+            </div>
+
+            {@render children()}
         </div>
-    {/if}
-</div>
+
+        {#if showDownload}
+            <div class="download-control">
+                <p>
+                    視窗寬度：{innerWidth}px（下載前請拉寬到超過730px）
+                </p>
+                <button
+                    class="dl-button"
+                    onclick={() =>
+                        container &&
+                        domToPng(container, {
+                            quality: 1,
+                            scale: 3,
+                        }).then((dataUrl) => {
+                            const a = document.createElement("a");
+                            a.href = dataUrl;
+                            a.download = `${name ?? "圖表"}／報導者.png`;
+                            a.click();
+                        })}>下載 PNG</button
+                >
+            </div>
+        {/if}
+    </div>
+{/if}
 
 <style>
     * {
