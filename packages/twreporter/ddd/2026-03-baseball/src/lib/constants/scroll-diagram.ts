@@ -365,6 +365,7 @@ export const steps: ScrollStep[] = [
       },
     ],
   },
+  { to: "node__1", path: "direct" },
   { to: "node__2", path: "direct" },
 
   // Section 2
