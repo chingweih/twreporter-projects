@@ -1,83 +1,48 @@
 <script lang="ts">
     import { ScrollerBase } from "@reuters-graphics/graphics-components";
-    import Background from "../lib/components/icons/Background.svelte";
+    import { untrack } from "svelte";
     import Button from "../lib/components/Button.svelte";
+    import Background from "../lib/components/icons/Background.svelte";
+    import diagramData from "../lib/constants/diagram-bounds.generated.json";
     import {
         nodes,
         steps,
         type NodeMeta,
         type ScrollStep,
     } from "../lib/constants/scroll-diagram";
-    import {
-        computeNodeBounds,
-        computeGroupView,
-        attachNodeClickHandlers,
-        type NodeBounds,
-    } from "../lib/utils/svg-nodes";
-    import { MouseDrag } from "../lib/utils/mouse-drag.svelte";
-    import AudioWave from "../lib/components/diagram/AudioWave.svelte";
     import AudioProvider from "../lib/components/audio/AudioProvider.svelte";
+    import AudioWave from "../lib/components/diagram/AudioWave.svelte";
+    import { MouseDrag } from "../lib/utils/mouse-drag.svelte";
+    import { computeGroupView } from "../lib/utils/svg-nodes";
     import { getYouTubeEmbedUrl } from "../lib/utils/youtube-link";
+
+    const diagramBounds = diagramData.bounds;
 
     let index = $state(0);
     let selectedNode: NodeMeta | null = $state(null);
-    let canvasEl: HTMLDivElement | undefined = $state();
     let viewportEl: HTMLDivElement | undefined = $state();
-
-    let diagram = $state<{
-        bounds: Map<string, NodeBounds>;
-        width: number;
-        height: number;
-    } | null>(null);
 
     const nodeMap = new Map(nodes.map((n) => [n.id, n]));
     const drag = new MouseDrag();
 
-    $effect(() => {
-        if (!canvasEl) return;
-        const el = canvasEl;
-        const controller = new AbortController();
-
-        fetch(
-            "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/diagram.svg",
-            { signal: controller.signal },
-        )
-            .then((r) => r.text())
-            .then((text) => {
-                el.innerHTML = text;
-                requestAnimationFrame(() => {
-                    const svg = el.querySelector("svg");
-                    diagram = {
-                        bounds: computeNodeBounds(el),
-                        width: svg?.viewBox.baseVal.width || 952,
-                        height: svg?.viewBox.baseVal.height || 616,
-                    };
-                });
-            })
-            .catch(() => {});
-
-        return () => controller.abort();
-    });
+    // Hit targets: only nodes that exist in both diagramBounds and nodeMap
+    const hitTargets = Object.entries(diagramBounds)
+        .filter(([id]) => nodeMap.has(id))
+        .map(([id, b]) => ({ id, ...b, meta: nodeMap.get(id)! }));
 
     $effect(() => {
-        if (!diagram || !canvasEl) return;
-        return attachNodeClickHandlers(canvasEl, nodeMap, (meta) => {
-            selectedNode = selectedNode?.id === meta.id ? null : meta;
+        void steps[index];
+        untrack(() => {
+            drag.reset();
         });
     });
 
     const currentStep = $derived(steps[index] ?? steps[0]);
 
     const transform = $derived.by(() => {
-        if (!viewportEl || !diagram) return "translate(0px, 0px) scale(1)";
+        if (!viewportEl) return "translate(0px, 0px) scale(1)";
 
-        const { cx, cy, scale } = resolveView(
-            currentStep,
-            viewportEl,
-            diagram.bounds,
-            diagram.width,
-            diagram.height,
-        );
+        const { cx, cy, scale } = resolveView(currentStep, viewportEl);
         const tx = viewportEl.clientWidth / 2 - cx * scale + drag.offset.x;
         const ty = viewportEl.clientHeight / 2 - cy * scale + drag.offset.y;
         return `translate(${tx}px, ${ty}px) scale(${scale})`;
@@ -89,17 +54,15 @@
             : "transform 1000ms cubic-bezier(0.25, 0.1, 0.25, 1)",
     );
 
-    function resolveView(
-        step: ScrollStep,
-        viewport: HTMLDivElement,
-        bounds: Map<string, NodeBounds>,
-        svgW: number,
-        svgH: number,
-    ) {
-        const fallback = { cx: svgW / 2, cy: svgH / 2, scale: 1 };
+    function resolveView(step: ScrollStep, viewport: HTMLDivElement) {
+        const fallback = {
+            cx: diagramData.width / 2,
+            cy: diagramData.height / 2,
+            scale: 1,
+        };
         const group = computeGroupView(
             step.to,
-            bounds,
+            diagramBounds,
             viewport.clientWidth,
             viewport.clientHeight,
         );
@@ -112,6 +75,8 @@
 
 <ScrollerBase top={0} threshold={0.5} bottom={1} bind:index query="div.step">
     {#snippet backgroundSnippet()}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
             class="viewport"
             class:draggable={drag.isMousePointer}
@@ -121,17 +86,33 @@
             onpointermove={drag.handlePointerMove}
             onpointerup={drag.handlePointerUp}
             onpointercancel={drag.handlePointerUp}
-            onclick={(e) => {
-                if ((e.target as Element).closest('[id^="node__"]')) return;
-                selectedNode = null;
-            }}
+            onclick={() => (selectedNode = null)}
         >
-            <div
-                class="canvas"
-                style:transform
-                style:transition
-                bind:this={canvasEl}
-            ></div>
+            <div class="canvas" style:transform style:transition>
+                <img
+                    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/diagram.png"
+                    alt="系譜圖"
+                    style:width="{diagramData.width}px"
+                    style:height="{diagramData.height}px"
+                    style:max-width="none"
+                    draggable="false"
+                />
+                {#each hitTargets as t}
+                    <button
+                        class="hit-target"
+                        aria-label={t.meta.label}
+                        style:left="{t.x}px"
+                        style:top="{t.y}px"
+                        style:width="{t.width}px"
+                        style:height="{t.height}px"
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            selectedNode =
+                                selectedNode?.id === t.meta.id ? null : t.meta;
+                        }}
+                    ></button>
+                {/each}
+            </div>
         </div>
     {/snippet}
     {#snippet foregroundSnippet()}
@@ -214,8 +195,17 @@
         left: 0;
     }
 
-    .canvas :global(svg) {
+    .canvas img {
         display: block;
+        pointer-events: none;
+    }
+
+    .hit-target {
+        position: absolute;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
     }
 
     .step {
