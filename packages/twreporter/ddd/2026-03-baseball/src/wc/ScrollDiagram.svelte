@@ -29,8 +29,8 @@
     const canvasHeight = $derived(diagramData.height * scaleFactor);
     const diagramSrc = $derived(
         isMobile
-            ? `${CDN_BASE}/diagram-1.png?03061040` // Mobile version exported at a different scale factor
-            : `${CDN_BASE}/diagram.png?03061040`,
+            ? `${CDN_BASE}/diagram-1.png?030615` // Mobile version exported at a different scale factor
+            : `${CDN_BASE}/diagram.png?030615`,
     );
 
     let index = $state(0);

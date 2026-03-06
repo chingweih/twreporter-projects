@@ -337,13 +337,21 @@ export const nodes: NodeMeta[] = [
       "https://www.youtube.com/watch?v=ARABESYBOig&pp=ygUa5by15bu66YqYIOiIiOi-siDmh4nmj7Tmm7I%3D",
   },
   { id: "node__6-b-i-1-a", label: "電子" },
-  { id: "node__6-b-i-1-a-1", label: "Eurobeat" },
+  {
+    id: "node__6-b-i-1-a-1",
+    label: "Eurobeat",
+    youtube: "https://www.youtube.com/watch?v=NNaJxMutEIE",
+  },
   {
     id: "node__6-b-i-1-a-1-1",
     label: "富邦悍將〈藍色狂潮〉",
     youtube: "https://www.youtube.com/watch?v=veHNDZ3lFCA",
   },
-  { id: "node__6-b-i-1-a-2", label: "Trance" },
+  {
+    id: "node__6-b-i-1-a-2",
+    label: "Trance",
+    youtube: "https://www.youtube.com/watch?v=y6120QOlsfU",
+  },
   {
     id: "node__6-b-i-1-a-2-1",
     label: "富邦悍將〈超強一擊〉",

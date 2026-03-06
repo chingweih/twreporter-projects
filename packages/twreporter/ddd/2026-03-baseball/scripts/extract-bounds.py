@@ -18,7 +18,7 @@ from pathlib import Path
 
 import requests
 
-SVG_URL = "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/diagram.svg?03061040"
+SVG_URL = "https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/diagram.svg?030615"
 OUTPUT = (
     Path(__file__).resolve().parent.parent
     / "src/lib/constants/diagram-bounds.generated.json"
