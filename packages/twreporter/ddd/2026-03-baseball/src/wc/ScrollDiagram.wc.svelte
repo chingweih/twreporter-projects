@@ -6,6 +6,6 @@
     import ScrollDiagram from "./ScrollDiagram.svelte";
 </script>
 
-<Shell raw name="系譜圖">
+<Shell raw name="系譜圖" --font="Noto Sans TC">
     <ScrollDiagram />
 </Shell>

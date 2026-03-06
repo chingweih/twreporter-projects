@@ -106,7 +106,7 @@
         --inner-shadow-heavy: -2px -2px 4px 0 rgba(0, 0, 0, 0.5) inset;
 
         color: var(--black-700);
-        font-family: "GenJyuuGothicL", sans-serif;
+        font-family: var(--font, "GenJyuuGothicL"), sans-serif;
         text-align: left !important;
     }
 
