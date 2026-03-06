@@ -374,7 +374,7 @@ export const steps: ScrollStep[] = [
     path: "direct",
     text: "其實台灣應援曲中，不只有本土元素，還藏著世界各文化圈獨有的音色、節奏、音程結構。",
   },
-  { to: "node__", path: "direct" },
+  { to: "node__3", path: "direct" },
 
   // Section 3
   {
@@ -404,7 +404,7 @@ export const steps: ScrollStep[] = [
     path: "direct",
     text: "美國「藍調音樂」身為現代流行樂種的根源，自然也是棒球應援曲的重要支派，尤其在台灣進入「現代應援」時期後，大量以電吉他編曲的音樂，成為當代棒球場的核心聲響。",
   },
-  { to: "node__6", path: "direct" },
+  { to: "node__6-a", path: "direct" },
 
   // Section 6
   {
@@ -413,4 +413,6 @@ export const steps: ScrollStep[] = [
     text: "近年球場硬體設備提升，應援又有舞蹈需求，以電子樂構成主旋律，融合電吉他、爵士鼓加強熱血感的樂曲也開始出現。",
   },
   { to: "node__6-b-i-1-a", path: "direct" },
+  { to: "node__", path: "direct" },
+  { to: "node__", path: "direct" },
 ];

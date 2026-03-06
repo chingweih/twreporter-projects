@@ -28,8 +28,8 @@
     const canvasWidth = diagramData.width * scaleFactor;
     const canvasHeight = diagramData.height * scaleFactor;
     const diagramSrc = isMobile
-        ? `${CDN_BASE}/diagram-1.png?030600` // Mobile version exported at a different scale factor
-        : `${CDN_BASE}/diagram.png?030600`;
+        ? `${CDN_BASE}/diagram-1.png?03061040` // Mobile version exported at a different scale factor
+        : `${CDN_BASE}/diagram.png?03061040`;
 
     let index = $state(0);
     let selectedNode: NodeMeta | null = $state(null);
@@ -231,7 +231,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: "GenJyuuGothicL", sans-serif;
     }
 
     .card {
