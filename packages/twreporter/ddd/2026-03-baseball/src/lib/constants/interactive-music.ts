@@ -123,7 +123,7 @@ export const keys: Record<
     subtitle: "〈氣蓋山河〉節錄",
     songTitle: "〈氣蓋山河〉",
     endingPadding: 3,
-    repeatPadding: 0.5,
+    repeatPadding: 0,
     states: {
       default: {
         name: "原曲",
