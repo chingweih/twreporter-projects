@@ -60,9 +60,6 @@
 
         {#if showDownload}
             <div class="download-control">
-                <p>
-                    視窗寬度：{innerWidth}px（下載前請拉寬到超過730px）
-                </p>
                 <button
                     class="dl-button"
                     onclick={() =>

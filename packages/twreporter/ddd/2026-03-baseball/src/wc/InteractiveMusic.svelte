@@ -8,7 +8,7 @@
         TrackStates,
     } from "../lib/constants/interactive-music";
 
-    // @ts-expect-error: Currently, web-haptics/svelte doesn't have type declearation files.
+    // @ts-expect-error: Currently, web-haptics/svelte doesn't have type declaration files.
     import { createWebHaptics } from "web-haptics/svelte";
     import { onDestroy } from "svelte";
 
@@ -183,7 +183,6 @@
         font-weight: bold;
         font-size: 16px;
         color: var(--blue-primary);
-        white-space: wrap;
         width: 100%;
         text-align: center;
     }

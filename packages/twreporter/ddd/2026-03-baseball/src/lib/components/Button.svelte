@@ -3,7 +3,7 @@
     import { onDestroy } from "svelte";
     import type { HTMLButtonAttributes } from "svelte/elements";
 
-    // @ts-expect-error: Currently, web-haptics/svelte doesn't have type declearation files.
+    // @ts-expect-error: Currently, web-haptics/svelte doesn't have type declaration files.
     import { createWebHaptics } from "web-haptics/svelte";
 
     const {

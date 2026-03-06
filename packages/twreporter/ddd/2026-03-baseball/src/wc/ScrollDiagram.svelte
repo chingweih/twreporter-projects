@@ -21,15 +21,17 @@
     const MOBILE_BREAKPOINT = 768;
 
     const diagramBounds = diagramData.bounds;
-    const isMobile =
-        typeof window !== "undefined" && window.innerWidth <= MOBILE_BREAKPOINT;
+    let innerWidth = $state(0);
+    const isMobile = $derived(innerWidth <= MOBILE_BREAKPOINT);
 
-    const scaleFactor = isMobile ? 0.5 : 1;
-    const canvasWidth = diagramData.width * scaleFactor;
-    const canvasHeight = diagramData.height * scaleFactor;
-    const diagramSrc = isMobile
-        ? `${CDN_BASE}/diagram-1.png?03061040` // Mobile version exported at a different scale factor
-        : `${CDN_BASE}/diagram.png?03061040`;
+    const scaleFactor = $derived(isMobile ? 0.5 : 1);
+    const canvasWidth = $derived(diagramData.width * scaleFactor);
+    const canvasHeight = $derived(diagramData.height * scaleFactor);
+    const diagramSrc = $derived(
+        isMobile
+            ? `${CDN_BASE}/diagram-1.png?03061040` // Mobile version exported at a different scale factor
+            : `${CDN_BASE}/diagram.png?03061040`,
+    );
 
     let index = $state(0);
     let selectedNode: NodeMeta | null = $state(null);
@@ -86,6 +88,8 @@
         return group;
     }
 </script>
+
+<svelte:window bind:innerWidth />
 
 <ScrollerBase top={0} threshold={0.5} bottom={1} bind:index query="div.step">
     {#snippet backgroundSnippet()}
