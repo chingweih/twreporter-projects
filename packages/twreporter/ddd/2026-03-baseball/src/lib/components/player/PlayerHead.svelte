@@ -13,5 +13,6 @@
         border-radius: 3px;
         will-change: left;
         box-shadow: var(--inner-shadow);
+        transition: left ease 10ms;
     }
 </style>

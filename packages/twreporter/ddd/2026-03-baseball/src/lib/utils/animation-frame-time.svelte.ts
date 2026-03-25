@@ -3,21 +3,28 @@ import { get } from 'svelte/store'
 
 /**
  * Reads audio currentTime on every animation frame for smooth PlayerHead movement.
- * The HTML audio element's `timeupdate` fires ~4fps; this gives ~60fps updates.
+ *
+ * Reads directly from the HTMLAudioElement for true 60fps updates, bypassing
+ * Svelte's bind:currentTime store which has a gap after play starts (its internal
+ * rAF loop stops while paused and only restarts on the next timeupdate ~250ms later).
  */
 export function useAnimationFrameTime(
   currentTime: Readable<number>,
   paused: Readable<boolean>,
+  audioElement: Readable<HTMLAudioElement | null>,
 ) {
   let smoothTime = $state(get(currentTime))
   let rafId: number | null = null
   let isPaused = $state(get(paused))
+  let audioEl: HTMLAudioElement | null = get(audioElement)
 
-  // Track paused state reactively via subscription
   const unsubPaused = paused.subscribe((v) => (isPaused = v))
+  const unsubAudioEl = audioElement.subscribe((v) => (audioEl = v))
 
   function tick() {
-    smoothTime = get(currentTime)
+    // Read directly from the audio element for true 60fps updates.
+    // Falls back to the store value if the element isn't available yet.
+    smoothTime = audioEl?.currentTime ?? get(currentTime)
     rafId = requestAnimationFrame(tick)
   }
 
@@ -46,6 +53,7 @@ export function useAnimationFrameTime(
     destroy() {
       unsubPaused()
       unsubTime()
+      unsubAudioEl()
       if (rafId != null) cancelAnimationFrame(rafId)
     },
   }

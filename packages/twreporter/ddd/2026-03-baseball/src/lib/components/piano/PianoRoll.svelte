@@ -9,6 +9,7 @@
     import PlayerHead from "../player/PlayerHead.svelte";
     import SongTitle from "../player/SongTitle.svelte";
     import OutlineText from "../typography/OutlineText.svelte";
+    import { getAudioElementContext } from "../../contexts/audio-element";
     import { useAnimationFrameTime } from "../../utils/animation-frame-time.svelte";
     import { onDestroy } from "svelte";
 
@@ -25,11 +26,14 @@
 
     const { currentTime, duration, paused } = getAudioContext();
 
-    const smooth = useAnimationFrameTime(currentTime, paused);
+    const audioElementRef = getAudioElementContext();
+    const smooth = useAnimationFrameTime(currentTime, paused, audioElementRef);
     onDestroy(smooth.destroy);
 
     let playerProgress = $derived(
-        Math.min(smooth.currentTime / ($duration - score.endingPadding), 1),
+        $duration > 0
+            ? Math.min(smooth.currentTime / ($duration - score.endingPadding), 1)
+            : 0,
     );
 
     let currentBeat = $derived(playerProgress * totalBeats);

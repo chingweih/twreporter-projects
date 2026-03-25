@@ -7,6 +7,7 @@
         TrackConfig,
         TrackStates,
     } from "../lib/constants/interactive-music";
+    import { getAudioElementContext } from "../lib/contexts/audio-element";
     import { useAnimationFrameTime } from "../lib/utils/animation-frame-time.svelte";
     // @ts-expect-error: Currently, web-haptics/svelte doesn't have type declaration files.
     import { onDestroy } from "svelte";
@@ -36,11 +37,14 @@
     const { currentTime, duration, repeat, paused } = getAudioContext();
     repeat.set(true);
 
-    const smooth = useAnimationFrameTime(currentTime, paused);
+    const audioElementRef = getAudioElementContext();
+    const smooth = useAnimationFrameTime(currentTime, paused, audioElementRef);
     onDestroy(smooth.destroy);
 
     let playerProgress = $derived(
-        Math.min(smooth.currentTime / ($duration - endingPadding), 1),
+        $duration > 0
+            ? Math.min(smooth.currentTime / ($duration - endingPadding), 1)
+            : 0,
     );
 
     $effect(() => {
