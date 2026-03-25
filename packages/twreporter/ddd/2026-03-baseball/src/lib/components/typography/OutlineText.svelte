@@ -30,6 +30,8 @@
         p {
             top: -20px;
             font-size: 16px;
+
+            -webkit-text-stroke: 5px var(--outline-color);
         }
     }
 </style>

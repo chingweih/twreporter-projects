@@ -120,6 +120,10 @@
             --size: 18px;
             margin-left: calc((20px - var(--size)) / 2 + 1px);
         }
+
+        p {
+            -webkit-text-stroke: 5px var(--outline-color);
+        }
     }
 
     @media (max-width: 400px) {
