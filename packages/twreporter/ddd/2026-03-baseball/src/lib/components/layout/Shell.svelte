@@ -94,6 +94,7 @@
         --pink-primary: #ff0088;
         --pink-muted: #efede9;
         --red-primary: #ff4713;
+        --red-muted-500: #8b7c5d;
         --red-muted: #cfc8ba;
         --box-background: #ffffff;
         --box-background-20: #ffffff14; /* 20% */
@@ -107,6 +108,7 @@
         --background-color: var(--pink-muted);
         --note-bar-color: var(--red-muted);
         --swing-color: var(--blue-primary);
+        --outline-color: var(--red-muted-500);
 
         --rounded-full: 100vw;
         --inner-shadow: -2px -2px 4px 0 rgba(0, 0, 0, 0.25) inset;

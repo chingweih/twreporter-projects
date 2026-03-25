@@ -14,7 +14,7 @@
         text-align: center;
         z-index: 0;
         filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.25));
-        -webkit-text-stroke: 5px var(--primary-color);
+        -webkit-text-stroke: 6px var(--outline-color);
     }
 
     p::before {
