@@ -205,7 +205,7 @@ export const keys: Record<
               { pitch: 17, duration: 1 },
               { pitch: 15, duration: 1 },
               { pitch: 15, duration: 1 },
-              { pitch: 13, duration: 1 },
+              { pitch: 14, duration: 1 },
               { pitch: 12, duration: 1 },
               { pitch: 10, duration: 1 },
               { pitch: 12, duration: 1 },
