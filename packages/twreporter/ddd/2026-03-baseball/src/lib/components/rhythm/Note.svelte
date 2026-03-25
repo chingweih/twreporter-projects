@@ -62,6 +62,7 @@
         height: var(--size, 20px);
         transform-origin: center center;
         font-size: var(--size, 20px);
+        will-change: transform;
     }
 
     .start:has(p) {
@@ -118,6 +119,13 @@
         .start {
             --size: 18px;
             margin-left: calc((20px - var(--size)) / 2 + 1px);
+        }
+    }
+
+    @media (max-width: 400px) {
+        .start {
+            --size: 16px;
+            margin-left: calc((20px - var(--size)) / 2);
         }
     }
 </style>
