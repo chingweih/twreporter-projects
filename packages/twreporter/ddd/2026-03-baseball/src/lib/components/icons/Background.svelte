@@ -32,7 +32,7 @@
     @media (max-width: 550px) {
         .mobile {
             display: block;
-            transform: scale(1.15) translateY(-12px);
+            transform: scale(1.15) translateY(-5px);
         }
 
         .desktop {
