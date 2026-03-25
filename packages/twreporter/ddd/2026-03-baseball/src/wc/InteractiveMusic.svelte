@@ -182,7 +182,7 @@
     .instrument p {
         font-weight: bold;
         font-size: 16px;
-        color: var(--blue-primary);
+        color: var(--text-color);
         width: 100%;
         text-align: center;
     }
@@ -201,7 +201,7 @@
         background: var(--background-muted);
         background-image: linear-gradient(
             to right,
-            var(--blue-primary) 2px,
+            var(--background-color) 2px,
             transparent 2px
         );
         background-size: calc(var(--background-size-frac, 12.5%) - 5px) 100%;
@@ -235,7 +235,7 @@
     }
 
     .state-control button {
-        color: var(--blue-primary);
+        color: var(--primary-color);
         font-size: 15px;
         cursor: pointer;
         padding: 0 15px;
@@ -248,13 +248,13 @@
         height: 100%;
 
         &:hover {
-            color: var(--blue-primary);
+            color: var(--primary-color);
         }
     }
 
     .state-control button span {
         font-weight: 500;
-        background-color: var(--blue-primary);
+        background-color: var(--primary-color);
 
         color: transparent;
 
@@ -267,7 +267,7 @@
 
     .state-control button.active {
         background: white;
-        color: var(--blue-primary);
+        color: var(--primary-color);
         box-shadow: var(--inner-shadow);
     }
 </style>

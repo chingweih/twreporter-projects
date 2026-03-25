@@ -13,8 +13,8 @@
         font-size: 20px;
         text-align: center;
         z-index: 0;
-        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
-        -webkit-text-stroke: 6px var(--blue-primary);
+        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.25));
+        -webkit-text-stroke: 5px var(--primary-color);
     }
 
     p::before {
@@ -22,7 +22,7 @@
         top: 0;
         left: 0;
         content: attr(data-text);
-        color: #f2f1ed;
+        color: var(--background-color);
         -webkit-text-stroke: 0;
     }
 

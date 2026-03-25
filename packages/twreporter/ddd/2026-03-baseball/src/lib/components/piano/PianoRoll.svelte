@@ -318,7 +318,7 @@
 
     .segment-name span {
         font-weight: 500;
-        background-color: white;
+        background-color: var(--text-color);
 
         color: transparent;
 
@@ -362,7 +362,7 @@
         top: 0;
         height: 100%;
         width: 2px;
-        background: var(--blue-primary);
+        background: var(--background-color);
     }
 
     .note-bars {
@@ -373,7 +373,7 @@
 
     .note-bar {
         position: absolute;
-        background: white;
+        background: var(--note-bar-color);
         transition: background 0.15s ease;
         display: flex;
         align-items: center;
@@ -384,7 +384,7 @@
     }
 
     .note-bar.active {
-        background: var(--red-primary);
+        background: var(--primary-color);
     }
 
     .note-bar.rest {

@@ -9,7 +9,7 @@
         width: 8px;
         height: calc(100% + 20px);
         margin-top: -10px;
-        background: white;
+        background: var(--text-color);
         border-radius: 3px;
         will-change: left;
         box-shadow: var(--inner-shadow);

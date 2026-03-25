@@ -14,7 +14,7 @@
 <Button
     onclick={() => toggle(paused)}
     title={$paused ? "Play" : "Stop"}
-    --color="var(--blue-primary)"
+    --color="var(--primary-color)"
 >
     <svg
         width="13"

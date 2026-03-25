@@ -16,14 +16,14 @@
             rx="6"
             ry="5"
             transform="rotate(4.75568 6.39391 17.6062)"
-            fill="white"
+            fill="currentColor"
         />
         <rect
             x="11.873"
             width="2"
             height="18"
             transform="rotate(4.75568 11.873 0)"
-            fill="white"
+            fill="currentColor"
         />
     </svg>
 {/snippet}

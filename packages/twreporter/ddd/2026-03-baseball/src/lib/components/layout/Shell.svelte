@@ -94,12 +94,19 @@
         --pink-primary: #ff0088;
         --pink-muted: #efede9;
         --red-primary: #ff4713;
+        --red-muted: #cfc8ba;
         --box-background: #ffffff;
         --box-background-20: #ffffff14; /* 20% */
         --box-background-50: #ffffff32; /* 50% */
         --black-900: #262626;
         --black-800: #42464c;
-        --black-700: white;
+        --black-700: #54524d;
+
+        --text-color: var(--black-700);
+        --primary-color: var(--red-primary);
+        --background-color: var(--pink-muted);
+        --note-bar-color: var(--red-muted);
+        --swing-color: var(--blue-primary);
 
         --rounded-full: 100vw;
         --inner-shadow: -2px -2px 4px 0 rgba(0, 0, 0, 0.25) inset;
