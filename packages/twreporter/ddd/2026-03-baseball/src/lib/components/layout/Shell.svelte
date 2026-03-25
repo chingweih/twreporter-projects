@@ -3,6 +3,7 @@
     import type { Snippet } from "svelte";
     import Background from "../icons/Background.svelte";
     import DoubleBackground from "../icons/DoubleBackground.svelte";
+    import Background2 from "../icons/Background-2.svelte";
 
     let container: HTMLDivElement | null = $state(null);
 
@@ -22,7 +23,7 @@
         footnotes?: string[];
         children: Snippet;
         headerChildren?: Snippet;
-        backgroundStyle?: "default" | "double";
+        backgroundStyle?: "default" | "alternative" | "double";
         raw?: boolean;
     } = $props();
 </script>
@@ -46,6 +47,8 @@
         >
             {#if backgroundStyle === "default"}
                 <Background />
+            {:else if backgroundStyle === "alternative"}
+                <Background2 />
             {:else if backgroundStyle === "double"}
                 <DoubleBackground />
             {/if}

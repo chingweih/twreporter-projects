@@ -20,4 +20,10 @@
         flex-direction: column;
         gap: 50px;
     }
+
+    @media (max-width: 550px) {
+        .scores {
+            gap: 60px;
+        }
+    }
 </style>

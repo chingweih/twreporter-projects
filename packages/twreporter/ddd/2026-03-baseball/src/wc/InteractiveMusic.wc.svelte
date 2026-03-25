@@ -20,7 +20,12 @@
     let activeMusic: TrackConfig = $state(config.states.default);
 </script>
 
-<Shell name={config.title} {footnotes} description={config.subtitle}>
+<Shell
+    name={config.title}
+    {footnotes}
+    description={config.subtitle}
+    backgroundStyle="alternative"
+>
     <AudioProvider src={activeMusic.src}>
         <InteractiveMusic
             states={config.states}
