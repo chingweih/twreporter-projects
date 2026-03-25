@@ -1,11 +1,11 @@
 <img
-    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/bg-2-mobile.png"
+    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/bg-2-mobile.png?v1"
     alt="background"
     class="mobile"
 />
 
 <img
-    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/bg-2-desktop.png"
+    src="https://projects.twreporter.org/twreporter/ddd/2026-03-baseball/assets/bg-2-desktop.png?v1"
     alt="background"
     class="desktop"
 />
