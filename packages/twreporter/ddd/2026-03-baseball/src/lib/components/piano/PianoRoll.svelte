@@ -9,6 +9,8 @@
     import PlayerHead from "../player/PlayerHead.svelte";
     import SongTitle from "../player/SongTitle.svelte";
     import OutlineText from "../typography/OutlineText.svelte";
+    import { useAnimationFrameTime } from "../../utils/animation-frame-time.svelte";
+    import { onDestroy } from "svelte";
 
     const { score }: { score: PianoScoreConfig } = $props();
 
@@ -23,8 +25,11 @@
 
     const { currentTime, duration, paused } = getAudioContext();
 
+    const smooth = useAnimationFrameTime(currentTime, paused);
+    onDestroy(smooth.destroy);
+
     let playerProgress = $derived(
-        Math.min($currentTime / ($duration - score.endingPadding), 1),
+        Math.min(smooth.currentTime / ($duration - score.endingPadding), 1),
     );
 
     let currentBeat = $derived(playerProgress * totalBeats);
