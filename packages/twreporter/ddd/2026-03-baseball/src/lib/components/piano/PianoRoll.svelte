@@ -323,7 +323,7 @@
 
     .segment-name span {
         font-weight: 500;
-        background-color: var(--text-color);
+        background-color: var(--outline-color);
 
         color: transparent;
 

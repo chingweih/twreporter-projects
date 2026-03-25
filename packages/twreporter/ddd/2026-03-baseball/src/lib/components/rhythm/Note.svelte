@@ -98,7 +98,7 @@
 
     p {
         color: #f2f1ed;
-        font-weight: 900;
+        font-weight: bold;
         text-align: center;
         z-index: 0;
         filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.25));

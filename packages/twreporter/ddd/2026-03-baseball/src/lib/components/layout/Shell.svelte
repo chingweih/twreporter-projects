@@ -94,7 +94,7 @@
         --pink-primary: #ff0088;
         --pink-muted: #efede9;
         --red-primary: #ff4713;
-        --red-muted-500: #8b7c5d;
+        --red-muted-500: #78756e;
         --red-muted: #cfc8ba;
         --box-background: #ffffff;
         --box-background-20: #ffffff14; /* 20% */
