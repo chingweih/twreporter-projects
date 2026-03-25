@@ -28,7 +28,7 @@
 
     @media (max-width: 550px) {
         p {
-            top: -20px;
+            top: -25px;
             font-size: 16px;
 
             -webkit-text-stroke: 5px var(--outline-color);
