@@ -1,1 +1,1 @@
-import './Kodokushi.wc.svelte'
+import './DynamicLayout.wc.svelte'

@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "check:layout": "node scripts/check-layout.mjs",
     "preview": "vite preview"
+  },
+  "dependencies": {
+    "@chenglou/pretext": "^0.0.8"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^6.2.1",

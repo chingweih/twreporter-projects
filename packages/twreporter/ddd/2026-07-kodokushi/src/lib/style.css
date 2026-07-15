@@ -1,0 +1,86 @@
+:host {
+  display: block;
+  overflow: visible;
+  color: #3f3f3f;
+  font-family: "Noto Sans TC", sans-serif;
+}
+
+article {
+  position: relative;
+  width: min(580px, 100%);
+  margin: 0 auto;
+}
+
+.hero {
+  width: min(960px, 100vw);
+  margin: 0 50% 32px;
+  transform: translateX(-50%);
+}
+
+.hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  margin-bottom: 28px;
+  color: #272727;
+  font-size: clamp(28px, 5vw, 40px);
+  line-height: 1.25;
+}
+
+header > p {
+  margin-bottom: 48px;
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+h2 {
+  margin-bottom: 32px;
+  color: #272727;
+  font-size: 24px;
+  line-height: 1.45;
+}
+
+.flow {
+  position: relative;
+  overflow: visible;
+}
+
+.paragraph {
+  position: absolute;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  font-size: 16px;
+  line-height: 28px;
+}
+
+.paragraph span {
+  position: absolute;
+  white-space: pre;
+}
+
+.illustration {
+  position: absolute;
+  z-index: 1;
+  height: auto;
+  pointer-events: none;
+}
+
+@media (max-width: 620px) {
+  article {
+    width: calc(100% - 32px);
+  }
+
+  .hero {
+    margin-bottom: 24px;
+  }
+}
