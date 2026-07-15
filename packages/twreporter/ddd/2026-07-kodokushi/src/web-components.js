@@ -1,0 +1,1 @@
+import './Kodokushi.wc.svelte'
