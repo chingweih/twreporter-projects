@@ -12,9 +12,10 @@
   import { subtractIntervals } from './lib/layout.js'
 
   const BASE_WIDTH = 580
-  const FONT = '400 16px "Noto Sans TC", sans-serif'
-  const LINE_HEIGHT = 28
-  const PARAGRAPH_GAP = 20
+  const FONT = '400 18px "Noto Sans TC", sans-serif'
+  const LETTER_SPACING = 0.6
+  const LINE_HEIGHT = 38
+  const PARAGRAPH_GAP = 40
   const ALPHA_THRESHOLD = 32
   const IMAGE_PADDING = 20
 
@@ -22,7 +23,13 @@
   let width = $state(0)
   let masks = $state([])
 
-  const flow = $derived(width ? buildFlow(width, masks) : { images: [], paragraphs: [], height: 0 })
+  const flows = $derived(
+    story.sections.map((section, index) =>
+      width
+        ? buildFlow(section, width, masks.filter((mask) => mask.section === index))
+        : { images: [], paragraphs: [], height: 0 },
+    ),
+  )
 
   onMount(async () => {
     const observer = new ResizeObserver(([entry]) => {
@@ -31,12 +38,16 @@
     observer.observe(article)
 
     await document.fonts?.ready
-    masks = await Promise.all(story.images.map(createMask))
+    masks = await Promise.all(
+      story.sections.flatMap((section, index) =>
+        section.images.map((spec) => createMask(spec, index)),
+      ),
+    )
 
     return () => observer.disconnect()
   })
 
-  async function createMask(spec) {
+  async function createMask(spec, section) {
     const source = await new Promise((resolve, reject) => {
       const image = new Image()
       image.onload = () => resolve(image)
@@ -51,16 +62,16 @@
     const context = canvas.getContext('2d', { willReadFrequently: true })
     context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
 
-    return { ...spec, pixels: context.getImageData(0, 0, sampleWidth, sampleHeight).data, sampleWidth, sampleHeight }
+    return { ...spec, section, pixels: context.getImageData(0, 0, sampleWidth, sampleHeight).data, sampleWidth, sampleHeight }
   }
 
-  function buildFlow(contentWidth, availableMasks) {
+  function buildFlow(section, contentWidth, availableMasks) {
     const scale = contentWidth / BASE_WIDTH
     const images = []
     const paragraphs = []
     let y = 0
 
-    for (const [index, text] of story.paragraphs.entries()) {
+    for (const [index, text] of section.paragraphs.entries()) {
       for (const mask of availableMasks.filter((item) => item.anchor === index)) {
         images.push({
           ...mask,
@@ -70,22 +81,20 @@
         })
       }
 
-      const prepared = prepareWithSegments(text, FONT)
+      const prepared = prepareWithSegments(text, FONT, { letterSpacing: LETTER_SPACING })
       const lines = []
       let cursor = { segmentIndex: 0, graphemeIndex: 0 }
       const top = y
 
       while (true) {
-        const segments = availableSegments(contentWidth, y, images)
-        let rendered = false
-        for (const [x, end] of segments) {
+        if (!layoutNextLineRange(prepared, cursor, contentWidth)) break
+
+        for (const [x, end] of availableSegments(contentWidth, y, images)) {
           const range = layoutNextLineRange(prepared, cursor, end - x)
           if (!range) break
           lines.push({ text: materializeLineRange(prepared, range).text, x, y: y - top })
           cursor = range.end
-          rendered = true
         }
-        if (!rendered) break
         y += LINE_HEIGHT
       }
 
@@ -93,7 +102,12 @@
       y += PARAGRAPH_GAP
     }
 
-    return { images, paragraphs, height: y }
+    const bottom = images.reduce(
+      (lowest, image) => Math.max(lowest, image.y + image.width * (image.sampleHeight / image.sampleWidth)),
+      y,
+    )
+
+    return { images, paragraphs, height: bottom }
   }
 
   function availableSegments(contentWidth, y, images) {
@@ -138,24 +152,30 @@
     <p>{story.intro}</p>
   </header>
 
-  <section aria-labelledby="chief-title">
-    <h2 id="chief-title">{story.sectionTitle}</h2>
-    <div class="flow" style={`height: ${flow.height}px`}>
-      {#each flow.paragraphs as paragraph}
-        {#each flow.images.filter((image) => image.anchor === paragraph.index) as image}
-          <img
-            class="illustration"
-            src={image.src}
-            alt={image.alt}
-            style={`left: ${image.x}px; top: ${image.y}px; width: ${image.width}px`}
-          />
-        {/each}
-        <p class="paragraph" style={`top: ${paragraph.top}px; height: ${paragraph.height}px`}>
-          {#each paragraph.lines as line}
-            <span style={`left: ${line.x}px; top: ${line.y}px`}>{line.text}</span>
+  {#each story.sections as section, index}
+    <section aria-labelledby={`section-${index}`}>
+      <h2 id={`section-${index}`}>{section.title}</h2>
+      <div class="flow" style={`height: ${flows[index].height}px`}>
+        {#each flows[index].paragraphs as paragraph}
+          {#each flows[index].images.filter((image) => image.anchor === paragraph.index) as image}
+            <img
+              class="illustration"
+              src={image.src}
+              alt={image.alt}
+              style={`left: ${image.x}px; top: ${image.y}px; width: ${image.width}px`}
+            />
           {/each}
-        </p>
-      {/each}
-    </div>
-  </section>
+          <p class="paragraph" style={`top: ${paragraph.top}px; height: ${paragraph.height}px`}>
+            {#each paragraph.lines as line}
+              <span style={`left: ${line.x}px; top: ${line.y}px`}>{line.text}</span>
+            {/each}
+          </p>
+        {/each}
+      </div>
+    </section>
+  {/each}
+
+  <figure class="hero">
+    <img src={story.end} alt="靈骨塔與骨灰壇" />
+  </figure>
 </article>

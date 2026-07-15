@@ -1,7 +1,10 @@
+/* Illustrations and .hero deliberately bleed outside the 580px column; clip them at
+   the component edge so they can't scroll the page sideways. `clip` not `hidden`:
+   hidden would make this a scroll container and break position:sticky. */
 :host {
   display: block;
-  overflow: visible;
-  color: #3f3f3f;
+  overflow-x: clip;
+  color: #404040;
   font-family: "Noto Sans TC", sans-serif;
 }
 
@@ -12,8 +15,8 @@ article {
 }
 
 .hero {
-  width: min(960px, 100vw);
-  margin: 0 50% 32px;
+  width: 100vw;
+  margin: 0 50%;
   transform: translateX(-50%);
 }
 
@@ -36,17 +39,24 @@ h1 {
   line-height: 1.25;
 }
 
+/* 文章頁/Brief */
 header > p {
   margin-bottom: 48px;
-  font-size: 16px;
-  line-height: 1.9;
+  font-family: "Noto Serif TC", serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.6px;
 }
 
+/* 文章頁/H2 */
 h2 {
   margin-bottom: 32px;
   color: #272727;
-  font-size: 24px;
-  line-height: 1.45;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.4px;
 }
 
 .flow {
@@ -54,13 +64,15 @@ h2 {
   overflow: visible;
 }
 
+/* 文章頁/Paragraph — LINE_HEIGHT/LETTER_SPACING in DynamicLayout.wc.svelte must match */
 .paragraph {
   position: absolute;
   left: 0;
   z-index: 2;
   width: 100%;
-  font-size: 16px;
-  line-height: 28px;
+  font-size: 18px;
+  line-height: 38px;
+  letter-spacing: 0.6px;
 }
 
 .paragraph span {
