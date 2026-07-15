@@ -1,4 +1,4 @@
-<svelte:options customElement={{ tag: 'twreporter-kodokushi' }} />
+<svelte:options customElement={{ tag: 'twreporter-dynamic-layout' }} />
 
 <script>
   import { onMount } from 'svelte'
@@ -78,8 +78,8 @@
       while (true) {
         const segments = availableSegments(contentWidth, y, images)
         let rendered = false
-        for (const [x, segmentWidth] of segments) {
-          const range = layoutNextLineRange(prepared, cursor, segmentWidth)
+        for (const [x, end] of segments) {
+          const range = layoutNextLineRange(prepared, cursor, end - x)
           if (!range) break
           lines.push({ text: materializeLineRange(prepared, range).text, x, y: y - top })
           cursor = range.end

@@ -21,8 +21,8 @@ export default defineConfig({
     lib: {
       entry: resolve(import.meta.dirname, 'src/web-components.js'),
       formats: ['umd'],
-      name: 'TwreporterKodokushi',
-      fileName: () => 'kodokushi.js',
+      name: 'TwreporterDynamicLayout',
+      fileName: () => 'dynamicLayout.js',
     },
   },
 })
