@@ -5,7 +5,8 @@
   display: block;
   overflow-x: clip;
   color: #404040;
-  font-family: "Noto Sans TC", sans-serif;
+  font-family: "Roboto Slab", "Noto Sans TC", sans-serif;
+  background-color: #F1F1F1;
 }
 
 article {
@@ -34,6 +35,7 @@ p {
 
 h1 {
   margin-bottom: 28px;
+  font-family: "Noto Serif TC", serif;
   color: #272727;
   font-size: clamp(28px, 5vw, 40px);
   line-height: 1.25;
@@ -47,6 +49,7 @@ header > p {
   font-weight: 700;
   line-height: 1.7;
   letter-spacing: 0.6px;
+  color: #808080;
 }
 
 /* 文章頁/H2 */
