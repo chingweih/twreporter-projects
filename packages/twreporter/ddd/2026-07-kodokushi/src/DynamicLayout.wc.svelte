@@ -53,6 +53,7 @@
   async function createMask(spec, section, imageIndex) {
     const source = await new Promise((resolve, reject) => {
       const image = new Image()
+      image.crossOrigin = 'anonymous'
       image.onload = () => resolve(image)
       image.onerror = reject
       image.src = spec.src

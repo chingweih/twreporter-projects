@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises'
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 
@@ -79,17 +79,56 @@ function designEditor() {
   }
 }
 
+function organizeBuildOutput() {
+  let outputDir
+
+  return {
+    name: 'organize-images',
+    configResolved(config) {
+      outputDir = resolve(config.root, config.build.outDir)
+    },
+    async closeBundle() {
+      const imageDir = resolve(outputDir, 'assets/image')
+      await mkdir(imageDir, { recursive: true })
+      const files = await readdir(outputDir, { withFileTypes: true })
+      await Promise.all(
+        files
+          .filter((file) => file.isFile() && file.name.endsWith('.png'))
+          .map((file) => rename(resolve(outputDir, file.name), resolve(imageDir, file.name))),
+      )
+      await writeFile(
+        resolve(outputDir, 'embed.html'),
+        `<!doctype html>
+<html lang="zh-TW">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>孤獨死｜Embed preview</title>
+  <style>
+    body { margin: 0; background: #f1f1f1; }
+    pre { box-sizing: border-box; width: min(580px, calc(100% - 32px)); margin: 32px auto; padding: 16px; overflow: auto; background: white; }
+  </style>
+  <twreporter-dynamic-layout></twreporter-dynamic-layout>
+  <pre><code>&lt;script src="https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/js/dynamicLayout.js" defer&gt;&lt;/script&gt;
+&lt;twreporter-dynamic-layout&gt;&lt;/twreporter-dynamic-layout&gt;</code></pre>
+  <script src="./js/dynamicLayout.js" defer></script>
+</html>`,
+      )
+    },
+  }
+}
+
 export default defineConfig({
   publicDir: 'src/lib/img',
   define: {
     ASSET_BASE: JSON.stringify(
       process.env.RELEASE === 'prod'
-        ? 'https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/'
+        ? 'https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/image/'
         : '/',
     ),
   },
   plugins: [
     designEditor(),
+    organizeBuildOutput(),
     svelte({
       dynamicCompileOptions: ({ filename }) =>
         filename.endsWith('.wc.svelte') ? { customElement: true } : {},
@@ -100,7 +139,7 @@ export default defineConfig({
       entry: resolve(import.meta.dirname, 'src/web-components.js'),
       formats: ['umd'],
       name: 'TwreporterDynamicLayout',
-      fileName: () => 'dynamicLayout.js',
+      fileName: () => 'js/dynamicLayout.js',
     },
   },
 })
