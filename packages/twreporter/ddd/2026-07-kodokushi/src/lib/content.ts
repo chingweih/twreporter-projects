@@ -93,7 +93,7 @@ export const story = {
         { id: 'joint-rite-a', src: image('聯合奠祭（佛教）.png'), alt: '聯合奠祭會場的插畫', anchor: 0, x: -240, top: 2, width: 308 },
         { id: 'joint-rite-b', src: image('聯合奠祭（基督教）.png'), alt: '聯合奠祭會場的插畫', anchor: 0, x: 483, top: -18, width: 287 },
         { id: 'joint-rite-b', src: image('貨櫃禮廳與說明牌.png'), alt: '貨櫃禮廳與說明牌的插畫', anchor: 2, x: 351, top: -36, width: 417 },
-        { id: 'funeral', src: image('慈善團體出殯.png'), alt: '慈善團體出殯的插畫', anchor: 3, x: -90, top: 10, width: 655 },
+        { id: 'funeral', src: image('慈善團體出殯.png'), alt: '慈善團體出殯的插畫', anchor: 3, x: -83, top: 9, width: 655 },
       ],
     },
   ],
