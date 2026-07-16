@@ -41,32 +41,87 @@
     observer.observe(article)
 
     await document.fonts?.ready
-    masks = await Promise.all(
+    const results = await Promise.allSettled(
       story.sections.flatMap((section, index) =>
         section.images.map((spec, imageIndex) => createMask(spec, index, imageIndex)),
       ),
     )
+    for (const result of results) {
+      if (result.status === 'rejected') console.error('Could not load illustration', result.reason)
+    }
+    masks = results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []))
 
     return () => observer.disconnect()
   })
 
   async function createMask(spec, section, imageIndex) {
-    const source = await new Promise((resolve, reject) => {
-      const image = new Image()
-      image.crossOrigin = 'anonymous'
-      image.onload = () => resolve(image)
-      image.onerror = reject
-      image.src = spec.src
-    })
+    const video = spec.src.endsWith('.webm')
+    let source
+    try {
+      source = await (video ? loadVideo(spec.src) : loadImage(spec.src))
+    } catch (error) {
+      if (!video) throw error
+      console.error('Falling back to PNG for', spec.src, error)
+      return createMask(
+        { ...spec, src: spec.src.replace('vid/', 'img/').replace(/\.webm$/, '.png') },
+        section,
+        imageIndex,
+      )
+    }
     const sampleWidth = 480
-    const sampleHeight = Math.round((source.height / source.width) * sampleWidth)
+    const sourceWidth = video ? source.videoWidth : source.width
+    const sourceHeight = video ? source.videoHeight : source.height
+    const sampleHeight = Math.round((sourceHeight / sourceWidth) * sampleWidth)
     const canvas = document.createElement('canvas')
     canvas.width = sampleWidth
     canvas.height = sampleHeight
     const context = canvas.getContext('2d', { willReadFrequently: true })
-    context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
 
-    return { ...spec, section, key: `${section}:${imageIndex}`, pixels: context.getImageData(0, 0, sampleWidth, sampleHeight).data, sampleWidth, sampleHeight }
+    let pixels
+    if (video) {
+      pixels = new Uint8ClampedArray(sampleWidth * sampleHeight * 4)
+      const union = () => {
+        context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
+        const frame = context.getImageData(0, 0, sampleWidth, sampleHeight).data
+        for (let i = 3; i < frame.length; i += 4) pixels[i] = Math.max(pixels[i], frame[i])
+      }
+      union()
+      if (Number.isFinite(source.duration)) {
+        for (let step = 1; step < 5; step += 1) {
+          source.currentTime = source.duration * (step / 5)
+          await new Promise((resolve) => source.addEventListener('seeked', resolve, { once: true }))
+          union()
+        }
+      }
+    } else {
+      context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
+      pixels = context.getImageData(0, 0, sampleWidth, sampleHeight).data
+    }
+
+    return { ...spec, video, section, key: `${section}:${imageIndex}`, pixels, sampleWidth, sampleHeight }
+  }
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const image = new Image()
+      image.crossOrigin = 'anonymous'
+      image.onload = () => resolve(image)
+      image.onerror = reject
+      image.src = src
+    })
+  }
+
+  function loadVideo(src) {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video')
+      video.crossOrigin = 'anonymous'
+      video.muted = true
+      video.preload = 'auto'
+      video.onloadeddata = () => resolve(video)
+      video.onerror = () =>
+        reject(new Error(`${src}: MediaError code ${video.error?.code ?? '?'} ${video.error?.message ?? ''}`))
+      video.src = src
+    })
   }
 
   function updateMask(key, changes) {
@@ -172,12 +227,25 @@
       <div class="flow" style={`height: ${flows[index].height}px`}>
         {#each flows[index].paragraphs as paragraph}
           {#each flows[index].images.filter((image) => image.anchor === paragraph.index) as image}
-            <img
-              class="illustration"
-              src={image.src}
-              alt={image.alt}
-              style={`left: ${image.x}px; top: ${image.y}px; width: ${image.width}px`}
-            />
+            {#if image.video}
+              <video
+                class="illustration"
+                src={image.src}
+                aria-label={image.alt}
+                autoplay
+                muted
+                loop
+                playsinline
+                style={`left: ${image.x}px; top: ${image.y}px; width: ${image.width}px`}
+              ></video>
+            {:else}
+              <img
+                class="illustration"
+                src={image.src}
+                alt={image.alt}
+                style={`left: ${image.x}px; top: ${image.y}px; width: ${image.width}px`}
+              />
+            {/if}
           {/each}
           <p class="paragraph" style={`top: ${paragraph.top}px; height: ${paragraph.height}px`}>
             {#each paragraph.lines as line}

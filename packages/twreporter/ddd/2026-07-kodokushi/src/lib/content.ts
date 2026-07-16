@@ -2,9 +2,9 @@
 // host serves the bundle. Masks read pixels via canvas, which needs CORS-readable images.
 const ASSET_BASE = import.meta.env.DEV
   ? '/'
-  : new URL('../assets/image/', (document.currentScript as HTMLScriptElement).src).href
+  : new URL('../assets/', (document.currentScript as HTMLScriptElement).src).href
 
-const image = (file: string) => ASSET_BASE + file
+const image = (file: string) => ASSET_BASE + (file.endsWith('.webm') ? 'vid/' : 'img/') + file
 
 export const story = {
   title: '被拒領的無緣大體，流落何方？',
@@ -27,8 +27,8 @@ export const story = {
       images: [
         { id: 'chief', src: image('里長.png'), alt: '里長拿著手機通話的插畫', anchor: 0, x: -24, top: -10, width: 235 },
         { id: 'locksmith', src: image('開鎖.png'), alt: '鎖匠開鎖的插畫', anchor: 3, x: 337, top: -13, width: 400 },
-        { id: 'forensic-a', src: image('鑑識警察與派出所警察（左）.png'), alt: '鑑識警察與派出所警察的插畫', anchor: 5, x: -77, top: -23, width: 204 },
-        { id: 'forensic-a', src: image('鑑識警察與派出所警察（右）.png'), alt: '鑑識警察與派出所警察的插畫', anchor: 5, x: 393, top: -2, width: 285 },
+        { id: 'forensic-a', src: image('鑑識警察與派出所警察（左）.webm'), alt: '鑑識警察與派出所警察的插畫', anchor: 5, x: -62, top: -7, width: 204 },
+        { id: 'forensic-a', src: image('鑑識警察與派出所警察（右）.png'), alt: '鑑識警察與派出所警察的插畫', anchor: 5, x: 411, top: -11, width: 285 },
       ],
     },
     {
@@ -46,9 +46,9 @@ export const story = {
         '當警察看這麼多案件，覺得人生無常啊！會想：為什麼一個人好好的突然就沒了？為什麼一個人走掉，沒人要出面處理？我也只能份內盡量做。',
       ],
       images: [
-        { id: 'evidence', src: image('搜證物_1.png'), alt: '搜證物的插畫', anchor: 0, x: -55, top: 170, width: 157 },
+        { id: 'evidence', src: image('搜證物_1.webm'), alt: '搜證物的插畫', anchor: 0, x: -47, top: 156, width: 157 },
         { id: 'evidence', src: image('搜證物_2.png'), alt: '搜證物的插畫', anchor: 0, x: 330, top: 346, width: 109 },
-        { id: 'evidence', src: image('搜證物_3.png'), alt: '搜證物的插畫', anchor: 0, x: 408, top: 94, width: 237 },
+        { id: 'evidence', src: image('搜證物_3.png'), alt: '搜證物的插畫', anchor: 0, x: 402, top: 85, width: 237 },
         { id: 'evidence', src: image('搜證物_4.png'), alt: '搜證物的插畫', anchor: 0, x: -38, top: 611, width: 172 },
         { id: 'cordon-a', src: image('封鎖線.png'), alt: '封鎖線的插畫', anchor: 4, x: -94, top: 90, width: 732 },
         { id: 'phone-call', src: image('警察打電話.png'), alt: '警察打電話通知家屬的插畫', anchor: 7, x: 286, top: 128, width: 372 },

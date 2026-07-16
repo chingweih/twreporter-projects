@@ -27,7 +27,8 @@ pnpm build
 此指令會自動以 production URL build，並上傳至 GCS：
 
 - `js/dynamicLayout.js`
-- `assets/image/*.png`
+- `assets/img/*.png`
+- `assets/vid/*.webm`
 - `embed.html`
 
 所有檔案使用 `Cache-Control: no-cache`，以固定 URL 更新，無須調整文章內的版本參數。

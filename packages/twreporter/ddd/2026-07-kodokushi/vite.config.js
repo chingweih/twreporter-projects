@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 
@@ -88,13 +88,12 @@ function organizeBuildOutput() {
       outputDir = resolve(config.root, config.build.outDir)
     },
     async closeBundle() {
-      const imageDir = resolve(outputDir, 'assets/image')
-      await mkdir(imageDir, { recursive: true })
-      const files = await readdir(outputDir, { withFileTypes: true })
+      const assetsDir = resolve(outputDir, 'assets')
+      await mkdir(assetsDir, { recursive: true })
       await Promise.all(
-        files
-          .filter((file) => file.isFile() && file.name.endsWith('.png'))
-          .map((file) => rename(resolve(outputDir, file.name), resolve(imageDir, file.name))),
+        ['img', 'vid'].map((folder) =>
+          rename(resolve(outputDir, folder), resolve(assetsDir, folder)),
+        ),
       )
       await writeFile(
         resolve(outputDir, 'embed.html'),
@@ -127,7 +126,7 @@ function organizeBuildOutput() {
 }
 
 export default defineConfig({
-  publicDir: 'src/lib/img',
+  publicDir: 'src/lib/assets',
   plugins: [
     designEditor(),
     organizeBuildOutput(),
