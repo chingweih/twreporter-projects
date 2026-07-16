@@ -100,17 +100,27 @@ function organizeBuildOutput() {
         resolve(outputDir, 'embed.html'),
         `<!doctype html>
 <html lang="zh-TW">
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>孤獨死｜Embed preview</title>
-  <style>
-    body { margin: 0; background: #f1f1f1; }
-    pre { box-sizing: border-box; width: min(580px, calc(100% - 32px)); margin: 32px auto; padding: 16px; overflow: auto; background: white; }
-  </style>
-  <twreporter-dynamic-layout></twreporter-dynamic-layout>
-  <pre><code>&lt;script src="https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/js/dynamicLayout.js" defer&gt;&lt;/script&gt;
-&lt;twreporter-dynamic-layout&gt;&lt;/twreporter-dynamic-layout&gt;</code></pre>
-  <script src="./js/dynamicLayout.js" defer></script>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>孤獨死｜Embed preview</title>
+    <link rel="stylesheet" href="https://projects.twreporter.org/twreporter/ddd/shared/embed.css" />
+    <style>
+      body { margin: 0; background: #f1f1f1; }
+      pre { box-sizing: border-box; width: min(580px, calc(100% - 32px)); margin: 32px auto; padding: 16px; overflow: auto; background: white; }
+    </style>
+  </head>
+  <body>
+    <div class="embed-code-container">
+      <twreporter-dynamic-layout></twreporter-dynamic-layout>
+    </div>
+    <pre><code>&lt;link rel="stylesheet" href="https://projects.twreporter.org/twreporter/ddd/shared/embed.css"&gt;
+&lt;div class="embed-code-container"&gt;
+  &lt;script src="https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/js/dynamicLayout.js" defer&gt;&lt;/script&gt;
+  &lt;twreporter-dynamic-layout&gt;&lt;/twreporter-dynamic-layout&gt;
+&lt;/div&gt;</code></pre>
+    <script src="./js/dynamicLayout.js" defer></script>
+  </body>
 </html>`,
       )
     },
