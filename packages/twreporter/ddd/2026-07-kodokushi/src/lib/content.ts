@@ -21,9 +21,10 @@ export const story = {
         '看過這麼多，只能說，孤獨死不分男女老少。',
       ],
       images: [
-        { id: 'chief', src: image('里長.png'), alt: '里長拿著手機通話的插畫', anchor: 0, x: -199, top: -51, width: 500 },
-        { id: 'locksmith', src: image('開鎖.png'), alt: '鎖匠開鎖的插畫', anchor: 3, x: 337, top: -21, width: 400 },
-        { id: 'forensic-a', src: image('鑑識警察與派出所警察.png'), alt: '鑑識警察與派出所警察的插畫', anchor: 5, x: -324, top: -91, width: 1020 },
+        { id: 'chief', src: image('里長.png'), alt: '里長拿著手機通話的插畫', anchor: 0, x: -24, top: -10, width: 235 },
+        { id: 'locksmith', src: image('開鎖.png'), alt: '鎖匠開鎖的插畫', anchor: 3, x: 337, top: -13, width: 400 },
+        { id: 'forensic-a', src: image('鑑識警察與派出所警察（左）.png'), alt: '鑑識警察與派出所警察的插畫', anchor: 5, x: -77, top: -23, width: 204 },
+        { id: 'forensic-a', src: image('鑑識警察與派出所警察（右）.png'), alt: '鑑識警察與派出所警察的插畫', anchor: 5, x: 393, top: -2, width: 285 },
       ],
     },
     {
@@ -41,9 +42,12 @@ export const story = {
         '當警察看這麼多案件，覺得人生無常啊！會想：為什麼一個人好好的突然就沒了？為什麼一個人走掉，沒人要出面處理？我也只能份內盡量做。',
       ],
       images: [
-        { id: 'evidence', src: image('搜證物.png'), alt: '搜證物的插畫', anchor: 1, x: -114, top: 60, width: 808 },
-        { id: 'cordon-a', src: image('封鎖線.png'), alt: '封鎖線的插畫', anchor: 4, x: -83, top: -39, width: 732 },
-        { id: 'phone-call', src: image('警察打電話.png'), alt: '警察打電話通知家屬的插畫', anchor: 7, x: 241, top: 81, width: 700 },
+        { id: 'evidence', src: image('搜證物_1.png'), alt: '搜證物的插畫', anchor: 0, x: -55, top: 170, width: 157 },
+        { id: 'evidence', src: image('搜證物_2.png'), alt: '搜證物的插畫', anchor: 0, x: 330, top: 346, width: 109 },
+        { id: 'evidence', src: image('搜證物_3.png'), alt: '搜證物的插畫', anchor: 0, x: 408, top: 94, width: 237 },
+        { id: 'evidence', src: image('搜證物_4.png'), alt: '搜證物的插畫', anchor: 0, x: -38, top: 611, width: 172 },
+        { id: 'cordon-a', src: image('封鎖線.png'), alt: '封鎖線的插畫', anchor: 4, x: -94, top: 90, width: 732 },
+        { id: 'phone-call', src: image('警察打電話.png'), alt: '警察打電話通知家屬的插畫', anchor: 7, x: 286, top: 128, width: 372 },
       ],
     },
     {
@@ -66,10 +70,10 @@ export const story = {
         '看過這麼多案，對我有沒有什麼影響？大概就是把握當下啦！畢竟未來少子化，就算我有小孩，頂多再幫我拜一代，第二代以後會不會拜？很難了啦。',
       ],
       images: [
-        { id: 'clerk', src: image('區公所科員.png'), alt: '區公所科員的插畫', anchor: 0, x: -140, top: -8, width: 400 },
-        { id: 'certificate', src: image('死亡證明與公文.png'), alt: '死亡證明書與公文的插畫', anchor: 1, x: 299, top: 33, width: 500 },
+        { id: 'clerk', src: image('區公所科員.png'), alt: '區公所科員的插畫', anchor: 0, x: -25, top: -11, width: 177 },
+        { id: 'certificate', src: image('死亡證明與公文.png'), alt: '死亡證明書與公文的插畫', anchor: 1, x: 461, top: 17, width: 212 },
         { id: 'freezer', src: image('冰櫃查詢系統.png'), alt: '殯儀館冰櫃查詢系統的插畫', anchor: 4, x: -425, top: -17, width: 661 },
-        { id: 'sutra', src: image('經文與蓮位牌.png'), alt: '經文與蓮位牌的插畫', anchor: 7, x: 300, top: 0, width: 600 },
+        { id: 'sutra', src: image('經文與蓮位牌.png'), alt: '經文與蓮位牌的插畫', anchor: 7, x: 347, top: 8, width: 471 },
       ],
     },
     {
@@ -82,10 +86,10 @@ export const story = {
         '有時候，公所也會特別跟我們說，這位往生者雖然沒有親屬認領，但有朋友很想送他最後一程，能不能通知他？我們一定會通知。畢竟，只要有人願意來，一方面讓亡者得到安慰，另一方面，也讓活著的朋友不會留下遺憾。',
       ],
       images: [
-        { id: 'joint-rite-a', src: image('聯合奠祭（基督教佛教）.png'), alt: '聯合奠祭會場的插畫', anchor: 0, x: -234, top: 0, width: 400 },
-        { id: 'joint-rite-b', src: image('聯合奠祭（基督教佛教）.png'), alt: '聯合奠祭會場的插畫', anchor: 0, x: 493, top: 0, width: 400 },
-        { id: 'joint-rite-b', src: image('貨櫃禮廳與說明牌.png'), alt: '貨櫃禮廳與說明牌的插畫', anchor: 2, x: 196, top: -55, width: 600 },
-        { id: 'funeral', src: image('慈善團體出殯.png'), alt: '慈善團體出殯的插畫', anchor: 3, x: -150, top: 15, width: 646 },
+        { id: 'joint-rite-a', src: image('聯合奠祭（佛教）.png'), alt: '聯合奠祭會場的插畫', anchor: 0, x: -240, top: 2, width: 308 },
+        { id: 'joint-rite-b', src: image('聯合奠祭（基督教）.png'), alt: '聯合奠祭會場的插畫', anchor: 0, x: 483, top: -18, width: 287 },
+        { id: 'joint-rite-b', src: image('貨櫃禮廳與說明牌.png'), alt: '貨櫃禮廳與說明牌的插畫', anchor: 2, x: 351, top: -36, width: 417 },
+        { id: 'funeral', src: image('慈善團體出殯.png'), alt: '慈善團體出殯的插畫', anchor: 3, x: -90, top: 10, width: 655 },
       ],
     },
   ],
