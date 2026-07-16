@@ -3,6 +3,7 @@
 <script>
   import { onMount } from 'svelte'
   import css from './lib/style.css?inline'
+  import ImageEditor from './ImageEditor.svelte'
   import {
     layoutNextLineRange,
     materializeLineRange,
@@ -22,6 +23,7 @@
   let article = $state()
   let width = $state(0)
   let masks = $state([])
+  let design = $state(false)
 
   const flows = $derived(
     story.sections.map((section, index) =>
@@ -32,6 +34,7 @@
   )
 
   onMount(async () => {
+    design = import.meta.env.DEV && location.hash === '#editor'
     const observer = new ResizeObserver(([entry]) => {
       width = Math.min(entry.contentRect.width, BASE_WIDTH)
     })
@@ -40,14 +43,14 @@
     await document.fonts?.ready
     masks = await Promise.all(
       story.sections.flatMap((section, index) =>
-        section.images.map((spec) => createMask(spec, index)),
+        section.images.map((spec, imageIndex) => createMask(spec, index, imageIndex)),
       ),
     )
 
     return () => observer.disconnect()
   })
 
-  async function createMask(spec, section) {
+  async function createMask(spec, section, imageIndex) {
     const source = await new Promise((resolve, reject) => {
       const image = new Image()
       image.onload = () => resolve(image)
@@ -62,7 +65,17 @@
     const context = canvas.getContext('2d', { willReadFrequently: true })
     context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
 
-    return { ...spec, section, pixels: context.getImageData(0, 0, sampleWidth, sampleHeight).data, sampleWidth, sampleHeight }
+    return { ...spec, section, key: `${section}:${imageIndex}`, pixels: context.getImageData(0, 0, sampleWidth, sampleHeight).data, sampleWidth, sampleHeight }
+  }
+
+  function updateMask(key, changes) {
+    masks = masks.map((mask) => (mask.key === key ? { ...mask, ...changes } : mask))
+  }
+
+  async function saveLayout() {
+    const layout = Object.fromEntries(masks.map(({ key, x, top, width }) => [key, { x, top, width }]))
+    const response = await fetch('/__design-layout', { method: 'POST', body: JSON.stringify(layout) })
+    if (!response.ok) throw new Error('Could not save image layout')
   }
 
   function buildFlow(section, contentWidth, availableMasks) {
@@ -171,6 +184,7 @@
             {/each}
           </p>
         {/each}
+        {#if design}<ImageEditor images={flows[index].images} {width} baseWidth={BASE_WIDTH} update={updateMask} save={saveLayout} showSave={index === flows.length - 1} />{/if}
       </div>
     </section>
   {/each}

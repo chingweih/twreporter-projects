@@ -21,9 +21,9 @@ export const story = {
         '看過這麼多，只能說，孤獨死不分男女老少。',
       ],
       images: [
-        { id: 'chief', src: image('里長.png'), alt: '里長拿著手機通話的插畫', anchor: 0, x: -200, top: -50, width: 500 },
-        { id: 'locksmith', src: image('開鎖.png'), alt: '鎖匠開鎖的插畫', anchor: 3, x: 350, top: -20, width: 400 },
-        { id: 'forensic-a', src: image('鑑識警察與派出所警察.png'), alt: '鑑識警察與派出所警察的插畫', anchor: 6, x: -70, top: -70, width: 700 },
+        { id: 'chief', src: image('里長.png'), alt: '里長拿著手機通話的插畫', anchor: 0, x: -199, top: -51, width: 500 },
+        { id: 'locksmith', src: image('開鎖.png'), alt: '鎖匠開鎖的插畫', anchor: 3, x: 337, top: -21, width: 400 },
+        { id: 'forensic-a', src: image('鑑識警察與派出所警察.png'), alt: '鑑識警察與派出所警察的插畫', anchor: 5, x: -324, top: -91, width: 1020 },
       ],
     },
     {
@@ -42,8 +42,8 @@ export const story = {
       ],
       images: [
         { id: 'evidence', src: image('搜證物.png'), alt: '搜證物的插畫', anchor: 1, x: -114, top: 60, width: 808 },
-        { id: 'cordon-a', src: image('封鎖線.png'), alt: '封鎖線的插畫', anchor: 4, x: -76, top: -40, width: 732 },
-        { id: 'phone-call', src: image('警察打電話.png'), alt: '警察打電話通知家屬的插畫', anchor: 7, x: 250, top: 80, width: 700 },
+        { id: 'cordon-a', src: image('封鎖線.png'), alt: '封鎖線的插畫', anchor: 4, x: -83, top: -39, width: 732 },
+        { id: 'phone-call', src: image('警察打電話.png'), alt: '警察打電話通知家屬的插畫', anchor: 7, x: 241, top: 81, width: 700 },
       ],
     },
     {
@@ -66,9 +66,9 @@ export const story = {
         '看過這麼多案，對我有沒有什麼影響？大概就是把握當下啦！畢竟未來少子化，就算我有小孩，頂多再幫我拜一代，第二代以後會不會拜？很難了啦。',
       ],
       images: [
-        { id: 'clerk', src: image('區公所科員.png'), alt: '區公所科員的插畫', anchor: 0, x: -140, top: -20, width: 400 },
-        { id: 'certificate', src: image('死亡證明與公文.png'), alt: '死亡證明書與公文的插畫', anchor: 1, x: 300, top: 40, width: 500 },
-        { id: 'freezer', src: image('冰櫃查詢系統.png'), alt: '殯儀館冰櫃查詢系統的插畫', anchor: 4, x: -400, top: -30, width: 650 },
+        { id: 'clerk', src: image('區公所科員.png'), alt: '區公所科員的插畫', anchor: 0, x: -140, top: -8, width: 400 },
+        { id: 'certificate', src: image('死亡證明與公文.png'), alt: '死亡證明書與公文的插畫', anchor: 1, x: 299, top: 33, width: 500 },
+        { id: 'freezer', src: image('冰櫃查詢系統.png'), alt: '殯儀館冰櫃查詢系統的插畫', anchor: 4, x: -425, top: -17, width: 661 },
         { id: 'sutra', src: image('經文與蓮位牌.png'), alt: '經文與蓮位牌的插畫', anchor: 7, x: 300, top: 0, width: 600 },
       ],
     },
@@ -84,8 +84,8 @@ export const story = {
       images: [
         { id: 'joint-rite-a', src: image('聯合奠祭（基督教佛教）.png'), alt: '聯合奠祭會場的插畫', anchor: 0, x: -234, top: 0, width: 400 },
         { id: 'joint-rite-b', src: image('聯合奠祭（基督教佛教）.png'), alt: '聯合奠祭會場的插畫', anchor: 0, x: 493, top: 0, width: 400 },
-        { id: 'joint-rite-b', src: image('貨櫃禮廳與說明牌.png'), alt: '貨櫃禮廳與說明牌的插畫', anchor: 2, x: 250, top: -40, width: 600 },
-        { id: 'funeral', src: image('慈善團體出殯.png'), alt: '慈善團體出殯的插畫', anchor: 3, x: -105, top: 32, width: 646 },
+        { id: 'joint-rite-b', src: image('貨櫃禮廳與說明牌.png'), alt: '貨櫃禮廳與說明牌的插畫', anchor: 2, x: 196, top: -55, width: 600 },
+        { id: 'funeral', src: image('慈善團體出殯.png'), alt: '慈善團體出殯的插畫', anchor: 3, x: -150, top: 15, width: 646 },
       ],
     },
   ],
