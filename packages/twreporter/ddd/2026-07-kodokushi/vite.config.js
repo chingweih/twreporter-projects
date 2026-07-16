@@ -104,7 +104,6 @@ function organizeBuildOutput() {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>孤獨死｜Embed preview</title>
-    <link rel="stylesheet" href="https://projects.twreporter.org/twreporter/ddd/shared/embed.css" />
     <style>
       body { margin: 0; background: #f1f1f1; }
       pre { box-sizing: border-box; width: min(580px, calc(100% - 32px)); margin: 32px auto; padding: 16px; overflow: auto; background: white; }
@@ -129,13 +128,6 @@ function organizeBuildOutput() {
 
 export default defineConfig({
   publicDir: 'src/lib/img',
-  define: {
-    ASSET_BASE: JSON.stringify(
-      process.env.RELEASE === 'prod'
-        ? 'https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/image/'
-        : '/',
-    ),
-  },
   plugins: [
     designEditor(),
     organizeBuildOutput(),

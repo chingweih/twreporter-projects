@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "set \"RELEASE=prod\"&& vite build && gcloud storage cp dist/js/dynamicLayout.js gs://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/js/dynamicLayout.js --content-type=\"text/javascript; charset=utf-8\" --cache-control=\"no-cache\" && gcloud storage cp dist/assets/image/* gs://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/image/ --cache-control=\"no-cache\" && gcloud storage cp dist/embed.html gs://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/embed.html --content-type=\"text/html; charset=utf-8\" --cache-control=\"no-cache\"",
+    "build": "vite build && gcloud storage cp dist/js/dynamicLayout.js gs://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/js/dynamicLayout.js --content-type=\"text/javascript; charset=utf-8\" --cache-control=\"no-cache\" && gcloud storage cp dist/assets/image/* gs://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/image/ --cache-control=\"no-cache\" && gcloud storage cp dist/embed.html gs://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/embed.html --content-type=\"text/html; charset=utf-8\" --cache-control=\"no-cache\"",
     "check:layout": "node scripts/check-layout.mjs",
     "preview": "vite preview"
   },

@@ -1,4 +1,8 @@
-declare const ASSET_BASE: string
+// Resolve images against the script's own URL so they stay same-origin with whichever
+// host serves the bundle. Masks read pixels via canvas, which needs CORS-readable images.
+const ASSET_BASE = import.meta.env.DEV
+  ? '/'
+  : new URL('../assets/image/', (document.currentScript as HTMLScriptElement).src).href
 
 const image = (file: string) => ASSET_BASE + file
 
