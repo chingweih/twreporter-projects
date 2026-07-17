@@ -57,6 +57,22 @@ importers:
         specifier: ^7.2.4
         version: 7.3.3(@types/node@24.12.2)(lightningcss@1.32.0)
 
+  2026-07-kodokushi:
+    dependencies:
+      '@chenglou/pretext':
+        specifier: ^0.0.8
+        version: 0.0.8
+    devDependencies:
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^6.2.1
+        version: 6.2.4(svelte@5.55.5)(vite@7.3.3(@types/node@24.12.2)(lightningcss@1.32.0))
+      svelte:
+        specifier: ^5.43.8
+        version: 5.55.5
+      vite:
+        specifier: ^7.2.4
+        version: 7.3.3(@types/node@24.12.2)(lightningcss@1.32.0)
+
   node-graph:
     dependencies:
       '@xyflow/svelte':
@@ -131,6 +147,9 @@ importers:
         version: 3.8.3
 
 packages:
+
+  '@chenglou/pretext@0.0.8':
+    resolution: {integrity: sha512-yqm2GMxnPI7VHcHwe84P8ZF0JK/2d2DMKPqMN+s95jQhwDMYYXKVFVJUMEaVWckQStdsjdLav/0Vu+d9YbtGxA==}
 
   '@clerk/backend@3.4.1':
     resolution: {integrity: sha512-+Tgo1uPEFpBRvyFW3JtPbrTMRgiP+pWBo9gi2tTB0AxEqR2I/kSYy5l3+KqWciUpbVZtVvLXm1j+NEE2WEG+jg==}
@@ -1555,6 +1574,8 @@ packages:
     resolution: {integrity: sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ==}
 
 snapshots:
+
+  '@chenglou/pretext@0.0.8': {}
 
   '@clerk/backend@3.4.1':
     dependencies:
