@@ -1,0 +1,264 @@
+<svelte:options customElement={{ tag: 'twreporter-dynamic-layout' }} />
+
+<script>
+  import { onMount } from 'svelte'
+  import css from './lib/style.css?inline'
+  import ImageEditor from './ImageEditor.svelte'
+  import {
+    layoutNextLineRange,
+    materializeLineRange,
+    prepareWithSegments,
+  } from '@chenglou/pretext'
+  import { story } from './lib/content.js'
+  import { subtractIntervals } from './lib/layout.js'
+
+  const BASE_WIDTH = 580
+  const FONT = '400 18px "Noto Sans TC", sans-serif'
+  const LETTER_SPACING = 0.6
+  const LINE_HEIGHT = 38
+  const PARAGRAPH_GAP = 40
+  const ALPHA_THRESHOLD = 32
+  const IMAGE_PADDING = 20
+
+  let article = $state()
+  let width = $state(0)
+  let masks = $state([])
+  let design = $state(false)
+
+  const flows = $derived(
+    story.sections.map((section, index) =>
+      width
+        ? buildFlow(section, width, masks.filter((mask) => mask.section === index))
+        : { images: [], paragraphs: [], height: 0 },
+    ),
+  )
+
+  onMount(async () => {
+    design = import.meta.env.DEV && location.hash === '#editor'
+    const observer = new ResizeObserver(([entry]) => {
+      width = Math.min(entry.contentRect.width, BASE_WIDTH)
+    })
+    observer.observe(article)
+
+    await document.fonts?.ready
+    const results = await Promise.allSettled(
+      story.sections.flatMap((section, index) =>
+        section.images.map((spec, imageIndex) => createMask(spec, index, imageIndex)),
+      ),
+    )
+    for (const result of results) {
+      if (result.status === 'rejected') console.error('Could not load illustration', result.reason)
+    }
+    masks = results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []))
+
+    return () => observer.disconnect()
+  })
+
+  async function createMask(spec, section, imageIndex) {
+    const video = spec.src.endsWith('.webm')
+    let source
+    try {
+      source = await (video ? loadVideo(spec.src) : loadImage(spec.src))
+    } catch (error) {
+      if (!video) throw error
+      console.error('Falling back to PNG for', spec.src, error)
+      return createMask(
+        { ...spec, src: spec.src.replace('vid/', 'img/').replace(/\.webm$/, '.png') },
+        section,
+        imageIndex,
+      )
+    }
+    const sampleWidth = 480
+    const sourceWidth = video ? source.videoWidth : source.width
+    const sourceHeight = video ? source.videoHeight : source.height
+    const sampleHeight = Math.round((sourceHeight / sourceWidth) * sampleWidth)
+    const canvas = document.createElement('canvas')
+    canvas.width = sampleWidth
+    canvas.height = sampleHeight
+    const context = canvas.getContext('2d', { willReadFrequently: true })
+
+    let pixels
+    if (video) {
+      pixels = new Uint8ClampedArray(sampleWidth * sampleHeight * 4)
+      const union = () => {
+        context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
+        const frame = context.getImageData(0, 0, sampleWidth, sampleHeight).data
+        for (let i = 3; i < frame.length; i += 4) pixels[i] = Math.max(pixels[i], frame[i])
+      }
+      union()
+      if (Number.isFinite(source.duration)) {
+        for (let step = 1; step < 5; step += 1) {
+          source.currentTime = source.duration * (step / 5)
+          await new Promise((resolve) => source.addEventListener('seeked', resolve, { once: true }))
+          union()
+        }
+      }
+    } else {
+      context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
+      pixels = context.getImageData(0, 0, sampleWidth, sampleHeight).data
+    }
+
+    return { ...spec, video, section, key: `${section}:${imageIndex}`, pixels, sampleWidth, sampleHeight }
+  }
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const image = new Image()
+      image.crossOrigin = 'anonymous'
+      image.onload = () => resolve(image)
+      image.onerror = reject
+      image.src = src
+    })
+  }
+
+  function loadVideo(src) {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video')
+      video.crossOrigin = 'anonymous'
+      video.muted = true
+      video.preload = 'auto'
+      video.onloadeddata = () => resolve(video)
+      video.onerror = () =>
+        reject(new Error(`${src}: MediaError code ${video.error?.code ?? '?'} ${video.error?.message ?? ''}`))
+      video.src = src
+    })
+  }
+
+  function updateMask(key, changes) {
+    masks = masks.map((mask) => (mask.key === key ? { ...mask, ...changes } : mask))
+  }
+
+  async function saveLayout() {
+    const layout = Object.fromEntries(masks.map(({ key, x, top, width }) => [key, { x, top, width }]))
+    const response = await fetch('/__design-layout', { method: 'POST', body: JSON.stringify(layout) })
+    if (!response.ok) throw new Error('Could not save image layout')
+  }
+
+  function buildFlow(section, contentWidth, availableMasks) {
+    const scale = contentWidth / BASE_WIDTH
+    const images = []
+    const paragraphs = []
+    let y = 0
+
+    for (const [index, text] of section.paragraphs.entries()) {
+      for (const mask of availableMasks.filter((item) => item.anchor === index)) {
+        images.push({
+          ...mask,
+          x: mask.x * scale,
+          y: y + mask.top * scale,
+          width: mask.width * scale,
+        })
+      }
+
+      const prepared = prepareWithSegments(text, FONT, { letterSpacing: LETTER_SPACING })
+      const lines = []
+      let cursor = { segmentIndex: 0, graphemeIndex: 0 }
+      const top = y
+
+      while (true) {
+        if (!layoutNextLineRange(prepared, cursor, contentWidth)) break
+
+        for (const [x, end] of availableSegments(contentWidth, y, images)) {
+          const range = layoutNextLineRange(prepared, cursor, end - x)
+          if (!range) break
+          lines.push({ text: materializeLineRange(prepared, range).text, x, y: y - top })
+          cursor = range.end
+        }
+        y += LINE_HEIGHT
+      }
+
+      paragraphs.push({ index, top, height: y - top, lines })
+      y += PARAGRAPH_GAP
+    }
+
+    const bottom = images.reduce(
+      (lowest, image) => Math.max(lowest, image.y + image.width * (image.sampleHeight / image.sampleWidth)),
+      y,
+    )
+
+    return { images, paragraphs, height: bottom }
+  }
+
+  function availableSegments(contentWidth, y, images) {
+    const blocked = images.flatMap((image) =>
+      [y + 3, y + LINE_HEIGHT / 2, y + LINE_HEIGHT - 3].flatMap((row) => imageIntervals(image, row)),
+    )
+    return subtractIntervals(contentWidth, blocked)
+  }
+
+  function imageIntervals(image, y) {
+    const pixelScale = image.width / image.sampleWidth
+    const row = Math.floor((y - image.y) / pixelScale)
+    if (row < 0 || row >= image.sampleHeight) return []
+
+    const intervals = []
+    let start = null
+    for (let column = 0; column < image.sampleWidth; column += 1) {
+      const alpha = image.pixels[(row * image.sampleWidth + column) * 4 + 3]
+      if (alpha > ALPHA_THRESHOLD && start === null) start = column
+      if ((alpha <= ALPHA_THRESHOLD || column === image.sampleWidth - 1) && start !== null) {
+        const end = alpha > ALPHA_THRESHOLD ? column + 1 : column
+        intervals.push([
+          image.x + start * pixelScale - IMAGE_PADDING,
+          image.x + end * pixelScale + IMAGE_PADDING,
+        ])
+        start = null
+      }
+    }
+    return intervals
+  }
+</script>
+
+{@html `<style>${css}</style>`}
+
+<article bind:this={article}>
+  <figure class="hero">
+    <img src={story.hero} alt="往生者家中與門外里長的俯視插畫" />
+  </figure>
+
+  <header>
+    <h1>{story.title}</h1>
+    <p>{story.intro}</p>
+  </header>
+
+  {#each story.sections as section, index}
+    <section aria-labelledby={`section-${index}`}>
+      <h2 id={`section-${index}`}>{section.title}</h2>
+      <div class="flow" style={`height: ${flows[index].height}px`}>
+        {#each flows[index].paragraphs as paragraph}
+          {#each flows[index].images.filter((image) => image.anchor === paragraph.index) as image}
+            {#if image.video}
+              <video
+                class="illustration"
+                src={image.src}
+                aria-label={image.alt}
+                autoplay
+                muted
+                loop
+                playsinline
+                style={`left: ${image.x}px; top: ${image.y}px; width: ${image.width}px`}
+              ></video>
+            {:else}
+              <img
+                class="illustration"
+                src={image.src}
+                alt={image.alt}
+                style={`left: ${image.x}px; top: ${image.y}px; width: ${image.width}px`}
+              />
+            {/if}
+          {/each}
+          <p class="paragraph" style={`top: ${paragraph.top}px; height: ${paragraph.height}px`}>
+            {#each paragraph.lines as line}
+              <span style={`left: ${line.x}px; top: ${line.y}px`}>{line.text}</span>
+            {/each}
+          </p>
+        {/each}
+        {#if design}<ImageEditor images={flows[index].images} {width} baseWidth={BASE_WIDTH} update={updateMask} save={saveLayout} showSave={index === flows.length - 1} />{/if}
+      </div>
+    </section>
+  {/each}
+
+  <figure class="hero">
+    <img src={story.end} alt="靈骨塔與骨灰壇" />
+  </figure>
+</article>
