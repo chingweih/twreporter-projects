@@ -1,7 +1,7 @@
 {
   "name": "shared",
   "scripts": {
-    "deploy": "gcloud storage cp ./src/embed.css $BUCKET/embed.css",
+    "deploy": "gcloud storage cp ./src/* $BUCKET",
     "deploy:staging": "BUCKET=gs://data-reporter-infographics/dev/node-graph RELEASE=staging pnpm run deploy",
     "deploy:prod": "BUCKET=gs://projects.twreporter.org/twreporter/ddd/shared RELEASE=production pnpm run deploy"
   },
