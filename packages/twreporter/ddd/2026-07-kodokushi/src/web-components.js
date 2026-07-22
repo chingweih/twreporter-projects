@@ -1,1 +1,0 @@
-import './DynamicLayout.wc.svelte'
