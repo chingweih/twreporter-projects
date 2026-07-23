@@ -9,26 +9,49 @@ import illustrationData from './illustrations.json'
 import { subtractIntervals } from './lib/layout'
 
 const BASE_WIDTH = 580
-const PARAGRAPH_GAP = 40
 const IMAGE_PADDING = 20
 const ALPHA_THRESHOLD = 32
 const EDITOR = location.hash === '#editor'
-const editorMasks = new Map<string, Mask>()
+const mobileLayout = window.innerWidth < 768
+const editorMasks = new Map<number, Mask>()
 
 type Spec = {
-  key: string
   target: string
   anchor: number
   src: string
-  alt: string
   x: number
   top: number
   width: number
 }
-const illustrations = illustrationData as Spec[]
-type Annotation = { className: string; indicatorHTML: string; contentHTML: string }
-type Chunk = { items: RichInlineItem[]; annotations: Map<number, Annotation> }
-type Mask = Spec & {
+type LayoutKey = 'desktop' | 'mobile'
+type LayoutConfig = Record<LayoutKey, Spec[]>
+const config = illustrationData as LayoutConfig
+const layoutKey: LayoutKey = mobileLayout ? 'mobile' : 'desktop'
+type IndexedSpec = Spec & { index: number }
+const illustrations: IndexedSpec[] = config[layoutKey].map((spec, index) => ({
+  ...spec,
+  index,
+}))
+type Annotation = {
+  className: string
+  indicatorHTML: string
+  contentClassName: string
+  contentHTML: string
+}
+type InlineContent = {
+  items: RichInlineItem[]
+  annotations: Map<number, Annotation>
+}
+type BlockData = {
+  template: HTMLElement
+  heading: boolean
+  content: InlineContent
+  prepared: ReturnType<typeof prepareRichInline> | null
+  pad: { left: number; right: number; top: number; bottom: number }
+  margin: { top: number; bottom: number }
+  lineHeight: number
+}
+type Mask = IndexedSpec & {
   pixels: Uint8ClampedArray
   sampleWidth: number
   sampleHeight: number
@@ -69,19 +92,14 @@ function spacingOf(style: CSSStyleDeclaration): number {
   return style.letterSpacing === 'normal' ? 0 : Number.parseFloat(style.letterSpacing) || 0
 }
 
-function extractChunks(target: HTMLElement): Chunk[] {
+function extractInlineContent(target: HTMLElement): InlineContent {
   const base = getComputedStyle(target)
-  const chunks: Chunk[] = [{ items: [], annotations: new Map() }]
-  const current = () => chunks[chunks.length - 1]
+  const content: InlineContent = { items: [], annotations: new Map() }
   const pushText = (text: string) => {
-    text.split('\n').forEach((part, index) => {
-      if (index) chunks.push({ items: [], annotations: new Map() })
-      if (!part) return
-      const chunk = current()
-      const last = chunk.items.at(-1)
-      if (last && !chunk.annotations.has(chunk.items.length - 1)) last.text += part
-      else chunk.items.push({ text: part, font: fontOf(base), letterSpacing: spacingOf(base) })
-    })
+    if (!text) return
+    const last = content.items.at(-1)
+    if (last && !content.annotations.has(content.items.length - 1)) last.text += text
+    else content.items.push({ text, font: fontOf(base), letterSpacing: spacingOf(base) })
   }
 
   for (const node of target.childNodes) {
@@ -101,37 +119,67 @@ function extractChunks(target: HTMLElement): Chunk[] {
       .join('')
     if (!text) continue
     const indicator = annotated.querySelector<HTMLElement>('[class*="Indicator"]')
+    const annotationContent = node.querySelector<HTMLElement>('[class*="AnnotationContent"]')
     const style = getComputedStyle(annotated)
-    const chunk = current()
-    chunk.annotations.set(chunk.items.length, {
+    content.annotations.set(content.items.length, {
       className: annotated.className,
       indicatorHTML: indicator?.outerHTML ?? '',
-      contentHTML: node.querySelector('[class*="AnnotationContent"]')?.innerHTML ?? '',
+      contentClassName: annotationContent?.className ?? '',
+      contentHTML: annotationContent?.innerHTML ?? '',
     })
-    chunk.items.push({
+    content.items.push({
       text,
       font: fontOf(style),
       letterSpacing: spacingOf(style),
       extraWidth: indicator?.getBoundingClientRect().width ?? 0,
     })
   }
-  return chunks
+  return content
 }
 
-function loadImage(src: string): Promise<HTMLImageElement> {
+function readNumber(value: string): number {
+  return Number.parseFloat(value) || 0
+}
+
+function createBlockData(block: HTMLElement): BlockData {
+  const style = getComputedStyle(block)
+  const content = extractInlineContent(block)
+  return {
+    template: block.cloneNode(false) as HTMLElement,
+    heading: block.matches('h1, h2, h3, h4, h5, h6, [role="heading"]'),
+    content,
+    prepared: content.items.length ? prepareRichInline(content.items) : null,
+    pad: {
+      left: readNumber(style.paddingLeft),
+      right: readNumber(style.paddingRight),
+      top: readNumber(style.paddingTop),
+      bottom: readNumber(style.paddingBottom),
+    },
+    margin: {
+      top: readNumber(style.marginTop),
+      bottom: readNumber(style.marginBottom),
+    },
+    lineHeight:
+      style.lineHeight === 'normal'
+        ? readNumber(style.fontSize) * 1.5
+        : readNumber(style.lineHeight),
+  }
+}
+
+function loadImage(src: string, cors = true): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()
-    image.crossOrigin = 'anonymous'
+    if (cors) image.crossOrigin = 'anonymous'
     image.onload = () => resolve(image)
     image.onerror = reject
     image.src = src
   })
 }
 
-function loadVideo(src: string): Promise<HTMLVideoElement> {
+function loadVideo(src: string, cors = true): Promise<HTMLVideoElement> {
   return new Promise((resolve, reject) => {
     const video = document.createElement('video')
-    video.crossOrigin = 'anonymous'
+    if (cors) video.crossOrigin = 'anonymous'
     video.muted = true
     video.preload = 'auto'
     video.onloadeddata = () => resolve(video)
@@ -140,15 +188,23 @@ function loadVideo(src: string): Promise<HTMLVideoElement> {
   })
 }
 
-async function createMask(spec: Spec): Promise<Mask> {
-  let video = spec.src.endsWith('.webm')
+async function createMask(spec: IndexedSpec): Promise<Mask> {
+  const video = spec.src.endsWith('.webm')
   let source: HTMLImageElement | HTMLVideoElement
+  let readable = true
   try {
     source = video ? await loadVideo(spec.src) : await loadImage(spec.src)
   } catch (error) {
-    if (!video) throw error
-    console.warn('Falling back to a static illustration', spec.src, error)
-    return createMask({ ...spec, src: spec.src.replace('/vid/', '/img/').replace(/\.webm$/, '.png') })
+    readable = false
+    try {
+      source = video
+        ? await loadVideo(spec.src, false)
+        : await loadImage(spec.src, false)
+    } catch {
+      if (!video) throw error
+      console.warn('Falling back to a static illustration', spec.src, error)
+      return createMask({ ...spec, src: spec.src.replace('/vid/', '/img/').replace(/\.webm$/, '.png') })
+    }
   }
   const sampleWidth = 480
   const sourceWidth = video ? (source as HTMLVideoElement).videoWidth : (source as HTMLImageElement).width
@@ -159,9 +215,10 @@ async function createMask(spec: Spec): Promise<Mask> {
   canvas.height = sampleHeight
   const context = canvas.getContext('2d', { willReadFrequently: true })
   if (!context) throw new Error('Canvas is unavailable')
-  let pixels: Uint8ClampedArray
-  if (video) {
-    pixels = new Uint8ClampedArray(sampleWidth * sampleHeight * 4)
+  let pixels = new Uint8ClampedArray(sampleWidth * sampleHeight * 4)
+  if (!readable) {
+    pixels.fill(255)
+  } else if (video) {
     const union = () => {
       context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
       const frame = context.getImageData(0, 0, sampleWidth, sampleHeight).data
@@ -207,21 +264,26 @@ function blockedIntervals(mask: Mask, y: number, scale: number, top = mask.top *
 }
 
 async function copyConfig(): Promise<void> {
-  const config = illustrations.map((spec) => {
-    const edited = editorMasks.get(spec.key)
-    return edited
-      ? { ...spec, x: edited.x, top: edited.top, width: edited.width }
-      : spec
-  })
+  const output = Object.fromEntries(
+    (['desktop', 'mobile'] as const).map((key) => [
+      key,
+      config[key].map((spec, index) => {
+        const edited = key === layoutKey ? editorMasks.get(index) : undefined
+        return edited
+          ? { ...spec, x: edited.x, top: edited.top, width: edited.width }
+          : spec
+      }),
+    ]),
+  ) as LayoutConfig
   try {
-    await navigator.clipboard.writeText(JSON.stringify(config, null, 2))
-    console.info('[kodokushi editor] Updated layout copied to clipboard.', config)
+    await navigator.clipboard.writeText(JSON.stringify(output, null, 2))
+    console.info(`[kodokushi editor] Updated ${layoutKey} layout copied to clipboard.`, output)
   } catch (error) {
     console.error('[kodokushi editor] Could not copy layout to clipboard.', error)
   }
 }
 
-function enableEditor(element: HTMLElement, mask: Mask, scale: number, masks: Mask[], repaint: () => void): void {
+function enableEditor(element: HTMLElement, mask: Mask, scale: number, repaint: () => void): void {
   element.title = 'Drag to move; Shift-drag to resize'
   Object.assign(element.style, { pointerEvents: 'auto', cursor: 'move', outline: '1px dashed #e60000' })
   element.addEventListener('pointerdown', (event) => {
@@ -247,44 +309,43 @@ function enableEditor(element: HTMLElement, mask: Mask, scale: number, masks: Ma
   })
 }
 
-function mediaElement(mask: Mask, scale: number, masks: Mask[], repaint: () => void, top = mask.top * scale): HTMLElement {
+function mediaElement(mask: Mask, scale: number, repaint: () => void, top = mask.top * scale): HTMLElement {
   const element = mask.video ? document.createElement('video') : document.createElement('img')
   if (element instanceof HTMLVideoElement) {
     element.autoplay = true
     element.loop = true
     element.muted = true
     element.playsInline = true
-    element.setAttribute('aria-label', mask.alt)
-  } else element.alt = mask.alt
+  }
   element.src = mask.src
   Object.assign(element.style, {
     position: 'absolute', left: `${mask.x * scale}px`, top: `${top}px`,
     width: `${mask.width * scale}px`, height: 'auto', pointerEvents: 'none',
   })
-  if (EDITOR) enableEditor(element, mask, scale, masks, repaint)
+  if (EDITOR) enableEditor(element, mask, scale, repaint)
   return element
 }
 
-async function rewrapSection(section: string, blocks: HTMLElement[], specs: Spec[]): Promise<void> {
-  const paragraphs = blocks.map((block) => {
-    const chunks = extractChunks(block)
-    return {
-      chunks,
-      prepared: chunks.map((chunk) => chunk.items.length ? prepareRichInline(chunk.items) : null),
-    }
-  })
+async function rewrapSection(section: string, blocks: HTMLElement[], specs: IndexedSpec[]): Promise<void> {
+  const blockData = blocks.map(createBlockData)
   const masks = (await Promise.allSettled(specs.map(createMask)))
     .flatMap((result) => result.status === 'fulfilled' ? [result.value] : [])
   if (!masks.length) return
   for (const mask of masks) {
-    if (mask.anchor >= paragraphs.length)
-      console.warn(`${mask.key} targets missing paragraph ${mask.anchor} in ${section}`)
+    if (mask.anchor >= blockData.length)
+      console.warn(`Illustration ${mask.index} targets missing block ${mask.anchor} in ${section}`)
   }
-  if (EDITOR) for (const mask of masks) editorMasks.set(mask.key, mask)
+  if (EDITOR) for (const mask of masks) editorMasks.set(mask.index, mask)
 
+  const reference = blocks.find((block) =>
+    !block.matches('h1, h2, h3, h4, h5, h6, [role="heading"]'),
+  ) ?? blocks[0]
   const target = document.createElement('div')
-  target.className = blocks[0].className
-  target.style.cssText = blocks[0].style.cssText
+  target.className = reference.className
+  target.style.cssText = reference.style.cssText
+  target.style.padding = '0'
+  target.style.marginTop = '0'
+  target.style.marginBottom = '0'
   target.dataset.dddFlow = section
   blocks[0].before(target)
   for (const block of blocks) block.remove()
@@ -292,79 +353,100 @@ async function rewrapSection(section: string, blocks: HTMLElement[], specs: Spec
   let lastKey = ''
 
   const paint = () => {
-    const style = getComputedStyle(target)
-    const pad = { left: parseFloat(style.paddingLeft), right: parseFloat(style.paddingRight), top: parseFloat(style.paddingTop), bottom: parseFloat(style.paddingBottom) }
-    const width = target.clientWidth - pad.left - pad.right
-    const lineHeight = style.lineHeight === 'normal' ? parseFloat(style.fontSize) * 1.5 : parseFloat(style.lineHeight)
-    const key = `${width}:${lineHeight}:${pad.left}:${pad.right}`
+    const width = target.clientWidth
+    const key = `${width}`
     if ((!EDITOR && key === lastKey) || width <= 0) return
     lastKey = key
-    const scale = width / BASE_WIDTH
+    const referenceData = blockData.find((block) => !block.heading) ?? blockData[0]
+    const contentWidth = width - referenceData.pad.left - referenceData.pad.right
+    const scale = contentWidth / BASE_WIDTH
     const output = document.createDocumentFragment()
     const active = new Map<Annotation, { spans: HTMLElement[]; lastY: number }>()
     const positioned: Array<{ mask: Mask; top: number }> = []
     let y = 0
+    let previousMargin = 0
 
-    for (let paragraphIndex = 0; paragraphIndex < paragraphs.length; paragraphIndex += 1) {
-      for (const mask of masks.filter((item) => item.anchor === paragraphIndex)) {
-        const top = y + mask.top * scale
+    for (const [blockIndex, block] of blockData.entries()) {
+      y += Math.max(previousMargin, block.margin.top)
+      const blockTop = y
+      const blockWidth = width - block.pad.left - block.pad.right
+
+      for (const mask of masks.filter((item) => item.anchor === blockIndex)) {
+        const top = blockTop + mask.top * scale
         positioned.push({ mask, top })
-        output.append(mediaElement(mask, scale, masks, paint, top))
+        output.append(mediaElement(mask, scale, paint, top))
       }
 
-      const paragraph = paragraphs[paragraphIndex]
-      for (let chunkIndex = 0; chunkIndex < paragraph.chunks.length; chunkIndex += 1) {
-        const data = paragraph.prepared[chunkIndex]
-        if (!data) { y += lineHeight; continue }
+      const shell = block.template.cloneNode(false) as HTMLElement
+      Object.assign(shell.style, {
+        position: 'absolute',
+        top: `${blockTop}px`,
+        left: '0',
+        width: '100%',
+        margin: '0',
+        boxSizing: 'border-box',
+      })
+      output.append(shell)
+
+      let localY = 0
+      const data = block.prepared
+      if (data) {
         let cursor: RichInlineCursor | undefined
         while (true) {
+          const rowY = blockTop + block.pad.top + localY
           const blocked = positioned.flatMap(({ mask, top }) =>
-            [y + 3, y + lineHeight / 2, y + lineHeight - 3]
+            [rowY + 3, rowY + block.lineHeight / 2, rowY + block.lineHeight - 3]
               .flatMap((row) => blockedIntervals(mask, row, scale, top)),
           )
-          const segments = subtractIntervals(width, blocked)
+          const segments = subtractIntervals(blockWidth, blocked)
           let progressed = false
           for (const [start, end] of segments) {
             const range = layoutNextRichInlineLineRange(data, end - start, cursor)
             if (!range) continue
             progressed = true
             const line = materializeRichInlineLineRange(data, range)
-            let x = pad.left + start
+            let x = block.pad.left + start
             for (const fragment of line.fragments) {
               x += fragment.gapBefore
-              const item = paragraph.chunks[chunkIndex].items[fragment.itemIndex]
+              const item = block.content.items[fragment.itemIndex]
               const span = document.createElement('span')
               span.textContent = fragment.text
-              Object.assign(span.style, { font: item.font, letterSpacing: `${item.letterSpacing ?? 0}px`, position: 'absolute', left: `${x}px`, top: `${pad.top + y}px`, lineHeight: `${lineHeight}px`, whiteSpace: 'nowrap' })
-              const annotation = paragraph.chunks[chunkIndex].annotations.get(fragment.itemIndex)
+              Object.assign(span.style, { font: item.font, letterSpacing: `${item.letterSpacing ?? 0}px`, position: 'absolute', left: `${x}px`, top: `${block.pad.top + localY}px`, lineHeight: `${block.lineHeight}px`, whiteSpace: 'nowrap' })
+              const annotation = block.content.annotations.get(fragment.itemIndex)
               if (annotation) {
                 span.className = annotation.className
                 span.style.cursor = 'pointer'
                 const state = active.get(annotation) ?? { spans: [], lastY: 0 }
-                state.spans.push(span); state.lastY = y; active.set(annotation, state)
+                state.spans.push(span)
+                state.lastY = rowY + block.lineHeight
+                active.set(annotation, state)
               }
-              output.append(span)
+              shell.append(span)
               x += fragment.occupiedWidth
             }
             cursor = line.end
           }
           if (!progressed) {
-            y += lineHeight
+            localY += block.lineHeight
             continue
           }
-          y += lineHeight
-          if (!layoutNextRichInlineLineRange(data, width, cursor)) break
+          localY += block.lineHeight
+          if (!layoutNextRichInlineLineRange(data, blockWidth, cursor)) break
         }
       }
-      if (paragraphIndex < paragraphs.length - 1) y += PARAGRAPH_GAP
+      const blockHeight = block.pad.top + localY + block.pad.bottom
+      shell.style.height = `${blockHeight}px`
+      y = blockTop + blockHeight
+      previousMargin = block.margin.bottom
     }
+    y += previousMargin
 
     for (const [annotation, state] of active) {
       state.spans.at(-1)?.insertAdjacentHTML('beforeend', annotation.indicatorHTML)
       const popover = document.createElement('div')
-      popover.className = 'pretext-annotation-popover'
+      popover.className = `${annotation.contentClassName} pretext-annotation-popover`.trim()
       popover.innerHTML = annotation.contentHTML
-      Object.assign(popover.style, { display: 'none', position: 'absolute', top: `${pad.top + state.lastY + lineHeight + 4}px`, left: `${pad.left}px`, right: `${pad.right}px`, zIndex: '2', padding: '12px 16px', background: '#fff', border: '1px solid #ddd', boxShadow: '0 2px 8px rgba(0,0,0,.12)' })
+      Object.assign(popover.style, { display: 'none', position: 'absolute', top: `${state.lastY + 4}px`, left: '0', right: '0', zIndex: '2', padding: '12px 16px', background: '#fff', border: '1px solid #ddd', boxShadow: '0 2px 8px rgba(0,0,0,.12)' })
       output.append(popover)
       for (const span of state.spans) span.addEventListener('click', () => { popover.style.display = popover.style.display === 'none' ? 'block' : 'none' })
     }
@@ -375,8 +457,8 @@ async function rewrapSection(section: string, blocks: HTMLElement[], specs: Spec
     )
     target.style.position = 'relative'
     target.style.overflow = 'visible'
-    const boxHeight = Math.max(pad.top + y + pad.bottom, imageBottom)
-    target.style.height = style.boxSizing === 'border-box' ? `${boxHeight}px` : `${boxHeight - pad.top - pad.bottom}px`
+    const boxHeight = Math.max(y, imageBottom)
+    target.style.height = `${boxHeight}px`
     target.replaceChildren(output)
   }
   paint()
@@ -385,8 +467,11 @@ async function rewrapSection(section: string, blocks: HTMLElement[], specs: Spec
 
 async function main(): Promise<void> {
   if (location.hostname === 'keystone-editor.twreporter.org') return
+  window.addEventListener('resize', () => {
+    if ((window.innerWidth < 768) !== mobileLayout) location.reload()
+  })
   await document.fonts?.ready
-  const grouped = illustrations.reduce<Record<string, Spec[]>>((result, spec) => {
+  const grouped = illustrations.reduce<Record<string, IndexedSpec[]>>((result, spec) => {
     (result[spec.target] ??= []).push(spec)
     return result
   }, {})
