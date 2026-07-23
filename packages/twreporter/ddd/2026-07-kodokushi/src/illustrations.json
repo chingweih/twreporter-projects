@@ -150,17 +150,17 @@
       "target": "vil",
       "anchor": 1,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/里長.png",
-      "x": 8,
-      "top": -32,
-      "width": 235
+      "x": -24,
+      "top": -41,
+      "width": 308
     },
     {
       "target": "vil",
       "anchor": 4,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/開鎖.png",
-      "x": 264,
-      "top": -94,
-      "width": 400
+      "x": 323,
+      "top": -52,
+      "width": 363
     },
     {
       "target": "vil",
@@ -182,65 +182,65 @@
       "target": "pol",
       "anchor": 0,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/vid/搜證物_1.webm",
-      "x": -33,
-      "top": 108,
+      "x": -16,
+      "top": 81,
       "width": 157
     },
     {
       "target": "pol",
       "anchor": 0,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/搜證物_2.png",
-      "x": 476,
-      "top": 615,
-      "width": 109
+      "x": 478,
+      "top": 683,
+      "width": 206
     },
     {
       "target": "pol",
       "anchor": 0,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/搜證物_3.png",
-      "x": 406,
-      "top": 301,
+      "x": 447,
+      "top": 392,
       "width": 237
     },
     {
       "target": "pol",
       "anchor": 0,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/搜證物_4.png",
-      "x": -60,
-      "top": 962,
-      "width": 172
+      "x": -53,
+      "top": 963,
+      "width": 243
     },
     {
       "target": "pol",
       "anchor": 5,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/封鎖線.png",
-      "x": -96,
-      "top": 157,
+      "x": -25,
+      "top": 281,
       "width": 732
     },
     {
       "target": "pol",
       "anchor": 6,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/警察打電話.png",
-      "x": 301,
-      "top": 399,
+      "x": 338,
+      "top": 1363,
       "width": 372
     },
     {
       "target": "dis",
       "anchor": 1,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/區公所科員.png",
-      "x": 9,
-      "top": -28,
-      "width": 177
+      "x": -48,
+      "top": -1,
+      "width": 261
     },
     {
       "target": "dis",
       "anchor": 2,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/死亡證明與公文.png",
-      "x": 455,
-      "top": 78,
-      "width": 212
+      "x": 397,
+      "top": 308,
+      "width": 295
     },
     {
       "target": "dis",
@@ -254,16 +254,16 @@
       "target": "dis",
       "anchor": 8,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/經文與蓮位牌.png",
-      "x": 376,
-      "top": -6,
-      "width": 637
+      "x": 251,
+      "top": -56,
+      "width": 447
     },
     {
       "target": "charity",
       "anchor": 1,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/聯合奠祭（佛教）.png",
-      "x": -240,
-      "top": 2,
+      "x": -144,
+      "top": -13,
       "width": 308
     },
     {
@@ -278,8 +278,8 @@
       "target": "charity",
       "anchor": 4,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/貨櫃禮廳與說明牌.png",
-      "x": 351,
-      "top": -36,
+      "x": 358,
+      "top": 249,
       "width": 476
     },
     {
