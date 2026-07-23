@@ -30,7 +30,7 @@ pnpm dev
 ```html
 <script
   type="module"
-  src="http://localhost:5173/src/article-script.ts"
+  src="http://localhost:5173/src/main.ts"
   defer
 ></script>
 ```

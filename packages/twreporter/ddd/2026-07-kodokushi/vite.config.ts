@@ -16,7 +16,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: resolve(import.meta.dirname, 'src/article-script.ts'),
+      entry: resolve(import.meta.dirname, 'src/main.ts'),
       formats: ['umd'],
       name: 'TwreporterKodokushi',
       fileName: () => `js/script-${timestamp}.js`,
