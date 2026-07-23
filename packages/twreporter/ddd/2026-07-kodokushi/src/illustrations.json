@@ -60,24 +60,24 @@
       "target": "pol",
       "anchor": 0,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/搜證物_4.png",
-      "x": -60,
-      "top": 962,
+      "x": -65,
+      "top": 1096,
       "width": 172
     },
     {
       "target": "pol",
       "anchor": 5,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/封鎖線.png",
-      "x": -96,
-      "top": 157,
+      "x": -104,
+      "top": 88,
       "width": 732
     },
     {
       "target": "pol",
       "anchor": 6,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/警察打電話.png",
-      "x": 301,
-      "top": 399,
+      "x": 328,
+      "top": 323,
       "width": 372
     },
     {
@@ -140,8 +140,8 @@
       "target": "charity",
       "anchor": 5,
       "src": "https://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi/assets/img/慈善團體出殯.png",
-      "x": 17,
-      "top": -55,
+      "x": 46,
+      "top": 30,
       "width": 655
     }
   ],
