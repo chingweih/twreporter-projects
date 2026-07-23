@@ -157,7 +157,14 @@ export async function rewrapSection(
               rowY + 3,
               rowY + block.lineHeight / 2,
               rowY + block.lineHeight - 3,
-            ].flatMap((row) => blockedIntervals(mask, row, scale, top)),
+            ].flatMap((row) =>
+              blockedIntervals(mask, row, scale, top).map(
+                ([start, end]): [number, number] => [
+                  start - block.pad.left,
+                  end - block.pad.left,
+                ],
+              ),
+            ),
           )
           const segments = subtractIntervals(blockWidth, blocked)
           let progressed = false
