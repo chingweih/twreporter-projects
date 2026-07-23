@@ -4,9 +4,15 @@ import { createElement } from './lib/dom'
 const ALPHA_THRESHOLD = 32
 const IMAGE_PADDING = 20
 const EDITOR_Z_INDEX = '2147483647'
+const WEBM_TYPE = 'video/webm; codecs="vp9"'
 export const MOBILE_BREAKPOINT = 768
 export const EDITOR_MODE = location.hash === '#editor'
 export const INITIAL_MOBILE_LAYOUT = window.innerWidth < MOBILE_BREAKPOINT
+const IOS =
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+const USE_WEBM =
+  !IOS && createElement('video').canPlayType(WEBM_TYPE) !== ''
 
 export type IllustrationSpec = {
   target: string
@@ -52,51 +58,45 @@ function loadImage(src: string, cors = true): Promise<HTMLImageElement> {
   })
 }
 
-function loadVideo(src: string, cors = true): Promise<HTMLVideoElement> {
-  return new Promise((resolve, reject) => {
-    const video = createElement('video', {
-      ...(cors ? { crossOrigin: 'anonymous' } : {}),
-      muted: true,
-      preload: 'auto',
-    })
-    video.onloadeddata = () => resolve(video)
-    video.onerror = reject
-    video.src = src
-  })
+function staticImageSrc(src: string): string {
+  return src.replace('/vid/', '/img/').replace(/\.webm$/, '.png')
+}
+
+function readFrame(
+  context: CanvasRenderingContext2D,
+  source: CanvasImageSource,
+  width: number,
+  height: number,
+): Uint8ClampedArray | null {
+  try {
+    context.drawImage(source, 0, 0, width, height)
+    return context.getImageData(0, 0, width, height).data
+  } catch {
+    // Safari may load cross-origin media successfully but still taint the canvas.
+    return null
+  }
 }
 
 export async function createMask(
   spec: IndexedSpec,
 ): Promise<IllustrationMask> {
-  const video = spec.src.endsWith('.webm')
-  let source: HTMLImageElement | HTMLVideoElement
+  const animated = spec.src.endsWith('.webm')
+  const maskSrc = animated ? staticImageSrc(spec.src) : spec.src
+  let source: HTMLImageElement
   let readable = true
   try {
-    source = video ? await loadVideo(spec.src) : await loadImage(spec.src)
+    source = await loadImage(maskSrc)
   } catch (error) {
     readable = false
     try {
-      source = video
-        ? await loadVideo(spec.src, false)
-        : await loadImage(spec.src, false)
+      source = await loadImage(maskSrc, false)
     } catch {
-      if (!video) throw error
-      console.warn('Falling back to a static illustration', spec.src, error)
-      return createMask({
-        ...spec,
-        src: spec.src.replace('/vid/', '/img/').replace(/\.webm$/, '.png'),
-      })
+      throw error
     }
   }
 
   const sampleWidth = 480
-  const sourceWidth = video
-    ? (source as HTMLVideoElement).videoWidth
-    : (source as HTMLImageElement).width
-  const sourceHeight = video
-    ? (source as HTMLVideoElement).videoHeight
-    : (source as HTMLImageElement).height
-  const sampleHeight = Math.round((sourceHeight / sourceWidth) * sampleWidth)
+  const sampleHeight = Math.round((source.height / source.width) * sampleWidth)
   const canvas = createElement('canvas', {
     width: sampleWidth,
     height: sampleHeight,
@@ -104,32 +104,22 @@ export async function createMask(
   const context = canvas.getContext('2d', { willReadFrequently: true })
   if (!context) throw new Error('Canvas is unavailable')
 
-  let pixels = new Uint8ClampedArray(sampleWidth * sampleHeight * 4)
+  const pixels = new Uint8ClampedArray(sampleWidth * sampleHeight * 4)
   if (!readable) {
     pixels.fill(255)
-  } else if (video) {
-    const unionFrame = () => {
-      context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
-      const frame = context.getImageData(0, 0, sampleWidth, sampleHeight).data
-      for (let index = 3; index < frame.length; index += 4)
-        pixels[index] = Math.max(pixels[index], frame[index])
-    }
-    unionFrame()
-    const element = source as HTMLVideoElement
-    if (Number.isFinite(element.duration)) {
-      for (let step = 1; step < 5; step += 1) {
-        element.currentTime = element.duration * (step / 5)
-        await new Promise<void>((resolve) =>
-          element.addEventListener('seeked', () => resolve(), { once: true }),
-        )
-        unionFrame()
-      }
-    }
   } else {
-    context.drawImage(source, 0, 0, sampleWidth, sampleHeight)
-    pixels = context.getImageData(0, 0, sampleWidth, sampleHeight).data
+    const frame = readFrame(context, source, sampleWidth, sampleHeight)
+    if (frame) pixels.set(frame)
+    else pixels.fill(255)
   }
-  return { ...spec, pixels, sampleWidth, sampleHeight, video }
+  return {
+    ...spec,
+    ...(animated && !USE_WEBM ? { src: maskSrc } : {}),
+    pixels,
+    sampleWidth,
+    sampleHeight,
+    video: animated && USE_WEBM,
+  }
 }
 
 export function blockedIntervals(
@@ -242,6 +232,7 @@ export function createMediaElement(
   const element = mask.video
     ? createElement('video', {
         src: mask.src,
+        poster: staticImageSrc(mask.src),
         autoplay: true,
         loop: true,
         muted: true,
