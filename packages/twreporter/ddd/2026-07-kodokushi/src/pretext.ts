@@ -3,11 +3,7 @@ import {
   materializeRichInlineLineRange,
   type RichInlineCursor,
 } from '@chenglou/pretext/rich-inline'
-import {
-  createBlockData,
-  type Annotation,
-  type BlockData,
-} from './content'
+import { createBlockData, type Annotation, type BlockData } from './content'
 import {
   blockedIntervals,
   createMask,
@@ -22,7 +18,12 @@ import { subtractIntervals } from './lib/layout'
 const BASE_WIDTH = 580
 
 type PositionedMask = { mask: IllustrationMask; top: number }
-type AnnotationState = { spans: HTMLElement[]; lastY: number }
+type AnnotationState = {
+  spans: HTMLElement[]
+  lastY: number
+  blockTop: number
+  shell: HTMLElement
+}
 
 function createFlowTarget(
   section: string,
@@ -47,35 +48,28 @@ function createFlowTarget(
 }
 
 function appendAnnotationPopovers(
-  output: DocumentFragment,
   annotations: Map<Annotation, AnnotationState>,
 ): void {
   for (const [annotation, state] of annotations) {
     state.spans
       .at(-1)
       ?.insertAdjacentHTML('beforeend', annotation.indicatorHTML)
-    const popover = createElement('div', {
-      className:
-        `${annotation.contentClassName} pretext-annotation-popover`.trim(),
-      innerHTML: annotation.contentHTML,
-      style: {
-        display: 'none',
-        position: 'absolute',
-        top: `${state.lastY + 4}px`,
-        left: '0',
-        right: '0',
-        zIndex: '2',
-        padding: '12px 16px',
-        background: '#fff',
-        border: '1px solid #ddd',
-        boxShadow: '0 2px 8px rgba(0,0,0,.12)',
-      },
+    const popover = annotation.contentTemplate.cloneNode(true) as HTMLElement
+    Object.assign(popover.style, {
+      position: 'absolute',
+      top: `${state.lastY - state.blockTop + 4}px`,
+      left: '0',
+      right: '0',
+      zIndex: '2',
+      // Custom annotation style below
+      backdropFilter: 'blur(10px)',
+      background: 'rgba(255, 255, 255, 0.8)',
     })
-    output.append(popover)
+    state.shell.append(popover)
     for (const span of state.spans)
       span.addEventListener('click', () => {
         popover.style.display =
-          popover.style.display === 'none' ? 'block' : 'none'
+          popover.style.display === 'block' ? 'none' : 'block'
       })
   }
 }
@@ -203,6 +197,8 @@ export async function rewrapSection(
                 const state = annotations.get(annotation) ?? {
                   spans: [],
                   lastY: 0,
+                  blockTop,
+                  shell,
                 }
                 state.spans.push(span)
                 state.lastY = rowY + block.lineHeight
@@ -227,7 +223,7 @@ export async function rewrapSection(
     }
     y += previousMargin
 
-    appendAnnotationPopovers(output, annotations)
+    appendAnnotationPopovers(annotations)
     target.style.position = 'relative'
     target.style.overflow = 'visible'
     target.style.height = `${Math.max(y, mediaBottom(positioned, scale))}px`

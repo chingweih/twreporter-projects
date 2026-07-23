@@ -6,8 +6,7 @@ import {
 export type Annotation = {
   className: string
   indicatorHTML: string
-  contentClassName: string
-  contentHTML: string
+  contentTemplate: HTMLElement
 }
 
 type InlineContent = {
@@ -120,8 +119,9 @@ function extractInlineContent(target: HTMLElement): InlineContent {
     content.annotations.set(content.items.length, {
       className: annotated.className,
       indicatorHTML: indicator?.outerHTML ?? '',
-      contentClassName: annotationContent?.className ?? '',
-      contentHTML: annotationContent?.innerHTML ?? '',
+      contentTemplate:
+        (annotationContent?.cloneNode(true) as HTMLElement | undefined) ??
+        document.createElement('div'),
     })
     content.items.push({
       text,
