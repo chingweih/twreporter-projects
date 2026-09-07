@@ -1,14 +1,15 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { createGenerator } from 'ts-json-schema-generator'
 import { defineConfig, type Plugin } from 'vite'
+import { z } from 'zod'
+import { tableConfigSchema } from './src/components/table/types'
 
 const components = {
   table: {
     entry: 'src/components/table/index.ts',
     outputDirectory: 'components/table',
-    schemaType: 'TableConfig',
+    configSchema: tableConfigSchema,
   },
 } as const
 
@@ -32,12 +33,7 @@ function generatedSchema(): Plugin {
     async configResolved(config) {
       if (config.command !== 'build') return
 
-      const schema = createGenerator({
-        path: resolve(import.meta.dirname, `src/components/${name}/types.ts`),
-        type: component.schemaType,
-        topRef: false,
-        jsDoc: 'extended',
-      }).createSchema(component.schemaType)
+      const schema = z.toJSONSchema(component.configSchema)
 
       await mkdir(dirname(generatedSchemaPath), { recursive: true })
       await writeFile(generatedSchemaPath, JSON.stringify(schema, null, 2))
