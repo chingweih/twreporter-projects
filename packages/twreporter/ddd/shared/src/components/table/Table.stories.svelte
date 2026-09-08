@@ -2,6 +2,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
   import TableElement from './Table.wc.svelte'
   import { generateEmbedCode } from '../../storybook/generate-embed-code'
+  import EmbedCode from '../../storybook/EmbedCode.svelte'
 
   const { Story } = defineMeta({
     title: 'Components/Table',
@@ -20,12 +21,7 @@
 
 <Story name="Default">
   {#snippet template(args)}
-    <textarea
-      readonly
-      style:width="100%"
-      style:height="200px"
-      style:margin-bottom="20px">{generateEmbedCode('table', args)}</textarea
-    >
     <TableElement {...args} />
+    <EmbedCode code={generateEmbedCode('table', args)} />
   {/snippet}
 </Story>
