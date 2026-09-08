@@ -1,39 +1,81 @@
 <script lang="ts">
   import { createQuery } from '@tanstack/svelte-query'
-  import { parse } from 'papaparse'
-  import Shell from './Shell.svelte'
-  import type { TableConfig } from './types'
+  import { parse, unparse } from 'papaparse'
+  import { untrack } from 'svelte'
+  import {
+    syncGraphic,
+    type GraphicSources,
+  } from '../../utils/graphic-sync.svelte'
+  import type { ComponentProps } from '../types'
+  import Shell from '../shared/Shell.svelte'
+  import ScrollFade from '../shared/ScrollFade.svelte'
+  import { tableConfigSchema, type TableConfig } from './types'
+  import type { CSVData } from '../../utils/fetchers'
 
-  const { src, configUrl }: { src: string; configUrl: string } = $props()
+  const props: ComponentProps = $props()
 
-  let wrapper: HTMLDivElement | undefined = $state()
-  let canScrollRight = $state(false)
+  let config: TableConfig | undefined = $state()
+  let csv: CSVData | undefined = $state()
+  let sourceRecords: GraphicSources = []
 
-  const resolvedSrc = $derived(resolveUrl(src))
-  const resolvedConfigUrl = $derived(resolveUrl(configUrl))
+  const sync = syncGraphic(tableConfigSchema, {
+    config: {
+      get: () => config,
+      set: (value) => {
+        config = value
+      },
+    },
+    sources: {
+      get: () => {
+        if (!csv || !sourceRecords[0]) return undefined
+        return [
+          {
+            ...sourceRecords[0],
+            data: unparse({ fields: csv.headers, data: csv.rows }),
+          },
+          ...sourceRecords.slice(1),
+        ]
+      },
+      set: (value) => {
+        const parsed = value[0] ? parseCsv(value[0].data) : undefined
+        sourceRecords = value
+        csv = parsed
+      },
+    },
+  })
 
   const tableQuery = createQuery(() => ({
-    queryKey: ['twreporter-table', resolvedSrc, resolvedConfigUrl] as const,
+    queryKey: ['twreporter-table', props.src, props.config] as const,
+    enabled: !sync.connected && Boolean(props.src && props.config),
     queryFn: async ({ signal }) => {
+      const resolvedSrc = resolveUrl(props.src)
+      const resolvedConfigUrl = resolveUrl(props.config)
       if (!resolvedSrc || !resolvedConfigUrl) {
         throw new Error('Both table source and config URLs are required')
       }
-
       const [csvText, config] = await Promise.all([
         fetchText(resolvedSrc, signal),
         fetchJson(resolvedConfigUrl, signal),
       ])
-
       return { csv: parseCsv(csvText), config }
     },
   }))
 
-  const rows = $derived.by(() => {
-    if (!tableQuery.data) return undefined
+  $effect(() => {
+    if (sync.connected) return
+    const data = tableQuery.data
+    untrack(() => {
+      config = data ? structuredClone(data.config) : undefined
+      csv = data ? structuredClone(data.csv) : undefined
+    })
+  })
 
-    const { csv, config } = tableQuery.data
+  const rows = $derived.by(() => {
+    if (!csv || !config) return undefined
+
+    const { headers } = csv
     const missingColumns = config.columns.filter(
-      (column) => !csv.headers.includes(column.key),
+      (column) => !headers.includes(column.key),
     )
     if (missingColumns.length > 0) {
       console.error(
@@ -51,14 +93,6 @@
 
   $effect(() => {
     if (tableQuery.error) console.error(tableQuery.error)
-  })
-
-  $effect(() => {
-    if (!wrapper) return
-    updateFade()
-    const observer = new ResizeObserver(updateFade)
-    observer.observe(wrapper)
-    return () => observer.disconnect()
   })
 
   function resolveUrl(value: string): string | undefined {
@@ -93,7 +127,7 @@
         `Failed to fetch table config (${response.status} ${response.statusText}): ${url}`,
       )
     }
-    return response.json() as Promise<TableConfig>
+    return tableConfigSchema.parse(await response.json())
   }
 
   function parseCsv(csvText: string): {
@@ -117,70 +151,88 @@
       headers: result.meta.fields ?? [],
     }
   }
-
-  function updateFade() {
-    canScrollRight = Boolean(
-      wrapper && wrapper.scrollLeft + wrapper.clientWidth < wrapper.scrollWidth,
-    )
-  }
 </script>
 
-{#if tableQuery.data && rows}
-  {@const tableConfig = tableQuery.data.config}
+{#if config && rows}
   <Shell
-    title={tableConfig.title}
-    footnotes={tableConfig.footnotes}
-    wide={tableConfig.wide}
-    backdrop={tableConfig.backdrop}
+    bind:title={config.title}
+    bind:footnotes={config.footnotes}
+    wide={config.wide}
+    backdrop={config.backdrop}
+    editable={sync.editable}
   >
     <div class="table-group">
-      {#if tableConfig.label}
-        <div class="table-label">{tableConfig.label}</div>
+      {#if config.label !== undefined}
+        {#if sync.editable}
+          <div
+            class="table-label"
+            contenteditable="plaintext-only"
+            bind:innerText={config.label}
+          ></div>
+        {:else}
+          <div class="table-label">{config.label}</div>
+        {/if}
       {/if}
-      <div class="table-wrapper" bind:this={wrapper} onscroll={updateFade}>
-        <table style:--mobile-width={`${tableConfig.mobileWidth ?? 100}%`}>
+      <ScrollFade>
+        <table style:--mobile-width={(config.mobileWidth ?? 100) + '%'}>
           <colgroup>
-            {#each tableConfig.columns as column}
+            {#each config.columns as column}
               <col
                 style:width={column.width === undefined
                   ? undefined
-                  : `${column.width * 100}%`}
+                  : column.width * 100 + '%'}
               />
             {/each}
           </colgroup>
           <thead>
             <tr>
-              {#each tableConfig.columns as column}
-                <th style:text-align={column.align ?? 'left'}>{column.label}</th
-                >
+              {#each config.columns as column}
+                {#if sync.editable}
+                  <th
+                    style:text-align={column.align ?? 'left'}
+                    contenteditable="plaintext-only"
+                    bind:innerText={column.label}
+                  ></th>
+                {:else}
+                  <th style:text-align={column.align ?? 'left'}
+                    >{column.label}</th
+                  >
+                {/if}
               {/each}
             </tr>
           </thead>
           <tbody>
             {#each rows as row}
               <tr>
-                {#each tableConfig.columns as column}
-                  <td style:text-align={column.align ?? 'left'}
-                    >{row[column.key] ?? '—'}</td
-                  >
+                {#each config.columns as column}
+                  {#if sync.editable}
+                    <td
+                      style:text-align={column.align ?? 'left'}
+                      contenteditable="plaintext-only"
+                      bind:innerText={
+                        () => row[column.key] ?? '—',
+                        (value) => {
+                          row[column.key] = value
+                        }
+                      }
+                    ></td>
+                  {:else}
+                    <td style:text-align={column.align ?? 'left'}
+                      >{row[column.key] ?? '—'}</td
+                    >
+                  {/if}
                 {/each}
               </tr>
             {/each}
           </tbody>
         </table>
-      </div>
-      <div
-        class="scroll-fade"
-        class:visible={canScrollRight}
-        aria-hidden="true"
-      ></div>
+      </ScrollFade>
     </div>
   </Shell>
 {/if}
 
 <style>
   .table-group {
-    position: relative;
     min-width: 0;
   }
 
@@ -195,36 +247,9 @@
     text-align: center !important;
   }
 
-  .table-wrapper {
-    position: relative;
-    width: 100%;
-    min-height: 60px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .table-wrapper::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scroll-fade {
-    position: absolute;
-    top: 0;
-    right: -1px;
-    bottom: 0;
-    width: 40px;
-    background: linear-gradient(to left, var(--neutral-gray-50), transparent);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-
-  .scroll-fade.visible {
-    opacity: 1;
-  }
-
   table {
     width: 100%;
+    min-height: 60px;
     border: 1px solid var(--neutral-gray-200);
     border-radius: 2px;
     border-collapse: collapse;
@@ -284,4 +309,4 @@
       padding: 6px 8px;
     }
   }
-</style>
+</style>

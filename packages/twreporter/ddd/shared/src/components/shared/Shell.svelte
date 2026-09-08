@@ -7,18 +7,20 @@
     'download',
   )
 
-  const {
-    title,
+  let {
+    title = $bindable(),
     children,
-    footnotes,
+    footnotes = $bindable(),
     wide = false,
     backdrop = true,
+    editable = false,
   }: {
     title: string
     footnotes: string[]
     children: Snippet
     wide?: boolean
     backdrop?: boolean
+    editable?: boolean
   } = $props()
 
   async function download() {
@@ -39,12 +41,25 @@
 
 <div class="outer">
   <div class={['container', { wide, backdrop }]} bind:this={container}>
-    <div class="header"><h1>{title}</h1></div>
+    <div class="header">
+      {#if editable}
+        <h1 contenteditable="plaintext-only" bind:innerText={title}></h1>
+      {:else}
+        <h1>{title}</h1>
+      {/if}
+    </div>
     {@render children()}
     <div class="footer">
       <div class="footnotes">
-        {#each footnotes as footnote}
-          <p>{footnote}</p>
+        {#each footnotes as _, index}
+          {#if editable}
+            <p
+              contenteditable="plaintext-only"
+              bind:innerText={footnotes[index]}
+            ></p>
+          {:else}
+            <p>{footnotes[index]}</p>
+          {/if}
         {/each}
       </div>
       <img
@@ -186,6 +201,17 @@
 
   .container.backdrop {
     background: var(--backgrouond-color);
+  }
+
+  .container :global([contenteditable='plaintext-only']) {
+    cursor: text;
+    outline: 1px dashed transparent;
+    outline-offset: 2px;
+  }
+
+  .container :global([contenteditable='plaintext-only']:hover),
+  .container :global([contenteditable='plaintext-only']:focus) {
+    outline-color: var(--neutral-gray-400);
   }
 
   .header h1 {
