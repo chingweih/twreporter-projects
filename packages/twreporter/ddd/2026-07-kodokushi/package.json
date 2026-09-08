@@ -14,7 +14,8 @@
     "deploy:prod": "BUCKET=gs://projects.twreporter.org/twreporter/ddd/2026-07-kodokushi pnpm run deploy"
   },
   "dependencies": {
-    "@chenglou/pretext": "^0.0.8"
+    "@chenglou/pretext": "^0.0.8",
+    "zod": "^4.5.2"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

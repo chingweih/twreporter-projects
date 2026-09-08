@@ -1,4 +1,4 @@
-import illustrationData from './illustrations.json'
+import { configSchema, type GraphicConfig, type IllustrationSpec } from './config'
 import { createElement } from './lib/dom'
 
 const ALPHA_THRESHOLD = 32
@@ -6,22 +6,15 @@ const IMAGE_PADDING = 20
 const EDITOR_Z_INDEX = '2147483647'
 const WEBM_TYPE = 'video/webm; codecs="vp9"'
 export const MOBILE_BREAKPOINT = 768
-export const EDITOR_MODE = location.hash === '#editor'
+export const EDITOR_MODE =
+  location.hash === '#editor' ||
+  new URLSearchParams(location.search).has('edit')
 export const INITIAL_MOBILE_LAYOUT = window.innerWidth < MOBILE_BREAKPOINT
 const IOS =
   /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 const USE_WEBM =
   !IOS && createElement('video').canPlayType(WEBM_TYPE) !== ''
-
-export type IllustrationSpec = {
-  target: string
-  anchor: number
-  src: string
-  x: number
-  top: number
-  width: number
-}
 
 export type IndexedSpec = IllustrationSpec & {
   index: number
@@ -37,16 +30,21 @@ export type IllustrationMask = IndexedSpec & {
 
 type LayoutKey = 'desktop' | 'mobile'
 
-const config = illustrationData
+export let config = configSchema.parse({})
+export const configChanges = new EventTarget()
 const layoutKey: LayoutKey = INITIAL_MOBILE_LAYOUT ? 'mobile' : 'desktop'
 
-export const illustrations: IndexedSpec[] = config[layoutKey].map(
-  (spec, index) => ({
+export function getIllustrations(): IndexedSpec[] {
+  return config[layoutKey].map((spec, index) => ({
     ...spec,
     index,
     source: spec,
-  }),
-)
+  }))
+}
+
+export function setConfig(value: GraphicConfig): void {
+  config = value
+}
 
 function loadImage(src: string, cors = true): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -208,7 +206,8 @@ function enableEditor(
     }
     const stop = () => {
       window.removeEventListener('pointermove', move)
-      void copyConfigToClipboard()
+      configChanges.dispatchEvent(new Event('change'))
+      if (location.hash === '#editor') void copyConfigToClipboard()
     }
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', stop, { once: true })

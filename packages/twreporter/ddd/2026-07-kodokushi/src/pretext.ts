@@ -89,7 +89,7 @@ export async function rewrapSection(
   section: string,
   blocks: HTMLElement[],
   specs: IndexedSpec[],
-): Promise<void> {
+): Promise<(() => void) | undefined> {
   const blockData = blocks.map(createBlockData)
   const masks = (await Promise.allSettled(specs.map(createMask))).flatMap(
     (result) => (result.status === 'fulfilled' ? [result.value] : []),
@@ -239,4 +239,8 @@ export async function rewrapSection(
 
   paint()
   window.addEventListener('resize', paint)
+  return () => {
+    window.removeEventListener('resize', paint)
+    target.replaceWith(...blocks)
+  }
 }
