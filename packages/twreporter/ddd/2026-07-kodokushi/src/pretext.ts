@@ -106,6 +106,11 @@ export async function rewrapSection(
   }
 
   const target = createFlowTarget(blocks, blockData)
+  // Clip at the viewport, allowing illustrations to extend past the text column.
+  const clipping = createElement('style', {
+    textContent: 'html { overflow-x: clip; } body { overflow: clip visible; }',
+  })
+  document.head.append(clipping)
   let lastWidth = 0
 
   const paint = () => {
@@ -239,6 +244,7 @@ export async function rewrapSection(
   window.addEventListener('resize', paint)
   return () => {
     window.removeEventListener('resize', paint)
+    clipping.remove()
     target.replaceWith(...blocks)
   }
 }

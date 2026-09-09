@@ -130,6 +130,7 @@ export function blockedIntervals(
   top = mask.top * scale,
 ): [number, number][] {
   const width = mask.width * scale
+  const padding = INITIAL_MOBILE_LAYOUT ? IMAGE_PADDING : IMAGE_PADDING * scale
   const pixelScale = width / mask.sampleWidth
   const row = Math.floor((y - top) / pixelScale)
   if (row < 0 || row >= mask.sampleHeight) return []
@@ -145,8 +146,8 @@ export function blockedIntervals(
     ) {
       const end = alpha > ALPHA_THRESHOLD ? column + 1 : column
       intervals.push([
-        mask.x * scale + start * pixelScale - IMAGE_PADDING * scale,
-        mask.x * scale + end * pixelScale + IMAGE_PADDING * scale,
+        mask.x * scale + start * pixelScale - padding,
+        mask.x * scale + end * pixelScale + padding,
       ])
       start = null
     }
