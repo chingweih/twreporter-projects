@@ -1,16 +1,7 @@
 import { z } from 'zod'
 import illustrationData from './illustrations.json'
 
-export const illustrationSchema = z.object({
-  target: z.string().min(1).meta({
-    title: '區段',
-    description: '對應文章錨點的 data-section。',
-  }),
-  anchor: z.number().int().nonnegative().meta({
-    title: '內容區塊索引',
-    description: '從 0 開始，包含標題。',
-  }),
-  src: z.url().meta({ title: '圖片或影片 URL' }),
+const positionSchema = z.object({
   x: z.number().meta({
     title: '水平位置',
     description: '以 580px 內容寬度為基準，可為負值。',
@@ -25,13 +16,23 @@ export const illustrationSchema = z.object({
   }),
 })
 
+export const illustrationSchema = z.object({
+  anchor: z.number().int().nonnegative().meta({
+    title: '內容區塊索引',
+    description: '從 start 到 end 之間的內容區塊，由 0 開始，包含標題。',
+  }),
+  src: z.url().meta({ title: '圖片或影片 URL' }),
+  desktop: positionSchema.meta({ title: '桌機位置與尺寸' }),
+  mobile: positionSchema.meta({
+    title: '手機位置與尺寸',
+    description: 'viewport 小於 768px 時使用。',
+  }),
+})
+
 export const configSchema = z.object({
-  desktop: z.array(illustrationSchema)
-    .default(() => structuredClone(illustrationData.desktop))
-    .meta({ title: '桌機插圖' }),
-  mobile: z.array(illustrationSchema)
-    .default(() => structuredClone(illustrationData.mobile))
-    .meta({ title: '手機插圖', description: 'viewport 小於 768px 時使用。' }),
+  illustrations: z.array(illustrationSchema)
+    .default(() => structuredClone(illustrationData.illustrations))
+    .meta({ title: '插圖' }),
 }).meta({ title: '文繞圖設定' })
 
 export type IllustrationSpec = z.infer<typeof illustrationSchema>

@@ -16,10 +16,11 @@ const IOS =
 const USE_WEBM =
   !IOS && createElement('video').canPlayType(WEBM_TYPE) !== ''
 
-export type IndexedSpec = IllustrationSpec & {
-  index: number
-  source: IllustrationSpec
-}
+export type IndexedSpec = Pick<IllustrationSpec, 'src' | 'anchor'> &
+  IllustrationSpec['desktop'] & {
+    index: number
+    source: IllustrationSpec['desktop']
+  }
 
 export type IllustrationMask = IndexedSpec & {
   pixels: Uint8ClampedArray
@@ -35,10 +36,12 @@ export const configChanges = new EventTarget()
 const layoutKey: LayoutKey = INITIAL_MOBILE_LAYOUT ? 'mobile' : 'desktop'
 
 export function getIllustrations(): IndexedSpec[] {
-  return config[layoutKey].map((spec, index) => ({
-    ...spec,
+  return config.illustrations.map((spec, index) => ({
+    src: spec.src,
+    anchor: spec.anchor,
+    ...spec[layoutKey],
     index,
-    source: spec,
+    source: spec[layoutKey],
   }))
 }
 
@@ -112,7 +115,7 @@ export async function createMask(
   }
   return {
     ...spec,
-    ...(animated && !USE_WEBM ? { src: maskSrc } : {}),
+    src: animated && !USE_WEBM ? maskSrc : spec.src,
     pixels,
     sampleWidth,
     sampleHeight,

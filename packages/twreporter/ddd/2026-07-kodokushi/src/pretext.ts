@@ -26,7 +26,6 @@ type AnnotationState = {
 }
 
 function createFlowTarget(
-  section: string,
   blocks: HTMLElement[],
   blockData: BlockData[],
 ): HTMLElement {
@@ -41,7 +40,7 @@ function createFlowTarget(
       marginBottom: '0',
     },
   })
-  target.dataset.dddFlow = section
+  target.dataset.dddFlow = ''
   blocks[0].before(target)
   for (const block of blocks) block.remove()
   return target
@@ -86,7 +85,6 @@ function mediaBottom(positioned: PositionedMask[], scale: number): number {
 }
 
 export async function rewrapSection(
-  section: string,
   blocks: HTMLElement[],
   specs: IndexedSpec[],
 ): Promise<(() => void) | undefined> {
@@ -103,11 +101,11 @@ export async function rewrapSection(
     masksByAnchor.set(mask.anchor, anchored)
     if (mask.anchor >= blockData.length)
       console.warn(
-        `Illustration ${mask.index} targets missing block ${mask.anchor} in ${section}`,
+        `Illustration ${mask.index} targets missing block ${mask.anchor}`,
       )
   }
 
-  const target = createFlowTarget(section, blocks, blockData)
+  const target = createFlowTarget(blocks, blockData)
   let lastWidth = 0
 
   const paint = () => {

@@ -9,23 +9,12 @@ import {
   getIllustrations,
   INITIAL_MOBILE_LAYOUT,
   MOBILE_BREAKPOINT,
-  type IndexedSpec,
 } from './illustrations'
 
 declare global {
   interface Window {
     __twreporter_dynamic_layout_config?: string
   }
-}
-
-function groupByTarget(specs: IndexedSpec[]): Map<string, IndexedSpec[]> {
-  const grouped = new Map<string, IndexedSpec[]>()
-  for (const spec of specs) {
-    const group = grouped.get(spec.target) ?? []
-    group.push(spec)
-    grouped.set(spec.target, group)
-  }
-  return grouped
 }
 
 async function main(): Promise<void> {
@@ -39,35 +28,21 @@ async function main(): Promise<void> {
   await document.fonts.ready
 
   let rendering = Promise.resolve()
-  let cleanups: (() => void)[] = []
+  let cleanup: (() => void) | undefined
   const render = () => {
     rendering = rendering.then(async () => {
-      for (const cleanup of cleanups) cleanup()
-      cleanups = []
-      const anchors = [
-        ...document.querySelectorAll<HTMLElement>(
-          'div.ddd-anchor[data-section][data-type]',
-        ),
-      ]
-      for (const [section, specs] of groupByTarget(getIllustrations())) {
-        const start = anchors.find(
-          (anchor) =>
-            anchor.dataset.section === section && anchor.dataset.type === 'start',
-        )
-        const end = anchors.find(
-          (anchor) =>
-            anchor.dataset.section === section && anchor.dataset.type === 'end',
-        )
-        if (!start || !end) {
-          console.warn(`Missing ${section} start/end anchors`)
-          continue
-        }
-
-        const blocks = sectionBlocks(start, end)
-        if (!blocks.length) continue
-        const cleanup = await rewrapSection(section, blocks, specs)
-        if (cleanup) cleanups.push(cleanup)
+      cleanup?.()
+      cleanup = undefined
+      const start = document.querySelector('.ddd-anchor[data-type="start"]')
+      const end = document.querySelector('.ddd-anchor[data-type="end"]')
+      if (!start || !end) {
+        console.warn('[kodokushi] Missing start/end anchors')
+        return
       }
+
+      const blocks = sectionBlocks(start, end)
+      if (!blocks.length) return
+      cleanup = await rewrapSection(blocks, getIllustrations())
     }).catch(console.error)
     return rendering
   }
