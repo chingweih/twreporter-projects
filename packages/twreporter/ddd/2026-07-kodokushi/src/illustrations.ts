@@ -22,7 +22,6 @@ const USE_WEBM =
 export type IndexedSpec = Pick<IllustrationSpec, 'src' | 'anchor'> &
   IllustrationSpec['desktop'] & {
     index: number
-    source: IllustrationSpec['desktop']
   }
 
 export type IllustrationMask = IndexedSpec & {
@@ -43,7 +42,6 @@ export function getIllustrations(): IndexedSpec[] {
       anchor: spec.anchor,
       ...source,
       index,
-      source,
     }
   })
 }
@@ -207,11 +205,11 @@ function enableEditor(
         mask.x = Math.round(start.x + dx)
         mask.top = Math.round(start.top + dy)
       }
-      Object.assign(mask.source, {
+      config.illustrations[mask.index][INITIAL_BREAKPOINT] = {
         x: mask.x,
         top: mask.top,
         width: mask.width,
-      })
+      }
       repaint()
     }
     const stop = () => {
