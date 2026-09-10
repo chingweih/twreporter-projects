@@ -1,8 +1,11 @@
 {
-  "name": "shared",
+  "name": "@lab-reporter/ddd-shared",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "exports": {
+    "./media-query": "./src/utils/media-query.ts"
+  },
   "scripts": {
     "dev": "storybook dev -p 5173 --no-open",
     "storybook:build": "storybook build",
