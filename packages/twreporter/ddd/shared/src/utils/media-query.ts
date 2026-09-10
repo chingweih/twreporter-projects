@@ -9,18 +9,16 @@ export const breakpoints = {
 export type Breakpoint = keyof typeof breakpoints
 
 export const breakpointFallbacks = {
-  mobile: 'mobile',
+  mobile: 'desktop',
   largeMobile: 'mobile',
   tablet: 'desktop',
-  desktop: 'desktop',
+  desktop: null,
   hd: 'desktop',
-} as const satisfies Record<Breakpoint, Breakpoint>
+} as const satisfies Record<Breakpoint, Breakpoint | null>
 
-export type ResponsiveValue<T> = Record<
-  (typeof breakpointFallbacks)[Breakpoint],
-  T
-> &
-  Partial<Record<Breakpoint, T>>
+export type ResponsiveValue<T> = {
+  [K in Breakpoint as (typeof breakpointFallbacks)[K] extends null ? K : never]: T
+} & Partial<Record<Breakpoint, T>>
 
 export const mq = {
   mobile: `(width < ${breakpoints.largeMobile}px)`,
@@ -42,7 +40,11 @@ export function resolveResponsiveValue<T>(
   values: ResponsiveValue<T>,
   breakpoint: Breakpoint,
 ): T {
-  const value = values[breakpoint]
-  if (value !== undefined) return value
-  return values[breakpointFallbacks[breakpoint]]
+  let candidate: Breakpoint | null = breakpoint
+  while (candidate !== null) {
+    const value = values[candidate]
+    if (value !== undefined) return value
+    candidate = breakpointFallbacks[candidate]
+  }
+  throw new Error(`Missing responsive value for ${breakpoint} and its fallbacks`)
 }

@@ -28,13 +28,13 @@ export const illustrationSchema = z
       title: '圖片或影片 URL',
       'ui:layout': 'no-title',
     }),
-    mobile: positionSchema.meta({
+    mobile: positionSchema.optional().meta({
       title: '手機位置與尺寸',
-      description: mq.mobile,
+      description: `${mq.mobile}，未設定時使用 desktop`,
     }),
     largeMobile: positionSchema.optional().meta({
       title: '大型手機位置與尺寸',
-      description: `${mq.largeMobile}，未設定時使用 mobile`,
+      description: `${mq.largeMobile}，未設定時使用 mobile，mobile 未設定時使用 desktop`,
     }),
     tablet: positionSchema.optional().meta({
       title: '平板位置與尺寸',
