@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { mq } from '@lab-reporter/ddd-shared/media-query'
 import illustrationData from './illustrations.json'
 
 const positionSchema = z.object({
@@ -27,10 +28,25 @@ export const illustrationSchema = z
       title: '圖片或影片 URL',
       'ui:layout': 'no-title',
     }),
-    desktop: positionSchema.meta({ title: '桌機位置與尺寸' }),
     mobile: positionSchema.meta({
       title: '手機位置與尺寸',
-      description: 'viewport 小於 768px 時使用',
+      description: mq.mobile,
+    }),
+    largeMobile: positionSchema.optional().meta({
+      title: '大型手機位置與尺寸',
+      description: `${mq.largeMobile}，未設定時使用 mobile`,
+    }),
+    tablet: positionSchema.optional().meta({
+      title: '平板位置與尺寸',
+      description: `${mq.tablet}，未設定時使用 desktop`,
+    }),
+    desktop: positionSchema.meta({
+      title: '桌機位置與尺寸',
+      description: mq.desktop,
+    }),
+    hd: positionSchema.optional().meta({
+      title: '寬螢幕位置與尺寸',
+      description: `${mq.hd}，未設定時使用 desktop`,
     }),
   })
   .meta({ title: '插圖', 'ui:options': { label: false } })

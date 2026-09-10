@@ -1,15 +1,18 @@
 import { configSchema, type GraphicConfig, type IllustrationSpec } from './config'
 import { createElement } from './lib/dom'
+import {
+  getBreakpoint,
+  resolveResponsiveValue,
+} from '@lab-reporter/ddd-shared/media-query'
 
 const ALPHA_THRESHOLD = 32
 const IMAGE_PADDING = 20
 const EDITOR_Z_INDEX = '2147483647'
 const WEBM_TYPE = 'video/webm; codecs="vp9"'
-export const MOBILE_BREAKPOINT = 768
 export const EDITOR_MODE =
   location.hash === '#editor' ||
   new URLSearchParams(location.search).has('edit')
-export const INITIAL_MOBILE_LAYOUT = window.innerWidth < MOBILE_BREAKPOINT
+export const INITIAL_BREAKPOINT = getBreakpoint(window.innerWidth)
 const IOS =
   /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
@@ -29,20 +32,20 @@ export type IllustrationMask = IndexedSpec & {
   video: boolean
 }
 
-type LayoutKey = 'desktop' | 'mobile'
-
 export let config = configSchema.parse({})
 export const configChanges = new EventTarget()
-const layoutKey: LayoutKey = INITIAL_MOBILE_LAYOUT ? 'mobile' : 'desktop'
 
 export function getIllustrations(): IndexedSpec[] {
-  return config.illustrations.map((spec, index) => ({
-    src: spec.src,
-    anchor: spec.anchor,
-    ...spec[layoutKey],
-    index,
-    source: spec[layoutKey],
-  }))
+  return config.illustrations.map((spec, index) => {
+    const source = resolveResponsiveValue(spec, INITIAL_BREAKPOINT)
+    return {
+      src: spec.src,
+      anchor: spec.anchor,
+      ...source,
+      index,
+      source,
+    }
+  })
 }
 
 export function setConfig(value: GraphicConfig): void {
@@ -130,7 +133,10 @@ export function blockedIntervals(
   top = mask.top * scale,
 ): [number, number][] {
   const width = mask.width * scale
-  const padding = INITIAL_MOBILE_LAYOUT ? IMAGE_PADDING : IMAGE_PADDING * scale
+  const padding = resolveResponsiveValue(
+    { mobile: IMAGE_PADDING, desktop: IMAGE_PADDING * scale },
+    INITIAL_BREAKPOINT,
+  )
   const pixelScale = width / mask.sampleWidth
   const row = Math.floor((y - top) / pixelScale)
   if (row < 0 || row >= mask.sampleHeight) return []
@@ -159,7 +165,7 @@ async function copyConfigToClipboard(): Promise<void> {
   try {
     await navigator.clipboard.writeText(JSON.stringify(config, null, 2))
     console.info(
-      `[kodokushi editor] Updated ${layoutKey} layout copied to clipboard.`,
+      `[kodokushi editor] Updated layout for ${INITIAL_BREAKPOINT} copied to clipboard.`,
       config,
     )
   } catch (error) {

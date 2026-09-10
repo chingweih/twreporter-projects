@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.8",
+    "@lab-reporter/ddd-shared": "workspace:*",
     "zod": "^4.5.2"
   },
   "devDependencies": {

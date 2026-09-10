@@ -2,13 +2,13 @@ import { sectionBlocks } from './content'
 import { rewrapSection } from './pretext'
 import { configSchema } from './config'
 import { syncGraphic } from './graphic-sync'
+import { getBreakpoint } from '@lab-reporter/ddd-shared/media-query'
 import {
   config,
   configChanges,
   setConfig,
   getIllustrations,
-  INITIAL_MOBILE_LAYOUT,
-  MOBILE_BREAKPOINT,
+  INITIAL_BREAKPOINT,
 } from './illustrations'
 
 declare global {
@@ -22,8 +22,7 @@ async function main(): Promise<void> {
   if (location.hostname === 'keystone-editor.twreporter.org') return
 
   window.addEventListener('resize', () => {
-    const isMobile = window.innerWidth < MOBILE_BREAKPOINT
-    if (isMobile !== INITIAL_MOBILE_LAYOUT) location.reload()
+    if (getBreakpoint(window.innerWidth) !== INITIAL_BREAKPOINT) location.reload()
   })
   await document.fonts.ready
 

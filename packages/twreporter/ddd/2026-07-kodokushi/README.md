@@ -10,7 +10,6 @@ pnpm dev
 
 - 圖片與錨點設定位於 `src/illustrations.json`
 - 文章文字由 CMS 管理
-- viewport 小於 768px 時使用 `mobile`。
 
 需要文繞圖的完整範圍使用一組起訖錨點：
 
@@ -20,7 +19,7 @@ pnpm dev
 <div class="ddd-anchor" data-type="end"></div>
 ```
 
-- `illustrations` 是共用的插圖列表，每筆包含 `src`、`anchor`，以及 `desktop`、`mobile` 各自的 `x`、`top`、`width`。
+- `illustrations` 是共用的插圖列表，每筆包含 `src`、`anchor`，以及各 breakpoint 的 `x`、`top`、`width`。
 - `anchor` 是完整起訖範圍內從 0 開始的內容區塊索引，包含標題。圖片會以該區塊的起點定位，並可影響標題與後續段落的繞文。
 
 ### Local Script Testing
@@ -37,7 +36,7 @@ pnpm dev
 
 ## `#editor` 圖片編輯模式
 
-在文章網址後加上 `#editor`：拖曳插圖可移動，按住 Shift 拖曳可縮放。編輯器只修改目前 breakpoint 的設定；小於 768px 修改 `mobile`，否則修改 `desktop`。每次操作完成後，包含共用插圖列表與兩種位置設定的完整 JSON 會直接複製到剪貼簿，並輸出到瀏覽器 console，可直接覆蓋 `src/illustrations.json`。
+在文章網址後加上 `#editor`：拖曳插圖可移動，按住 Shift 拖曳可縮放。編輯器修改目前 breakpoint 實際使用的位置設定；若未設定 optional breakpoint，則修改其 fallback。每次操作完成後，包含共用插圖列表與所有位置設定的完整 JSON 會直接複製到剪貼簿，並輸出到瀏覽器 console，可直接覆蓋 `src/illustrations.json`。
 
 ## Build and Deploy
 
