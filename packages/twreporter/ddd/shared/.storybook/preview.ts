@@ -1,4 +1,4 @@
-import type { Preview } from '@storybook/svelte-vite'
+import type { Parameters, Preview } from '@storybook/svelte-vite'
 import { z } from 'zod'
 
 const query = new URLSearchParams(window.location.search)
@@ -13,5 +13,9 @@ const preview = {
     }),
   ),
 } satisfies Preview
+
+export const parameters = {
+  layout: 'fullscreen',
+} satisfies Parameters
 
 export default preview

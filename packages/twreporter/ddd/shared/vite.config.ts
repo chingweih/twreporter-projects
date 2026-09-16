@@ -1,9 +1,9 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, type EnvironmentOptions, type Plugin } from 'vite'
 import { z } from 'zod'
 import { tableConfigSchema } from './src/components/table/types'
+import { fullScreenWrapperConfigSchema } from './src/components/full-screen-wrapper/types'
 
 const components = {
   table: {
@@ -11,34 +11,26 @@ const components = {
     outputDirectory: 'components/table',
     configSchema: tableConfigSchema,
   },
+  fullScreenWrapper: {
+    entry: 'src/components/full-screen-wrapper/index.ts',
+    outputDirectory: 'components/full-screen-wrapper',
+    configSchema: fullScreenWrapperConfigSchema,
+  },
 } as const
 
 const timestamp = Date.now()
-const [name, component] = Object.entries(components)[0]
-const generatedSchemaPath = resolve(
-  import.meta.dirname,
-  'dist',
-  component.outputDirectory,
-  `${name}.schema.json`,
-)
 
-function generatedSchema(): Plugin {
-  let source: Buffer
-  const schemaId = generatedSchemaPath + '?url&no-inline'
+function generatedSchema(
+  name: string,
+  component: (typeof components)[keyof typeof components],
+): Plugin {
+  const schemaId = `\0${name}.schema-url.js`
   const schemaImportSuffix = `dist/${component.outputDirectory}/${name}.schema.json?url&no-inline`
 
   return {
-    name: 'twreporter-generated-schema',
+    name: `twreporter-generated-schema-${name}`,
+    apply: 'build',
     enforce: 'pre',
-    async configResolved(config) {
-      if (config.command !== 'build') return
-
-      const schema = z.toJSONSchema(component.configSchema)
-
-      await mkdir(dirname(generatedSchemaPath), { recursive: true })
-      await writeFile(generatedSchemaPath, JSON.stringify(schema, null, 2))
-      source = await readFile(generatedSchemaPath)
-    },
     resolveId(id) {
       if (id.endsWith(schemaImportSuffix)) return schemaId
     },
@@ -46,8 +38,8 @@ function generatedSchema(): Plugin {
       if (id !== schemaId) return
       const referenceId = this.emitFile({
         type: 'asset',
-        name: 'table.schema.json',
-        source,
+        name: `${name}.schema.json`,
+        source: JSON.stringify(z.toJSONSchema(component.configSchema), null, 2),
       })
       return `export default import.meta.ROLLUP_FILE_URL_${referenceId}`
     },
@@ -62,27 +54,54 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
   },
-  plugins: [generatedSchema(), svelte({ emitCss: false })],
+  plugins: [
+    ...Object.entries(components).map(([name, component]) =>
+      generatedSchema(name, component),
+    ),
+    svelte({ emitCss: false }),
+  ],
+  builder: {
+    async buildApp(builder) {
+      for (const name of Object.keys(components)) {
+        await builder.build(builder.environments[name])
+      }
+    },
+  },
+  environments: Object.fromEntries(
+    Object.entries(components).map(([name, component]) => [
+      name,
+      {
+        consumer: 'client',
+        build: {
+          outDir: resolve(
+            import.meta.dirname,
+            'dist',
+            component.outputDirectory,
+          ),
+          lib: {
+            entry: resolve(import.meta.dirname, component.entry),
+            formats: ['es'],
+          },
+          rolldownOptions: {
+            output: {
+              codeSplitting: false,
+              entryFileNames: `${name}-${timestamp}.js`,
+              assetFileNames: (assetInfo) =>
+                assetInfo.names.some((assetName) =>
+                  assetName.endsWith('.schema.json'),
+                )
+                  ? `${name}-${timestamp}.schema.json`
+                  : `${name}-${timestamp}.[ext]`,
+            },
+          },
+        },
+      } satisfies EnvironmentOptions,
+    ]),
+  ),
   build: {
     assetsInlineLimit: 0,
     cssCodeSplit: false,
     emptyOutDir: true,
-    lib: {
-      entry: resolve(import.meta.dirname, component.entry),
-      formats: ['es'],
-    },
-    rolldownOptions: {
-      output: {
-        codeSplitting: false,
-        entryFileNames: `${component.outputDirectory}/${name}-${timestamp}.js`,
-        assetFileNames: (assetInfo) =>
-          assetInfo.names.some((assetName) =>
-            assetName.endsWith('.schema.json'),
-          )
-            ? `${component.outputDirectory}/${name}-${timestamp}.schema.json`
-            : `${component.outputDirectory}/${name}-${timestamp}.[ext]`,
-      },
-    },
     sourcemap: false,
   },
 })
