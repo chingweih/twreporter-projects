@@ -30,6 +30,7 @@ export function createStorybookConfig(
       <link rel="stylesheet" href="${fontStylesheetUrl}">
       <style>body { font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif; }</style>`,
     viteFinal(config) {
+      config.publicDir = false
       const componentScript = globSync('components/**/*.js', {
         cwd: resolve(root, 'dist'),
       })[0]

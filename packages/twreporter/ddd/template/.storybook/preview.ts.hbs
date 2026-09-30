@@ -1,8 +1,1 @@
-import type { Parameters } from 'storybook/internal/types'
-import sharedPreview from '@lab-reporter/ddd-shared/storybook/preview'
-
-export const parameters = {
-  layout: 'fullscreen',
-} satisfies Parameters
-
-export default { ...sharedPreview, parameters }
+export { default, parameters } from '@lab-reporter/ddd-shared/storybook/preview'
