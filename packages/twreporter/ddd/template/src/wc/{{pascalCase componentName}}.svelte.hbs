@@ -1,0 +1,129 @@
+<script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
+  import { unparse } from 'papaparse'
+  import { untrack } from 'svelte'
+  import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
+  import {
+    fetchJson,
+    fetchText,
+    parseCsv,
+    type CSVData,
+  } from '@lab-reporter/ddd-shared/utils/fetchers.ts'
+  import {
+    syncGraphic,
+    type GraphicSources,
+  } from '@lab-reporter/ddd-shared/utils/graphic-sync.svelte.ts'
+  import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
+  import {
+    {{camelCase componentName}}ConfigSchema,
+    type {{pascalCase componentName}}Config,
+  } from '../lib/components/{{componentName}}/types'
+
+  const props: ComponentProps = $props()
+  let config: {{pascalCase componentName}}Config | undefined = $state()
+  let csv: CSVData | undefined = $state()
+  let sourceRecords: GraphicSources = []
+
+  const sync = syncGraphic({{camelCase componentName}}ConfigSchema, {
+    config: {
+      get: () => config,
+      set: (value) => {
+        config = value
+      },
+    },
+    sources: {
+      get: () => {
+        if (!csv || !sourceRecords[0]) return undefined
+        return [
+          {
+            ...sourceRecords[0],
+            data: unparse({ fields: csv.headers, data: csv.rows }),
+          },
+          ...sourceRecords.slice(1),
+        ]
+      },
+      set: (value) => {
+        const parsed = value[0] ? parseCsv(value[0].data) : undefined
+        sourceRecords = value
+        csv = parsed
+      },
+    },
+  })
+
+  const query = createQuery(() => ({
+    queryKey: [
+      'twreporter-{{projectName}}-{{componentName}}',
+      props.src,
+      props.config,
+    ] as const,
+    enabled: !sync.connected && Boolean(props.src && props.config),
+    queryFn: async ({ signal }) => {
+      const [csvText, config] = await Promise.all([
+        fetchText(new URL(props.src, document.baseURI).href, signal),
+        fetchJson(
+          new URL(props.config, document.baseURI).href,
+          {{camelCase componentName}}ConfigSchema,
+          signal,
+        ),
+      ])
+      return { csv: parseCsv(csvText), config }
+    },
+  }))
+
+  $effect(() => {
+    if (sync.connected) return
+    const data = query.data
+    untrack(() => {
+      config = data ? structuredClone(data.config) : undefined
+      csv = data ? structuredClone(data.csv) : undefined
+    })
+  })
+</script>
+
+{#if config && csv}
+  <Shell
+    bind:title={config.title}
+    bind:footnotes={config.footnotes}
+    editable={sync.editable}
+  >
+    <table>
+      <thead>
+        <tr>
+          {#each csv.headers as header}
+            <th>{header}</th>
+          {/each}
+        </tr>
+      </thead>
+      <tbody>
+        {#each csv.rows as row}
+          <tr>
+            {#each csv.headers as header}
+              {#if sync.editable}
+                <td
+                  contenteditable="plaintext-only"
+                  bind:innerText={row[header]}
+                ></td>
+              {:else}
+                <td>{row[header]}</td>
+              {/if}
+            {/each}
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </Shell>
+{/if}
+
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 8px;
+    border-bottom: 1px solid var(--neutral-gray-200);
+    text-align: left;
+  }
+</style>

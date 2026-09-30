@@ -1,0 +1,10 @@
+import { z } from 'zod'
+
+export const {{camelCase componentName}}ConfigSchema = z.object({
+  title: z.string().describe('The title displayed above the graphic.'),
+  footnotes: z
+    .array(z.string())
+    .describe('Notes displayed beneath the graphic.'),
+})
+
+export type {{pascalCase componentName}}Config = z.infer<typeof {{camelCase componentName}}ConfigSchema>
