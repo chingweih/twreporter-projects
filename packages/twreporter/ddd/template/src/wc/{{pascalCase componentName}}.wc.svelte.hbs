@@ -1,6 +1,4 @@
-<svelte:options
-  customElement="twreporter-{{projectName}}-{{componentName}}"
-/>
+<svelte:options customElement="twreporter-{{projectName}}-{{componentName}}" />
 
 <script lang="ts">
   import Layout from '@lab-reporter/ddd-shared/components/shared/Layout.svelte'
@@ -10,8 +8,6 @@
   const { src, config }: ComponentProps = $props()
 </script>
 
-{#if src && config}
-  <Layout>
-    <{{pascalCase componentName}} {src} {config} />
-  </Layout>
-{/if}
+<Layout>
+  <{{pascalCase componentName}} {src} {config} />
+</Layout>

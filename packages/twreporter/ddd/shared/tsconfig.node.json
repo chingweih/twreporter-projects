@@ -8,6 +8,7 @@
     "svelte.config.ts",
     "config/**/*.ts",
     "src/components/**/types.ts",
+    "src/utils/fonts.ts",
     "components.config.ts",
     "scripts/**/*.ts"
   ]

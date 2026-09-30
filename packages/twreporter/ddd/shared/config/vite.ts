@@ -46,7 +46,7 @@ export function createComponentConfig(
             type: 'asset',
             name: `${name}.schema.json`,
             source: JSON.stringify(
-              z.toJSONSchema(component.configSchema),
+              z.toJSONSchema(component.configSchema, { target: 'draft-07' }),
               null,
               2,
             ),
