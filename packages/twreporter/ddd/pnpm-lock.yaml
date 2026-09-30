@@ -83,6 +83,40 @@ importers:
         specifier: ^7.2.4
         version: 7.3.3(@types/node@24.12.2)(lightningcss@1.32.0)
 
+  2026-10-dpp-the-movement:
+    dependencies:
+      '@lab-reporter/ddd-shared':
+        specifier: workspace:*
+        version: link:../shared
+      zod:
+        specifier: ^4.1.12
+        version: 4.5.2
+    devDependencies:
+      '@storybook/addon-svelte-csf':
+        specifier: ^5.1.2
+        version: 5.1.2(@storybook/svelte@10.5.3(storybook@10.5.3(prettier@3.8.3)(react@19.2.8))(svelte@5.55.5))(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.55.5)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(storybook@10.5.3(prettier@3.8.3)(react@19.2.8))(svelte@5.55.5)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
+      prettier:
+        specifier: ^3.8.3
+        version: 3.8.3
+      storybook:
+        specifier: ^10.5.3
+        version: 10.5.3(prettier@3.8.3)(react@19.2.8)
+      svelte:
+        specifier: ^5.55.5
+        version: 5.55.5
+      svelte-check:
+        specifier: ^4.7.3
+        version: 4.7.3(picomatch@4.0.4)(svelte@5.55.5)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^8.0.11
+        version: 8.0.11(@types/node@26.1.1)(esbuild@0.27.7)
+
   node-graph:
     dependencies:
       '@xyflow/svelte':
