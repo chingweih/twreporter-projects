@@ -1,0 +1,58 @@
+{
+  "title": "2026年7月民進黨全代會改選結果：新潮流穩居第一派系",
+  "footnotes": [
+    "註：將游標移至人名，查看其公職經歷。",
+    "資料來源：民進黨官方網站；《報導者》整理"
+  ],
+  "wide": true,
+  "backdrop": true,
+  "columns": {
+    "group": "委員會",
+    "category": "派系",
+    "label": "姓名",
+    "description": "公職"
+  },
+  "categories": [
+    {
+      "value": "新潮流",
+      "label": "",
+      "color": "#2c7a47"
+    },
+    {
+      "value": "正國會",
+      "label": "",
+      "color": "#c9c9ed"
+    },
+    {
+      "value": "英系",
+      "label": "",
+      "color": "#d4a96e"
+    },
+    {
+      "value": "綠色友誼連線",
+      "label": "",
+      "color": "#acd0c6"
+    },
+    {
+      "value": "蘇系",
+      "label": "",
+      "color": "#f5bfc4"
+    },
+    {
+      "value": "湧言會",
+      "label": "",
+      "color": "#d0b6d9"
+    },
+    {
+      "value": "民主活水",
+      "label": "",
+      "color": "#f5e0e1"
+    },
+    {
+      "value": "妃系",
+      "label": "",
+      "color": "#b2b563"
+    }
+  ],
+  "focusCategory": "新潮流"
+}
