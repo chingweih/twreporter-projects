@@ -16,7 +16,9 @@ export function buildDetailedBarChart(
     .map((row, index) => {
       const group = row[config.columns.group]?.trim() ?? ''
       const label = row[config.columns.label]?.trim() ?? ''
-      const filter = row[config.columns.filter]?.trim() ?? ''
+      const filter = config.columns.filter
+        ? row[config.columns.filter]?.trim()
+        : ''
       const value = row[config.columns.value]?.trim() ?? ''
       const amount = Number(value.replace(/,/g, ''))
       if (

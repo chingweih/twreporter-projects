@@ -14,6 +14,7 @@ export const detailedBarChartConfigSchema = createShellConfigSchema(
         filter: z
           .string()
           .default(defaultConfig.columns.filter)
+          .optional()
           .meta({
             title: '篩選欄位',
             description: '留空合併所有資料。',
