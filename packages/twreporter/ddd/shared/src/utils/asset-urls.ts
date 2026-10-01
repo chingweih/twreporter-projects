@@ -1,4 +1,12 @@
 import type { ComponentProps } from '../components/types.ts'
+import { serializeHTMLAttr } from './html.ts'
+
+function getDistUrl(path: string) {
+  return new URL(
+    import.meta.env.DEV ? `/dist/${path}` : `../${path}`,
+    window.location.href,
+  ).href
+}
 
 export function generateAssetUrls(
   componentName: string,
@@ -7,36 +15,20 @@ export function generateAssetUrls(
 ) {
   const timestamp =
     import.meta.env.VITE_BUILD_TIMESTAMP ?? '<version-timestamp>'
-  const scriptPath = `components/${componentName}/${componentName}-${timestamp}.js`
-  const scriptUrl = new URL(
-    import.meta.env.DEV ? `/dist/${scriptPath}` : `../${scriptPath}`,
-    window.location.href,
-  ).href
 
-  const schemaPath = `components/${componentName}/${componentName}-${timestamp}.schema.json`
-  const schemaUrl = new URL(
-    import.meta.env.DEV ? `/dist/${schemaPath}` : `../${schemaPath}`,
-    window.location.href,
-  ).href
-  const serializedAttributes = Object.entries(attributes)
-    .map(([name, value]) => {
-      const url = value ? new URL(value, document.baseURI).href : ''
-      const escaped = url
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-      return `  ${name}="${escaped}"`
-    })
-    .join('\n')
   return {
     embedCode: [
-      `<script type="module" src="${scriptUrl}"></script>`,
+      `<script type="module" src="${getDistUrl(`components/${componentName}/${componentName}-${timestamp}.js`)}"></script>`,
       '<link rel="stylesheet" href="https://projects.twreporter.org/twreporter/ddd/shared/embed.css">',
       '<div class="embed-code-container">',
-      `<${tagName}\n${serializedAttributes}\n></${tagName}>`,
+      `<${tagName}\n${serializeHTMLAttr(attributes)}\n></${tagName}>`,
       '</div>',
     ].join('\n'),
-    schemaUrl,
+    schemaUrl: getDistUrl(
+      `components/${componentName}/${componentName}-${timestamp}.schema.json`,
+    ),
+    storybookIFrameUrl: getDistUrl(
+      `storybook/iframe.html?id=components-${componentName.replaceAll('-', '')}--default&viewMode=story`,
+    ),
   }
 }
