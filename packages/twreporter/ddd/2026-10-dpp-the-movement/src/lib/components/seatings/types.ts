@@ -58,11 +58,14 @@ export const seatingsConfigSchema = createShellConfigSchema(defaultConfig)
                 title: 'CSV 類別值',
                 'ui:options': { layout: 'two-column' },
               }),
-            label: z.string().meta({
-              title: '顯示名稱',
-              description: '留空使用 CSV 類別值。',
-              'ui:options': { layout: 'two-column' },
-            }),
+            label: z
+              .string()
+              .optional()
+              .meta({
+                title: '顯示名稱',
+                description: '留空使用 CSV 類別值。',
+                'ui:options': { layout: 'two-column' },
+              }),
             color: colorSchema,
           })
           .meta({ 'ui:order': ['value', 'label', 'color'] }),
