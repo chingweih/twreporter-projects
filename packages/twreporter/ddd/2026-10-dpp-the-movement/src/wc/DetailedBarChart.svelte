@@ -67,7 +67,7 @@
 
 {#snippet details(records: NonNullable<typeof group>['donations'])}
   <table class="detail-table">
-    <thead><tr><th>企業／群組</th><th>明細</th><th>金額</th></tr></thead>
+    <thead><tr><th>企業／集團</th><th>明細</th><th>金額</th></tr></thead>
     <tbody>
       {#each records as record}
         <tr
@@ -118,7 +118,7 @@
             count: item.recipients.size,
           }))}
           value={group?.value}
-          label="企業／群組"
+          label="企業／集團"
           variant="selector"
           countUnit="位"
           countColor={config.highlight.color}

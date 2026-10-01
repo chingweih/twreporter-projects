@@ -24,7 +24,7 @@ export const detailedBarChartConfigSchema = createShellConfigSchema(
           .min(1)
           .default(defaultConfig.columns.group)
           .meta({
-            title: '企業／群組欄位',
+            title: '企業／集團欄位',
             'ui:options': { layout: 'two-column' },
           }),
         label: z
@@ -102,8 +102,8 @@ export const detailedBarChartConfigSchema = createShellConfigSchema(
               .string()
               .min(1)
               .meta({
-                title: '企業／群組',
-                description: '須與企業／群組欄位的 CSV 值完全相同。',
+                title: '企業／集團',
+                description: '須與企業／集團欄位的 CSV 值完全相同。',
                 'ui:options': { layout: 'two-column' },
               }),
             filter: z.string().meta({
