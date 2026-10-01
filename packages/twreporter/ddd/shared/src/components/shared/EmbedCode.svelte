@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { generateEmbedCode } from '../../utils/embed-code.ts'
+  import { generateAssetUrls } from '../../utils/asset-urls.ts'
   import type { ComponentProps } from '../types.ts'
 
   const {
@@ -11,19 +11,32 @@
     componentName: string
     tagName?: string
   } = $props()
-  const code = $derived(
-    generateEmbedCode(componentName, { src, config }, tagName),
+  const { embedCode, schemaUrl } = $derived(
+    generateAssetUrls(componentName, { src, config }, tagName),
   )
   let status = $state('')
 </script>
 
 <div class="embed-code">
-  <textarea readonly aria-label="Embed code" value={code}></textarea>
+  <textarea readonly aria-label="Embed code" value={embedCode}></textarea>
   <button
     type="button"
     onclick={async () => {
       try {
-        await navigator.clipboard.writeText(code)
+        await navigator.clipboard.writeText(embedCode)
+        status = 'Copied!'
+      } catch {
+        status = 'Could not copy. Select and copy the code manually.'
+      }
+    }}>Copy</button
+  >
+  <span role="status">{status}</span>
+  <textarea readonly aria-label="Embed code" value={schemaUrl}></textarea>
+  <button
+    type="button"
+    onclick={async () => {
+      try {
+        await navigator.clipboard.writeText(schemaUrl)
         status = 'Copied!'
       } catch {
         status = 'Could not copy. Select and copy the code manually.'
