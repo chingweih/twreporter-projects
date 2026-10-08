@@ -1,7 +1,11 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  const { children, content }: { children: Snippet; content: Snippet } =
+  const {
+    children,
+    content,
+    variant = 'dark',
+  }: { children: Snippet; content: Snippet; variant?: 'dark' | 'light' } =
     $props()
   let visible = $state(false)
   let x = $state(0)
@@ -40,6 +44,7 @@
 
 {#if visible}
   <div
+    class:light={variant === 'light'}
     class="tooltip"
     role="tooltip"
     bind:clientWidth={width}
@@ -74,5 +79,15 @@
   }
   .tooltip :global(*) {
     color: inherit;
+    font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif;
+  }
+  .tooltip.light {
+    border: 1px solid var(--neutral-gray-200);
+    padding: 0;
+    border-radius: 6px;
+    background: #FFFFFFEE;
+    color: var(--neutral-gray-800);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
   }
 </style>

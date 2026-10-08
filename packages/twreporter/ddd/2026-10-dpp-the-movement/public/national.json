@@ -4,10 +4,11 @@
   "footnotes": [
     "註：金額只計該縣市選舉，同一候選人跨屆合併；名字下方為該候選人2018年來在此縣市參與之選舉",
     "資料來源：監察院政治獻金公開查閱平台",
-    "資料整理：簡毅慧 ｜ 設計：江世民"
+    "資料整理：簡毅慧　｜　設計：江世民"
   ],
-  "wide": false,
+  "wide": true,
   "backdrop": true,
+  "layout-direction": "vertical",
   "columns": {
     "filter": "",
     "group": "集團關聯",
@@ -31,7 +32,7 @@
   },
   "remainder": {
     "label": "非新潮流民代",
-    "color": "#cdcdcd"
+    "color": "#e2e2e2"
   },
   "descriptions": []
 }

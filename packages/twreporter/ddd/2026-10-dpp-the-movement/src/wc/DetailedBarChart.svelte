@@ -94,38 +94,44 @@
     empty={!filter.groups.length}
     emptyMessage="此範圍沒有捐款資料。"
   >
-    {#if chart.data.filters.length > 1}<div
-        class="filters"
-        aria-label="資料篩選"
-      >
-        {#each chart.data.filters as item}
-          <button
-            type="button"
-            class:active={filter.value === item.value}
-            aria-pressed={filter.value === item.value}
-            onclick={() => {
-              selectedFilter = item.value
-              selectedGroup = undefined
-            }}>{item.label}</button
-          >
-        {/each}
-      </div>{/if}
     {#if filter.groups.length}
-      {#if filter.groups.length > 1}<ChipSelector
-          options={filter.groups.map((item) => ({
-            value: item.value,
-            label: item.label,
-            count: item.recipients.size,
-          }))}
-          value={group?.value}
-          label="企業／集團"
-          variant="selector"
-          countUnit="位"
-          countColor={config.highlight.color}
-          onchange={(value) => {
-            selectedGroup = value
-          }}
-        />{/if}
+      {#if chart.data.filters.length > 1 || filter.groups.length > 1}<div
+          class="selectors"
+          style:--highlight={config.highlight.color}
+        >
+          {#if chart.data.filters.length > 1}<div
+              class="filters"
+              aria-label="資料篩選"
+            >
+              {#each chart.data.filters as item}
+                <button
+                  type="button"
+                  class:active={filter.value === item.value}
+                  aria-pressed={filter.value === item.value}
+                  onclick={() => {
+                    selectedFilter = item.value
+                    selectedGroup = undefined
+                  }}>{item.label}</button
+                >
+              {/each}
+            </div>{/if}
+          {#if filter.groups.length > 1}<ChipSelector
+              options={filter.groups.map((item) => ({
+                value: item.value,
+                label: item.label,
+                count: item.recipients.size,
+              }))}
+              value={group?.value}
+              label="企業／集團"
+              variant="selector"
+              countUnit="位"
+              countColor={config.highlight.color}
+              onchange={(value) => {
+                selectedGroup = value
+              }}
+            />{/if}
+        </div>{/if}
+      <div class="chart-group" aria-label="捐款圖表">
       <div
         class="bars"
         style:--highlight={config.highlight.color}
@@ -157,16 +163,21 @@
           <span class="key-label"
             >{config.highlight.label} <b>{@render amount(highlighted)}</b></span
           >
-          <Tooltip>
+          <Tooltip variant="light">
             {#snippet children()}<button type="button" class="breakdown-label"
                 >{config.remainder.label}
                 <b>{@render amount(total - highlighted)}</b></button
               >{/snippet}
             {#snippet content()}
-              <strong>{config.remainder.label}</strong>
-              {#if breakdown.length}{#each breakdown as item}<p>
-                    {item.label}：{@render amount(item.amount)}
-                  </p>{/each}{:else}<p>目前資料沒有此類別的紀錄。</p>{/if}
+              <div class="popup breakdown-popup">
+                <div class="popup-header"><strong>{config.remainder.label}</strong></div>
+                <div class="popup-body breakdown-body">
+                  {#if breakdown.length}{#each breakdown as item}<div
+                        class="breakdown-row"
+                      ><span>{item.label}</span><b>{@render amount(item.amount)}</b></div
+                    >{/each}{:else}<p>目前資料沒有此類別的紀錄。</p>{/if}
+                </div>
+              </div>
             {/snippet}
           </Tooltip>
         </div>
@@ -174,52 +185,71 @@
           <p class="bar-description">{note.text}</p>
         {/each}
       </div>
-      <div class="roster-heading">
-        <h2>{group?.label}捐給哪些{config.cardFilter.label}</h2>
-        <p>有底色代表有收到這家企業的捐款</p>
+      <div
+        class="roster-sections"
+        class:split={config['layout-direction'] === 'horizontal' && filter.sections.length > 1}
+      >
+        {#each filter.sections as section}
+          <section
+            aria-label={section.label || '捐款名單'}
+            class:leaders={section.label === '立委與首長'}
+          >
+            {#if section.label}<h3>{section.label}</h3>{/if}
+            <div class="roster" style:--highlight={config.highlight.color}>
+              {#each section.candidates as item}
+                {@const records = item.donations.filter(
+                  (row) => row.group === group?.value,
+                )}
+                {@const sum = records.reduce(
+                  (sum, row) => sum + row.amount,
+                  0,
+                )}
+                {@const tooltipDescriptions = config.columns.description === config.columns.detail
+                  ? item.descriptions
+                  : [...new Set(item.donations.map((row) =>
+                      [row.description, row.detail].filter(Boolean).join('：'),
+                    ))]}
+                <Tooltip variant="light">
+                  {#snippet children()}
+                    <button
+                      type="button"
+                      class="card"
+                      class:on={sum > 0}
+                      class:off={sum === 0}
+                      aria-label={`${item.label}，${item.descriptions.join('、')}，${numberFormat.format(sum / 10000)} 萬元`}
+                    >
+                      <strong>{item.label}</strong>
+                      <span class="description"
+                        >{item.details.join(' · ') ||
+                          item.descriptions.join(' · ')}</span
+                      >
+                      <span class="amount"
+                        >{#if sum > 0}{@render amount(sum)}{:else}—{/if}</span
+                      >
+                    </button>
+                  {/snippet}
+                  {#snippet content()}
+                    <div class="popup">
+                      <div class="popup-header">
+                        <strong>{item.label}</strong>
+                        <p>{tooltipDescriptions.join('、')}</p>
+                      </div>
+                      <div class="popup-body">
+                        {#if records.length}{@render details(records.slice(0, 10))}
+                          {#if records.length > 10}<p>
+                              另有 {records.length - 10} 筆明細。
+                            </p>{/if}
+                        {:else}<p>沒有收到所選企業的捐款。</p>{/if}
+                      </div>
+                    </div>
+                  {/snippet}
+                </Tooltip>
+              {/each}
+            </div>
+          </section>
+        {/each}
       </div>
-      {#each filter.sections as section}
-        <section aria-label={section.label || '捐款名單'}>
-          {#if section.label}<h3>{section.label}</h3>{/if}
-          <div class="roster" style:--highlight={config.highlight.color}>
-            {#each section.candidates as item}
-              {@const records = item.donations.filter(
-                (row) => row.group === group?.value,
-              )}
-              {@const sum = records.reduce((sum, row) => sum + row.amount, 0)}
-              <Tooltip>
-                {#snippet children()}
-                  <button
-                    type="button"
-                    class="card"
-                    class:on={sum > 0}
-                    class:off={sum === 0}
-                    aria-label={`${item.label}，${item.descriptions.join('、')}，${numberFormat.format(sum / 10000)} 萬元`}
-                  >
-                    <strong>{item.label}</strong>
-                    <span class="description"
-                      >{item.details.join(' · ') ||
-                        item.descriptions.join(' · ')}</span
-                    >
-                    <span class="amount"
-                      >{#if sum > 0}{@render amount(sum)}{:else}—{/if}</span
-                    >
-                  </button>
-                {/snippet}
-                {#snippet content()}
-                  <strong>{item.label}</strong>
-                  <p>{item.descriptions.join('、')}</p>
-                  {#if records.length}{@render details(records.slice(0, 5))}
-                    {#if records.length > 5}<p>
-                        另有 {records.length - 5} 筆明細。
-                      </p>{/if}
-                  {:else}<p>沒有收到所選企業的捐款。</p>{/if}
-                {/snippet}
-              </Tooltip>
-            {/each}
-          </div>
-        </section>
-      {/each}
+      </div>
       {#if !filter.roster.length}<p class="empty" role="status">
           此範圍沒有符合卡片篩選條件的名單。
         </p>{/if}
@@ -242,26 +272,48 @@
   }
   .filters {
     display: flex;
-    flex-wrap: wrap;
-    align-self: flex-start;
+    width: 100%;
     border: 1px solid var(--neutral-gray-200);
     border-radius: 6px;
     overflow: hidden;
     background: var(--neutral-white);
   }
   .filters button {
+    flex: 1;
     padding: 7px 16px;
     border: 0;
     background: transparent;
     font-size: 14px;
   }
   .filters button.active {
-    background: var(--brand-main);
+    background: var(--highlight);
     color: var(--neutral-white);
+  }
+  .selectors {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .selectors :global(.selector button.active) {
+    border-color: var(--highlight);
+    background: var(--highlight);
+  }
+  .selectors :global(.selector button.active .count) {
+    background: var(--chart-mint-1);
+    color: var(--highlight);
+  }
+  .selectors :global(.selector button:focus-visible) {
+    outline-color: var(--highlight);
+  }
+  .chart-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   .bars {
     min-width: 0;
-    padding: 14px 16px;
+    padding: 15px 17px;
     border: 1px solid var(--neutral-gray-200);
     border-radius: 8px;
     background: var(--neutral-white);
@@ -332,24 +384,33 @@
     color: var(--neutral-gray-600);
     text-align: right;
   }
-  .roster-heading {
+  .roster-sections {
+    display: grid;
+    gap: 14px;
+  }
+  .roster-sections.split {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 6px;
+    gap: 0;
   }
-  h2 {
-    margin: 0;
-    font-size: 15px;
+  .roster-sections.split section {
+    flex: 1;
+    min-width: 0;
   }
-  .roster-heading p {
-    color: var(--neutral-gray-600);
-    font-size: 12px;
+  .roster-sections.split section:first-child {
+    flex: 0 1 auto;
+    padding-right: 12px;
   }
-  section + section {
-    padding-top: 14px;
-    border-top: 1px solid var(--neutral-gray-200);
+  .roster-sections.split section + section {
+    padding-left: 12px;
+    border-left: 1px solid var(--neutral-gray-200);
+  }
+  .roster-sections.split section:first-child .roster {
+    grid-template-columns: 1fr;
+  }
+  .roster-sections.split section.leaders .roster {
+    grid-template-rows: repeat(3, minmax(85px, auto));
+    grid-auto-columns: minmax(118px, 1fr);
+    grid-auto-flow: column;
   }
   h3 {
     margin: 0 0 8px;
@@ -359,37 +420,39 @@
   .roster {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-    gap: 8px;
+    gap: 7px;
   }
   .card {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
-    min-height: 90px;
-    padding: 10px;
+    min-height: 85px;
+    padding: 7px 11px 10px;
     border: 1px solid var(--neutral-gray-200);
     border-radius: 6px;
     background: var(--neutral-white);
     text-align: left;
-    transition:
-      opacity 0.2s,
-      background 0.2s;
+    transition: all 0.2s;
   }
   .card strong {
-    font-size: 14px;
+    font-size: 16px;
+    line-height: 21px;
     color: inherit;
+    font-weight: 500;
   }
   .description {
-    margin-top: 3px;
+    margin-top: 2px;
+    min-width: 108px;
     font-size: 11px;
-    line-height: 1.5;
+    line-height: 16.5px;
     color: var(--neutral-gray-600);
+    font-weight: 500;
   }
   .amount {
     margin-top: auto;
-    padding-top: 6px;
-    font-size: 13px;
+    padding-top: 0;
+    font-size: 14px;
     font-variant-numeric: tabular-nums;
     color: inherit;
   }
@@ -405,20 +468,88 @@
     opacity: 0.5;
   }
   .detail-table {
-    width: 100%;
-    margin-top: 6px;
     border-collapse: collapse;
     font-size: 12px;
+    line-height: 19.2px;
   }
   .detail-table th,
   .detail-table td {
-    padding: 4px 8px 4px 0;
+    padding: 0;
     text-align: left;
     vertical-align: top;
+  }
+  .detail-table th {
+    border-bottom: 1px solid var(--neutral-gray-200);
+    color: var(--neutral-gray-600);
+    font-weight: 700;
+    padding-bottom: 4px;
+  }
+  .detail-table th:first-child,
+  .detail-table td:first-child {
+    min-width: 60px;
+    padding-right: 10px;
+  }
+  .detail-table th:first-child {
+    white-space: nowrap;
+  }
+  .detail-table th + th,
+  .detail-table td + td {
+    padding-left: 10px;
+    border-left: 1px solid var(--neutral-gray-200);
+  }
+  .detail-table th:nth-child(2),
+  .detail-table td:nth-child(2) {
+    min-width: 54px;
+    padding-right: 10px;
+  }
+  .detail-table th:nth-child(3),
+  .detail-table td:nth-child(3) {
+    min-width: 48px;
+    padding-right: 8px;
   }
   .detail-table td.number {
     text-align: right;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .popup-header {
+    padding: 10px 12px 7px;
+    border-bottom: 1px solid var(--neutral-gray-200);
+  }
+  .popup-header strong {
+    display: block;
+    font-size: 16px;
+    line-height: 20.8px;
+  }
+  .popup-header p {
+    margin: 1px 0 0;
+    color: var(--neutral-gray-600);
+    font-size: 13px;
+    line-height: 20.8px;
+  }
+  .popup-body {
+    padding: 7px 12px 10px;
+  }
+  .popup-body p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 20.8px;
+  }
+  .breakdown-body {
+    display: grid;
+    gap: 2px;
+  }
+  .breakdown-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 20.8px;
+  }
+  .breakdown-row b {
+    padding-left: 10px;
+    border-left: 1px solid var(--neutral-gray-200);
+    font-weight: 400;
     font-variant-numeric: tabular-nums;
   }
   p {
@@ -428,8 +559,23 @@
     font-size: 14px;
   }
   @media (max-width: 600px) {
+    .roster-sections.split {
+      display: grid;
+      gap: 14px;
+    }
+    .roster-sections.split section:first-child {
+      flex-basis: auto;
+    }
+    .roster-sections.split section + section {
+      padding: 14px 0 0;
+      border-top: 1px solid var(--neutral-gray-200);
+      border-left: 0;
+    }
     .roster {
       grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    }
+    .roster-sections.split section.leaders .roster {
+      grid-auto-columns: minmax(96px, 1fr);
     }
   }
 </style>

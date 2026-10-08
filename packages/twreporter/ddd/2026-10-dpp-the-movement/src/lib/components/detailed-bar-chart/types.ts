@@ -9,6 +9,14 @@ export const detailedBarChartConfigSchema = createShellConfigSchema(
   defaultConfig,
 )
   .extend({
+    'layout-direction': z
+      .enum(['horizontal', 'vertical'])
+      .default('horizontal')
+      .meta({
+        title: '名單分區排列方向',
+        description: '左右分區時，立委與首長每欄最多三張；上下分區時，卡片由左到右排列。',
+        'ui:enumNames': ['左右分區', '上下分區'],
+      }),
     columns: z
       .object({
         filter: z
@@ -187,6 +195,7 @@ export const detailedBarChartConfigSchema = createShellConfigSchema(
     'ui:order': [
       'title',
       'subtitle',
+      'layout-direction',
       'columns',
       'descriptions',
       'highlight',

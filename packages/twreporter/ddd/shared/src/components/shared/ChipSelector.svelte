@@ -57,7 +57,7 @@
   .chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 5px;
   }
   button {
     display: inline-flex;

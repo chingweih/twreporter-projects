@@ -238,11 +238,11 @@
     display: flex;
     width: 100%;
     max-width: 730px;
-    padding: 35px 20px;
+    padding: 30px 20px;
     border-top: 1px solid var(--neutral-gray-200);
     border-bottom: 1px solid var(--neutral-gray-200);
     flex-direction: column;
-    gap: 17px;
+    gap: 20px;
   }
 
   .container.wide {
