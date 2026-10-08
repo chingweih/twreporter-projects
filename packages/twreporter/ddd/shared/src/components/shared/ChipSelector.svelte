@@ -3,6 +3,7 @@
     value: string
     label: string
     color?: string
+    textColor?: string
     count?: number
   }
 </script>
@@ -41,6 +42,8 @@
         value !== undefined &&
         value !== option.value}
       aria-pressed={value === option.value}
+      style:--chip-color={option.color}
+      style:--chip-text-color={option.textColor}
       onclick={() => onchange(option.value)}
     >
       {#if option.color}<span class="swatch" style:background={option.color}
@@ -96,17 +99,14 @@
   .selector .count {
     padding: 1px 6px;
     border-radius: 999px;
-    background: var(--chart-mint-1);
-    color: var(--chip-count-color, var(--chart-mint-5));
+    background: var(--chip-color, var(--chart-mint-1));
+    color: var(--chip-text-color, var(--chip-count-color, var(--chart-mint-5)));
     font-size: 11px;
     font-weight: 600;
   }
   .selector button.active {
-    background: var(--brand-main);
-    color: var(--neutral-white);
-  }
-  .selector button.active .count {
-    background: var(--brand-pastel);
-    color: var(--neutral-white);
+    border-color: var(--chip-color, var(--brand-main));
+    background: var(--chip-color, var(--brand-main));
+    color: var(--chip-text-color, var(--neutral-white));
   }
 </style>

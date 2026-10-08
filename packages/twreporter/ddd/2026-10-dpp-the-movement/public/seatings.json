@@ -3,7 +3,7 @@
   "footnotes": [
     "註：點擊人名可查看其公職經歷。",
     "資料來源：民進黨官方網站",
-    "資料整理：簡毅慧 ｜ 設計：江世民"
+    "資料整理：簡毅慧　｜　設計：江世民"
   ],
   "wide": true,
   "backdrop": true,
@@ -22,37 +22,37 @@
     {
       "value": "正國會",
       "label": "",
-      "color": "#c9c9ed"
+      "color": "#86CEBE"
     },
     {
       "value": "英系",
       "label": "",
-      "color": "#d4a96e"
+      "color": "#8DCBA3"
     },
     {
       "value": "綠色友誼連線",
       "label": "",
-      "color": "#acd0c6"
+      "color": "#B3D99C"
     },
     {
       "value": "蘇系",
       "label": "",
-      "color": "#f5bfc4"
+      "color": "#99C86C"
     },
     {
       "value": "湧言會",
       "label": "",
-      "color": "#d0b6d9"
+      "color": "#b5cf4c"
     },
     {
       "value": "民主活水",
       "label": "",
-      "color": "#f5e0e1"
+      "color": "#d6df70"
     },
     {
       "value": "妃系",
       "label": "",
-      "color": "#b2b563"
+      "color": "#ece9a8"
     }
   ],
   "focusCategory": "新潮流"
