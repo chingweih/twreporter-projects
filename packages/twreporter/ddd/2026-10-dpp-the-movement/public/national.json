@@ -15,7 +15,7 @@
     "label": "候選人",
     "category": "是否流員",
     "value": "金額元",
-    "description": "縣市",
+    "description": ["縣市", "選舉名稱"],
     "detail": "選舉名稱",
     "breakdown": "政黨",
     "section": "名單分組"

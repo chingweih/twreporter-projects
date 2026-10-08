@@ -204,11 +204,6 @@
                   (sum, row) => sum + row.amount,
                   0,
                 )}
-                {@const tooltipDescriptions = config.columns.description === config.columns.detail
-                  ? item.descriptions
-                  : [...new Set(item.donations.map((row) =>
-                      [row.description, row.detail].filter(Boolean).join('：'),
-                    ))]}
                 <Tooltip variant="light">
                   {#snippet children()}
                     <button
@@ -232,7 +227,7 @@
                     <div class="popup">
                       <div class="popup-header">
                         <strong>{item.label}</strong>
-                        <p>{tooltipDescriptions.join('、')}</p>
+                        <p>{item.descriptions.join('、')}</p>
                       </div>
                       <div class="popup-body">
                         {#if records.length}{@render details(records.slice(0, 10))}

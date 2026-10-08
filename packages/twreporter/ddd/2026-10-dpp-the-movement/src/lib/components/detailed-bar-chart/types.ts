@@ -59,10 +59,11 @@ export const detailedBarChartConfigSchema = createShellConfigSchema(
             'ui:options': { layout: 'two-column' },
           }),
         description: z
-          .string()
+          .union([z.string(), z.array(z.string())])
           .default(defaultConfig.columns.description)
           .meta({
             title: '名單說明欄位',
+            description: '可使用單一欄位或欄位陣列；陣列最後一欄的值會依前方欄位分組合併。',
             'ui:options': { layout: 'two-column' },
           }),
         section: z

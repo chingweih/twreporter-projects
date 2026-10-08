@@ -8,8 +8,9 @@ export function buildDetailedBarChart(
   csv: CSVData,
   config: DetailedBarChartConfig,
 ) {
+  const descriptionColumns = [config.columns.description].flat().filter(Boolean)
   requireCsvColumns(csv, [
-    ...Object.values(config.columns),
+    ...Object.values(config.columns).flat(),
     config.cardFilter.column,
   ])
   const rows = csv.rows
@@ -45,7 +46,7 @@ export function buildDetailedBarChart(
           config.cardFilter.values.includes(
             row[config.cardFilter.column]?.trim() ?? '',
           ),
-        description: row[config.columns.description]?.trim() ?? '',
+        descriptionParts: descriptionColumns.map((column) => row[column]?.trim() ?? ''),
         section: row[config.columns.section]?.trim() ?? '',
         detail: row[config.columns.detail]?.trim() ?? '',
         breakdown:
@@ -105,9 +106,17 @@ export function buildDetailedBarChart(
         const details = [
           ...new Set(donations.map((row) => row.detail).filter(Boolean)),
         ].sort()
-        const descriptions = [
-          ...new Set(donations.map((row) => row.description).filter(Boolean)),
-        ]
+        const descriptionGroups = new Map<string, Set<string>>()
+        for (const row of donations) {
+          const prefix = row.descriptionParts.slice(0, -1).filter(Boolean).join('：')
+          const value = row.descriptionParts.at(-1) ?? ''
+          if (!prefix && !value) continue
+          if (!descriptionGroups.has(prefix)) descriptionGroups.set(prefix, new Set())
+          if (value) descriptionGroups.get(prefix)!.add(value)
+        }
+        const descriptions = [...descriptionGroups].map(([prefix, values]) =>
+          [prefix, [...values].sort().join(' · ')].filter(Boolean).join('：'),
+        )
         const sections = [...new Set(donations.map((row) => row.section))]
         if (sections.length > 1)
           throw new Error(`「${label}」有多個名單分組，請在來源資料中統一。`)
