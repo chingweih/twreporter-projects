@@ -9,7 +9,7 @@ pnpm install
 pnpm dev
 ```
 
-Storybook runs on port 5173. The stories include Seatings, DetailedBarChart, and the national donation view. Edit the matching component in `src/wc`. The `src` prop is a CSV URL and `config` is a JSON URL. Sample files are in `public`.
+Storybook runs on port 5173. The stories include Seatings, DetailedBarChart, DonorStackedBar, and the national donation view. Edit the matching component in `src/wc`. The `src` prop is a CSV URL and `config` is a JSON URL. Sample files are in `public`.
 
 The component supports the graphic editor's data and configuration messages. Add `edit` to the iframe URL to enable editing.
 
@@ -19,10 +19,12 @@ Both custom elements accept CSV and JSON URLs through `src` and `config`. In the
 
 - `twreporter-seatings` maps group, category, label, and description columns. Groups follow their first occurrence in the source. Set category colors with the color picker and choose a summary category.
 - `twreporter-detailed-bar-chart` maps scope, company, candidate, classification, amount, description, detail, and card-group columns. Amounts must be numbers in 元; the graph always displays 萬元. Leave optional column bindings empty to omit them.
+- `twreporter-donor-stacked-bar` maps a company label, optional company description, and configured party amount columns. Empty amount cells are treated as zero; amounts must be numbers in 元 and the chart displays totals in 萬元.
 - `cardFilter` selects candidate cards only. The bar includes every donation in the source. Each candidate must have one card group within a scope; groups follow their first occurrence in the source.
 - Filter buttons use source values in their first occurrence order. Each `descriptions` entry has `group`, `filter`, and `text`; it appears beneath the bar only for that company and city. Leave `filter` empty when no filter column is configured. In the CMS, expand `編輯 config.json` to edit or paste the full config.
 - Edit names, grouping, and the included records in the source table. Config controls appearance and column bindings. Subtitles are optional, and detail values display as written in the source.
 - The local story uses `detailed-bar-chart.csv` and `detailed-bar-chart.json`. The national story uses `national.csv` and `national.json`, with the same component.
+- The donor story uses `donor-stacked-bar.csv` and `donor-stacked-bar.json`.
 
 Sample source and config files are in `public`.
 

@@ -4,9 +4,8 @@
   const {
     children,
     content,
-    variant = 'dark',
-  }: { children: Snippet; content: Snippet; variant?: 'dark' | 'light' } =
-    $props()
+        variant = 'dark',
+  }: { children: Snippet; content: Snippet; variant?: 'dark' | 'light' } = $props()
   let visible = $state(false)
   let x = $state(0)
   let y = $state(0)
@@ -51,8 +50,7 @@
     bind:clientHeight={height}
     style:left={Math.max(8, Math.min(x + 12, window.innerWidth - width - 8)) +
       'px'}
-    style:top={Math.max(8, Math.min(y + 12, window.innerHeight - height - 8)) +
-      'px'}
+    style:top={Math.max(8, Math.min(y + 12, window.innerHeight - height - 8)) + 'px'}
   >
     {@render content()}
   </div>
@@ -85,7 +83,7 @@
     border: 1px solid var(--neutral-gray-200);
     padding: 0;
     border-radius: 6px;
-    background: #FFFFFFEE;
+    background: #ffffffee;
     color: var(--neutral-gray-800);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(8px);
