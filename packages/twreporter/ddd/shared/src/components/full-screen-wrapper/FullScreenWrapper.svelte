@@ -2,7 +2,10 @@
   import { disablePageScroll, enablePageScroll } from '@fluejs/noscroll'
   import type { Action } from 'svelte/action'
   import type { ComponentPropsWithChildren } from '../types'
-  import { fullScreenWrapperConfigSchema } from './types'
+  import {
+    fullScreenWrapperConfigSchema,
+    type FullScreenWrapperMessage,
+  } from './types'
 
   const props: ComponentPropsWithChildren = $props()
 
@@ -11,6 +14,40 @@
   )
 
   let scrollLock = $state(false)
+  let buttonVisible = $state(true)
+
+  function lock() {
+    scrollLock = true
+  }
+
+  function release() {
+    scrollLock = false
+    window.scrollTo({
+      behavior: 'smooth',
+      top: window.scrollY + window.innerHeight,
+    })
+  }
+
+  export function handleMessage(message: FullScreenWrapperMessage) {
+    switch (message.action) {
+      case 'hide-button':
+        buttonVisible = false
+        break
+      case 'show-button':
+        buttonVisible = true
+        break
+      case 'release':
+        release()
+        break
+      case 'lock':
+        lock()
+        break
+      default: {
+        const _exhaustive: never = message.action
+        return _exhaustive
+      }
+    }
+  }
 
   const scrollLocker: Action = (node) => {
     $effect(() => {
@@ -33,19 +70,11 @@
   {#if !scrollLock}
     <div class="splash-screen">
       {config.splashScreenText}
-      <button onclick={() => (scrollLock = true)}>開始體驗</button>
+      <button onclick={lock}>開始體驗</button>
     </div>
-  {:else}
+  {:else if buttonVisible}
     <div class="footer">
-      <button
-        onclick={() => {
-          scrollLock = false
-          window.scrollTo({
-            behavior: 'smooth',
-            top: window.scrollY + window.innerHeight,
-          })
-        }}>繼續閱讀</button
-      >
+      <button onclick={release}>繼續閱讀</button>
     </div>
   {/if}
   {@render props.children()}
