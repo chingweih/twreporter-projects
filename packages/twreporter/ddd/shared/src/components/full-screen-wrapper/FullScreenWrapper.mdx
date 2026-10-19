@@ -1,0 +1,51 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+import * as FullScreenWrapperStories from './FullScreenWrapper.stories.svelte'
+
+<Meta of={FullScreenWrapperStories} />
+
+# Full screen wrapper
+
+The wrapper contains an iframe and controls scrolling on the host page. [Open the interactive example](?path=/story/components-fullscreenwrapper--default).
+
+The start button closes the splash screen, scrolls the wrapper into view, and locks host page scrolling. The continue reading button unlocks scrolling, restores the splash screen, and scrolls down by one viewport height. The iframe stays loaded.
+
+## Embed an iframe
+
+Load the component script using the URL from the Default story's embed code, then place the iframe inside the wrapper:
+
+```html
+<twreporter-full-screen-wrapper
+  config='{"splashScreenText":"Start the 3D experience"}'
+>
+  <iframe
+    src="https://playcanv.as/e/p/02007016/"
+    title="3D experience"
+    width="100%"
+    height="100%"
+  ></iframe>
+</twreporter-full-screen-wrapper>
+```
+
+Use PlayCanvas's [iframeless URL](https://developer.playcanvas.com/user-manual/editor/publishing/web/communicating-webpage/), with `/e/p/`, so the app sends messages directly to the wrapper's page.
+
+## Send messages from PlayCanvas
+
+Code inside the iframe can control the wrapper with `window.parent.postMessage`. Send an object with `type: 'full-screen-wrapper'` and one of these actions:
+
+- `hide-button`: hides the continue reading button and its footer overlay.
+- `show-button`: shows the continue reading button while scrolling is locked.
+- `release`: runs the same action as the continue reading button.
+- `lock`: runs the same action as the start button.
+
+```js
+window.parent.postMessage(
+  { type: 'full-screen-wrapper', action: 'release' },
+  'https://www.twreporter.org',
+)
+```
+
+Set the target origin to the page that contains the wrapper, including its protocol and port. For local Storybook, use `http://localhost:5173`.
+
+Hiding or showing the button does not change scroll lock. The button stays hidden across release and lock actions until the iframe sends `show-button`. The start button stays available while unlocked.
+
+The wrapper accepts messages from all origins, but the sender must be an iframe inside the wrapper. It ignores invalid messages.

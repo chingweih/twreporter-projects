@@ -18,9 +18,7 @@
       accepts: (event) =>
         event.source !== null &&
         Array.from(host.querySelectorAll('iframe')).some(
-          (iframe) =>
-            event.source === iframe.contentWindow &&
-            event.origin === new URL(iframe.src, document.baseURI).origin,
+          (iframe) => event.source === iframe.contentWindow,
         ),
       onMessage: (message) => wrapper.handleMessage(message),
     })
