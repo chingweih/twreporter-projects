@@ -25,11 +25,11 @@
       style:align-items="center"
       style:justify-content="center"
     >
-      空內容
+      空內容（往下滑看到元件）
     </div>
     <FullScreenWrapper {...args}>
       <iframe
-        src="https://playcanv.as/e/p/pfFdufj4/"
+        src="https://playcanv.as/e/p/02007016/"
         title="報導者"
         width="100%"
         height="100%"
@@ -42,7 +42,7 @@
       style:align-items="center"
       style:justify-content="center"
     >
-      空內容
+      空內容（往上滑看到元件）
     </div>
     <EmbedCode
       componentName="full-screen-wrapper"
