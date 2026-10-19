@@ -8,7 +8,7 @@ export const components = {
     outputDirectory: 'components/table',
     configSchema: tableConfigSchema,
   },
-  fullScreenWrapper: {
+  'full-screen-wrapper': {
     entry: 'src/components/full-screen-wrapper/index.ts',
     outputDirectory: 'components/full-screen-wrapper',
     configSchema: fullScreenWrapperConfigSchema,

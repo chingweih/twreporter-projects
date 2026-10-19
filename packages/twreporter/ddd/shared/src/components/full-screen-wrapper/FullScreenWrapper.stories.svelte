@@ -45,7 +45,7 @@
       空內容
     </div>
     <EmbedCode
-      componentName="fullScreenWrapper"
+      componentName="full-screen-wrapper"
       tagName="twreporter-full-screen-wrapper"
       {...args}
     />
