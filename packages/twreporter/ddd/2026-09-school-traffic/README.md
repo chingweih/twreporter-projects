@@ -1,36 +1,7 @@
 # 2026-09-school-traffic
 
-Use Node.js 22.18 or later. Run commands from this project directory.
+Use Node.js 22.18 or later. Run `pnpm dev` for Storybook on port 5173. The Default story shows a sample route; the PlayCanvas story connects the game to the wrapper and map.
 
-## Development
+`PlayerTrackMap.svelte` accepts `getTrack` and `getInfoBoxes`. It polls the track once per second while visible and loads infoboxes once. Click a point to open its content. The map fills the desktop viewport with horizontal scrolling and runs vertically on mobile. Game scripts are maintained in PlayCanvas.
 
-```sh
-pnpm install
-pnpm dev
-```
-
-Storybook runs on port 5173. Edit `src/wc/PlayerTrackMap.svelte` and its story. The `src` prop is a CSV URL and `config` is a JSON URL. Sample files are in `public`.
-
-The component supports the graphic editor's data and configuration messages. Add `edit` to the iframe URL to enable editing.
-
-## Add a component
-
-- Put the Svelte component, its `*.wc.svelte` wrapper, and its `*.stories.svelte` story in `src/wc`. Put its Zod configuration schema in `src/lib/components/<name>/types.ts`.
-- Add an entry like `src/wc/player-track-map.ts`, then register its entry, output directory, and schema in `components.config.ts`.
-- Give each component a unique custom element tag.
-
-## Build and check
-
-```sh
-pnpm check-types
-pnpm format:check
-pnpm build
-```
-
-The build creates component scripts and JSON Schemas in `dist/components/<name>` and Storybook in `storybook-static`. Each script exports `schemaUrl`. Script and schema filenames include the same build timestamp.
-
-## Deploy
-
-Authenticate with Google Cloud CLI, then run `pnpm deploy:dev` or `pnpm deploy:prod`. Components are under `<project-url>/components` and Storybook is under `<project-url>/storybook`.
-
-Host your CSV and JSON files at the URLs you pass to `src` and `config`. Open the component in deployed Storybook, set those URLs in Controls, and use Copy below the preview to get the embed code.
+Run `pnpm check-types`, `pnpm format:check`, and `pnpm build`. Deploy with `pnpm deploy:dev` or `pnpm deploy:prod`.
