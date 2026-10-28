@@ -177,9 +177,12 @@
 
 <style>
   section {
+    --bottom-bar-height: 0px;
+    box-sizing: border-box;
     position: relative;
     width: 100%;
-    height: 100vh;
+    height: 100dvh;
+    padding-block: 64px var(--bottom-bar-height);
     color: #333;
     font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif;
   }
@@ -211,7 +214,7 @@
   }
   .notice {
     position: absolute;
-    top: 16px;
+    top: 80px;
     left: 16px;
     max-width: calc(100% - 56px);
     padding: 10px 12px;
@@ -252,7 +255,8 @@
   .info-box {
     box-sizing: border-box;
     width: min(320px, calc(100vw - 32px));
-    max-height: calc(100dvh - 32px);
+    inset: 64px 0 var(--bottom-bar-height);
+    max-height: calc(100dvh - 64px - var(--bottom-bar-height) - 32px);
     margin: auto;
     padding: 0;
     overflow: visible;
@@ -291,6 +295,11 @@
   .source {
     margin-top: 12px;
     white-space: pre-line;
+  }
+  @media (width < 1024px) {
+    section {
+      --bottom-bar-height: 55px;
+    }
   }
   @media (max-width: 767px) {
     section {
