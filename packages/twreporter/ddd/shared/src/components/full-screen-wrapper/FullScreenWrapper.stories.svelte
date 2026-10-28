@@ -10,7 +10,7 @@
     args: {
       src: '',
       config: JSON.stringify({
-        splashScreenText: '你即將進入3D體驗',
+        splashScreenText: '開始互動體驗',
       } satisfies FullScreenWrapperConfig),
     },
   })
@@ -29,8 +29,8 @@
     </div>
     <FullScreenWrapper {...args}>
       <iframe
-        src="https://playcanv.as/e/p/02007016/"
-        title="報導者"
+        srcdoc="<main style='padding: 2rem; font-family: sans-serif'><h1>Embedded content</h1><p>Use the wrapper controls to enter or continue reading.</p></main>"
+        title="Embedded content"
         width="100%"
         height="100%"
       ></iframe>

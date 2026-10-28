@@ -2,56 +2,25 @@
   import { disablePageScroll, enablePageScroll } from '@fluejs/noscroll'
   import type { Action } from 'svelte/action'
   import type { ComponentPropsWithChildren } from '../types'
+  import { fullScreenWrapperConfigSchema } from './types'
   import {
-    fullScreenWrapperConfigSchema,
-    type FullScreenWrapperMessage,
-  } from './types'
+    createWrapperController,
+    type WrapperController,
+  } from './controller.svelte.ts'
 
-  const props: ComponentPropsWithChildren = $props()
+  const {
+    config: configJson,
+    children,
+    controller = createWrapperController(),
+  }: ComponentPropsWithChildren & { controller?: WrapperController } = $props()
 
   const config = $derived(
-    fullScreenWrapperConfigSchema.parse(JSON.parse(props.config)),
+    fullScreenWrapperConfigSchema.parse(JSON.parse(configJson)),
   )
-
-  let scrollLock = $state(false)
-  let buttonVisible = $state(true)
-
-  function lock() {
-    scrollLock = true
-  }
-
-  function release() {
-    scrollLock = false
-    window.scrollTo({
-      behavior: 'smooth',
-      top: window.scrollY + window.innerHeight,
-    })
-  }
-
-  export function handleMessage(message: FullScreenWrapperMessage) {
-    switch (message.action) {
-      case 'hide-button':
-        buttonVisible = false
-        break
-      case 'show-button':
-        buttonVisible = true
-        break
-      case 'release':
-        release()
-        break
-      case 'lock':
-        lock()
-        break
-      default: {
-        const _exhaustive: never = message.action
-        return _exhaustive
-      }
-    }
-  }
 
   const scrollLocker: Action = (node) => {
     $effect(() => {
-      if (scrollLock) {
+      if (controller.scrollLock) {
         node.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
@@ -67,17 +36,17 @@
 </script>
 
 <div class="wrapper" use:scrollLocker>
-  {#if !scrollLock}
+  {#if !controller.scrollLock}
     <div class="splash-screen">
       {config.splashScreenText}
-      <button onclick={lock}>開始體驗</button>
+      <button onclick={controller.lock}>開始體驗</button>
     </div>
-  {:else if buttonVisible}
+  {:else if controller.buttonVisible}
     <div class="footer">
-      <button onclick={release}>繼續閱讀</button>
+      <button onclick={controller.release}>繼續閱讀</button>
     </div>
   {/if}
-  {@render props.children()}
+  {@render children()}
 </div>
 
 <style>
@@ -98,6 +67,7 @@
   }
 
   .footer {
+    z-index: 1;
     bottom: 0;
     right: 0;
     width: 100%;
@@ -115,6 +85,7 @@
   }
 
   .splash-screen {
+    z-index: 1;
     width: 100%;
     height: 100%;
     position: absolute;

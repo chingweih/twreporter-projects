@@ -49,6 +49,7 @@
     "@tanstack/svelte-query": "^6.1.28",
     "modern-screenshot": "^4.7.0",
     "papaparse": "^5.5.4",
+    "penpal": "8.0.1",
     "zod": "^4.1.12"
   }
 }

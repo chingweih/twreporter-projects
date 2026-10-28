@@ -15,37 +15,44 @@ Load the component script using the URL from the Default story's embed code, the
 
 ```html
 <twreporter-full-screen-wrapper
-  config='{"splashScreenText":"Start the 3D experience"}'
+  config='{"splashScreenText":"Start the interactive experience"}'
 >
   <iframe
-    src="https://playcanv.as/e/p/02007016/"
-    title="3D experience"
+    src="https://example.com/interactive/"
+    title="Interactive content"
     width="100%"
     height="100%"
   ></iframe>
 </twreporter-full-screen-wrapper>
 ```
 
-Use PlayCanvas's [iframeless URL](https://developer.playcanvas.com/user-manual/editor/publishing/web/communicating-webpage/), with `/e/p/`, so the app sends messages directly to the wrapper's page.
+## Typed iframe RPC
 
-## Send messages from PlayCanvas
+For a typed connection, use `FullScreenWrapper.svelte`. Create a controller with `createWrapperController()` from `controller.svelte.ts` and pass it to the component's `controller` prop. The component creates its own controller when this prop is omitted.
 
-Code inside the iframe can control the wrapper with `window.parent.postMessage`. Send an object with `type: 'full-screen-wrapper'` and one of these actions:
+`createConnection<RemoteMethods>({ iframe, wrapper })` in `rpc.ts` creates a [Penpal](https://github.com/Aaronius/penpal) connection using the iframe element and the same controller. The parent accepts the iframe URL's origin. Both ends must use `fullScreenWrapperRpcChannel` from that module.
 
-- `hide-button`: hides the continue reading button and its footer overlay.
-- `show-button`: shows the continue reading button while scrolling is locked.
-- `release`: runs the same action as the continue reading button.
-- `lock`: runs the same action as the start button.
+The connection exposes `WrapperApi` to the iframe:
 
-```js
-window.parent.postMessage(
-  { type: 'full-screen-wrapper', action: 'release' },
-  'https://www.twreporter.org',
-)
+- `setButtonVisible(visible)` controls the continue reading button and footer overlay.
+- `release()` unlocks scrolling and scrolls down.
+- `lock()` locks scrolling and brings the wrapper into view.
+
+Button visibility persists across release and lock calls. The start button stays available while unlocked.
+
+The embedding project defines the iframe's methods and validates their results. Bind the iframe element with `bind:this`, then create the connection with that project's API type:
+
+```ts
+import { createWrapperController } from './controller.svelte.ts'
+import { createConnection } from './rpc.ts'
+
+const wrapper = createWrapperController()
+const connection = createConnection<IframeApi>({ iframe, wrapper })
+const remote = await connection.promise
 ```
 
-Set the target origin to the page that contains the wrapper, including its protocol and port. For local Storybook, use `http://localhost:5173`.
+The initial connection has a two-minute timeout. Penpal handles iframe reload handshakes. The caller owns the connection and must call `connection.destroy()` on unmount.
 
-Hiding or showing the button does not change scroll lock. The button stays hidden across release and lock actions until the iframe sends `show-button`. The start button stays available while unlocked.
+The iframe uses `WindowMessenger` with `window.parent`, allows the embedding page's origin, and calls `connect<WrapperApi>` with the same channel. It can then call the wrapper methods through `connection.promise`.
 
-The wrapper accepts messages from all origins, but the sender must be an iframe inside the wrapper. It ignores invalid messages.
+Project-specific RPC methods and schemas belong in the embedding project. `graphic-sync.svelte.ts` keeps its existing protocol.
