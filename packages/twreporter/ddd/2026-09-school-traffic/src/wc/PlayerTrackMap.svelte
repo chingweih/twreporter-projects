@@ -67,6 +67,7 @@
     }),
   )
   let selectedId: string | undefined = $state()
+  let infoBox: HTMLDivElement | undefined = $state()
   const selected = $derived(
     infoBoxes.data?.find((info) => info.id === selectedId),
   )
@@ -104,6 +105,17 @@
     (!!getTrack && track.isPending) || (!!getInfoBoxes && infoBoxes.isPending),
   )
 </script>
+
+<svelte:window
+  onpointerup={(event) => {
+    if (infoBox && !event.composedPath().includes(infoBox)) {
+      selectedId = undefined
+    }
+  }}
+  onkeydown={(event) => {
+    if (event.key === 'Escape') selectedId = undefined
+  }}
+/>
 
 <section
   use:observe
@@ -205,8 +217,10 @@
             style:top={`${(pixel.v / mapHeight) * 100}%`}
             aria-label={`${info.infoName} ${info.inspectItemSequence}`.trim()}
             aria-haspopup="dialog"
-            popovertarget={`${id}-info-box`}
-            popovertargetaction="show"
+            aria-expanded={selectedId === info.id}
+            aria-controls={selectedId === info.id
+              ? `${id}-info-box`
+              : undefined}
             onclick={() => (selectedId = info.id)}
             ><span aria-hidden="true"></span></button
           >
@@ -214,20 +228,19 @@
       </div>
     </div>
   </div>
-  <div
-    id={`${id}-info-box`}
-    class="info-box"
-    popover="auto"
-    role="dialog"
-    aria-labelledby={`${id}-info-title`}
-  >
-    <TooltipContent variant="light">
-      {#if selected}
+  {#if selected}
+    <div
+      id={`${id}-info-box`}
+      class="info-box"
+      bind:this={infoBox}
+      role="dialog"
+      aria-labelledby={`${id}-info-title`}
+    >
+      <TooltipContent variant="light">
         <div class="popup-body">
           <button
             class="close"
-            popovertarget={`${id}-info-box`}
-            popovertargetaction="hide"
+            onclick={() => (selectedId = undefined)}
             aria-label="關閉資訊">×</button
           >
           <h3 id={`${id}-info-title`}>{selected.infoName}</h3>
@@ -239,15 +252,16 @@
             <p class="source">{law}</p>
           {/each}
         </div>
-      {/if}
-    </TooltipContent>
-  </div>
+      </TooltipContent>
+    </div>
+  {/if}
 </section>
 
 <style>
   section {
     --bottom-bar-height: 0px;
     anchor-scope: --selected-marker;
+    isolation: isolate;
     box-sizing: border-box;
     position: relative;
     width: 100%;
@@ -257,6 +271,7 @@
   }
 
   .map {
+    z-index: 0;
     overflow-x: auto;
     overflow-y: hidden;
     width: 100%;
@@ -448,10 +463,15 @@
     anchor-name: --selected-marker;
   }
   .info-box {
+    z-index: 1;
     position: absolute;
     position-anchor: --selected-marker;
     position-area: right;
-    position-try-fallbacks: flip-inline;
+    position-try-fallbacks:
+      flip-inline,
+      bottom span-all,
+      top span-all,
+      span-all;
     box-sizing: border-box;
     width: min(320px, calc(100vw - 32px));
     inset: auto;
