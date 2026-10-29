@@ -124,7 +124,7 @@
 
 <Story name="PlayCanvas">
   {#snippet template(args)}
-    <p class="spacer">往下滑，開始體驗上學路線。</p>
+    <p class="spacer">內文內文內文</p>
     <FullScreenWrapper
       controller={wrapper}
       src=""
@@ -140,6 +140,7 @@
         height="100%"
       ></iframe>
     </FullScreenWrapper>
+    <p class="spacer">內文內文內文</p>
     {#if player}
       <Layout>
         <PlayerTrackMap
@@ -149,7 +150,7 @@
         />
       </Layout>
     {/if}
-    <p class="spacer">往上滑可以繼續遊戲。</p>
+    <p class="spacer">內文內文內文</p>
     <EmbedCode
       componentName="player-track-map"
       tagName="twreporter-player-track"
