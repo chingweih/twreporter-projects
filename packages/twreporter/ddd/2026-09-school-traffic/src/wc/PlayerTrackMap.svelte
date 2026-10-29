@@ -1,17 +1,18 @@
 <script lang="ts">
+  import TooltipContent from '@lab-reporter/ddd-shared/components/shared/TooltipContent.svelte'
+  import Frame from '@lab-reporter/ddd-shared/components/shared/Frame.svelte'
+  import Logo from '@lab-reporter/ddd-shared/components/shared/Logo.svelte'
   import { createQuery } from '@tanstack/svelte-query'
   import type { Action } from 'svelte/action'
-  import type { GetInfoBoxes, GetTrack } from '../lib/rpc.ts'
-  import { fontStylesheetUrl } from '@lab-reporter/ddd-shared/utils/fonts.ts'
-  import TooltipContent from '@lab-reporter/ddd-shared/components/shared/TooltipContent.svelte'
-  import { createTrackPaths } from '../lib/components/player-track-map/track.ts'
-  import { trackColors } from '../lib/constants/track.ts'
   import mapImage from '../assets/map.jpg'
+  import { createTrackPaths } from '../lib/components/player-track-map/track.ts'
   import {
-    mapWidth,
     mapHeight,
+    mapWidth,
     projectPosition,
   } from '../lib/constants/coordinate-map.ts'
+  import { trackColors } from '../lib/constants/track.ts'
+  import type { GetInfoBoxes, GetTrack, PlayerTrack } from '../lib/rpc.ts'
 
   const {
     getTrack,
@@ -22,6 +23,7 @@
     config?: string
   } = $props()
   const id = $props.id()
+  let view = $state<'before' | 'after'>('before')
   let visible = $state(false)
   const observe: Action<HTMLElement> = (node) => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -69,19 +71,39 @@
     infoBoxes.data?.find((info) => info.id === selectedId),
   )
   const paths = $derived(createTrackPaths(track.data ?? []))
+  const legend = $derived.by(() => {
+    const lengths = { road: 0, shoulder: 0, safe: 0 }
+    let previous: PlayerTrack[number] | undefined
+
+    for (const point of track.data ?? []) {
+      if (previous?.segment === point.segment) {
+        lengths[previous.kind] += Math.hypot(
+          point.x - previous.x,
+          point.z - previous.z,
+        )
+      }
+      previous = point
+    }
+
+    const total = lengths.road + lengths.shoulder + lengths.safe
+    return [
+      { label: '車道', color: trackColors.road, length: lengths.road },
+      { label: '路肩', color: trackColors.shoulder, length: lengths.shoulder },
+      { label: '安全區域', color: trackColors.safe, length: lengths.safe },
+    ].map(({ label, color, length }) => ({
+      label,
+      color,
+      percentage: total > 0 ? (length / total) * 100 : null,
+    }))
+  })
   const current = $derived.by(() => {
     const last = track.data?.at(-1)
     return last ? projectPosition(last) : undefined
   })
-  const error = $derived(track.error?.message ?? infoBoxes.error?.message)
   const loading = $derived(
     (!!getTrack && track.isPending) || (!!getInfoBoxes && infoBoxes.isPending),
   )
 </script>
-
-<svelte:head>
-  <link rel="stylesheet" href={fontStylesheetUrl} />
-</svelte:head>
 
 <section
   use:observe
@@ -89,8 +111,62 @@
   style:--map-height={mapHeight}
   aria-busy={loading}
 >
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to scroll the wide map.) -->
-  <div class="map" role="region" aria-label="上學路線地圖" tabindex="0">
+  <div class="graph-frame">
+    <Frame>
+      {#snippet topLeft()}
+        <div class="card">
+          <h1>看看你剛剛的上學路徑，在改善後可以多安全？</h1>
+        </div>
+      {/snippet}
+      <div class="graph-control-container">
+        <div class="graph-controls">
+          <div class="card legend">
+            <h2>路徑長度占比</h2>
+            <dl>
+              {#each legend as item (item.label)}
+                <div class="legend-row">
+                  <dt>
+                    <span
+                      class="legend-swatch"
+                      style:background-color={item.color}
+                    ></span>
+                    {item.label}
+                  </dt>
+                  <dd>
+                    {item.percentage === null
+                      ? '未記錄'
+                      : `${item.percentage.toFixed(1)}%`}
+                  </dd>
+                </div>
+              {/each}
+            </dl>
+          </div>
+          <div class="card view-tabs" role="group" aria-label="道路改善前後">
+            <button
+              type="button"
+              aria-pressed={view === 'before'}
+              onclick={() => (view = 'before')}>現況</button
+            >
+            <button
+              type="button"
+              aria-pressed={view === 'after'}
+              onclick={() => (view = 'after')}>改善建議</button
+            >
+          </div>
+        </div>
+      </div>
+      {#snippet bottomLeft()}
+        <div class="card">
+          <p>註：改善建議為設計影像</p>
+          <p>資料整理：林雨佑 ｜ 攝影：謝佩穎 ｜ 設計：江世民</p>
+        </div>
+      {/snippet}
+      {#snippet bottomRight()}
+        <Logo />
+      {/snippet}
+    </Frame>
+  </div>
+  <div class="map" role="region" aria-label="上學路線地圖">
     <div class="map-frame">
       <div class="map-content">
         <svg
@@ -98,7 +174,6 @@
           height={mapHeight}
           viewBox={`0 0 ${mapWidth} ${mapHeight}`}
           role="img"
-          aria-label="復華七街空拍圖與你的行走路線"
         >
           <image href={mapImage} width={mapWidth} height={mapHeight} />
           {#each paths as path}
@@ -125,6 +200,7 @@
         {#each markers as { info, pixel } (info.id)}
           <button
             class="marker"
+            class:selected={selectedId === info.id}
             style:left={`${(pixel.u / mapWidth) * 100}%`}
             style:top={`${(pixel.v / mapHeight) * 100}%`}
             aria-label={`${info.infoName} ${info.inspectItemSequence}`.trim()}
@@ -166,32 +242,157 @@
       {/if}
     </TooltipContent>
   </div>
-  {#if error}
-    <p class="notice" role="alert">{error}</p>
-  {:else if loading}
-    <p class="notice" role="status">資料載入中……</p>
-  {:else if !getTrack && !getInfoBoxes}
-    <p class="notice" role="status">尚未連接遊戲。</p>
-  {/if}
 </section>
 
 <style>
   section {
     --bottom-bar-height: 0px;
+    anchor-scope: --selected-marker;
     box-sizing: border-box;
     position: relative;
     width: 100%;
-    height: 100dvh;
-    padding-block: 64px var(--bottom-bar-height);
+    height: calc(100dvh - 64px - var(--bottom-bar-height));
     color: #333;
     font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif;
   }
+
   .map {
     overflow-x: auto;
     overflow-y: hidden;
     width: 100%;
     height: 100%;
+    position: relative;
   }
+
+  .graph-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .card {
+    background-color: #242424;
+    padding: 10px 15px;
+    color: var(--neutral-white);
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    p {
+      font-size: 12px;
+      font-weight: 300;
+    }
+  }
+
+  .graph-control-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+  }
+
+  .graph-controls {
+    width: 100%;
+    position: sticky;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 16px;
+    top: 0;
+  }
+
+  .legend {
+    width: 180px;
+    max-width: 65%;
+    font-size: var(--text-xs);
+  }
+
+  .legend h2 {
+    margin: 0 0 12px;
+    font-size: inherit;
+    font-weight: 600;
+  }
+
+  .legend dl {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .legend dt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .view-tabs {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding: 0;
+    border-radius: 4px;
+  }
+
+  .view-tabs button {
+    min-height: 48px;
+    padding: 25px 6px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--text-s);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    text-align: center;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .view-tabs button + button {
+    border-top: 1px solid var(--neutral-gray-600);
+  }
+
+  .view-tabs button[aria-pressed='true'] {
+    background: var(--neutral-white);
+    color: var(--neutral-gray-900);
+    font-weight: 600;
+  }
+
+  .view-tabs button:focus-visible {
+    outline: 2px solid var(--neutral-gray-400);
+    outline-offset: -3px;
+  }
+
   .map-frame {
     width: max-content;
     height: 100%;
@@ -211,15 +412,6 @@
     margin: 0;
     font-size: 14px;
     line-height: 1.6;
-  }
-  .notice {
-    position: absolute;
-    top: 80px;
-    left: 16px;
-    max-width: calc(100% - 56px);
-    padding: 10px 12px;
-    border-radius: 6px;
-    background: #fffffff2;
   }
   .marker {
     position: absolute;
@@ -252,12 +444,19 @@
     outline: 2px solid #175c97;
     border-radius: 50%;
   }
+  .marker.selected {
+    anchor-name: --selected-marker;
+  }
   .info-box {
+    position: absolute;
+    position-anchor: --selected-marker;
+    position-area: right;
+    position-try-fallbacks: flip-inline;
     box-sizing: border-box;
     width: min(320px, calc(100vw - 32px));
-    inset: 64px 0 var(--bottom-bar-height);
+    inset: auto;
     max-height: calc(100dvh - 64px - var(--bottom-bar-height) - 32px);
-    margin: auto;
+    margin: 12px;
     padding: 0;
     overflow: visible;
     border: 0;
