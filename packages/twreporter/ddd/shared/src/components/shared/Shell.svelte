@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { fontStylesheetUrl } from '../../utils/fonts.ts'
+  import Frame from './Frame.svelte'
   import { domToPng } from 'modern-screenshot'
   import type { Snippet } from 'svelte'
+  import Logo from './Logo.svelte'
 
   let container: HTMLDivElement | undefined = $state()
   const showDownload = new URLSearchParams(window.location.search).has(
@@ -44,70 +45,56 @@
   }
 </script>
 
-<svelte:head>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin="anonymous"
-  />
-  <link rel="stylesheet" href={fontStylesheetUrl} />
-</svelte:head>
-
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/tailwindcss-preflight@1.0.1/preflight.min.css"
-  crossorigin="anonymous"
-/>
-
-<div class="outer">
-  <div class={['container', { wide, backdrop }]} bind:this={container}>
-    <div class="header">
-      {#if editable}
-        <h1 contenteditable="plaintext-only" bind:innerText={title}></h1>
-      {:else}
-        <h1>{title}</h1>
-      {/if}
-      {#if subtitle !== undefined && (editable || subtitle)}
-        {#if editable}
-          <p
-            class="subtitle"
-            contenteditable="plaintext-only"
-            bind:innerText={subtitle}
-          ></p>
-        {:else}
-          <p class="subtitle">{subtitle}</p>
-        {/if}
-      {/if}
-    </div>
-    {#if error}
-      <p class="status error" role="alert">無法顯示圖表：{error}</p>
-    {:else if loading}
-      <p class="status" role="status">資料載入中……</p>
-    {:else if empty}
-      <p class="status" role="status">{emptyMessage}</p>
-    {:else}
-      {@render children?.()}
-    {/if}
-    <div class="footer">
-      <div class="footnotes">
-        {#each footnotes as _, index}
+<div class={['outer', { wide }]}>
+  <div class={['container', { backdrop }]} bind:this={container}>
+    <Frame>
+      {#snippet topLeft()}
+        <div class="header">
           {#if editable}
-            <p
-              contenteditable="plaintext-only"
-              bind:innerText={footnotes[index]}
-            ></p>
+            <h1 contenteditable="plaintext-only" bind:innerText={title}></h1>
           {:else}
-            <p>{footnotes[index]}</p>
+            <h1>{title}</h1>
           {/if}
-        {/each}
-      </div>
-      <img
-        src="https://projects.twreporter.org/twreporter/ddd/2025-0823-vote/assets/logo-black.png"
-        class="logo"
-        alt="報導者 The Reporter"
-      />
-    </div>
+          {#if subtitle !== undefined && (editable || subtitle)}
+            {#if editable}
+              <p
+                class="subtitle"
+                contenteditable="plaintext-only"
+                bind:innerText={subtitle}
+              ></p>
+            {:else}
+              <p class="subtitle">{subtitle}</p>
+            {/if}
+          {/if}
+        </div>
+      {/snippet}
+      {#if error}
+        <p class="status error" role="alert">無法顯示圖表：{error}</p>
+      {:else if loading}
+        <p class="status" role="status">資料載入中……</p>
+      {:else if empty}
+        <p class="status" role="status">{emptyMessage}</p>
+      {:else}
+        {@render children?.()}
+      {/if}
+      {#snippet bottomLeft()}
+        <div class="footnotes">
+          {#each footnotes as _, index}
+            {#if editable}
+              <p
+                contenteditable="plaintext-only"
+                bind:innerText={footnotes[index]}
+              ></p>
+            {:else}
+              <p>{footnotes[index]}</p>
+            {/if}
+          {/each}
+        </div>
+      {/snippet}
+      {#snippet bottomRight()}
+        <Logo />
+      {/snippet}
+    </Frame>
   </div>
 
   {#if showDownload}
@@ -128,7 +115,7 @@
   .status.error {
     color: var(--chart-red-4);
   }
-  * {
+  .outer {
     --brand-faded: rgba(244, 198, 198, 1);
     --brand-pastel: rgba(247, 105, 119, 1);
     --brand-main: rgba(248, 11, 40, 1);
@@ -216,41 +203,34 @@
     --text-xl: 28px;
     --text-xl-leading: 1.3;
     --text-color: var(--neutral-gray-800);
-    --backgrouond-color: var(--neutral-gray-100);
+    --background: var(--neutral-gray-100);
 
-    box-sizing: border-box;
     color: var(--text-color);
     font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif;
-    text-align: left !important;
-  }
-
-  .outer {
-    display: flex;
-    width: 100%;
-    margin: 60px 0;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .container {
-    position: relative;
-    display: flex;
+    text-align: left;
+    container-type: inline-size;
     width: 100%;
     max-width: 730px;
-    padding: 30px 20px;
-    border-top: 1px solid var(--neutral-gray-200);
-    border-bottom: 1px solid var(--neutral-gray-200);
-    flex-direction: column;
-    gap: 20px;
+    margin: 60px auto;
   }
 
-  .container.wide {
+  .outer.wide {
     max-width: 1024px;
   }
 
+  .container {
+    box-sizing: border-box;
+    width: 100%;
+    border-top: 1px solid var(--neutral-gray-200);
+    border-bottom: 1px solid var(--neutral-gray-300);
+  }
+
   .container.backdrop {
-    background: var(--backgrouond-color);
+    background: var(--background);
+  }
+
+  .container :global(*) {
+    box-sizing: border-box;
   }
 
   .container :global([contenteditable='plaintext-only']) {
@@ -270,13 +250,6 @@
     font-weight: 700;
     line-height: var(--text-xl-leading);
     white-space: pre-wrap;
-  }
-
-  .footer {
-    display: flex;
-    width: 100%;
-    align-items: flex-end;
-    justify-content: space-between;
   }
 
   .subtitle {
@@ -299,13 +272,9 @@
     font-size: var(--text-s);
   }
 
-  .logo {
-    width: 29px;
-    height: 31px;
-  }
-
   .download-control {
     margin-top: 12px;
+    text-align: center;
   }
 
   .dl-button {
@@ -318,19 +287,13 @@
     cursor: pointer;
     font-size: 12px;
   }
-
-  @media (max-width: 767px) {
-    * {
+  @container (max-width: 767px) {
+    .container {
       --text-xs: 12px;
       --text-s: 14px;
       --text-m: 16px;
       --text-l: 18px;
       --text-xl: 22px;
-    }
-
-    .logo {
-      width: 20px;
-      height: 21px;
     }
   }
 </style>
