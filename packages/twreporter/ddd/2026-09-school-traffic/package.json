@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@lab-reporter/ddd-shared": "workspace:*",
+    "@reuters-graphics/graphics-components": "^4.17.0",
     "@tanstack/svelte-query": "^6.1.28",
     "penpal": "8.0.1",
     "zod": "^4.1.12"
