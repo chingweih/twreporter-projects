@@ -2,8 +2,8 @@
   import TooltipContent from '@lab-reporter/ddd-shared/components/shared/TooltipContent.svelte'
   import Frame from '@lab-reporter/ddd-shared/components/shared/Frame.svelte'
   import Logo from '@lab-reporter/ddd-shared/components/shared/Logo.svelte'
+  import { ScrollerBase } from '@reuters-graphics/graphics-components'
   import { createQuery } from '@tanstack/svelte-query'
-  import type { Action } from 'svelte/action'
   import mapImage from '../assets/map.jpg'
   import { createTrackPaths } from '../lib/components/player-track-map/track.ts'
   import {
@@ -23,15 +23,10 @@
     config?: string
   } = $props()
   const id = $props.id()
+  const cards = ['路段 1', '路段 2', '路段 3', '路段 4', '路段 5']
+  let progress = $state(0)
   let view = $state<'before' | 'after'>('before')
   let visible = $state(false)
-  const observe: Action<HTMLElement> = (node) => {
-    const observer = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting
-    })
-    observer.observe(node)
-    return { destroy: () => observer.disconnect() }
-  }
   const track = createQuery(() => ({
     queryKey: ['player-track', id],
     enabled: visible && !!getTrack,
@@ -117,176 +112,237 @@
   }}
 />
 
-<section
-  use:observe
+<div
+  class="scrolly"
   style:--map-width={mapWidth}
   style:--map-height={mapHeight}
-  aria-busy={loading}
+  style:--progress={Math.max(0, Math.min(1, progress))}
 >
-  <div class="graph-frame">
-    <Frame>
-      {#snippet topLeft()}
-        <div class="card">
-          <h1>看看你剛剛的上學路徑，在改善後可以多安全？</h1>
-        </div>
-      {/snippet}
-      <div class="graph-control-container">
-        <div class="graph-controls">
-          <div class="card legend">
-            <h2>路徑長度占比</h2>
-            <dl>
-              {#each legend as item (item.label)}
-                <div class="legend-row">
-                  <dt>
-                    <span
-                      class="legend-swatch"
-                      style:background-color={item.color}
-                    ></span>
-                    {item.label}
-                  </dt>
-                  <dd>
-                    {item.percentage === null
-                      ? '未記錄'
-                      : `${item.percentage.toFixed(1)}%`}
-                  </dd>
-                </div>
+  <ScrollerBase bind:progress bind:visible query=".scroll-space">
+    {#snippet backgroundSnippet()}
+      <section aria-busy={loading}>
+        <div class="map" role="region" aria-label="上學路線地圖">
+          <div class="map-frame">
+            <div class="map-content">
+              <svg
+                width={mapWidth}
+                height={mapHeight}
+                viewBox={`0 0 ${mapWidth} ${mapHeight}`}
+                role="img"
+              >
+                <image href={mapImage} width={mapWidth} height={mapHeight} />
+                {#each paths as path}
+                  <path
+                    d={path.d}
+                    fill="none"
+                    stroke={trackColors[path.kind]}
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                {/each}
+                {#if current}
+                  <circle
+                    cx={current.u}
+                    cy={current.v}
+                    r="4"
+                    fill="#f80b28"
+                    stroke="white"
+                    stroke-width="1.5"
+                  />
+                {/if}
+              </svg>
+              {#each markers as { info, pixel } (info.id)}
+                <button
+                  class="marker"
+                  class:selected={selectedId === info.id}
+                  style:left={`${(pixel.u / mapWidth) * 100}%`}
+                  style:top={`${(pixel.v / mapHeight) * 100}%`}
+                  aria-label={`${info.infoName} ${info.inspectItemSequence}`.trim()}
+                  aria-haspopup="dialog"
+                  aria-expanded={selectedId === info.id}
+                  aria-controls={selectedId === info.id
+                    ? `${id}-info-box`
+                    : undefined}
+                  onclick={() => (selectedId = info.id)}
+                  ><span aria-hidden="true"></span></button
+                >
               {/each}
-            </dl>
-          </div>
-          <div class="card view-tabs" role="group" aria-label="道路改善前後">
-            <button
-              type="button"
-              aria-pressed={view === 'before'}
-              onclick={() => (view = 'before')}>現況</button
-            >
-            <button
-              type="button"
-              aria-pressed={view === 'after'}
-              onclick={() => (view = 'after')}>改善建議</button
-            >
+            </div>
+            {#each cards as title, index}
+              <div
+                class="scroll-card"
+                style:--card-position={(index + 0.5) / cards.length}
+              >
+                <h2>{title}</h2>
+              </div>
+            {/each}
           </div>
         </div>
-      </div>
-      {#snippet bottomLeft()}
-        <div class="card">
-          <p>註：改善建議為設計影像</p>
-          <p>資料整理：林雨佑 ｜ 攝影：謝佩穎 ｜ 設計：江世民</p>
-        </div>
-      {/snippet}
-      {#snippet bottomRight()}
-        <Logo />
-      {/snippet}
-    </Frame>
-  </div>
-  <div class="map" role="region" aria-label="上學路線地圖">
-    <div class="map-frame">
-      <div class="map-content">
-        <svg
-          width={mapWidth}
-          height={mapHeight}
-          viewBox={`0 0 ${mapWidth} ${mapHeight}`}
-          role="img"
-        >
-          <image href={mapImage} width={mapWidth} height={mapHeight} />
-          {#each paths as path}
-            <path
-              d={path.d}
-              fill="none"
-              stroke={trackColors[path.kind]}
-              stroke-width="3"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          {/each}
-          {#if current}
-            <circle
-              cx={current.u}
-              cy={current.v}
-              r="4"
-              fill="#f80b28"
-              stroke="white"
-              stroke-width="1.5"
-            />
-          {/if}
-        </svg>
-        {#each markers as { info, pixel } (info.id)}
-          <button
-            class="marker"
-            class:selected={selectedId === info.id}
-            style:left={`${(pixel.u / mapWidth) * 100}%`}
-            style:top={`${(pixel.v / mapHeight) * 100}%`}
-            aria-label={`${info.infoName} ${info.inspectItemSequence}`.trim()}
-            aria-haspopup="dialog"
-            aria-expanded={selectedId === info.id}
-            aria-controls={selectedId === info.id
-              ? `${id}-info-box`
-              : undefined}
-            onclick={() => (selectedId = info.id)}
-            ><span aria-hidden="true"></span></button
+        {#if selected}
+          <div
+            id={`${id}-info-box`}
+            class="info-box"
+            bind:this={infoBox}
+            role="dialog"
+            aria-labelledby={`${id}-info-title`}
           >
-        {/each}
-      </div>
-    </div>
-  </div>
-  {#if selected}
-    <div
-      id={`${id}-info-box`}
-      class="info-box"
-      bind:this={infoBox}
-      role="dialog"
-      aria-labelledby={`${id}-info-title`}
-    >
-      <TooltipContent variant="light">
-        <div class="popup-body">
-          <button
-            class="close"
-            onclick={() => (selectedId = undefined)}
-            aria-label="關閉資訊">×</button
-          >
-          <h3 id={`${id}-info-title`}>{selected.infoName}</h3>
-          {#if selected.inspectItemSequence}
-            <p class="item">{selected.inspectItemSequence}</p>
-          {/if}
-          <p class="content">{selected.infoContent}</p>
-          {#each selected.laws as law}
-            <p class="source">{law}</p>
-          {/each}
+            <TooltipContent variant="light">
+              <div class="popup-body">
+                <button
+                  class="close"
+                  onclick={() => (selectedId = undefined)}
+                  aria-label="關閉資訊">×</button
+                >
+                <h3 id={`${id}-info-title`}>{selected.infoName}</h3>
+                {#if selected.inspectItemSequence}
+                  <p class="item">{selected.inspectItemSequence}</p>
+                {/if}
+                <p class="content">{selected.infoContent}</p>
+                {#each selected.laws as law}
+                  <p class="source">{law}</p>
+                {/each}
+              </div>
+            </TooltipContent>
+          </div>
+        {/if}
+      </section>
+    {/snippet}
+    {#snippet foregroundSnippet()}
+      <div class="frame-track">
+        <div class="graph-frame">
+          <Frame>
+            {#snippet topLeft()}
+              <div class="card">
+                <h1>看看你剛剛的上學路徑，在改善後可以多安全？</h1>
+              </div>
+            {/snippet}
+            <div class="graph-control-container">
+              <div class="graph-controls">
+                <div class="card legend">
+                  <h2>路徑長度占比</h2>
+                  <dl>
+                    {#each legend as item (item.label)}
+                      <div class="legend-row">
+                        <dt>
+                          <span
+                            class="legend-swatch"
+                            style:background-color={item.color}
+                          ></span>
+                          {item.label}
+                        </dt>
+                        <dd>
+                          {item.percentage === null
+                            ? '未記錄'
+                            : `${item.percentage.toFixed(1)}%`}
+                        </dd>
+                      </div>
+                    {/each}
+                  </dl>
+                </div>
+                <div
+                  class="card view-tabs"
+                  role="group"
+                  aria-label="道路改善前後"
+                >
+                  <button
+                    type="button"
+                    aria-pressed={view === 'before'}
+                    onclick={() => (view = 'before')}>現況</button
+                  >
+                  <button
+                    type="button"
+                    aria-pressed={view === 'after'}
+                    onclick={() => (view = 'after')}>改善建議</button
+                  >
+                </div>
+              </div>
+            </div>
+            {#snippet bottomLeft()}
+              <div class="card">
+                <p>註：改善建議為設計影像</p>
+                <p>資料整理：林雨佑 ｜ 攝影：謝佩穎 ｜ 設計：江世民</p>
+              </div>
+            {/snippet}
+            {#snippet bottomRight()}
+              <Logo />
+            {/snippet}
+          </Frame>
         </div>
-      </TooltipContent>
-    </div>
-  {/if}
-</section>
+      </div>
+      <div
+        class="scroll-space"
+        style:height={`${(cards.length + 1) * 100}svh`}
+        aria-hidden="true"
+      ></div>
+    {/snippet}
+  </ScrollerBase>
+</div>
 
 <style>
+  .scrolly {
+    color: #333;
+    font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif;
+  }
+
+  .scrolly :global(svelte-scroller-background-container) {
+    pointer-events: auto;
+    will-change: auto;
+  }
+
+  .scrolly :global(svelte-scroller-foreground) {
+    pointer-events: none;
+  }
+
   section {
-    --bottom-bar-height: 0px;
     anchor-scope: --selected-marker;
     isolation: isolate;
     box-sizing: border-box;
     position: relative;
     width: 100%;
-    height: calc(100dvh - 64px - var(--bottom-bar-height));
-    color: #333;
-    font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif;
+    height: 100dvh;
   }
 
   .map {
     z-index: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: clip;
+    container-type: size;
     width: 100%;
     height: 100%;
     position: relative;
+    touch-action: pan-y;
+  }
+
+  .scroll-card {
+    position: absolute;
+    top: 50%;
+    left: calc(50cqw + (100% - 100cqw) * var(--card-position));
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+    width: min(360px, calc(100cqw - 48px));
+    padding: 24px;
+    background: var(--neutral-white);
+    color: var(--neutral-gray-900);
+    pointer-events: auto;
+  }
+
+  .scroll-card h2 {
+    margin: 0;
+    font-size: var(--text-l);
+  }
+
+  .frame-track {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
   }
 
   .graph-frame {
-    position: absolute;
+    position: sticky;
     top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
-    z-index: 10;
-    pointer-events: none;
+    height: 100dvh;
   }
 
   .card {
@@ -306,11 +362,8 @@
   }
 
   .graph-control-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
+    flex: 1;
+    min-height: 0;
   }
 
   .graph-controls {
@@ -409,8 +462,10 @@
   }
 
   .map-frame {
+    position: relative;
     width: max-content;
     height: 100%;
+    transform: translateX(calc((100cqw - 100%) * var(--progress)));
   }
   .map-content {
     position: relative;
@@ -475,7 +530,7 @@
     box-sizing: border-box;
     width: min(320px, calc(100vw - 32px));
     inset: auto;
-    max-height: calc(100dvh - 64px - var(--bottom-bar-height) - 32px);
+    max-height: calc(100dvh - 32px);
     margin: 12px;
     padding: 0;
     overflow: visible;
@@ -515,25 +570,23 @@
     margin-top: 12px;
     white-space: pre-line;
   }
-  @media (width < 1024px) {
-    section {
-      --bottom-bar-height: 55px;
-    }
-  }
   @media (max-width: 767px) {
-    section {
-      height: auto;
-    }
-    .map {
-      height: auto;
-      overflow: visible;
-    }
-    .map-frame {
+    .graph-frame {
       position: relative;
+      height: 100%;
+    }
+
+    .scroll-card {
+      top: calc(50cqh + (100% - 100cqh) * var(--card-position));
+      left: 50%;
+    }
+
+    .map-frame {
       width: 100%;
       height: auto;
       aspect-ratio: var(--map-height) / var(--map-width);
       overflow: clip;
+      transform: translateY(calc((100cqh - 100%) * var(--progress)));
     }
     .map-content {
       position: absolute;
