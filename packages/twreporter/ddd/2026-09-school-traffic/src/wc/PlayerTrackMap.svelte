@@ -96,21 +96,7 @@
     const last = track.data?.at(-1)
     return last ? projectPosition(last) : undefined
   })
-  const loading = $derived(
-    (!!getTrack && track.isPending) || (!!getInfoBoxes && infoBoxes.isPending),
-  )
 </script>
-
-<svelte:window
-  onpointerup={(event) => {
-    if (infoBox && !event.composedPath().includes(infoBox)) {
-      selectedId = undefined
-    }
-  }}
-  onkeydown={(event) => {
-    if (event.key === 'Escape') selectedId = undefined
-  }}
-/>
 
 <div
   class="scrolly"
@@ -120,7 +106,7 @@
 >
   <ScrollerBase bind:progress bind:visible query=".scroll-space">
     {#snippet backgroundSnippet()}
-      <section aria-busy={loading}>
+      <section>
         <div class="map" role="region" aria-label="上學路線地圖">
           <div class="map-frame">
             <div class="map-content">
