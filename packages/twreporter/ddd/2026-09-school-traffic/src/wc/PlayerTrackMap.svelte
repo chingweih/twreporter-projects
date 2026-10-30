@@ -1,5 +1,4 @@
 <script lang="ts">
-  import TooltipContent from '@lab-reporter/ddd-shared/components/shared/TooltipContent.svelte'
   import Frame from '@lab-reporter/ddd-shared/components/shared/Frame.svelte'
   import Logo from '@lab-reporter/ddd-shared/components/shared/Logo.svelte'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
@@ -11,6 +10,8 @@
   import defaultConfig from '../../public/player-track-map.json'
   import { playerTrackMapConfigSchema } from '../lib/components/player-track-map/types.ts'
   import { PlayerTrackMapScroller } from '../lib/components/player-track-map/scroller.svelte.ts'
+  import Marker from '../lib/components/player-track-map/Marker.svelte'
+  import InfoBox from '../lib/components/player-track-map/InfoBox.svelte'
   import { createTrackPaths } from '../lib/components/player-track-map/track.ts'
   import {
     mapHeight,
@@ -30,6 +31,7 @@
     config?: string
   } = $props()
   const id = $props.id()
+  const edit = new URLSearchParams(window.location.search).has('edit')
   const graphic = createGraphic(
     'twreporter-player-track',
     playerTrackMapConfigSchema,
@@ -74,7 +76,6 @@
     }),
   )
   let selectedId: string | undefined = $state()
-  let infoBox: HTMLDivElement | undefined = $state()
   const selected = $derived(
     infoBoxes.data?.find((info) => info.id === selectedId),
   )
@@ -166,23 +167,17 @@
                   {/if}
                 </svg>
                 {#each markers as { info, pixel } (info.id)}
-                  <button
-                    class="marker"
-                    class:selected={selectedId === info.id}
-                    class:highlighted={scroller.highlightedMarkerIds.includes(
+                  <Marker
+                    {info}
+                    {pixel}
+                    {edit}
+                    selected={selectedId === info.id}
+                    highlighted={scroller.highlightedMarkerIds.includes(
                       info.id,
                     )}
-                    style:left={`${(pixel.u / mapWidth) * 100}%`}
-                    style:top={`${(pixel.v / mapHeight) * 100}%`}
-                    aria-label={`${info.infoName} ${info.inspectItemSequence}`.trim()}
-                    aria-haspopup="dialog"
-                    aria-expanded={selectedId === info.id}
-                    aria-controls={selectedId === info.id
-                      ? `${id}-info-box`
-                      : undefined}
-                    onclick={() => (selectedId = info.id)}
-                    ><span aria-hidden="true"></span></button
-                  >
+                    infoBoxId={`${id}-info-box`}
+                    onselect={() => (selectedId = info.id)}
+                  />
                 {/each}
               </div>
               {#each cards as card}
@@ -201,31 +196,11 @@
             </div>
           </div>
           {#if selected}
-            <div
+            <InfoBox
               id={`${id}-info-box`}
-              class="info-box"
-              bind:this={infoBox}
-              role="dialog"
-              aria-labelledby={`${id}-info-title`}
-            >
-              <TooltipContent variant="light">
-                <div class="popup-body">
-                  <button
-                    class="close"
-                    onclick={() => (selectedId = undefined)}
-                    aria-label="關閉資訊">×</button
-                  >
-                  <h3 id={`${id}-info-title`}>{selected.infoName}</h3>
-                  {#if selected.inspectItemSequence}
-                    <p class="item">{selected.inspectItemSequence}</p>
-                  {/if}
-                  <p class="content">{selected.infoContent}</p>
-                  {#each selected.laws as law}
-                    <p class="source">{law}</p>
-                  {/each}
-                </div>
-              </TooltipContent>
-            </div>
+              info={selected}
+              onclose={() => (selectedId = undefined)}
+            />
           {/if}
         </section>
       {/snippet}
@@ -519,100 +494,6 @@
     font-size: 14px;
     line-height: 1.6;
   }
-  .marker {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    display: grid;
-    place-items: center;
-    width: 28px;
-    height: 28px;
-    border: 0;
-    padding: 0;
-    background: transparent;
-    cursor: pointer;
-  }
-  .marker span {
-    display: grid;
-    place-items: center;
-    width: 18px;
-    height: 18px;
-    border: 2px solid white;
-    border-radius: 50%;
-    background: #175c97;
-    color: white;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1;
-    box-shadow: 0 1px 4px #0006;
-    transform: rotate(180deg);
-  }
-  .marker:focus-visible {
-    outline: 2px solid #175c97;
-    border-radius: 50%;
-  }
-  .marker.highlighted span {
-    background: #d73027;
-  }
-
-  .marker.highlighted:focus-visible {
-    outline-color: #d73027;
-  }
-  .marker.selected {
-    anchor-name: --selected-marker;
-  }
-  .info-box {
-    z-index: 1;
-    position: absolute;
-    position-anchor: --selected-marker;
-    position-area: right;
-    position-try-fallbacks:
-      flip-inline,
-      bottom span-all,
-      top span-all,
-      span-all;
-    box-sizing: border-box;
-    width: min(320px, calc(100vw - 32px));
-    inset: auto;
-    max-height: calc(100dvh - 32px);
-    margin: 12px;
-    padding: 0;
-    overflow: visible;
-    border: 0;
-    background: transparent;
-    font-family: inherit;
-  }
-  .popup-body {
-    padding: 10px 12px;
-  }
-  .popup-body p {
-    font-size: 13px;
-  }
-  .close {
-    float: right;
-    border: 0;
-    padding: 0 4px;
-    background: transparent;
-    color: inherit;
-    font-size: 20px;
-    line-height: 1;
-    cursor: pointer;
-  }
-  h3 {
-    margin: 0 24px 8px 0;
-    font-size: 16px;
-    line-height: 1.3;
-  }
-  .item {
-    margin-bottom: 12px;
-  }
-  .content {
-    white-space: pre-line;
-    color: inherit;
-  }
-  .source {
-    margin-top: 12px;
-    white-space: pre-line;
-  }
   @media (prefers-reduced-motion: reduce) {
     .map-after {
       transition: none;
@@ -649,9 +530,6 @@
     svg {
       width: 100%;
       height: 100%;
-    }
-    .marker span {
-      transform: rotate(90deg);
     }
   }
 </style>
