@@ -173,7 +173,7 @@
                     {edit}
                     selected={selectedId === info.id}
                     highlighted={scroller.highlightedMarkerIds.includes(
-                      info.id,
+                      info.zoneId,
                     )}
                     infoBoxId={`${id}-info-box`}
                     onselect={() => (selectedId = info.id)}

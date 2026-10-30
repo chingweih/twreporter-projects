@@ -1,12 +1,11 @@
 <script module lang="ts">
   import EmbedCode from '@lab-reporter/ddd-shared/components/shared/EmbedCode.svelte'
   import Layout from '@lab-reporter/ddd-shared/components/shared/Layout.svelte'
-  import FullScreenWrapper from '@lab-reporter/ddd-shared/components/full-screen-wrapper/FullScreenWrapper.svelte'
-  import { createWrapperController } from '@lab-reporter/ddd-shared/components/full-screen-wrapper/controller.svelte.ts'
+  import '@lab-reporter/ddd-shared/components/full-screen-wrapper/FullScreenWrapper.wc.svelte'
+  import './PlayerTrackMap.wc.svelte'
   import type { FullScreenWrapperConfig } from '@lab-reporter/ddd-shared/components/full-screen-wrapper/types.ts'
   import { defineMeta } from '@storybook/addon-svelte-csf'
   import {
-    connectPlayer,
     infoBoxesSchema,
     type PlayerTrack,
     type GetInfoBoxes,
@@ -92,22 +91,6 @@
   })
 </script>
 
-<script lang="ts">
-  const wrapper = createWrapperController()
-  let iframe: HTMLIFrameElement | undefined = $state()
-  let player: ReturnType<typeof connectPlayer> | undefined = $state()
-
-  $effect(() => {
-    if (!iframe) return
-    const connection = connectPlayer({ iframe, wrapper })
-    player = connection
-    return () => {
-      connection.destroy()
-      player = undefined
-    }
-  })
-</script>
-
 <Story name="Default">
   {#snippet template(args)}
     <Layout>
@@ -125,31 +108,21 @@
 <Story name="PlayCanvas">
   {#snippet template(args)}
     <p class="spacer">內文內文內文</p>
-    <FullScreenWrapper
-      controller={wrapper}
+    <twreporter-full-screen-wrapper
       src=""
       config={JSON.stringify({
         splashScreenText: '你即將進入3D體驗',
       } satisfies FullScreenWrapperConfig)}
     >
       <iframe
-        bind:this={iframe}
         src="https://playcanv.as/e/p/02007016/"
         title="上學路上"
         width="100%"
         height="100%"
       ></iframe>
-    </FullScreenWrapper>
+    </twreporter-full-screen-wrapper>
     <p class="spacer">內文內文內文</p>
-    {#if player}
-      <Layout>
-        <PlayerTrackMap
-          getTrack={player.getTrack}
-          getInfoBoxes={player.getInfoBoxes}
-          config={args.config}
-        />
-      </Layout>
-    {/if}
+    <twreporter-player-track config={args.config ?? ''} />
     <p class="spacer">內文內文內文</p>
     <EmbedCode
       componentName="player-track-map"

@@ -27,14 +27,14 @@
     >
       空內容（往下滑看到元件）
     </div>
-    <FullScreenWrapper {...args}>
+    <twreporter-full-screen-wrapper src={args.src} config={args.config}>
       <iframe
         srcdoc="<main style='padding: 2rem; font-family: sans-serif'><h1>Embedded content</h1><p>Use the wrapper controls to enter or continue reading.</p></main>"
         title="Embedded content"
         width="100%"
         height="100%"
       ></iframe>
-    </FullScreenWrapper>
+    </twreporter-full-screen-wrapper>
     <div
       style:width="100%"
       style:height="500px"

@@ -38,7 +38,7 @@
   <span class="marker-content" aria-hidden="true">
     <span class="dot"></span>
     {#if edit}
-      <span class="marker-id">{info.id}</span>
+      <span class="marker-id">{info.zoneId}</span>
     {/if}
   </span>
 </button>
