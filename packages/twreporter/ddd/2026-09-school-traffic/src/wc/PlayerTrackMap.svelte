@@ -2,9 +2,15 @@
   import TooltipContent from '@lab-reporter/ddd-shared/components/shared/TooltipContent.svelte'
   import Frame from '@lab-reporter/ddd-shared/components/shared/Frame.svelte'
   import Logo from '@lab-reporter/ddd-shared/components/shared/Logo.svelte'
+  import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
+  import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
   import { ScrollerBase } from '@reuters-graphics/graphics-components'
   import { createQuery } from '@tanstack/svelte-query'
   import mapImage from '../assets/map.jpg'
+  import mapAfterImage from '../assets/map-after.jpg'
+  import defaultConfig from '../../public/player-track-map.json'
+  import { playerTrackMapConfigSchema } from '../lib/components/player-track-map/types.ts'
+  import { PlayerTrackMapScroller } from '../lib/components/player-track-map/scroller.svelte.ts'
   import { createTrackPaths } from '../lib/components/player-track-map/track.ts'
   import {
     mapHeight,
@@ -17,15 +23,21 @@
   const {
     getTrack,
     getInfoBoxes,
+    config = '',
   }: {
     getTrack?: GetTrack
     getInfoBoxes?: GetInfoBoxes
     config?: string
   } = $props()
   const id = $props.id()
-  const cards = ['路段 1', '路段 2', '路段 3', '路段 4', '路段 5']
-  let progress = $state(0)
-  let view = $state<'before' | 'after'>('before')
+  const graphic = createGraphic(
+    'twreporter-player-track',
+    playerTrackMapConfigSchema,
+    () => ({ src: '', config }),
+  )
+  const fallbackConfig = playerTrackMapConfigSchema.parse(defaultConfig)
+  const cards = $derived((graphic.config ?? fallbackConfig).cards)
+  const scroller = new PlayerTrackMapScroller(() => cards)
   let visible = $state(false)
   const track = createQuery(() => ({
     queryKey: ['player-track', id],
@@ -98,172 +110,196 @@
   })
 </script>
 
-<div
-  class="scrolly"
-  style:--map-width={mapWidth}
-  style:--map-height={mapHeight}
-  style:--progress={Math.max(0, Math.min(1, progress))}
->
-  <ScrollerBase bind:progress bind:visible query=".scroll-space">
-    {#snippet backgroundSnippet()}
-      <section>
-        <div class="map" role="region" aria-label="上學路線地圖">
-          <div class="map-frame">
-            <div class="map-content">
-              <svg
-                width={mapWidth}
-                height={mapHeight}
-                viewBox={`0 0 ${mapWidth} ${mapHeight}`}
-                role="img"
-              >
-                <image href={mapImage} width={mapWidth} height={mapHeight} />
-                {#each paths as path}
-                  <path
-                    d={path.d}
-                    fill="none"
-                    stroke={trackColors[path.kind]}
-                    stroke-width="3"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                {/each}
-                {#if current}
-                  <circle
-                    cx={current.u}
-                    cy={current.v}
-                    r="4"
-                    fill="#f80b28"
-                    stroke="white"
-                    stroke-width="1.5"
-                  />
-                {/if}
-              </svg>
-              {#each markers as { info, pixel } (info.id)}
-                <button
-                  class="marker"
-                  class:selected={selectedId === info.id}
-                  style:left={`${(pixel.u / mapWidth) * 100}%`}
-                  style:top={`${(pixel.v / mapHeight) * 100}%`}
-                  aria-label={`${info.infoName} ${info.inspectItemSequence}`.trim()}
-                  aria-haspopup="dialog"
-                  aria-expanded={selectedId === info.id}
-                  aria-controls={selectedId === info.id
-                    ? `${id}-info-box`
-                    : undefined}
-                  onclick={() => (selectedId = info.id)}
-                  ><span aria-hidden="true"></span></button
+{#if graphic.error || graphic.loading}
+  <Shell error={graphic.error} loading={graphic.loading} />
+{:else}
+  <div
+    class="scrolly"
+    style:--map-width={mapWidth}
+    style:--map-height={mapHeight}
+    style:--progress={Math.max(0, Math.min(1, scroller.progress))}
+  >
+    <ScrollerBase
+      bind:progress={scroller.progress}
+      bind:visible
+      query=".scroll-space"
+    >
+      {#snippet backgroundSnippet()}
+        <section>
+          <div class="map" role="region" aria-label="上學路線地圖">
+            <div class="map-frame">
+              <div class="map-content">
+                <svg
+                  width={mapWidth}
+                  height={mapHeight}
+                  viewBox={`0 0 ${mapWidth} ${mapHeight}`}
+                  role="img"
                 >
+                  <image href={mapImage} width={mapWidth} height={mapHeight} />
+                  <image
+                    class="map-after"
+                    class:visible={scroller.view === 'after'}
+                    href={mapAfterImage}
+                    width={mapWidth}
+                    height={mapHeight}
+                    preserveAspectRatio="none"
+                  />
+                  {#each paths as path}
+                    <path
+                      d={path.d}
+                      fill="none"
+                      stroke={trackColors[path.kind]}
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  {/each}
+                  {#if current}
+                    <circle
+                      cx={current.u}
+                      cy={current.v}
+                      r="4"
+                      fill="#f80b28"
+                      stroke="white"
+                      stroke-width="1.5"
+                    />
+                  {/if}
+                </svg>
+                {#each markers as { info, pixel } (info.id)}
+                  <button
+                    class="marker"
+                    class:selected={selectedId === info.id}
+                    class:highlighted={scroller.highlightedMarkerIds.includes(
+                      info.id,
+                    )}
+                    style:left={`${(pixel.u / mapWidth) * 100}%`}
+                    style:top={`${(pixel.v / mapHeight) * 100}%`}
+                    aria-label={`${info.infoName} ${info.inspectItemSequence}`.trim()}
+                    aria-haspopup="dialog"
+                    aria-expanded={selectedId === info.id}
+                    aria-controls={selectedId === info.id
+                      ? `${id}-info-box`
+                      : undefined}
+                    onclick={() => (selectedId = info.id)}
+                    ><span aria-hidden="true"></span></button
+                  >
+                {/each}
+              </div>
+              {#each cards as card}
+                <div
+                  class="card scroll-card"
+                  style:--card-position={card.position}
+                >
+                  {#if card.title}
+                    <h2>{card.title}</h2>
+                  {/if}
+                  {#if card.text}
+                    <p>{card.text}</p>
+                  {/if}
+                </div>
               {/each}
             </div>
-            {#each cards as title, index}
-              <div
-                class="scroll-card"
-                style:--card-position={(index + 0.5) / cards.length}
-              >
-                <h2>{title}</h2>
-              </div>
-            {/each}
           </div>
-        </div>
-        {#if selected}
-          <div
-            id={`${id}-info-box`}
-            class="info-box"
-            bind:this={infoBox}
-            role="dialog"
-            aria-labelledby={`${id}-info-title`}
-          >
-            <TooltipContent variant="light">
-              <div class="popup-body">
-                <button
-                  class="close"
-                  onclick={() => (selectedId = undefined)}
-                  aria-label="關閉資訊">×</button
-                >
-                <h3 id={`${id}-info-title`}>{selected.infoName}</h3>
-                {#if selected.inspectItemSequence}
-                  <p class="item">{selected.inspectItemSequence}</p>
-                {/if}
-                <p class="content">{selected.infoContent}</p>
-                {#each selected.laws as law}
-                  <p class="source">{law}</p>
-                {/each}
-              </div>
-            </TooltipContent>
-          </div>
-        {/if}
-      </section>
-    {/snippet}
-    {#snippet foregroundSnippet()}
-      <div class="frame-track">
-        <div class="graph-frame">
-          <Frame>
-            {#snippet topLeft()}
-              <div class="card">
-                <h1>看看你剛剛的上學路徑，在改善後可以多安全？</h1>
-              </div>
-            {/snippet}
-            <div class="graph-control-container">
-              <div class="graph-controls">
-                <div class="card legend">
-                  <h2>路徑長度占比</h2>
-                  <dl>
-                    {#each legend as item (item.label)}
-                      <div class="legend-row">
-                        <dt>
-                          <span
-                            class="legend-swatch"
-                            style:background-color={item.color}
-                          ></span>
-                          {item.label}
-                        </dt>
-                        <dd>
-                          {item.percentage === null
-                            ? '未記錄'
-                            : `${item.percentage.toFixed(1)}%`}
-                        </dd>
-                      </div>
-                    {/each}
-                  </dl>
-                </div>
-                <div
-                  class="card view-tabs"
-                  role="group"
-                  aria-label="道路改善前後"
-                >
+          {#if selected}
+            <div
+              id={`${id}-info-box`}
+              class="info-box"
+              bind:this={infoBox}
+              role="dialog"
+              aria-labelledby={`${id}-info-title`}
+            >
+              <TooltipContent variant="light">
+                <div class="popup-body">
                   <button
-                    type="button"
-                    aria-pressed={view === 'before'}
-                    onclick={() => (view = 'before')}>現況</button
+                    class="close"
+                    onclick={() => (selectedId = undefined)}
+                    aria-label="關閉資訊">×</button
                   >
-                  <button
-                    type="button"
-                    aria-pressed={view === 'after'}
-                    onclick={() => (view = 'after')}>改善建議</button
-                  >
+                  <h3 id={`${id}-info-title`}>{selected.infoName}</h3>
+                  {#if selected.inspectItemSequence}
+                    <p class="item">{selected.inspectItemSequence}</p>
+                  {/if}
+                  <p class="content">{selected.infoContent}</p>
+                  {#each selected.laws as law}
+                    <p class="source">{law}</p>
+                  {/each}
                 </div>
-              </div>
+              </TooltipContent>
             </div>
-            {#snippet bottomLeft()}
-              <div class="card">
-                <p>註：改善建議為設計影像</p>
-                <p>資料整理：林雨佑 ｜ 攝影：謝佩穎 ｜ 設計：江世民</p>
+          {/if}
+        </section>
+      {/snippet}
+      {#snippet foregroundSnippet()}
+        <div class="frame-track">
+          <div class="graph-frame">
+            <Frame>
+              {#snippet topLeft()}
+                <div class="card">
+                  <h1>看看你剛剛的上學路徑，在改善後可以多安全？</h1>
+                </div>
+              {/snippet}
+              <div class="graph-control-container">
+                <div class="graph-controls">
+                  <div class="card legend">
+                    <h2>路徑長度占比</h2>
+                    <dl>
+                      {#each legend as item (item.label)}
+                        <div class="legend-row">
+                          <dt>
+                            <span
+                              class="legend-swatch"
+                              style:background-color={item.color}
+                            ></span>
+                            {item.label}
+                          </dt>
+                          <dd>
+                            {item.percentage === null
+                              ? '未記錄'
+                              : `${item.percentage.toFixed(1)}%`}
+                          </dd>
+                        </div>
+                      {/each}
+                    </dl>
+                  </div>
+                  <div
+                    class="card view-tabs"
+                    role="group"
+                    aria-label="道路改善前後"
+                  >
+                    <button
+                      type="button"
+                      aria-pressed={scroller.view === 'before'}
+                      onclick={() => (scroller.view = 'before')}>現況</button
+                    >
+                    <button
+                      type="button"
+                      aria-pressed={scroller.view === 'after'}
+                      onclick={() => (scroller.view = 'after')}>改善建議</button
+                    >
+                  </div>
+                </div>
               </div>
-            {/snippet}
-            {#snippet bottomRight()}
-              <Logo />
-            {/snippet}
-          </Frame>
+              {#snippet bottomLeft()}
+                <div class="card">
+                  <p>註：改善建議為設計影像</p>
+                  <p>資料整理：林雨佑 ｜ 攝影：謝佩穎 ｜ 設計：江世民</p>
+                </div>
+              {/snippet}
+              {#snippet bottomRight()}
+                <Logo />
+              {/snippet}
+            </Frame>
+          </div>
         </div>
-      </div>
-      <div
-        class="scroll-space"
-        style:height={`${(cards.length + 1) * 100}svh`}
-        aria-hidden="true"
-      ></div>
-    {/snippet}
-  </ScrollerBase>
-</div>
+        <div
+          class="scroll-space"
+          style:height={`${(cards.length + 1) * 100}svh`}
+          aria-hidden="true"
+        ></div>
+      {/snippet}
+    </ScrollerBase>
+  </div>
+{/if}
 
 <style>
   .scrolly {
@@ -306,15 +342,29 @@
     transform: translate(-50%, -50%);
     box-sizing: border-box;
     width: min(360px, calc(100cqw - 48px));
-    padding: 24px;
-    background: var(--neutral-white);
-    color: var(--neutral-gray-900);
     pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .map-after {
+    opacity: 0;
+    transition: opacity 400ms ease;
+  }
+
+  .map-after.visible {
+    opacity: 1;
   }
 
   .scroll-card h2 {
     margin: 0;
-    font-size: var(--text-l);
+    font-size: var(--text-m);
+  }
+
+  .scroll-card p {
+    white-space: pre-line;
+    font-size: var(--text-s);
   }
 
   .frame-track {
@@ -500,6 +550,13 @@
     outline: 2px solid #175c97;
     border-radius: 50%;
   }
+  .marker.highlighted span {
+    background: #d73027;
+  }
+
+  .marker.highlighted:focus-visible {
+    outline-color: #d73027;
+  }
   .marker.selected {
     anchor-name: --selected-marker;
   }
@@ -556,6 +613,12 @@
     margin-top: 12px;
     white-space: pre-line;
   }
+  @media (prefers-reduced-motion: reduce) {
+    .map-after {
+      transition: none;
+    }
+  }
+
   @media (max-width: 767px) {
     .graph-frame {
       position: relative;
