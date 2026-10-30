@@ -143,7 +143,6 @@
                     href={mapAfterImage}
                     width={mapWidth}
                     height={mapHeight}
-                    preserveAspectRatio="none"
                   />
                   {#each paths as path}
                     <path
@@ -367,8 +366,8 @@
     }
 
     p {
-      font-size: 12px;
-      font-weight: 300;
+      font-size: 14px;
+      font-weight: 400;
     }
   }
 
