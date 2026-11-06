@@ -18,7 +18,7 @@
     mapWidth,
     projectPosition,
   } from '../lib/constants/coordinate-map.ts'
-  import { trackColors } from '../lib/constants/track.ts'
+  import { trackColors, trackColorsAfter } from '../lib/constants/track.ts'
   import type { GetInfoBoxes, GetTrack, PlayerTrack } from '../lib/rpc.ts'
 
   const {
@@ -95,11 +95,23 @@
     }
 
     const total = lengths.road + lengths.shoulder + lengths.safe
-    return [
+    const isAfter = scroller.view == 'after'
+
+    const regions = [
       { label: '車道', color: trackColors.road, length: lengths.road },
-      { label: '路肩', color: trackColors.shoulder, length: lengths.shoulder },
-      { label: '安全區域', color: trackColors.safe, length: lengths.safe },
-    ].map(({ label, color, length }) => ({
+      {
+        label: '路肩',
+        color: trackColors.shoulder,
+        length: isAfter ? 0 : lengths.shoulder,
+      },
+      {
+        label: '安全區域',
+        color: trackColors.safe,
+        length: isAfter ? lengths.safe + lengths.shoulder : lengths.safe,
+      },
+    ]
+
+    return regions.map(({ label, color, length }) => ({
       label,
       color,
       percentage: total > 0 ? (length / total) * 100 : null,
@@ -148,7 +160,9 @@
                     <path
                       d={path.d}
                       fill="none"
-                      stroke={trackColors[path.kind]}
+                      stroke={scroller.view === 'after'
+                        ? trackColorsAfter[path.kind]
+                        : trackColors[path.kind]}
                       stroke-width="3"
                       stroke-linecap="round"
                       stroke-linejoin="round"
