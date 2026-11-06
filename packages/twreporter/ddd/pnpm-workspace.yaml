@@ -9,3 +9,6 @@ packages:
 allowBuilds:
   '@clerk/shared': true
   esbuild: true
+
+patchedDependencies:
+  '@reuters-graphics/graphics-components@3.2.0': patches/@reuters-graphics__graphics-components@3.2.0.patch

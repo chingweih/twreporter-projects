@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@reuters-graphics/graphics-components@3.2.0': a01e0295a75cf9d231ed858735eb0ceea61c404f683981707ef0f534b3112441
+
 importers:
 
   .:
@@ -90,7 +93,7 @@ importers:
         version: link:../shared
       '@reuters-graphics/graphics-components':
         specifier: 3.2.0
-        version: 3.2.0(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0)(svelte@5.56.10)(typescript@5.9.3)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))
+        version: 3.2.0(patch_hash=a01e0295a75cf9d231ed858735eb0ceea61c404f683981707ef0f534b3112441)(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0)(svelte@5.56.10)(typescript@5.9.3)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))
       '@tanstack/svelte-query':
         specifier: ^6.1.28
         version: 6.1.28(svelte@5.56.10)
@@ -3697,7 +3700,7 @@ snapshots:
 
   '@polka/url@1.0.0-next.29': {}
 
-  '@reuters-graphics/graphics-components@3.2.0(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0)(svelte@5.56.10)(typescript@5.9.3)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))':
+  '@reuters-graphics/graphics-components@3.2.0(patch_hash=a01e0295a75cf9d231ed858735eb0ceea61c404f683981707ef0f534b3112441)(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0)(svelte@5.56.10)(typescript@5.9.3)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))':
     dependencies:
       '@fortawesome/free-regular-svg-icons': 6.7.2
       '@fortawesome/free-solid-svg-icons': 6.7.2
