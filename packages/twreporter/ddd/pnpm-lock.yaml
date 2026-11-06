@@ -104,9 +104,30 @@ importers:
       '@storybook/addon-svelte-csf':
         specifier: ^5.1.2
         version: 5.1.2(@storybook/svelte@10.5.3(storybook@10.5.3(@types/react@19.3.0)(prettier@3.8.3)(react@19.3.1))(svelte@5.56.10))(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(storybook@10.5.3(@types/react@19.3.0)(prettier@3.8.3)(react@19.3.1))(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))
+      '@types/d3-delaunay':
+        specifier: 6.0.4
+        version: 6.0.4
+      '@types/d3-selection':
+        specifier: 3.0.11
+        version: 3.0.11
+      '@types/d3-zoom':
+        specifier: 3.0.8
+        version: 3.0.8
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1
+      d3-delaunay:
+        specifier: 6.0.4
+        version: 6.0.4
+      d3-selection:
+        specifier: 3.0.0
+        version: 3.0.0
+      d3-zoom:
+        specifier: 3.0.0
+        version: 3.0.0
+      playcanvas:
+        specifier: 2.23.3
+        version: 2.23.3
       prettier:
         specifier: ^3.8.3
         version: 3.8.3
@@ -1572,6 +1593,9 @@ packages:
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
 
+  '@types/webxr@0.5.24':
+    resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
+
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
 
@@ -1615,6 +1639,9 @@ packages:
 
   '@webcontainer/env@1.1.1':
     resolution: {integrity: sha512-6aN99yL695Hi9SuIk1oC88l9o0gmxL1nGWWQ/kNy81HigJ0FoaoTXpytCj6ItzgyCEwA9kF1wixsTuv5cjsgng==}
+
+  '@webgpu/types@0.1.74':
+    resolution: {integrity: sha512-lgiI4hbuLcI9unnm2cL/tvCaQU45dp0xcLWJh5uB/9MBGvIA4F8XIk7nSiBeg+K4xWGYwgZKn80LmERI5CxoTA==}
 
   '@xyflow/svelte@1.5.2':
     resolution: {integrity: sha512-jPLc2cwRmrkXSv/jvsNDQqTGCsNyTWURKtBl28UCH3BdOAA3CIc0/oQ0EvIcjPdzr0NwvWMgq9TmLdjOIccCEQ==}
@@ -2590,6 +2617,10 @@ packages:
   picomatch@4.0.7:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
+
+  playcanvas@2.23.3:
+    resolution: {integrity: sha512-hjDdo5yFtVr/WmDh59pRrT1LC+Rfpq4VXB8Xt3AMB8GfWXj9JzOMq3x+3FTmq/2L2gN37q9V1LMZaLuYshzMXQ==}
+    engines: {node: '>=18.3.0'}
 
   plop@4.0.5:
     resolution: {integrity: sha512-pJz6oWC9LyBp5mBrRp8AUV2RNiuGW+t/HOs4zwN+b/3YxoObZOOFvjn1mJMpAeKi2pbXADMFOOVQVTVXEdDHDw==}
@@ -4296,6 +4327,8 @@ snapshots:
 
   '@types/trusted-types@2.0.7': {}
 
+  '@types/webxr@0.5.24': {}
+
   '@vitest/expect@3.2.4':
     dependencies:
       '@types/chai': 5.2.3
@@ -4361,6 +4394,8 @@ snapshots:
       tinyrainbow: 2.0.0
 
   '@webcontainer/env@1.1.1': {}
+
+  '@webgpu/types@0.1.74': {}
 
   '@xyflow/svelte@1.5.2(svelte@5.55.5)':
     dependencies:
@@ -5316,6 +5351,11 @@ snapshots:
   picomatch@2.3.2: {}
 
   picomatch@4.0.7: {}
+
+  playcanvas@2.23.3:
+    dependencies:
+      '@types/webxr': 0.5.24
+      '@webgpu/types': 0.1.74
 
   plop@4.0.5(@types/node@26.1.1):
     dependencies:

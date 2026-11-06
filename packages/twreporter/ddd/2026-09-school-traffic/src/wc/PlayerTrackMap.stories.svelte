@@ -17,12 +17,11 @@
   const start = coordinateLandmarks.find(
     (point) => point.landmark === 'PlayerStart',
   )
-  if (!start) throw new Error('Coordinate map is missing the player start')
 
   const sampleTrack: PlayerTrack = coordinateLandmarks
     .filter(
       (point) =>
-        point.u <= start.u &&
+        (!start || point.u <= start.u) &&
         ![
           'Zebra_012',
           'Zebra_013',
