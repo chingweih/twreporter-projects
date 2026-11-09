@@ -40,6 +40,8 @@
   const fallbackConfig = playerTrackMapConfigSchema.parse(defaultConfig)
   const cards = $derived((graphic.config ?? fallbackConfig).cards)
   const scroller = new PlayerTrackMapScroller(() => cards)
+  let imageWidth = $state(mapWidth)
+  let imageHeight = $state(mapHeight)
   let visible = $state(false)
   const track = createQuery(() => ({
     queryKey: ['player-track', id],
@@ -128,8 +130,8 @@
 {:else}
   <div
     class="scrolly"
-    style:--map-width={mapWidth}
-    style:--map-height={mapHeight}
+    style:--map-width={imageWidth}
+    style:--map-height={imageHeight}
     style:--progress={Math.max(0, Math.min(1, scroller.progress))}
   >
     <ScrollerBase
@@ -142,20 +144,24 @@
           <div class="map" role="region" aria-label="上學路線地圖">
             <div class="map-frame">
               <div class="map-content">
+                <img
+                  class="map-before"
+                  src={mapImage}
+                  alt=""
+                  bind:naturalWidth={imageWidth}
+                  bind:naturalHeight={imageHeight}
+                />
+                <img
+                  class="map-after"
+                  class:visible={scroller.view === 'after'}
+                  src={mapAfterImage}
+                  alt=""
+                />
                 <svg
-                  width={mapWidth}
-                  height={mapHeight}
                   viewBox={`0 0 ${mapWidth} ${mapHeight}`}
+                  preserveAspectRatio="none"
                   role="img"
                 >
-                  <image href={mapImage} width={mapWidth} height={mapHeight} />
-                  <image
-                    class="map-after"
-                    class:visible={scroller.view === 'after'}
-                    href={mapAfterImage}
-                    width={mapWidth}
-                    height={mapHeight}
-                  />
                   {#each paths as path}
                     <path
                       d={path.d}
@@ -502,9 +508,17 @@
     height: 100%;
     transform: rotate(180deg);
   }
-  svg {
+  .map-before {
     display: block;
     width: auto;
+    height: 100%;
+    max-width: none;
+  }
+  .map-after,
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
     height: 100%;
   }
   p {
@@ -545,7 +559,7 @@
       transform-origin: top left;
       transform: rotate(-90deg) translateX(-100%);
     }
-    svg {
+    .map-before {
       width: 100%;
       height: 100%;
     }

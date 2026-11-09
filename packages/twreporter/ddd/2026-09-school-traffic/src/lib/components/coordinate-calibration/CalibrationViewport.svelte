@@ -60,6 +60,7 @@
           y={bounds.minY}
           width={bounds.maxX - bounds.minX}
           height={bounds.maxY - bounds.minY}
+          preserveAspectRatio="none"
         />
       {/if}
       {#each triangles as triangle}
