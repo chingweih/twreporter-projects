@@ -7,6 +7,8 @@
   import { createQuery } from '@tanstack/svelte-query'
   import mapImage from '../assets/map.jpg?no-inline'
   import mapAfterImage from '../assets/map-after.jpg?no-inline'
+  import mapMobileImage from '../assets/map-mobile.jpg?no-inline'
+  import mapAfterMobileImage from '../assets/map-after-mobile.jpg?no-inline'
   import defaultConfig from '../../public/player-track-map.json'
   import { playerTrackMapConfigSchema } from '../lib/components/player-track-map/types.ts'
   import { PlayerTrackMapScroller } from '../lib/components/player-track-map/scroller.svelte.ts'
@@ -141,85 +143,101 @@
     >
       {#snippet backgroundSnippet()}
         <section>
-          <div class="map" role="region" aria-label="上學路線地圖">
-            <div class="map-frame">
-              <div class="map-content">
-                <img
-                  class="map-before"
-                  src={mapImage}
-                  alt=""
-                  bind:naturalWidth={imageWidth}
-                  bind:naturalHeight={imageHeight}
-                />
-                <img
-                  class="map-after"
-                  class:visible={scroller.view === 'after'}
-                  src={mapAfterImage}
-                  alt=""
-                />
-                <svg
-                  viewBox={`0 0 ${mapWidth} ${mapHeight}`}
-                  preserveAspectRatio="none"
-                  role="img"
-                >
-                  {#each paths as path}
-                    <path
-                      d={path.d}
-                      fill="none"
-                      stroke={scroller.view === 'after'
-                        ? trackColorsAfter[path.kind]
-                        : trackColors[path.kind]}
-                      stroke-width="3"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+          {#if visible}
+            <div class="map" role="region" aria-label="上學路線地圖">
+              <div class="map-frame">
+                <div class="map-content">
+                  <picture>
+                    <source
+                      media="(max-width: 767px), (max-height: 767px) and (pointer: coarse)"
+                      srcset={mapMobileImage}
+                    />
+                    <img
+                      class="map-before"
+                      src={mapImage}
+                      alt=""
+                      decoding="async"
+                      bind:naturalWidth={imageWidth}
+                      bind:naturalHeight={imageHeight}
+                    />
+                  </picture>
+                  <picture>
+                    <source
+                      media="(max-width: 767px), (max-height: 767px) and (pointer: coarse)"
+                      srcset={mapAfterMobileImage}
+                    />
+                    <img
+                      class="map-after"
+                      class:visible={scroller.view === 'after'}
+                      src={mapAfterImage}
+                      alt=""
+                      decoding="async"
+                    />
+                  </picture>
+                  <svg
+                    viewBox={`0 0 ${mapWidth} ${mapHeight}`}
+                    preserveAspectRatio="none"
+                    role="img"
+                  >
+                    {#each paths as path}
+                      <path
+                        d={path.d}
+                        fill="none"
+                        stroke={scroller.view === 'after'
+                          ? trackColorsAfter[path.kind]
+                          : trackColors[path.kind]}
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    {/each}
+                    {#if current}
+                      <circle
+                        cx={current.u}
+                        cy={current.v}
+                        r="4"
+                        fill="#f80b28"
+                        stroke="white"
+                        stroke-width="1.5"
+                      />
+                    {/if}
+                  </svg>
+                  {#each markers as { info, pixel } (info.id)}
+                    <Marker
+                      {info}
+                      {pixel}
+                      {edit}
+                      selected={selectedId === info.id}
+                      highlighted={scroller.highlightedMarkerIds.includes(
+                        info.zoneId,
+                      )}
+                      infoBoxId={`${id}-info-box`}
+                      onselect={() => (selectedId = info.id)}
                     />
                   {/each}
-                  {#if current}
-                    <circle
-                      cx={current.u}
-                      cy={current.v}
-                      r="4"
-                      fill="#f80b28"
-                      stroke="white"
-                      stroke-width="1.5"
-                    />
-                  {/if}
-                </svg>
-                {#each markers as { info, pixel } (info.id)}
-                  <Marker
-                    {info}
-                    {pixel}
-                    {edit}
-                    selected={selectedId === info.id}
-                    highlighted={scroller.highlightedMarkerIds.includes(
-                      info.zoneId,
-                    )}
-                    infoBoxId={`${id}-info-box`}
-                    onselect={() => (selectedId = info.id)}
-                  />
+                </div>
+                {#each cards as card}
+                  <div
+                    class="card scroll-card"
+                    style:--card-position={card.position}
+                  >
+                    {#if card.title}
+                      <h2>{card.title}</h2>
+                    {/if}
+                    {#if card.text}
+                      <p>{card.text}</p>
+                    {/if}
+                  </div>
                 {/each}
               </div>
-              {#each cards as card}
-                <div
-                  class="card scroll-card"
-                  style:--card-position={card.position}
-                >
-                  {#if card.title}
-                    <h2>{card.title}</h2>
-                  {/if}
-                  {#if card.text}
-                    <p>{card.text}</p>
-                  {/if}
-                </div>
-              {/each}
             </div>
-          </div>
-          {#if selected}
-            <InfoBox
-              id={`${id}-info-box`}
-              info={selected}
-              onclose={() => (selectedId = undefined)}
-            />
+            {#if selected}
+              <InfoBox
+                id={`${id}-info-box`}
+                info={selected}
+                onclose={() => (selectedId = undefined)}
+              />
+            {/if}
           {/if}
         </section>
       {/snippet}
@@ -513,6 +531,9 @@
     width: auto;
     height: 100%;
     max-width: none;
+  }
+  .map-content picture {
+    display: contents;
   }
   .map-after,
   svg {

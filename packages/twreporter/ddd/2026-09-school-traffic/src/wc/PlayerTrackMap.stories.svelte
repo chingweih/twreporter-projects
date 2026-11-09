@@ -114,14 +114,15 @@
       } satisfies FullScreenWrapperConfig)}
     >
       <iframe
-        src="https://playcanv.as/e/p/02007016/"
+        src="https://playcanv.as/apps/7459a75b/index.html"
         title="上學路上"
         width="100%"
         height="100%"
       ></iframe>
     </twreporter-full-screen-wrapper>
     <p class="spacer">內文內文內文</p>
-    <twreporter-player-track config={args.config ?? ''} />
+    <twreporter-player-track config={args.config ?? ''}
+    ></twreporter-player-track>
     <p class="spacer">內文內文內文</p>
     <EmbedCode
       componentName="player-track-map"
