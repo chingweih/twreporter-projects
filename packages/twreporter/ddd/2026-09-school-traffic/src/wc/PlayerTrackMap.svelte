@@ -313,10 +313,10 @@
               {#snippet bottomLeft()}
                 <div class="footnotes">
                   <PaperCard>
+                    <p>註1：改善建議為設計影像</p>
                     <p>
-                      註1：影像經多張空拍照片拼貼，導致部分標線歪斜，非現場狀況僅供示意
+                      註2：影像經多張空拍照片拼貼，導致部分標線歪斜，非現場狀況僅供示意
                     </p>
-                    <p>註2：改善建議為設計影像</p>
                     <p>
                       資料整理：林雨佑 ｜ 攝影：謝佩穎、黃世澤 ｜ 設計：江世民
                     </p>
@@ -439,7 +439,7 @@
 
   .footnotes p {
     font-size: 12px;
-    font-weight: 300;
+    font-weight: 400;
     line-height: 18px;
     color: var(--map-muted);
   }
