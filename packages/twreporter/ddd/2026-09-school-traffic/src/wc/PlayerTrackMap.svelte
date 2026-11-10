@@ -88,40 +88,37 @@
   const paths = $derived(createTrackPaths(track.data ?? []))
   const progress = $derived(Math.max(0, Math.min(1, scroller.progress)))
   const legend = $derived.by(() => {
-    const lengths = { road: 0, shoulder: 0, safe: 0 }
+    const seconds = { road: 0, shoulder: 0, safe: 0 }
     let previous: PlayerTrack[number] | undefined
 
     for (const point of track.data ?? []) {
       if (previous?.segment === point.segment) {
-        lengths[previous.kind] += Math.hypot(
-          point.x - previous.x,
-          point.z - previous.z,
-        )
+        seconds[previous.kind] += point.t - previous.t
       }
       previous = point
     }
 
-    const total = lengths.road + lengths.shoulder + lengths.safe
+    const total = seconds.road + seconds.shoulder + seconds.safe
     const isAfter = scroller.view == 'after'
 
     const regions = [
-      { label: '車道', color: trackColors.road, length: lengths.road },
+      { label: '車道', color: trackColors.road, duration: seconds.road },
       {
         label: '路肩',
         color: trackColors.shoulder,
-        length: isAfter ? 0 : lengths.shoulder,
+        duration: isAfter ? 0 : seconds.shoulder,
       },
       {
         label: '安全區域',
         color: trackColors.safe,
-        length: isAfter ? lengths.safe + lengths.shoulder : lengths.safe,
+        duration: isAfter ? seconds.safe + seconds.shoulder : seconds.safe,
       },
     ]
 
-    return regions.map(({ label, color, length }) => ({
+    return regions.map(({ label, color, duration }) => ({
       label,
       color,
-      percentage: total > 0 ? (length / total) * 100 : null,
+      percentage: total > 0 ? Math.round((duration / total) * 100) : null,
     }))
   })
 </script>
@@ -267,7 +264,7 @@
                 <div class="graph-controls">
                   <div class="legend">
                     <PaperCard>
-                      <h2>路徑長度占比</h2>
+                      <h2>通行時間占比</h2>
                       <dl>
                         {#each legend as item (item.label)}
                           <div class="legend-row">
@@ -282,7 +279,7 @@
                             <dd>
                               {item.percentage === null
                                 ? '未體驗'
-                                : `${item.percentage.toFixed(1)}%`}
+                                : `${item.percentage}%`}
                             </dd>
                           </div>
                         {/each}
