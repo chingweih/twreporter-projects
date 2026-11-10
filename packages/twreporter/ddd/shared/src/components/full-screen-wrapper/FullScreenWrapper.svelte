@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { disablePageScroll, enablePageScroll } from '@fluejs/noscroll'
-  import type { Action } from 'svelte/action'
   import type { ComponentPropsWithChildren } from '../types'
   import { fullScreenWrapperConfigSchema } from './types'
   import {
@@ -17,25 +15,9 @@
   const config = $derived(
     fullScreenWrapperConfigSchema.parse(JSON.parse(configJson)),
   )
-
-  const scrollLocker: Action = (node) => {
-    $effect(() => {
-      if (controller.scrollLock) {
-        node.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        })
-        disablePageScroll()
-      } else {
-        enablePageScroll()
-      }
-
-      return enablePageScroll
-    })
-  }
 </script>
 
-<div class="wrapper" use:scrollLocker>
+<div class="wrapper" use:controller.attach>
   {#if !controller.scrollLock}
     <div class="splash-screen">
       {config.splashScreenText}
