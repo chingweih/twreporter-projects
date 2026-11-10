@@ -14,13 +14,14 @@
   import { PlayerTrackMapScroller } from '../lib/components/player-track-map/scroller.svelte.ts'
   import Marker from '../lib/components/player-track-map/Marker.svelte'
   import InfoBox from '../lib/components/player-track-map/InfoBox.svelte'
+  import PaperCard from '../lib/components/player-track-map/PaperCard.svelte'
   import { createTrackPaths } from '../lib/components/player-track-map/track.ts'
   import {
     mapHeight,
     mapWidth,
     projectPosition,
   } from '../lib/constants/coordinate-map.ts'
-  import { trackColors, trackColorsAfter } from '../lib/constants/track.ts'
+  import { trackColors } from '../lib/constants/track.ts'
   import type { GetInfoBoxes, GetTrack, PlayerTrack } from '../lib/rpc.ts'
 
   const {
@@ -183,12 +184,26 @@
                       <path
                         d={path.d}
                         fill="none"
-                        stroke={scroller.view === 'after'
-                          ? trackColorsAfter[path.kind]
-                          : trackColors[path.kind]}
-                        stroke-width="3"
+                        stroke="var(--map-panel)"
+                        stroke-width="9"
                         stroke-linecap="round"
                         stroke-linejoin="round"
+                        vector-effect="non-scaling-stroke"
+                      />
+                    {/each}
+                    {#each paths as path}
+                      <path
+                        d={path.d}
+                        fill="none"
+                        stroke={trackColors[
+                          scroller.view === 'after' && path.kind === 'shoulder'
+                            ? 'safe'
+                            : path.kind
+                        ]}
+                        stroke-width="5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        vector-effect="non-scaling-stroke"
                       />
                     {/each}
                     {#if current}
@@ -218,15 +233,17 @@
                 </div>
                 {#each cards as card}
                   <div
-                    class="card scroll-card"
+                    class="scroll-card"
                     style:--card-position={card.position}
                   >
-                    {#if card.title}
-                      <h2>{card.title}</h2>
-                    {/if}
-                    {#if card.text}
-                      <p>{card.text}</p>
-                    {/if}
+                    <PaperCard>
+                      {#if card.title}
+                        <h2>{card.title}</h2>
+                      {/if}
+                      {#if card.text}
+                        <p>{card.text}</p>
+                      {/if}
+                    </PaperCard>
                   </div>
                 {/each}
               </div>
@@ -244,62 +261,66 @@
       {#snippet foregroundSnippet()}
         <div class="frame-track">
           <div class="graph-frame">
-            <Frame>
+            <Frame style="gap: 18px">
               {#snippet topLeft()}
-                <div class="card">
+                <PaperCard>
                   <h1>看看你剛剛的上學路徑，在改善後可以多安全？</h1>
-                </div>
+                </PaperCard>
               {/snippet}
               <div class="graph-control-container">
                 <div class="graph-controls">
-                  <div class="card legend">
-                    <h2>路徑長度占比</h2>
-                    <dl>
-                      {#each legend as item (item.label)}
-                        <div class="legend-row">
-                          <dt>
-                            <span
-                              class="legend-swatch"
-                              style:background-color={item.color}
-                            ></span>
-                            {item.label}
-                          </dt>
-                          <dd>
-                            {item.percentage === null
-                              ? '未記錄'
-                              : `${item.percentage.toFixed(1)}%`}
-                          </dd>
-                        </div>
-                      {/each}
-                    </dl>
+                  <div class="legend">
+                    <PaperCard>
+                      <h2>路徑長度占比</h2>
+                      <dl>
+                        {#each legend as item (item.label)}
+                          <div class="legend-row">
+                            <dt>
+                              <span
+                                class="legend-swatch"
+                                style:background-color={item.color}
+                                aria-hidden="true"
+                              ></span>
+                              {item.label}
+                            </dt>
+                            <dd>
+                              {item.percentage === null
+                                ? '未記錄'
+                                : `${item.percentage.toFixed(1)}%`}
+                            </dd>
+                          </div>
+                        {/each}
+                      </dl>
+                    </PaperCard>
                   </div>
-                  <div
-                    class="card view-tabs"
-                    role="group"
-                    aria-label="道路改善前後"
-                  >
-                    <button
-                      type="button"
-                      aria-pressed={scroller.view === 'before'}
-                      onclick={() => (scroller.view = 'before')}>現況</button
-                    >
-                    <button
-                      type="button"
-                      aria-pressed={scroller.view === 'after'}
-                      onclick={() => (scroller.view = 'after')}>改善建議</button
-                    >
+                  <div class="view-tabs" role="group" aria-label="道路改善前後">
+                    <PaperCard style="--paper-padding: 0">
+                      <button
+                        type="button"
+                        aria-pressed={scroller.view === 'before'}
+                        onclick={() => (scroller.view = 'before')}>現況</button
+                      >
+                      <button
+                        type="button"
+                        aria-pressed={scroller.view === 'after'}
+                        onclick={() => (scroller.view = 'after')}
+                        >改善建議</button
+                      >
+                    </PaperCard>
                   </div>
                 </div>
               </div>
               {#snippet bottomLeft()}
-                <div class="card">
-                  <p>
-                    註1：影像經多張空拍照片拼貼，導致部分標線歪斜，非現場狀況僅供示意
-                  </p>
-                  <p>註2：改善建議為設計影像</p>
-                  <p>
-                    資料整理：林雨佑 ｜ 攝影：謝佩穎、黃世澤 ｜ 設計：江世民
-                  </p>
+                <div class="footnotes">
+                  <PaperCard>
+                    <p>
+                      註1：影像經多張空拍照片拼貼，導致部分標線歪斜，非現場狀況僅供示意
+                    </p>
+                    <p>註2：改善建議為設計影像</p>
+                    <p>
+                      資料整理：林雨佑 ｜ 攝影：謝佩穎、黃世澤 ｜ 設計：江世民
+                    </p>
+                  </PaperCard>
                 </div>
               {/snippet}
               {#snippet bottomRight()}
@@ -320,8 +341,14 @@
 
 <style>
   .scrolly {
-    color: #333;
-    font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif;
+    --map-panel: #f4f1e7;
+    --map-panel-border: #e2ddcf;
+    --map-text: #1f2420;
+    --map-accent: #3f5a33;
+    --map-muted: #6c7066;
+    --map-danger: #c53f2d;
+    color: var(--map-text);
+    font-family: 'Noto Sans TC', sans-serif;
   }
 
   .scrolly :global(svelte-scroller-background-container) {
@@ -360,9 +387,6 @@
     box-sizing: border-box;
     width: min(360px, calc(100cqw - 48px));
     pointer-events: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
   }
 
   .map-after {
@@ -384,6 +408,10 @@
     font-size: var(--text-s);
   }
 
+  .scroll-card h2 + p {
+    margin-top: 10px;
+  }
+
   .frame-track {
     position: absolute;
     inset: 0;
@@ -398,20 +426,22 @@
     height: 100dvh;
   }
 
-  .card {
-    background-color: #242424;
-    padding: 10px 15px;
-    color: var(--neutral-white);
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 36px;
+  }
 
-    h1 {
-      font-size: 24px;
-      font-weight: 600;
-    }
+  .footnotes {
+    max-width: 100%;
+  }
 
-    p {
-      font-size: 14px;
-      font-weight: 400;
-    }
+  .footnotes p {
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 18px;
+    color: var(--map-muted);
   }
 
   .graph-control-container {
@@ -422,7 +452,7 @@
   .graph-controls {
     width: 100%;
     position: sticky;
-    padding: 10px 0;
+    padding: 0 0 10px;
     display: flex;
     justify-content: space-between;
     align-items: start;
@@ -466,32 +496,30 @@
     margin: 0;
     font-variant-numeric: tabular-nums;
     font-weight: 600;
+    font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif;
   }
 
   .legend-swatch {
-    width: 14px;
-    height: 3px;
-    border-radius: 2px;
+    width: 28px;
+    height: 5px;
+    border-radius: 3px;
     flex-shrink: 0;
   }
 
   .view-tabs {
-    display: flex;
-    flex-direction: column;
     flex-shrink: 0;
-    overflow: hidden;
-    padding: 0;
-    border-radius: 4px;
   }
 
   .view-tabs button {
-    min-height: 48px;
+    width: 36px;
     padding: 25px 6px;
     border: 0;
     background: transparent;
     color: inherit;
     font: inherit;
-    font-size: var(--text-s);
+    font-size: 16px;
+    line-height: 1;
+    border-radius: 5px;
     writing-mode: vertical-rl;
     text-orientation: upright;
     text-align: center;
@@ -500,17 +528,17 @@
   }
 
   .view-tabs button + button {
-    border-top: 1px solid var(--neutral-gray-600);
+    border-top: 1px solid var(--map-panel-border);
   }
 
   .view-tabs button[aria-pressed='true'] {
-    background: var(--neutral-white);
-    color: var(--neutral-gray-900);
+    background: var(--map-accent);
+    color: var(--map-panel);
     font-weight: 600;
   }
 
   .view-tabs button:focus-visible {
-    outline: 2px solid var(--neutral-gray-400);
+    outline: 2px solid var(--map-accent);
     outline-offset: -3px;
   }
 
@@ -554,6 +582,15 @@
   }
 
   @media (max-width: 767px) {
+    h1 {
+      font-weight: 600;
+    }
+
+    .view-tabs button {
+      width: 33px;
+      font-size: 14px;
+    }
+
     .graph-frame {
       position: relative;
       height: 100%;

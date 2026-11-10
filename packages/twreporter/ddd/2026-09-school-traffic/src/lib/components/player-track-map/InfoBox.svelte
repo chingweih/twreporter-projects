@@ -1,5 +1,5 @@
 <script lang="ts">
-  import TooltipContent from '@lab-reporter/ddd-shared/components/shared/TooltipContent.svelte'
+  import PaperCard from './PaperCard.svelte'
   import type { InfoBox as InfoBoxData } from '../../rpc.ts'
 
   const {
@@ -14,28 +14,34 @@
 </script>
 
 <div {id} class="info-box" role="dialog" aria-labelledby={`${id}-title`}>
-  <TooltipContent variant="light">
-    <div class="popup-body">
+  <PaperCard style="--paper-padding: 10px">
+    <div class="header">
+      <h3 id={`${id}-title`}>{info.infoName}</h3>
       <button
         type="button"
         class="close"
         onclick={onclose}
         aria-label="關閉資訊">×</button
       >
-      <h3 id={`${id}-title`}>{info.infoName}</h3>
-      {#if info.inspectItemSequence}
-        <p class="item">{info.inspectItemSequence}</p>
-      {/if}
-      <p class="content">{info.infoContent}</p>
-      {#each info.laws as law}
-        <p class="source">{law}</p>
-      {/each}
     </div>
-  </TooltipContent>
+    {#if info.inspectItemSequence}
+      <p class="item">{info.inspectItemSequence}</p>
+    {/if}
+    <p class="content">{info.infoContent}</p>
+    {#if info.laws.length}
+      <div class="sources">
+        {#each info.laws as law}
+          <p>{law}</p>
+        {/each}
+      </div>
+    {/if}
+  </PaperCard>
 </div>
 
 <style>
   .info-box {
+    --map-text: #404040;
+    --map-muted: rgb(64 64 64 / 60%);
     z-index: 1;
     position: absolute;
     position-anchor: --selected-marker;
@@ -46,7 +52,7 @@
       top span-all,
       span-all;
     box-sizing: border-box;
-    width: min(320px, calc(100vw - 32px));
+    width: min(300px, calc(100vw - 32px));
     inset: auto;
     max-height: calc(100dvh - 32px);
     margin: 12px;
@@ -57,18 +63,22 @@
     font-family: inherit;
   }
 
-  .popup-body {
-    padding: 10px 12px;
+  .header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 4px;
   }
 
   p {
     margin: 0;
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1.6;
   }
 
   .close {
-    float: right;
+    flex-shrink: 0;
     border: 0;
     padding: 0 4px;
     background: transparent;
@@ -79,22 +89,36 @@
   }
 
   h3 {
-    margin: 0 24px 8px 0;
-    font-size: 16px;
-    line-height: 1.3;
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
   }
 
   .item {
-    margin-bottom: 12px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: var(--map-muted);
   }
 
   .content {
     white-space: pre-line;
     color: inherit;
+    letter-spacing: 0.01em;
   }
 
-  .source {
-    margin-top: 12px;
+  .sources {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-top: 5px;
+  }
+
+  .sources p {
     white-space: pre-line;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--map-muted);
   }
 </style>
