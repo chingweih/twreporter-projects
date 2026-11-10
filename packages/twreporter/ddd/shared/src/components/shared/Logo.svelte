@@ -11,6 +11,8 @@
     display: block;
     width: 29px;
     height: 31px;
+    object-fit: contain;
+    object-position: center;
   }
 
   @container (max-width: 767px) {
