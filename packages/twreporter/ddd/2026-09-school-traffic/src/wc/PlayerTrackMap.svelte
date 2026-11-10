@@ -41,7 +41,8 @@
     () => ({ src: '', config }),
   )
   const fallbackConfig = playerTrackMapConfigSchema.parse(defaultConfig)
-  const cards = $derived((graphic.config ?? fallbackConfig).cards)
+  const mapConfig = $derived(graphic.config ?? fallbackConfig)
+  const cards = $derived(mapConfig.cards)
   const scroller = new PlayerTrackMapScroller(() => cards)
   let imageWidth = $state(mapWidth)
   let imageHeight = $state(mapHeight)
@@ -264,7 +265,14 @@
             <Frame style="gap: 18px">
               {#snippet topLeft()}
                 <PaperCard>
-                  <h1>看看你剛剛的上學路徑，在改善後可以多安全？</h1>
+                  {#if graphic.editable}
+                    <h1
+                      contenteditable="plaintext-only"
+                      bind:innerText={mapConfig.title}
+                    ></h1>
+                  {:else}
+                    <h1>{mapConfig.title}</h1>
+                  {/if}
                 </PaperCard>
               {/snippet}
               <div class="graph-control-container">
@@ -313,13 +321,16 @@
               {#snippet bottomLeft()}
                 <div class="footnotes">
                   <PaperCard>
-                    <p>註1：改善建議為設計影像</p>
-                    <p>
-                      註2：地圖經多張空拍影像拼貼，導致部分標線歪斜，僅供示意而非現場狀況
-                    </p>
-                    <p>
-                      資料整理：林雨佑 ｜ 攝影：謝佩穎、黃世澤 ｜ 設計：江世民
-                    </p>
+                    {#each mapConfig.footnotes as footnote, index}
+                      {#if graphic.editable}
+                        <p
+                          contenteditable="plaintext-only"
+                          bind:innerText={mapConfig.footnotes[index]}
+                        ></p>
+                      {:else}
+                        <p>{footnote}</p>
+                      {/if}
+                    {/each}
                   </PaperCard>
                 </div>
               {/snippet}
@@ -431,6 +442,7 @@
     font-size: 24px;
     font-weight: 900;
     line-height: 36px;
+    white-space: pre-wrap;
   }
 
   .footnotes {
@@ -442,6 +454,13 @@
     font-weight: 400;
     line-height: 18px;
     color: var(--map-muted);
+    white-space: pre-wrap;
+  }
+
+  [contenteditable] {
+    min-height: 1lh;
+    pointer-events: auto;
+    cursor: text;
   }
 
   .graph-control-container {

@@ -1,4 +1,8 @@
 import { z } from 'zod'
+import {
+  createShellConfigSchema,
+  shellConfigSchema,
+} from '@lab-reporter/ddd-shared/components/shared/types.ts'
 import defaultConfig from '../../../../public/player-track-map.json' with { type: 'json' }
 
 export const playerTrackMapCardSchema = z
@@ -31,8 +35,11 @@ export const playerTrackMapCardSchema = z
     'ui:order': ['title', 'text', 'position', 'view', 'highlightMarkerIds'],
   })
 
-export const playerTrackMapConfigSchema = z
-  .object({
+export const playerTrackMapConfigSchema = createShellConfigSchema(
+  shellConfigSchema.parse(defaultConfig),
+)
+  .pick({ title: true, footnotes: true })
+  .extend({
     $schema: z.string().optional().meta({ 'ui:widget': 'hidden' }),
     cards: z
       .array(playerTrackMapCardSchema)
@@ -42,7 +49,7 @@ export const playerTrackMapConfigSchema = z
         'ui:options': { titleKey: 'title', collapsible: true },
       }),
   })
-  .meta({ 'ui:order': ['cards', '$schema'] })
+  .meta({ 'ui:order': ['title', 'footnotes', 'cards', '$schema'] })
 
 export type PlayerTrackMapCard = z.infer<typeof playerTrackMapCardSchema>
 export type PlayerTrackMapConfig = z.infer<typeof playerTrackMapConfigSchema>
