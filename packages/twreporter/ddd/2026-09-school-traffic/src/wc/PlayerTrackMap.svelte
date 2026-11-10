@@ -461,8 +461,9 @@
   }
 
   .legend {
-    width: 180px;
-    max-width: 65%;
+    width: max-content;
+    min-width: 180px;
+    flex-shrink: 0;
     font-size: var(--text-xs);
   }
 
@@ -484,6 +485,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    white-space: nowrap;
   }
 
   .legend dt {

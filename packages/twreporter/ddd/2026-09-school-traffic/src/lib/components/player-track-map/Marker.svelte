@@ -67,8 +67,8 @@
   .pin {
     --pin-color: var(--map-accent);
     position: relative;
-    width: 44px;
-    height: 48px;
+    width: 25px;
+    height: 27px;
   }
 
   .pin::before {
@@ -76,9 +76,9 @@
     position: absolute;
     box-sizing: border-box;
     left: 50%;
-    bottom: 6px;
-    width: 32px;
-    height: 32px;
+    bottom: 4px;
+    width: 18px;
+    height: 18px;
     border: 2px solid var(--pin-color);
     border-radius: 50% 50% 0;
     background: var(--map-panel);
@@ -89,14 +89,14 @@
   }
 
   .selected .pin {
-    width: 25px;
-    height: 27px;
+    width: 44px;
+    height: 48px;
   }
 
   .selected .pin::before {
-    bottom: 4px;
-    width: 18px;
-    height: 18px;
+    bottom: 6px;
+    width: 32px;
+    height: 32px;
   }
 
   .highlighted .pin {
