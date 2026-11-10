@@ -12,7 +12,7 @@
   onMount(() => connection.mount($host()))
 </script>
 
-<Layout>
+<Layout hideInEditor>
   <PlayerTrackMap
     {config}
     getTrack={connection.player?.getTrack}

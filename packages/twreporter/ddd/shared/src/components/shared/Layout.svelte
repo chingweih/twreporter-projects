@@ -6,8 +6,12 @@
   } from '@tanstack/svelte-query'
   import type { Snippet } from 'svelte'
   import { fontStylesheetUrl } from '../../utils/fonts'
+  import { keystoneEditorDomains } from '../../utils/domains'
 
-  const { children }: { children: Snippet } = $props()
+  const {
+    children,
+    hideInEditor = false,
+  }: { children: Snippet; hideInEditor?: boolean } = $props()
   const queryClient = new QueryClient({
     queryCache: new QueryCache({
       onError: (error) => console.error(error),
@@ -33,7 +37,11 @@
 
 <QueryClientProvider client={queryClient}>
   <div class="theme">
-    {@render children()}
+    {#if hideInEditor && keystoneEditorDomains.includes(window.location.hostname)}
+      <div class="hide-in-editor-banner">編輯器中不顯示互動</div>
+    {:else}
+      {@render children()}
+    {/if}
   </div>
 </QueryClientProvider>
 
@@ -139,5 +147,13 @@
       --text-l: 18px;
       --text-xl: 22px;
     }
+  }
+
+  .hide-in-editor-banner {
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    background-color: var(--neutral-gray-800);
+    color: var(--neutral-white);
   }
 </style>

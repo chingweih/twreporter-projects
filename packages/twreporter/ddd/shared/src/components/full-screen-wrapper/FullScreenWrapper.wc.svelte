@@ -14,7 +14,7 @@
   onMount(() => connection.mount())
 </script>
 
-<Layout>
+<Layout hideInEditor>
   <FullScreenWrapper {src} {config} {controller}>
     {#snippet children()}
       <slot onslotchange={connection.ready} />
