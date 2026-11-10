@@ -285,7 +285,7 @@
                             </dt>
                             <dd>
                               {item.percentage === null
-                                ? '未記錄'
+                                ? '未體驗'
                                 : `${item.percentage.toFixed(1)}%`}
                             </dd>
                           </div>
@@ -457,7 +457,7 @@
     justify-content: space-between;
     align-items: start;
     gap: 16px;
-    top: 0;
+    top: 65px; /* Top bar */
   }
 
   .legend {
