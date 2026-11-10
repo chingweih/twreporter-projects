@@ -13,6 +13,10 @@ const { disablePageScroll, enablePageScroll } = createNoScroll({
       value: body.style.getPropertyValue(property),
       priority: body.style.getPropertyPriority(property),
     }))
+    const hiddenPrintStyle = document.createElement('style')
+    hiddenPrintStyle.textContent =
+      'body .hidden-print { display: none !important; }'
+    document.head.append(hiddenPrintStyle)
 
     body.style.setProperty('position', 'fixed')
     body.style.setProperty('top', `${-scrollY}px`)
@@ -21,6 +25,7 @@ const { disablePageScroll, enablePageScroll } = createNoScroll({
     body.style.setProperty('box-sizing', 'border-box')
 
     restorePagePosition = () => {
+      hiddenPrintStyle.remove()
       for (const { property, value, priority } of styles) {
         if (value) body.style.setProperty(property, value, priority)
         else body.style.removeProperty(property)

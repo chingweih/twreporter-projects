@@ -43,17 +43,15 @@
   }
 
   .wrapper {
-    --bottom-bar-height: 0px;
     box-sizing: border-box;
     width: 100vw;
     height: 100dvh;
-    padding-block: 64px var(--bottom-bar-height);
     position: relative;
   }
 
   .footer {
     z-index: 1;
-    bottom: var(--bottom-bar-height);
+    bottom: 0;
     right: 0;
     width: 100%;
     padding: 10px 0;
@@ -72,7 +70,7 @@
   .splash-screen {
     z-index: 1;
     width: 100%;
-    inset: 64px 0 var(--bottom-bar-height);
+    inset: 0;
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -80,11 +78,5 @@
     align-items: center;
     justify-content: center;
     background-color: rgba(255, 255, 255, 0.8);
-  }
-
-  @media (width < 1024px) {
-    .wrapper {
-      --bottom-bar-height: 55px;
-    }
   }
 </style>
