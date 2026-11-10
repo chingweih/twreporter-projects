@@ -86,6 +86,7 @@
     infoBoxes.data?.find((info) => info.id === selectedId),
   )
   const paths = $derived(createTrackPaths(track.data ?? []))
+  const progress = $derived(Math.max(0, Math.min(1, scroller.progress)))
   const legend = $derived.by(() => {
     const lengths = { road: 0, shoulder: 0, safe: 0 }
     let previous: PlayerTrack[number] | undefined
@@ -123,10 +124,6 @@
       percentage: total > 0 ? (length / total) * 100 : null,
     }))
   })
-  const current = $derived.by(() => {
-    const last = track.data?.at(-1)
-    return last ? projectPosition(last) : undefined
-  })
 </script>
 
 {#if graphic.error || graphic.loading}
@@ -136,7 +133,7 @@
     class="scrolly"
     style:--map-width={imageWidth}
     style:--map-height={imageHeight}
-    style:--progress={Math.max(0, Math.min(1, scroller.progress))}
+    style:--progress={progress}
   >
     <ScrollerBase
       bind:progress={scroller.progress}
@@ -177,6 +174,7 @@
                     />
                   </picture>
                   <svg
+                    class="route"
                     viewBox={`0 0 ${mapWidth} ${mapHeight}`}
                     preserveAspectRatio="none"
                     role="img"
@@ -207,16 +205,6 @@
                         vector-effect="non-scaling-stroke"
                       />
                     {/each}
-                    {#if current}
-                      <circle
-                        cx={current.u}
-                        cy={current.v}
-                        r="4"
-                        fill="#f80b28"
-                        stroke="white"
-                        stroke-width="1.5"
-                      />
-                    {/if}
                   </svg>
                   {#each markers as { info, pixel } (info.id)}
                     <Marker
@@ -362,6 +350,10 @@
     font-family: 'Noto Sans TC', sans-serif;
   }
 
+  .scrolly * {
+    text-align: start !important;
+  }
+
   .scrolly :global(svelte-scroller-background-container) {
     pointer-events: auto;
     will-change: auto;
@@ -407,6 +399,17 @@
 
   .map-after.visible {
     opacity: 1;
+  }
+
+  .route {
+    --route-viewport: 100cqw;
+    clip-path: inset(
+      0 0 0
+        calc(
+          100% - var(--route-viewport) / 2 - (100% - var(--route-viewport)) *
+            var(--progress)
+        )
+    );
   }
 
   .scroll-card h2 {
@@ -603,6 +606,10 @@
   }
 
   @media (max-width: 767px) {
+    .route {
+      --route-viewport: 100cqh;
+    }
+
     h1 {
       font-weight: 600;
     }
