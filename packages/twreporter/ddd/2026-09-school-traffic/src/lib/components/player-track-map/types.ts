@@ -41,13 +41,10 @@ export const playerTrackMapConfigSchema = createShellConfigSchema(
   .pick({ title: true, footnotes: true })
   .extend({
     $schema: z.string().optional().meta({ 'ui:widget': 'hidden' }),
-    cards: z
-      .array(playerTrackMapCardSchema)
-      .default(z.array(playerTrackMapCardSchema).parse(defaultConfig.cards))
-      .meta({
-        title: '捲動卡片',
-        'ui:options': { titleKey: 'title', collapsible: true },
-      }),
+    cards: z.array(playerTrackMapCardSchema).meta({
+      title: '捲動卡片',
+      'ui:options': { titleKey: 'title', collapsible: true },
+    }),
   })
   .meta({ 'ui:order': ['title', 'footnotes', 'cards', '$schema'] })
 
