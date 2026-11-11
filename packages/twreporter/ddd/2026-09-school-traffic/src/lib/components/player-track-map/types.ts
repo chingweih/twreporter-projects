@@ -8,6 +8,9 @@ import defaultConfig from '../../../../public/player-track-map.json' with { type
 export const playerTrackMapCardSchema = z
   .object({
     title: z.string().optional().meta({ title: '標題' }),
+    clipRoutes: z.boolean().optional().default(true).meta({
+      title: '是否僅顯示畫面中央以左的路徑',
+    }),
     text: z.string().meta({
       title: '內文',
       'ui:widget': 'textarea',
@@ -32,7 +35,14 @@ export const playerTrackMapCardSchema = z
     }),
   })
   .meta({
-    'ui:order': ['title', 'text', 'position', 'view', 'highlightMarkerIds'],
+    'ui:order': [
+      'title',
+      'text',
+      'position',
+      'view',
+      'clipRoutes',
+      'highlightMarkerIds',
+    ],
   })
 
 export const playerTrackMapConfigSchema = createShellConfigSchema(

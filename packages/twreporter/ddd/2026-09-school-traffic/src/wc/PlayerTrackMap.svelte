@@ -171,6 +171,7 @@
                   </picture>
                   <svg
                     class="route"
+                    class:clipped={scroller.clipRoutes}
                     viewBox={`0 0 ${mapWidth} ${mapHeight}`}
                     preserveAspectRatio="none"
                     role="img"
@@ -399,6 +400,9 @@
 
   .route {
     --route-viewport: 100cqw;
+  }
+
+  .route.clipped {
     clip-path: inset(
       0 0 0
         calc(

@@ -14,6 +14,7 @@ export class PlayerTrackMapScroller {
     this.#activeCard?.view ?? 'before',
   )
   highlightedMarkerIds = $derived(this.#activeCard?.highlightMarkerIds ?? [])
+  clipRoutes = $derived(this.#activeCard?.clipRoutes ?? true)
 
   constructor(cards: () => PlayerTrackMapCard[]) {
     this.#cards = cards
