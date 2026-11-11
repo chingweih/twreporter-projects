@@ -337,7 +337,7 @@
 
 <style>
   .scrolly {
-    --map-panel: #f4f1e7;
+    --map-panel: rgba(244, 241, 231, 0.8);
     --map-panel-border: #e2ddcf;
     --map-text: #1f2420;
     --map-accent: #3f5a33;
