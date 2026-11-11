@@ -72,8 +72,7 @@
   const markers = $derived(
     (infoBoxes.data ?? []).flatMap((info) => {
       const pixel = projectPosition(info)
-      return pixel &&
-        pixel.u >= 0 &&
+      return pixel.u >= 0 &&
         pixel.u <= mapWidth &&
         pixel.v >= 0 &&
         pixel.v <= mapHeight
@@ -337,8 +336,8 @@
 
 <style>
   .scrolly {
-    --map-panel: rgba(244, 241, 231, 0.8);
-    --map-panel-border: #e2ddcf;
+    --map-panel: rgba(244, 241, 231, 0.6);
+    --map-panel-border: rgba(226, 221, 207, 0.5);
     --map-text: #1f2420;
     --map-accent: #3f5a33;
     --map-muted: #6c7066;

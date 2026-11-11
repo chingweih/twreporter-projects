@@ -3,7 +3,7 @@ import { projectPosition } from '../../constants/coordinate-map.ts'
 
 type TrackPath = { kind: PlayerTrack[number]['kind']; d: string }
 type TrackPixel = Pick<PlayerTrack[number], 'segment' | 'kind'> &
-  NonNullable<ReturnType<typeof projectPosition>>
+  ReturnType<typeof projectPosition>
 
 export function createTrackPaths(track: PlayerTrack) {
   const paths: TrackPath[] = []
@@ -12,11 +12,6 @@ export function createTrackPaths(track: PlayerTrack) {
 
   for (const point of track) {
     const pixel = projectPosition(point)
-    if (!pixel) {
-      previous = undefined
-      run = undefined
-      continue
-    }
     if (previous?.segment === point.segment) {
       if (run?.kind === previous.kind) {
         run.d += `L${pixel.u},${pixel.v}`

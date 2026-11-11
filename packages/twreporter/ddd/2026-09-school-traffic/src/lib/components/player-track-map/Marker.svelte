@@ -13,7 +13,7 @@
     onselect,
   }: {
     info: InfoBox
-    pixel: NonNullable<ReturnType<typeof projectPosition>>
+    pixel: ReturnType<typeof projectPosition>
     selected?: boolean
     highlighted?: boolean
     edit?: boolean
