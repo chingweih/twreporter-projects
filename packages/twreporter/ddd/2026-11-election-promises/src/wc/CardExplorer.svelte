@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getContext } from 'svelte'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
   import {
@@ -9,6 +10,10 @@
   import FilterTabs from '@lab-reporter/ddd-shared/components/shared/FilterTabs.svelte'
   import CandidateCard from '../lib/components/card-explorer/CandidateCard.svelte'
   import EditableText from '@lab-reporter/ddd-shared/components/shared/EditableText.svelte'
+  import {
+    cardExplorerGraphicContext,
+    type CardExplorerGraphic,
+  } from '../lib/components/card-explorer/graphic-context.ts'
 
   let {
     sources,
@@ -17,11 +22,12 @@
     topicId = $bindable(''),
     city = $bindable(''),
   }: Partial<ExplorerProps> = $props()
-  const graphic = createGraphic(
-    'twreporter-card-explorer',
-    cardExplorerConfigSchema,
-    () => ({ sources, config: configUrl }),
-  )
+  const graphic =
+    getContext<CardExplorerGraphic | undefined>(cardExplorerGraphicContext) ??
+    createGraphic('twreporter-card-explorer', cardExplorerConfigSchema, () => ({
+      sources,
+      config: configUrl,
+    }))
   const config = $derived(graphic.config)
   const data = $derived.by(() => {
     if (!config) return { policies: [], error: undefined }

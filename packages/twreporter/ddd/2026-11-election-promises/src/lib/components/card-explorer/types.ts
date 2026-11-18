@@ -34,8 +34,11 @@ export const categorySchema = z
 export const candidateSchema = z
   .object({
     name: z.string().min(1).meta({ title: '姓名' }),
-    party: z.string().nullable().meta({ title: '黨籍' }),
-    photo: z.url().nullable().meta({ title: '照片網址' }),
+    party: z.string().nullable().meta({ title: '黨籍', 'ui:emptyValue': null }),
+    photo: z
+      .url()
+      .nullable()
+      .meta({ title: '照片網址', 'ui:emptyValue': null }),
   })
   .meta({ 'ui:order': ['name', 'party', 'photo'] })
 

@@ -38,7 +38,7 @@
       if (
         editable &&
         event.target instanceof HTMLElement &&
-        event.target.closest('[contenteditable]')
+        event.target.closest('[contenteditable], select')
       )
         event.preventDefault()
     }}
@@ -64,7 +64,6 @@
                       aria-label="評比"
                       bind:value={review.csvRow.verdict}
                     >
-                      <option value=""></option>
                       {#each config.verdicts as option}<option
                           value={option.label}>{option.label}</option
                         >{/each}
