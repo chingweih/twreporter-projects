@@ -32,17 +32,7 @@
       placeholder={config.labels.unanswered}
     />
   </p>
-  {#if editable}
-    <label class="tag"
-      ><input
-        type="checkbox"
-        checked={policy.existingPolicy}
-        onchange={(event) => {
-          policy.csvRow.existingPolicy = String(event.currentTarget.checked)
-        }}
-      />{config.labels.existingPolicy}</label
-    >
-  {:else if policy.existingPolicy && !reviews.length}
+  {#if policy.existingPolicy && !reviews.length}
     <span class="tag">{config.labels.existingPolicy}</span>
   {/if}
   {#if reviews.length}<PolicyReviews
