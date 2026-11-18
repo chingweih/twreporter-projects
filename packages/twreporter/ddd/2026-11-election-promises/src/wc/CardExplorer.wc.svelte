@@ -1,13 +1,29 @@
-<svelte:options customElement="twreporter-2026-11-election-promises-card-explorer" />
+<svelte:options
+  customElement={{
+    tag: 'twreporter-card-explorer',
+    props: {
+      sources: { type: 'Object' },
+      categoryId: { attribute: 'category-id', type: 'Number', reflect: true },
+      topicId: { attribute: 'topic-id', type: 'String', reflect: true },
+      city: { type: 'String', reflect: true },
+    },
+  }}
+/>
 
 <script lang="ts">
   import Layout from '@lab-reporter/ddd-shared/components/shared/Layout.svelte'
-  import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
+  import type { ExplorerProps } from '../lib/components/card-explorer/types.ts'
   import CardExplorer from './CardExplorer.svelte'
 
-  const { src, config }: ComponentProps = $props()
+  let {
+    sources,
+    config = '',
+    categoryId,
+    topicId = '',
+    city = '',
+  }: Partial<ExplorerProps> = $props()
 </script>
 
 <Layout>
-  <CardExplorer {src} {config} />
+  <CardExplorer {sources} {config} {categoryId} bind:topicId bind:city />
 </Layout>
