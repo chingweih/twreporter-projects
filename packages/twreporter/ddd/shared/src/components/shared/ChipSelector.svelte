@@ -9,6 +9,7 @@
 </script>
 
 <script lang="ts">
+  import type { Snippet } from 'svelte'
   const {
     options,
     value,
@@ -17,6 +18,7 @@
     countUnit = '',
     countColor,
     onchange,
+    optionLabel,
   }: {
     options: ChipOption[]
     value?: string
@@ -25,6 +27,7 @@
     countUnit?: string
     countColor?: string
     onchange: (value: string) => void
+    optionLabel?: Snippet<[ChipOption]>
   } = $props()
 </script>
 
@@ -48,7 +51,11 @@
     >
       {#if option.color}<span class="swatch" style:background={option.color}
         ></span>{/if}
-      <span>{option.label}</span>
+      <span
+        >{#if optionLabel}{@render optionLabel(
+            option,
+          )}{:else}{option.label}{/if}</span
+      >
       {#if option.count !== undefined}<span class="count"
           >{option.count}{countUnit ? ` ${countUnit}` : ''}</span
         >{/if}

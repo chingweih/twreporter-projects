@@ -1,23 +1,25 @@
 import { z } from 'zod'
 
-const shellConfigFields = {
-  title: z
-    .string()
-    .default('')
-    .meta({ title: '標題', 'ui:widget': 'textarea' }),
+export const shellConfigFields = {
+  title: z.string().meta({ title: '標題', 'ui:widget': 'textarea' }),
   subtitle: z
     .string()
     .optional()
     .meta({ title: '副標題', 'ui:widget': 'textarea' }),
   footnotes: z
     .array(z.string().meta({ title: '註解', 'ui:widget': 'textarea' }))
-    .default([])
     .meta({ title: '註解與資料來源' }),
-  wide: z.boolean().default(false).meta({ title: '使用寬版版面' }),
-  backdrop: z.boolean().default(true).meta({ title: '顯示底色' }),
+  wide: z.boolean().meta({ title: '使用寬版版面' }),
+  backdrop: z.boolean().meta({ title: '顯示底色' }),
 }
 
-export const shellConfigSchema = z.object(shellConfigFields)
+export const shellConfigSchema = z.object({
+  ...shellConfigFields,
+  title: shellConfigFields.title.default(''),
+  footnotes: shellConfigFields.footnotes.default([]),
+  wide: shellConfigFields.wide.default(false),
+  backdrop: shellConfigFields.backdrop.default(true),
+})
 
 export function createShellConfigSchema(
   defaults: z.infer<typeof shellConfigSchema>,

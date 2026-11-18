@@ -1,21 +1,41 @@
 <script lang="ts">
   import { generateAssetUrls } from '../../utils/asset-urls.ts'
-  import type { ComponentProps } from '../types.ts'
+  import type { ComponentExtraProps, ComponentProps } from '../types.ts'
   import TextAreaCopy from './TextAreaCopy.svelte'
 
   const {
     componentName,
     tagName,
-    src,
+    src = '',
     config,
-  }: ComponentProps & {
-    componentName: string
-    tagName?: string
-  } = $props()
-  const { embedCode, schemaUrl, storybookIFrameUrl } = $derived(
-    generateAssetUrls(componentName, { src, config }, tagName),
+    sources,
+    extraProps = {},
+  }: Pick<ComponentProps, 'config'> &
+    Partial<Pick<ComponentProps, 'src'>> & {
+      componentName: string
+      tagName?: string
+      sources?: Record<string, string>
+      extraProps?: ComponentExtraProps
+    } = $props()
+  const attributes = $derived(
+    sources
+      ? {
+          ...extraProps,
+          config,
+          sources: JSON.stringify(
+            Object.fromEntries(
+              Object.entries(sources).map(([id, url]) => [
+                id,
+                new URL(url, document.baseURI).href,
+              ]),
+            ),
+          ),
+        }
+      : { ...extraProps, src, config },
   )
-  let status = $state('')
+  const { embedCode, schemaUrl, storybookIFrameUrl } = $derived(
+    generateAssetUrls(componentName, attributes, tagName),
+  )
 </script>
 
 <div class="embed-code-container">

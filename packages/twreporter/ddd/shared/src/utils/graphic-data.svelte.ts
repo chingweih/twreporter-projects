@@ -6,18 +6,23 @@ import type { ComponentProps } from '../components/types.ts'
 import { fetchJson, fetchText, parseCsv, type CSVData } from './fetchers.ts'
 import { syncGraphic, type GraphicSources } from './graphic-sync.svelte.ts'
 
+type GraphicDataProps = Pick<ComponentProps, 'config'> & {
+  src?: ComponentProps['src']
+  sources?: Record<string, string>
+}
+type GraphicSource = CSVData & Pick<GraphicSources[number], 'id'>
+
 export function createGraphic<Config>(
   name: string,
   configSchema: ZodType<Config>,
-  props: () => ComponentProps,
+  props: () => GraphicDataProps,
 ) {
   const editorMode =
     window.parent !== window &&
     new URLSearchParams(window.location.search).has('edit')
   let config: Config | undefined = $state()
-  let csv: CSVData | undefined = $state()
+  let sources: GraphicSource[] | undefined = $state()
   let sourceError: string | undefined = $state()
-  let sourceRecords: GraphicSources = []
 
   const sync = syncGraphic(configSchema, {
     config: {
@@ -27,23 +32,17 @@ export function createGraphic<Config>(
       },
     },
     sources: {
-      get: () => {
-        if (!csv || !sourceRecords[0]) return undefined
-        return [
-          {
-            ...sourceRecords[0],
-            data: Papa.unparse({ fields: csv.headers, data: csv.rows }),
-          },
-          ...sourceRecords.slice(1),
-        ]
-      },
+      get: () =>
+        sources?.map(({ id, headers, rows }) => ({
+          id,
+          data: Papa.unparse({ fields: headers, data: rows }),
+        })),
       set: (value) => {
-        sourceRecords = value
         try {
-          csv = value[0] ? parseCsv(value[0].data) : undefined
+          sources = value.map(({ id, data }) => ({ id, ...parseCsv(data) }))
           sourceError = undefined
         } catch (error) {
-          csv = undefined
+          sources = undefined
           sourceError =
             error instanceof Error ? error.message : 'Unable to read CSV data'
         }
@@ -52,21 +51,27 @@ export function createGraphic<Config>(
   })
 
   const query = createQuery(() => ({
-    queryKey: [name, props().src, props().config] as const,
+    queryKey: [name, props()] as const,
     enabled: !editorMode && !sync.connected && Boolean(props().config),
     queryFn: async ({ signal }) => {
       const urls = props()
-      const [text, config] = await Promise.all([
-        urls.src
-          ? fetchText(new URL(urls.src, document.baseURI).href, signal)
-          : undefined,
+      const sourceUrls = urls.sources ?? (urls.src ? { source: urls.src } : {})
+      const [sources, config] = await Promise.all([
+        Promise.all(
+          Object.entries(sourceUrls).map(async ([id, url]) => ({
+            id,
+            ...parseCsv(
+              await fetchText(new URL(url, document.baseURI).href, signal),
+            ),
+          })),
+        ),
         fetchJson(
           new URL(urls.config, document.baseURI).href,
           configSchema,
           signal,
         ),
       ])
-      return { csv: text === undefined ? undefined : parseCsv(text), config }
+      return { sources, config }
     },
   }))
 
@@ -75,7 +80,7 @@ export function createGraphic<Config>(
     const data = query.data
     untrack(() => {
       config = data ? structuredClone(data.config) : undefined
-      csv = data ? structuredClone(data.csv) : undefined
+      sources = data ? structuredClone(data.sources) : undefined
       sourceError = undefined
     })
   })
@@ -85,7 +90,10 @@ export function createGraphic<Config>(
       return config
     },
     get csv() {
-      return csv
+      return sources?.[0]
+    },
+    get sources() {
+      return sources
     },
     get editable() {
       return sync.editable

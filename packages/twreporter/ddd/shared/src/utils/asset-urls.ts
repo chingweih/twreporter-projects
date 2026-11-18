@@ -1,4 +1,4 @@
-import type { ComponentProps } from '../components/types.ts'
+import type { ComponentAttributes } from '../components/types.ts'
 import { serializeHTMLAttr } from './html.ts'
 
 function getDistUrl(path: string) {
@@ -10,7 +10,7 @@ function getDistUrl(path: string) {
 
 export function generateAssetUrls(
   componentName: string,
-  attributes: ComponentProps,
+  attributes: ComponentAttributes,
   tagName = `twreporter-${componentName}`,
 ) {
   const timestamp =

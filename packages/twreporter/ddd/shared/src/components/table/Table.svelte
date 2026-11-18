@@ -3,6 +3,7 @@
   import type { ComponentProps } from '../types.ts'
   import Shell from '../shared/Shell.svelte'
   import ScrollFade from '../shared/ScrollFade.svelte'
+  import EditableText from '../shared/EditableText.svelte'
   import { tableConfigSchema } from './types.ts'
   import { requireCsvColumns } from '../../utils/fetchers.ts'
 
@@ -42,15 +43,9 @@
   >
     <div class="table-group">
       {#if config.label !== undefined}
-        {#if graphic.editable}
-          <div
-            class="table-label"
-            contenteditable="plaintext-only"
-            bind:innerText={config.label}
-          ></div>
-        {:else}
-          <div class="table-label">{config.label}</div>
-        {/if}
+        <div class="table-label">
+          <EditableText bind:value={config.label} editable={graphic.editable} />
+        </div>
       {/if}
       <ScrollFade>
         <table style:--mobile-width={(config.mobileWidth ?? 100) + '%'}>
@@ -66,17 +61,12 @@
           <thead>
             <tr>
               {#each config.columns as column}
-                {#if graphic.editable}
-                  <th
-                    style:text-align={column.align ?? 'left'}
-                    contenteditable="plaintext-only"
-                    bind:innerText={column.label}
-                  ></th>
-                {:else}
-                  <th style:text-align={column.align ?? 'left'}
-                    >{column.label}</th
-                  >
-                {/if}
+                <th style:text-align={column.align ?? 'left'}
+                  ><EditableText
+                    bind:value={column.label}
+                    editable={graphic.editable}
+                  /></th
+                >
               {/each}
             </tr>
           </thead>
@@ -84,22 +74,17 @@
             {#each table.rows as row}
               <tr>
                 {#each config.columns as column}
-                  {#if graphic.editable}
-                    <td
-                      style:text-align={column.align ?? 'left'}
-                      contenteditable="plaintext-only"
-                      bind:innerText={
+                  <td style:text-align={column.align ?? 'left'}
+                    ><EditableText
+                      editable={graphic.editable}
+                      bind:value={
                         () => row[column.key] ?? '—',
                         (value) => {
-                          row[column.key] = value
+                          row[column.key] = value ?? ''
                         }
                       }
-                    ></td>
-                  {:else}
-                    <td style:text-align={column.align ?? 'left'}
-                      >{row[column.key] ?? '—'}</td
-                    >
-                  {/if}
+                    /></td
+                  >
                 {/each}
               </tr>
             {/each}

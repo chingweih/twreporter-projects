@@ -3,6 +3,7 @@
   import { domToPng } from 'modern-screenshot'
   import type { Snippet } from 'svelte'
   import Logo from './Logo.svelte'
+  import EditableText from './EditableText.svelte'
 
   let container: HTMLDivElement | undefined = $state()
   const showDownload = new URLSearchParams(window.location.search).has(
@@ -50,21 +51,11 @@
     <Frame>
       {#snippet topLeft()}
         <div class="header">
-          {#if editable}
-            <h1 contenteditable="plaintext-only" bind:innerText={title}></h1>
-          {:else}
-            <h1>{title}</h1>
-          {/if}
+          <h1><EditableText bind:value={title} {editable} /></h1>
           {#if subtitle !== undefined && (editable || subtitle)}
-            {#if editable}
-              <p
-                class="subtitle"
-                contenteditable="plaintext-only"
-                bind:innerText={subtitle}
-              ></p>
-            {:else}
-              <p class="subtitle">{subtitle}</p>
-            {/if}
+            <p class="subtitle">
+              <EditableText bind:value={subtitle} {editable} />
+            </p>
           {/if}
         </div>
       {/snippet}
@@ -80,14 +71,7 @@
       {#snippet bottomLeft()}
         <div class="footnotes">
           {#each footnotes as _, index}
-            {#if editable}
-              <p
-                contenteditable="plaintext-only"
-                bind:innerText={footnotes[index]}
-              ></p>
-            {:else}
-              <p>{footnotes[index]}</p>
-            {/if}
+            <p><EditableText bind:value={footnotes[index]} {editable} /></p>
           {/each}
         </div>
       {/snippet}
@@ -144,17 +128,6 @@
 
   .container :global(*) {
     box-sizing: border-box;
-  }
-
-  .container :global([contenteditable='plaintext-only']) {
-    cursor: text;
-    outline: 1px dashed transparent;
-    outline-offset: 2px;
-  }
-
-  .container :global([contenteditable='plaintext-only']:hover),
-  .container :global([contenteditable='plaintext-only']:focus) {
-    outline-color: var(--neutral-gray-400);
   }
 
   .header h1 {

@@ -5,6 +5,11 @@ export type ComponentProps = {
   config: string
 }
 
+export type ComponentExtraProps = Record<string, string | number | boolean>
+
+export type ComponentAttributes = Pick<ComponentProps, 'config'> &
+  ComponentExtraProps
+
 export type ComponentPropsWithChildren = ComponentProps & {
   children: Snippet
 }
