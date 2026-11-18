@@ -32,9 +32,12 @@ export function parseCsv(csvText: string) {
     skipEmptyLines: 'greedy',
   })
 
-  if (result.errors.length > 0) {
+  const errors = result.errors.filter(
+    (error) => error.code !== 'UndetectableDelimiter',
+  )
+  if (errors.length > 0) {
     throw new Error(
-      `Failed to parse CSV: ${result.errors.map((error) => error.message).join('; ')}`,
+      `Failed to parse CSV: ${errors.map((error) => error.message).join('; ')}`,
     )
   }
 

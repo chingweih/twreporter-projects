@@ -6,7 +6,7 @@ import type { ComponentProps } from '../components/types.ts'
 import { fetchJson, fetchText, parseCsv, type CSVData } from './fetchers.ts'
 import { syncGraphic, type GraphicSources } from './graphic-sync.svelte.ts'
 
-type GraphicDataProps = Pick<ComponentProps, 'config'> & {
+export type GraphicDataProps = Pick<ComponentProps, 'config'> & {
   src?: ComponentProps['src']
   sources?: Record<string, string>
 }
