@@ -39,6 +39,7 @@ export const candidateSchema = z
       .url()
       .nullable()
       .meta({ title: '照片網址', 'ui:emptyValue': null }),
+    number: z.number().nullable().meta({ title: '候選人號次' }),
   })
   .meta({ 'ui:order': ['name', 'party', 'photo'] })
 
