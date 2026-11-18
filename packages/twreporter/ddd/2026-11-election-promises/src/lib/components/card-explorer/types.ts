@@ -41,7 +41,7 @@ export const candidateSchema = z
       .meta({ title: '照片網址', 'ui:emptyValue': null }),
     number: z.number().optional().meta({ title: '候選人號次' }),
   })
-  .meta({ 'ui:order': ['name', 'party', 'photo'] })
+  .meta({ 'ui:order': ['name', 'number', 'party', 'photo'] })
 
 export const verdictSchema = z
   .object({

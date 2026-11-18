@@ -28,12 +28,12 @@
   blockquote {
     display: flex;
     flex-direction: column;
-    gap: 3.5px;
+    gap: 7px;
     margin: 0;
-    padding: 5px;
-    background: var(--neutral-gray-100);
+    padding: 10px;
+    background: var(--neutral-white);
     color: var(--neutral-gray-700);
-    font-size: 10px;
+    font-size: 16px;
     font-weight: 400;
     line-height: 1.5;
     letter-spacing: 0.05em;
@@ -41,25 +41,25 @@
   }
   p {
     margin: 0;
-    font-size: 10px;
+    font-size: 16px;
   }
   footer {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 10px;
   }
   .badge {
     flex-shrink: 0;
-    border-radius: 1px;
-    padding: 0.5px 2.5px;
+    border-radius: 2px;
+    padding: 1px 5px;
     color: var(--neutral-white);
-    font-size: 7px;
+    font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.05em;
   }
   cite {
     color: var(--neutral-gray-500);
-    font-size: 8px;
+    font-size: 14px;
     font-style: normal;
     letter-spacing: 0.05em;
     overflow-wrap: anywhere;

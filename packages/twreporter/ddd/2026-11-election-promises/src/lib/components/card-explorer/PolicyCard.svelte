@@ -48,21 +48,18 @@
   article {
     display: flex;
     flex-direction: column;
-    gap: 2.5px;
+    gap: 5px;
     min-width: 0;
-    padding-bottom: 7px;
-    border-bottom: 0.5px solid var(--neutral-black);
-  }
-  article:last-child {
-    border-bottom: 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgb(38 38 38 / 10%);
   }
   article.has-heading {
-    gap: 5px;
+    gap: 10px;
   }
   .promise {
     margin: 0;
-    color: var(--neutral-black);
-    font-size: 12px;
+    color: var(--neutral-gray-900);
+    font-size: 18px;
     font-weight: 400;
     line-height: 1.5;
     letter-spacing: 0.05em;
@@ -75,12 +72,11 @@
   .tag {
     display: inline-flex;
     align-items: center;
-    gap: 2.5px;
     align-self: start;
-    padding: 1.5px 4px;
-    border-radius: 1px;
+    padding: 2px 6px;
+    border-radius: 2px;
     background: var(--neutral-gray-200);
-    font-size: 8px;
+    font-size: 12px;
     line-height: 1.5;
     letter-spacing: 0.05em;
   }

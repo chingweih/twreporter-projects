@@ -142,7 +142,7 @@
           onchange={(value) => (city = value)}
         />
         <div class="candidates">
-          {#each candidateNames as name (name)}
+          {#each candidateNames as name, index (name)}
             {@const candidate = config.candidates.find(
               (item) => item.name === name,
             )}
@@ -154,6 +154,7 @@
                 )}
                 {config}
                 editable={graphic.editable}
+                initiallyOpen={index === 0}
               />
             {/if}
           {/each}
@@ -176,7 +177,7 @@
   .explorer :global(.outer.wide) {
     margin: 0 auto;
     width: 100%;
-    max-width: 700px;
+    max-width: 1920px;
     font-weight: 400;
   }
 
@@ -184,15 +185,23 @@
     border: 0;
   }
 
+  .explorer :global(.outer > .container) {
+    border-block: 2px solid var(--neutral-gray-200);
+  }
+
   .explorer :global(.frame) {
-    padding: 19px 24px 21px 28px;
-    gap: 7.5px;
+    padding: 38px 48px 42px 56px;
+    gap: 10px;
+    color: var(--neutral-gray-800);
+  }
+
+  .explorer :global(.top) {
+    margin-bottom: -2px;
   }
 
   .explorer :global(.header h1) {
-    min-height: 22px;
-    font-size: 18px;
-    line-height: 1.2;
+    font-size: 28px;
+    line-height: 1.5;
     letter-spacing: 0.01em;
   }
 
@@ -205,49 +214,28 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 5px;
     min-width: 0;
   }
 
   .question {
     margin: 0;
-    min-height: 34px;
-    font-size: 14px;
-    line-height: 1.2;
+    font-size: 24px;
+    line-height: 1.5;
     letter-spacing: 0.01em;
   }
 
-  .results,
-  .candidates {
+  .results {
     display: flex;
     flex-direction: column;
     min-width: 0;
-  }
-
-  .results {
-    gap: 7.5px;
-  }
-
-  .candidates {
     gap: 15px;
   }
 
-  .candidates :global(.candidate + .candidate) {
-    position: relative;
-  }
-
-  .candidates :global(.candidate + .candidate)::before {
-    position: absolute;
-    top: -7.5px;
-    width: 100%;
-    height: 0.5px;
-    background: repeating-linear-gradient(
-      to right,
-      var(--neutral-gray-300) 0 2.5px,
-      transparent 2.5px 5px
-    );
-    transform: translateY(-50%);
-    content: '';
+  .candidates {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px;
+    min-width: 0;
   }
 
   .explorer :global(.filter-tabs) {
@@ -255,11 +243,16 @@
     --neutral-gray-50: var(--neutral-white);
   }
 
+  .explorer :global(.backdrop .filter-tabs) {
+    --neutral-gray-50: var(--neutral-gray-100);
+  }
+
   .explorer :global(.filter-tabs button) {
     justify-content: flex-start;
     border-color: var(--neutral-gray-300);
     color: var(--neutral-gray-300);
-    line-height: 1.5;
+    background: transparent;
+    line-height: 1;
     letter-spacing: 0.05em;
   }
 
@@ -273,11 +266,15 @@
   }
 
   .explorer :global(.filter-tabs button.active) {
+    border-color: var(--brand-main);
+    background: var(--brand-main);
+    color: var(--neutral-white);
     font-weight: 600;
   }
 
   .explorer :global(.topic .chips) {
-    gap: 5px;
+    gap: 10px;
+    min-height: 37px;
   }
 
   .explorer :global(.topic .fade) {
@@ -286,10 +283,10 @@
   }
 
   .explorer :global(.topic button) {
-    border-width: 1px;
-    padding: 2.5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
+    border-width: 2px;
+    padding: 7px 14px;
+    border-radius: 40px;
+    font-size: 18px;
     font-weight: 500;
   }
 
@@ -298,18 +295,15 @@
   }
 
   .explorer :global(.city .chips) {
-    gap: 2.5px;
+    gap: 0;
   }
 
   .explorer :global(.city button) {
     flex: 1;
-    padding: 3px 10px;
-    border-width: 0.5px;
-    border-radius: 15px;
-    font-size: 10px;
-  }
-
-  .explorer :global(.filter-tabs button.active) {
-    border-width: 0;
+    padding: 11px 17px;
+    border-width: 1px;
+    border-radius: 0;
+    font-size: 18px;
+    font-weight: 400;
   }
 </style>

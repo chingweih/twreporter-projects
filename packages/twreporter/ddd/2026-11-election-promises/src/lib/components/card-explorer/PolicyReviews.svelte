@@ -110,7 +110,6 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 2.5px;
     list-style: none;
     cursor: pointer;
   }
@@ -124,27 +123,27 @@
   .verdicts {
     display: flex;
     flex: 1;
-    gap: 2.5px;
+    gap: 45px;
     min-width: 0;
   }
   .verdict {
     display: flex;
-    flex: 1;
+    flex-shrink: 1;
     align-items: stretch;
-    gap: 2.5px;
+    gap: 10px;
     min-width: 0;
   }
   .swatch {
     flex-shrink: 0;
-    width: 10.5px;
-    border-radius: 0.5px;
+    width: 3px;
+    border-radius: 1px;
   }
   .attribution {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     min-width: 0;
-    font-size: 12px;
+    font-size: 18px;
     line-height: 1.5;
     letter-spacing: 0.05em;
     overflow-wrap: anywhere;
@@ -152,7 +151,7 @@
   .label,
   select {
     color: var(--neutral-gray-800);
-    font-size: 12px;
+    font-size: 18px;
     font-weight: 500;
   }
   select {
@@ -163,35 +162,32 @@
   }
   .source {
     color: var(--neutral-gray-500);
-    font-size: 8px;
+    font-size: 12px;
     font-weight: 400;
     letter-spacing: 0.05em;
   }
   .label-row {
     display: flex;
     align-items: center;
-    gap: 2.5px;
+    gap: 5px;
   }
   .tag {
     flex-shrink: 0;
-    border-radius: 1px;
-    padding: 1.5px 4px;
+    border-radius: 2px;
+    padding: 2px 6px;
     background: var(--neutral-gray-200);
     color: var(--neutral-gray-800);
-    font-size: 8px;
+    font-size: 12px;
     font-weight: 400;
     letter-spacing: 0.05em;
   }
   .toggle {
-    min-width: 54px;
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    padding: 1.5px 3px 1.5px 7px;
-    border-radius: 16.5px;
-    background: var(--neutral-gray-100);
-    color: var(--neutral-gray-600);
-    font-size: 8px;
+    justify-content: center;
+    color: var(--neutral-gray-500);
+    font-size: 12px;
     line-height: 1.5;
     letter-spacing: 0.05em;
     white-space: nowrap;
@@ -199,21 +195,27 @@
   .arrow {
     display: grid;
     place-items: center;
-    width: 10px;
-    height: 10px;
+    width: 16px;
+    height: 16px;
   }
   .arrow::before {
-    width: 3.5px;
-    height: 3.5px;
+    width: 5px;
+    height: 5px;
     border-right: 1px solid currentColor;
     border-bottom: 1px solid currentColor;
     transform: translateY(-1px) rotate(45deg);
     content: '';
   }
+  details[open] .toggle {
+    color: var(--neutral-gray-300);
+  }
+  details[open] .arrow {
+    transform: rotate(180deg);
+  }
   .reviews {
     display: flex;
     flex-direction: column;
-    gap: 2.5px;
-    padding-top: 5px;
+    gap: 5px;
+    padding-top: 10px;
   }
 </style>
