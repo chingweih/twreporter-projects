@@ -127,6 +127,7 @@
     {
       "name": "蔣萬安",
       "party": "國民黨",
+      "number": 5,
       "photo": {
         "desktop": "台北_蔣萬安_電腦.png",
         "mobile": "台北_蔣萬安_手機.png"
@@ -135,6 +136,7 @@
     {
       "name": "沈伯洋",
       "party": "民進黨",
+      "number": 3,
       "photo": {
         "desktop": "台北_沈伯洋_電腦.png",
         "mobile": "台北_沈伯洋_手機.png"
@@ -143,6 +145,7 @@
     {
       "name": "李四川",
       "party": "國民黨",
+      "number": 3,
       "photo": {
         "desktop": "新北_李四川_電腦.png",
         "mobile": "新北_李四川_手機.png"
@@ -151,6 +154,7 @@
     {
       "name": "蘇巧慧",
       "party": "民進黨",
+      "number": 1,
       "photo": {
         "desktop": "新北_蘇巧慧_電腦.png",
         "mobile": "新北_蘇巧慧_手機.png"
@@ -159,6 +163,7 @@
     {
       "name": "張善政",
       "party": "國民黨",
+      "number": 2,
       "photo": {
         "desktop": "桃園_張善政_電腦.png",
         "mobile": "桃園_張善政_手機.png"
@@ -167,6 +172,7 @@
     {
       "name": "黃世杰",
       "party": "民進黨",
+      "number": 1,
       "photo": {
         "desktop": "桃園_黃世杰_電腦.png",
         "mobile": "桃園_黃世杰_手機.png"
@@ -175,6 +181,7 @@
     {
       "name": "江啟臣",
       "party": "國民黨",
+      "number": 3,
       "photo": {
         "desktop": "台中_江啟臣_電腦.png",
         "mobile": "台中_江啟臣_手機.png"
@@ -183,6 +190,7 @@
     {
       "name": "何欣純",
       "party": "民進黨",
+      "number": 1,
       "photo": {
         "desktop": "台中_何欣純_電腦.png",
         "mobile": "台中_何欣純_手機.png"
@@ -191,6 +199,7 @@
     {
       "name": "謝龍介",
       "party": "國民黨",
+      "number": 2,
       "photo": {
         "desktop": "台南_謝龍介_電腦.png",
         "mobile": "台南_謝龍介_手機.png"
@@ -199,6 +208,7 @@
     {
       "name": "陳亭妃",
       "party": "民進黨",
+      "number": 3,
       "photo": {
         "desktop": "台南_陳亭妃_電腦.png",
         "mobile": "台南_陳亭妃_手機.png"
@@ -207,6 +217,7 @@
     {
       "name": "柯志恩",
       "party": "國民黨",
+      "number": 3,
       "photo": {
         "desktop": "高雄_柯志恩_電腦.png",
         "mobile": "高雄_柯志恩_手機.png"
@@ -215,6 +226,7 @@
     {
       "name": "賴瑞隆",
       "party": "民進黨",
+      "number": 5,
       "photo": {
         "desktop": "高雄_賴瑞隆_電腦.png",
         "mobile": "高雄_賴瑞隆_手機.png"

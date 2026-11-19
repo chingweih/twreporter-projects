@@ -95,13 +95,12 @@
     place-items: center;
     width: 32px;
     height: 32px;
-    border: 1.231px solid var(--neutral-gray-800);
+    border: 1px solid var(--neutral-gray-800);
     border-radius: 50%;
     background: var(--neutral-white);
-    font-size: 24.615px;
+    font-size: 24px;
     font-weight: 500;
     line-height: 1;
-    letter-spacing: 1.2308px;
   }
 
   .name {
