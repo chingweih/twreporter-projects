@@ -31,14 +31,27 @@ export const categorySchema = z
   })
   .meta({ 'ui:order': ['id', 'label', 'topics'] })
 
+const photoSourceSchema = z.union([
+  z.url(),
+  z.string().regex(/^[^/\\]+_(電腦|手機)\.png$/),
+])
+
 export const candidateSchema = z
   .object({
     name: z.string().min(1).meta({ title: '姓名' }),
     party: z.string().nullable().meta({ title: '黨籍', 'ui:emptyValue': null }),
     photo: z
-      .url()
+      .object({
+        desktop: photoSourceSchema.meta({ title: '電腦照片' }),
+        mobile: photoSourceSchema.meta({ title: '手機照片' }),
+      })
+      .meta({ 'ui:order': ['desktop', 'mobile'] })
       .nullable()
-      .meta({ title: '照片網址', 'ui:emptyValue': null }),
+      .meta({
+        title: '照片',
+        description: '填入 assets/candidate 中的 PNG 檔名或完整圖片 URL。',
+        'ui:emptyValue': null,
+      }),
     number: z.number().optional().meta({ title: '候選人號次' }),
   })
   .meta({ 'ui:order': ['name', 'number', 'party', 'photo'] })

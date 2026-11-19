@@ -2,6 +2,8 @@
   import type { Candidate, CardExplorerConfig, Policy } from './types.ts'
   import PolicyCard from './PolicyCard.svelte'
   import { partyBadges } from './party-badges.ts'
+  import { resolveCandidatePhoto } from './candidate-photos.ts'
+  import { breakpoints } from '@lab-reporter/ddd-shared/utils/media-query.ts'
 
   const {
     candidate,
@@ -23,7 +25,19 @@
 
 <section class="candidate" aria-label={candidate.name}>
   <div class="portrait">
-    {#if candidate.photo}<img class="photo" src={candidate.photo} alt="" />{/if}
+    {#if candidate.photo}
+      <picture>
+        <source
+          media={`(width < ${breakpoints.tablet}px)`}
+          srcset={resolveCandidatePhoto(candidate.photo.mobile)}
+        />
+        <img
+          class="photo"
+          src={resolveCandidatePhoto(candidate.photo.desktop)}
+          alt=""
+        />
+      </picture>
+    {/if}
     <div class="identity">
       {#if candidate.number !== undefined}<span class="number"
           >{candidate.number}</span
