@@ -300,10 +300,10 @@
 
   .explorer :global(.topic button) {
     border-width: 1.5px;
-    padding: 7px 14px;
+    padding: 2px 12px;
     border-radius: 40px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 200;
     transition: all 0.1s ease-in-out;
   }
 
@@ -317,11 +317,44 @@
 
   .explorer :global(.city button) {
     flex: 1;
-    padding: 10px 12px;
+    padding: 4px 12px;
     border-width: 1px;
     border-radius: 0;
     font-size: 16px;
     font-weight: 400;
     transition: all 0.1s ease-in-out;
+  }
+  @media (width < 768px) {
+    .explorer :global(.frame) {
+      padding: 34px;
+      gap: 5px;
+    }
+    .explorer :global(.top) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 5px;
+    }
+    .explorer :global(.top .corner.right) {
+      width: 100%;
+      max-width: 100%;
+      margin-left: 0;
+    }
+    .explorer :global(.topic button) {
+      padding: 2px 12px;
+      border-width: 1px;
+      font-size: 16px;
+    }
+    .explorer :global(.city button) {
+      flex: none;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+    .candidates {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 25px;
+    }
+    .results {
+      margin-top: 5px;
+    }
   }
 </style>

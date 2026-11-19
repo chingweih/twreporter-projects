@@ -24,7 +24,11 @@
 </script>
 
 <section class="candidate" aria-label={candidate.name}>
-  <div class="portrait">
+  <div
+    class="portrait"
+    class:kmt={candidate.party === '國民黨'}
+    class:dpp={candidate.party === '民進黨'}
+  >
     {#if candidate.photo}
       <picture>
         <source
@@ -44,11 +48,14 @@
         >{/if}
       <span class="name">{candidate.name}</span>
     </div>
-    {#if partyBadge}<img
-        class="party-badge"
-        src={partyBadge}
-        alt={candidate.party ?? ''}
-      />{/if}
+    {#if candidate.party}<div class="party">
+        {#if partyBadge}<img
+            class="party-badge"
+            src={partyBadge}
+            alt={candidate.party}
+          />{/if}
+        <span class="party-name">{candidate.party}</span>
+      </div>{/if}
   </div>
   <div class="policies">
     {#each policies as policy, index (policy.questionId)}
@@ -100,22 +107,31 @@
     background: var(--neutral-white);
     font-size: 24px;
     font-weight: 500;
-    line-height: 1.7;
+    line-height: 1;
   }
 
   .name {
     width: 29px;
     font-size: 28px;
     font-weight: 600;
-    line-height: 1.7;
+    line-height: 1.1;
     text-align: center;
     overflow-wrap: anywhere;
   }
 
-  .party-badge {
+  .party {
     position: absolute;
+    display: flex;
+    align-items: center;
     bottom: 15px;
     left: 10px;
+  }
+
+  .party-name {
+    display: none;
+  }
+
+  .party-badge {
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -137,5 +153,48 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+  @media (width < 768px) {
+    .candidate {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .portrait {
+      position: relative;
+      height: 81px;
+      border-radius: 1px;
+      overflow: hidden;
+    }
+    .portrait.kmt {
+      background: #dae6ed;
+      --party-color: #517399;
+    }
+    .portrait.dpp {
+      background: #e1e9d0;
+      --party-color: #667d45;
+    }
+    .identity {
+      flex-direction: row;
+    }
+    .name {
+      width: auto;
+      white-space: nowrap;
+      letter-spacing: 0.6px;
+    }
+    .party {
+      gap: 3px;
+      bottom: 8px;
+      left: 12px;
+      color: var(--party-color, var(--neutral-gray-700));
+    }
+    .party-badge {
+      width: 16px;
+      height: 16px;
+    }
+    .party-name {
+      display: inline;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.6px;
+    }
   }
 </style>

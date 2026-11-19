@@ -91,7 +91,9 @@
       {/each}
     </div>
     <span class="toggle"
-      >{config.labels.reviewDetails}<span class="arrow" aria-hidden="true"
+      ><span class="toggle-label">{config.labels.reviewDetails}</span><span
+        class="arrow"
+        aria-hidden="true"
       ></span></span
     >
   </summary>
@@ -105,7 +107,20 @@
           {editable}
         />
       {/each}
-    </div>{/if}
+    </div>
+    <button
+      class="collapse"
+      onclick={(event) => {
+        const summary = event.currentTarget
+          .closest('details')
+          ?.querySelector('summary')
+        summary?.click()
+        summary?.focus()
+      }}
+      >隱藏{config.labels.reviewDetails}<span class="arrow" aria-hidden="true"
+      ></span></button
+    >
+  {/if}
 </details>
 
 <style>
@@ -206,7 +221,6 @@
     letter-spacing: 0.05em;
     white-space: nowrap;
   }
-  .toggle:hover,
   summary:focus-visible .toggle {
     background-color: var(--neutral-gray-200);
   }
@@ -240,5 +254,50 @@
     flex-direction: column;
     gap: 5px;
     padding-top: 10px;
+  }
+  .collapse {
+    display: none;
+  }
+
+  @media (width < 768px) {
+    summary {
+      gap: 5px;
+    }
+    summary:hover {
+      background-color: transparent;
+    }
+    .verdicts {
+      gap: 15px;
+    }
+    .verdict {
+      gap: 5px;
+    }
+    .attribution {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+    }
+    .toggle-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .collapse {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin-top: 10px;
+      padding: 3px 6px 3px 12px;
+      border: 0;
+      border-radius: 33px;
+      background: var(--neutral-gray-200);
+      color: var(--neutral-gray-600);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
   }
 </style>

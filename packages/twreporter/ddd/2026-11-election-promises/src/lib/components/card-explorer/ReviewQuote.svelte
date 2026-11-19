@@ -63,4 +63,15 @@
     letter-spacing: 0.05em;
     overflow-wrap: anywhere;
   }
+  @media (width < 768px) {
+    blockquote {
+      font-size: 16px;
+    }
+    .badge {
+      font-size: 12px;
+    }
+    cite {
+      font-size: 14px;
+    }
+  }
 </style>

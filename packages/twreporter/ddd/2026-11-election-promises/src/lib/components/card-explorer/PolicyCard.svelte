@@ -80,4 +80,9 @@
     line-height: 1.7;
     letter-spacing: 0.05em;
   }
+  @media (width < 768px) {
+    article.has-heading .promise {
+      font-size: 18px;
+    }
+  }
 </style>
