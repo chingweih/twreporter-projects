@@ -100,14 +100,14 @@
     background: var(--neutral-white);
     font-size: 24px;
     font-weight: 500;
-    line-height: 1;
+    line-height: 1.7;
   }
 
   .name {
     width: 29px;
     font-size: 28px;
     font-weight: 600;
-    line-height: 1.1;
+    line-height: 1.7;
     text-align: center;
     overflow-wrap: anywhere;
   }

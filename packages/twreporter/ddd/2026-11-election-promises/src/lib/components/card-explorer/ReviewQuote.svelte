@@ -33,15 +33,14 @@
     padding: 10px;
     background: var(--neutral-white);
     color: var(--neutral-gray-700);
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 400;
-    line-height: 1.5;
+    line-height: 1.7;
     letter-spacing: 0.05em;
     white-space: pre-line;
   }
   p {
     margin: 0;
-    font-size: 16px;
   }
   footer {
     display: flex;
@@ -53,13 +52,13 @@
     border-radius: 2px;
     padding: 1px 5px;
     color: var(--neutral-white);
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.05em;
   }
   cite {
     color: var(--neutral-gray-500);
-    font-size: 14px;
+    font-size: 12px;
     font-style: normal;
     letter-spacing: 0.05em;
     overflow-wrap: anywhere;

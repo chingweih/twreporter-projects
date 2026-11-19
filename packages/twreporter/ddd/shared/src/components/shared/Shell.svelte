@@ -14,6 +14,7 @@
     title = $bindable(''),
     subtitle = $bindable(),
     children,
+    topRight,
     footnotes = $bindable([]),
     wide = false,
     backdrop = true,
@@ -27,6 +28,7 @@
     subtitle?: string
     footnotes?: string[]
     children?: Snippet
+    topRight?: Snippet
     wide?: boolean
     backdrop?: boolean
     editable?: boolean
@@ -48,7 +50,7 @@
 
 <div class={['outer', { wide }]}>
   <div class={['container', { backdrop }]} bind:this={container}>
-    <Frame>
+    <Frame {topRight}>
       {#snippet topLeft()}
         <div class="header">
           <h1><EditableText bind:value={title} {editable} /></h1>

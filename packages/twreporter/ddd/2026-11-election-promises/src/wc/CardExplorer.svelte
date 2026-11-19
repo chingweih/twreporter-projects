@@ -104,7 +104,7 @@
       {error}
       loading={graphic.loading}
     >
-      <div class="intro">
+      {#snippet topRight()}
         <FilterTabs
           class="topic"
           options={category.topics.map((item) => ({
@@ -125,6 +125,8 @@
               />{/if}
           {/snippet}
         </FilterTabs>
+      {/snippet}
+      <div class="intro">
         {#if topic && (topic.question || graphic.editable)}<p class="question">
             <EditableText
               bind:value={topic.question}
@@ -179,6 +181,13 @@
     width: 100%;
     max-width: 1920px;
     font-weight: 400;
+    line-height: 1.7;
+  }
+
+  .explorer :global(.subtitle),
+  .explorer :global(.footnotes p),
+  .explorer :global(.status) {
+    line-height: 1.7;
   }
 
   .explorer :global(.container) {
@@ -196,12 +205,19 @@
   }
 
   .explorer :global(.top) {
-    margin-bottom: -2px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .explorer :global(.top .corner.right) {
+    width: auto;
+    max-width: 80vw;
   }
 
   .explorer :global(.header h1) {
-    font-size: 28px;
-    line-height: 1.5;
+    font-size: 24px;
+    line-height: 1.7;
     letter-spacing: 0.01em;
   }
 
@@ -219,8 +235,8 @@
 
   .question {
     margin: 0;
-    font-size: 24px;
-    line-height: 1.5;
+    font-size: 18px;
+    line-height: 1.7;
     letter-spacing: 0.01em;
   }
 
@@ -252,7 +268,7 @@
     border-color: var(--neutral-gray-300);
     color: var(--neutral-gray-300);
     background: transparent;
-    line-height: 1;
+    line-height: 1.7;
     letter-spacing: 0.05em;
   }
 
@@ -273,8 +289,8 @@
   }
 
   .explorer :global(.topic .chips) {
-    gap: 10px;
-    min-height: 37px;
+    gap: 5px;
+    min-height: 32px;
   }
 
   .explorer :global(.topic .fade) {
@@ -283,11 +299,12 @@
   }
 
   .explorer :global(.topic button) {
-    border-width: 2px;
+    border-width: 1.5px;
     padding: 7px 14px;
     border-radius: 40px;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 500;
+    transition: all 0.1s ease-in-out;
   }
 
   .explorer :global(.city) {
@@ -300,10 +317,11 @@
 
   .explorer :global(.city button) {
     flex: 1;
-    padding: 11px 17px;
+    padding: 10px 12px;
     border-width: 1px;
     border-radius: 0;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 400;
+    transition: all 0.1s ease-in-out;
   }
 </style>

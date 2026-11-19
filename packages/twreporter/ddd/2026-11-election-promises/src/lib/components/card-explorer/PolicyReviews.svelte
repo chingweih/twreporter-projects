@@ -55,7 +55,10 @@
               style:background={verdict.color}
               aria-hidden="true"
             ></span>
-            <div class="attribution">
+            <div
+              class="attribution"
+              class:existing-policy={existingPolicy && index === 0}
+            >
               <div class="label-row">
                 {#if editable}
                   {@const review = group.reviews[0]}
@@ -108,10 +111,12 @@
 <style>
   summary {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
     list-style: none;
     cursor: pointer;
+    transition: all 0.1s ease-in-out;
+    border-radius: 2px;
   }
   summary::-webkit-details-marker {
     display: none;
@@ -119,6 +124,9 @@
   summary:focus-visible {
     outline: 2px solid var(--brand-heavy);
     outline-offset: 3px;
+  }
+  summary:hover {
+    background-color: var(--neutral-gray-50);
   }
   .verdicts {
     display: flex;
@@ -140,25 +148,31 @@
   }
   .attribution {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
+    gap: 5px;
     min-width: 0;
-    font-size: 18px;
-    line-height: 1.5;
+    font-size: 16px;
+    line-height: 1.7;
     letter-spacing: 0.05em;
     overflow-wrap: anywhere;
+  }
+  .attribution.existing-policy {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
   }
   .label,
   select {
     color: var(--neutral-gray-800);
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 600;
   }
   select {
     min-width: 0;
     max-width: 100%;
     background: transparent;
     font-family: inherit;
+    line-height: 1.7;
   }
   .source {
     color: var(--neutral-gray-500);
@@ -188,9 +202,18 @@
     justify-content: center;
     color: var(--neutral-gray-500);
     font-size: 12px;
-    line-height: 1.5;
+    line-height: 1.7;
     letter-spacing: 0.05em;
     white-space: nowrap;
+  }
+  .toggle:hover,
+  summary:focus-visible .toggle {
+    background-color: var(--neutral-gray-200);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .toggle {
+      transition: none;
+    }
   }
   .arrow {
     display: grid;

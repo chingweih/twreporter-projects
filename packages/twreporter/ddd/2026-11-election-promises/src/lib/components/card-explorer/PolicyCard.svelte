@@ -48,7 +48,7 @@
   article {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 10px;
     min-width: 0;
     padding-bottom: 20px;
     border-bottom: 1px solid rgb(38 38 38 / 10%);
@@ -59,9 +59,9 @@
   .promise {
     margin: 0;
     color: var(--neutral-gray-900);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 400;
-    line-height: 1.5;
+    line-height: 1.7;
     letter-spacing: 0.05em;
     overflow-wrap: anywhere;
     white-space: pre-line;
@@ -77,7 +77,7 @@
     border-radius: 2px;
     background: var(--neutral-gray-200);
     font-size: 12px;
-    line-height: 1.5;
+    line-height: 1.7;
     letter-spacing: 0.05em;
   }
 </style>
