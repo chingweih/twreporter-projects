@@ -4,6 +4,7 @@
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import Tooltip from '@lab-reporter/ddd-shared/components/shared/Tooltip.svelte'
+  import { createNumberFormatter } from '@lab-reporter/ddd-shared/utils/format.ts'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
   import { buildDonorStackedBar } from '../lib/components/donor-stacked-bar/data.ts'
   import { donorStackedBarConfigSchema } from '../lib/components/donor-stacked-bar/types.ts'
@@ -29,10 +30,10 @@
       }
     }
   })
-  const numberFormat = new Intl.NumberFormat('zh-TW', {
+  const numberFormat = createNumberFormatter({
     maximumFractionDigits: 1,
   })
-  const mobileTickFormat = new Intl.NumberFormat('zh-TW', {
+  const mobileTickFormat = createNumberFormatter({
     maximumFractionDigits: 1,
     useGrouping: false,
   })
