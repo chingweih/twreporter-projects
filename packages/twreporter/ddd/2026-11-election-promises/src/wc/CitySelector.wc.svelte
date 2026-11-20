@@ -9,7 +9,7 @@
   const options = citySchema.options.map((value) => ({ value, label: value }))
 </script>
 
-<Layout>
+<Layout hideInEditor>
   <div class="city-selector">
     <div class="intro">
       <p class="description">以下圖表將預設顯示該縣市候選人政見</p>

@@ -24,6 +24,6 @@
   }: Partial<ExplorerProps> = $props()
 </script>
 
-<Layout>
+<Layout hideInEditor>
   <CardExplorer {sources} {config} {categoryId} bind:topicId bind:city />
 </Layout>
