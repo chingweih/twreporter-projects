@@ -8,6 +8,7 @@
   } from '../lib/components/card-explorer/types.ts'
   import { readPolicies } from '../lib/components/card-explorer/data.ts'
   import FilterTabs from '@lab-reporter/ddd-shared/components/shared/FilterTabs.svelte'
+  import ChipSelector from '@lab-reporter/ddd-shared/components/shared/ChipSelector.svelte'
   import CandidateCard from '../lib/components/card-explorer/CandidateCard.svelte'
   import EditableText from '@lab-reporter/ddd-shared/components/shared/EditableText.svelte'
   import {
@@ -69,12 +70,15 @@
     ),
   )
   const activeCity = $derived(city || cities[0]?.value || '')
+  let selectedVerdict = $state<string | undefined>()
   const visiblePolicies = $derived(
     categoryPolicies.filter(
       (policy) =>
         topic &&
         policy.questionId.startsWith(topic.id) &&
-        policy.city === activeCity,
+        policy.city === activeCity &&
+        (selectedVerdict === undefined ||
+          policy.reviews.some((review) => review.verdict === selectedVerdict)),
     ),
   )
   const candidateNames = $derived([
@@ -174,6 +178,19 @@
           label="縣市"
           onchange={(value) => (city = value)}
         />
+        <div class="verdict-filter">
+          <ChipSelector
+            options={config.verdicts.map((verdict) => ({
+              value: verdict.label,
+              label: verdict.label,
+              color: verdict.color,
+            }))}
+            value={selectedVerdict}
+            label="依評比篩選政見"
+            onchange={(value) =>
+              (selectedVerdict = selectedVerdict === value ? undefined : value)}
+          />
+        </div>
         <div class="candidates">
           {#each candidateNames as name, index (name)}
             {@const candidate = config.candidates.find(
@@ -355,6 +372,33 @@
     font-size: 16px;
     line-height: 1.5;
     letter-spacing: 0.16px;
+  }
+
+  .verdict-filter :global(.chips) {
+    gap: 10px 15px;
+  }
+
+  .verdict-filter :global(button) {
+    gap: 5px;
+    padding: 0 5px 0 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--neutral-gray-800);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.8px;
+  }
+
+  .verdict-filter :global(.swatch) {
+    width: 4px;
+    height: 16px;
+    border-radius: 1px;
+  }
+
+  .verdict-filter :global(button):hover {
+    font-weight: 500;
   }
 
   .explorer :global(.filter-tabs) {
