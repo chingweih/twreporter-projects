@@ -2,73 +2,86 @@ import {
   layoutWithLines,
   measureNaturalWidth,
   prepareWithSegments,
+  type PreparedTextWithSegments,
 } from '@chenglou/pretext'
 
-export type Typography = {
-  font: string
-  lineHeight: number
-  letterSpacing: number
-}
+const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
 
-const graphemeSegmenter = new Intl.Segmenter(undefined, {
-  granularity: 'grapheme',
-})
-
-export function prepareGraphemes(
-  text: string,
-  { font, letterSpacing }: Typography,
-) {
-  const options = { whiteSpace: 'pre-wrap', letterSpacing } as const
-  const prepared = prepareWithSegments(text, font, options)
-  let segmentOffset = 0
-  const segments = prepared.segments.map((segment) => {
-    const graphemes = Array.from(
-      graphemeSegmenter.segment(segment),
-      ({ segment: grapheme, index }) => ({
-        text: grapheme,
-        offset: segmentOffset + index,
-        x:
-          index &&
-          measureNaturalWidth(
-            prepareWithSegments(segment.slice(0, index), font, options),
-          ),
-      }),
-    )
-    segmentOffset += segment.length
-    return graphemes
-  })
-  return { prepared, segments }
-}
-
-export function placeGraphemes(
-  { prepared, segments }: ReturnType<typeof prepareGraphemes>,
+export function placeTextSegments(
+  prepared: PreparedTextWithSegments,
+  font: string,
   width: number,
   lineHeight: number,
 ) {
   const { lines, height } = layoutWithLines(prepared, width, lineHeight)
-  const graphemes = lines.flatMap(({ start, end }, line) => {
-    const placed = []
-    let x = 0
-    for (
-      let index = start.segmentIndex;
-      index < end.segmentIndex ||
-      (index === end.segmentIndex && end.graphemeIndex > 0);
-      index++
-    ) {
-      const segment = segments[index]
-      const from = index === start.segmentIndex ? start.graphemeIndex : 0
-      const to = index === end.segmentIndex ? end.graphemeIndex : segment.length
-      const origin = x - segment[from].x
-      for (const grapheme of segment.slice(from, to)) {
-        placed.push({
-          ...grapheme,
-          x: origin + grapheme.x,
-          y: line * lineHeight,
-        })
+  const segments = lines.flatMap(
+    ({ start, end, width: lineWidth, text }, line) => {
+      const positioned: {
+        index: number
+        from: number
+        text: string
+        x: number
+        y: number
+      }[] = []
+      const endIndex = end.segmentIndex + Number(end.graphemeIndex > 0)
+      let x = 0
+      for (let index = start.segmentIndex; index < endIndex; index++) {
+        const kind = prepared.kinds[index]
+        const original = prepared.segments[index]
+        const from = index === start.segmentIndex ? start.graphemeIndex : 0
+        const to = index === end.segmentIndex ? end.graphemeIndex : undefined
+        const partial = from > 0 || to !== undefined
+        let value = original
+        if (partial) {
+          value = Array.from(
+            segmenter.segment(original),
+            ({ segment }) => segment,
+          )
+            .slice(from, to)
+            .join('')
+        }
+
+        const spacing =
+          prepared.spacingGraphemeCounts[index] > 0 ? prepared.letterSpacing : 0
+        if (kind === 'tab') {
+          const tab = prepared.tabStopAdvance
+          if (tab > 0) x += tab - (x % tab) + spacing
+          continue
+        }
+        if (
+          kind === 'soft-hyphen' &&
+          index === endIndex - 1 &&
+          text.endsWith('-')
+        )
+          value = '-'
+        if (value.trim() && kind !== 'zero-width-break' && value !== '\u00ad') {
+          positioned.push({ index, from, text: value, x, y: line * lineHeight })
+        }
+        x += partial
+          ? measureNaturalWidth(
+              prepareWithSegments(value, font, {
+                whiteSpace: 'pre-wrap',
+                letterSpacing: prepared.letterSpacing,
+              }),
+            )
+          : prepared.widths[index] + spacing
       }
-      x = origin + (segment[to]?.x ?? prepared.widths[index])
-    }
-    return placed
-  })
-  return { graphemes, height }
+
+      const endKind = prepared.kinds[endIndex - 1]
+      const softWrap = line < lines.length - 1 && endKind !== 'hard-break'
+      const gaps =
+        positioned.length -
+        1 -
+        Number(endKind === 'soft-hyphen' && text.endsWith('-'))
+      if (!softWrap || gaps < 1) return positioned
+
+      const gap = Math.max(0, width - lineWidth) / gaps
+      return positioned.map((segment, index) => ({
+        ...segment,
+        x: segment.x + gap * Math.min(index, gaps),
+      }))
+    },
+  )
+
+  return { segments, height }
 }

@@ -7,13 +7,11 @@
     reviews,
     config,
     editable = false,
-    initiallyOpen = false,
     existingPolicy = false,
   }: {
     reviews: Review[]
     config: CardExplorerConfig
     editable?: boolean
-    initiallyOpen?: boolean
     existingPolicy?: boolean
   } = $props()
   const detailedReviews = $derived(
@@ -32,7 +30,7 @@
   })
 </script>
 
-<details open={initiallyOpen}>
+<details>
   <summary
     onclick={(event) => {
       if (
@@ -97,37 +95,41 @@
       ></span></span
     >
   </summary>
-  {#if detailedReviews.length}<div class="reviews">
-      {#each detailedReviews as review}
-        <ReviewQuote
-          {review}
-          verdict={config.verdicts.find(
-            (item) => item.label === review.verdict,
-          )}
-          {editable}
-        />
-      {/each}
+  {#if detailedReviews.length}
+    <div class="review-content">
+      <div class="reviews">
+        {#each detailedReviews as review}
+          <ReviewQuote
+            {review}
+            verdict={config.verdicts.find(
+              (item) => item.label === review.verdict,
+            )}
+            {editable}
+          />
+        {/each}
+      </div>
+      <button
+        class="collapse"
+        onclick={(event) => {
+          const summary = event.currentTarget
+            .closest('details')
+            ?.querySelector('summary')
+          summary?.click()
+          summary?.focus()
+        }}
+        >隱藏{config.labels.reviewDetails}<span class="arrow" aria-hidden="true"
+        ></span></button
+      >
     </div>
-    <button
-      class="collapse"
-      onclick={(event) => {
-        const summary = event.currentTarget
-          .closest('details')
-          ?.querySelector('summary')
-        summary?.click()
-        summary?.focus()
-      }}
-      >隱藏{config.labels.reviewDetails}<span class="arrow" aria-hidden="true"
-      ></span></button
-    >
   {/if}
 </details>
 
 <style>
   summary {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    gap: 5px 10px;
     list-style: none;
     cursor: pointer;
     transition: all 0.1s ease-in-out;
@@ -145,16 +147,17 @@
   }
   .verdicts {
     display: flex;
-    flex: 1;
-    gap: 45px;
+    flex: 1 1 min-content;
+    flex-wrap: wrap;
+    gap: 6px 24px;
     min-width: 0;
   }
   .verdict {
     display: flex;
-    flex-shrink: 1;
     align-items: stretch;
     gap: 10px;
     min-width: 0;
+    max-width: 100%;
   }
   .swatch {
     flex-shrink: 0;
@@ -163,8 +166,9 @@
   }
   .attribution {
     display: flex;
+    flex-wrap: wrap;
     align-items: flex-end;
-    gap: 5px;
+    gap: 0 5px;
     min-width: 0;
     font-size: 16px;
     line-height: 1.7;
@@ -182,6 +186,10 @@
     font-size: 16px;
     font-weight: 600;
   }
+  .label {
+    overflow-wrap: break-word;
+    word-break: keep-all;
+  }
   select {
     min-width: 0;
     max-width: 100%;
@@ -197,8 +205,10 @@
   }
   .label-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 5px;
+    min-width: 0;
   }
   .tag {
     flex-shrink: 0;
@@ -215,6 +225,7 @@
     align-items: center;
     flex-shrink: 0;
     justify-content: center;
+    margin-inline-start: auto;
     color: var(--neutral-gray-500);
     font-size: 12px;
     line-height: 1.7;
@@ -249,6 +260,25 @@
   details[open] .arrow {
     transform: rotate(180deg);
   }
+  .review-content {
+    min-block-size: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    details::details-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      overflow: clip;
+      transition:
+        grid-template-rows 240ms ease,
+        content-visibility 240ms allow-discrete;
+    }
+    details[open]::details-content {
+      grid-template-rows: 1fr;
+    }
+    summary .arrow {
+      transition: transform 240ms ease;
+    }
+  }
   .reviews {
     display: flex;
     flex-direction: column;
@@ -267,7 +297,7 @@
       background-color: transparent;
     }
     .verdicts {
-      gap: 15px;
+      column-gap: 15px;
     }
     .verdict {
       gap: 5px;

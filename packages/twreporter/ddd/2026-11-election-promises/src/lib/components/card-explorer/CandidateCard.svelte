@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
   import type { Candidate, CardExplorerConfig, Policy } from './types.ts'
   import PolicyCard from './PolicyCard.svelte'
   import { partyBadges } from './party-badges.ts'
@@ -10,13 +11,13 @@
     policies,
     config,
     editable = false,
-    initiallyOpen = false,
+    footnotes,
   }: {
     candidate: Candidate
     policies: Policy[]
     config: CardExplorerConfig
     editable?: boolean
-    initiallyOpen?: boolean
+    footnotes?: Snippet
   } = $props()
   const partyBadge = $derived(
     candidate.party ? partyBadges.get(candidate.party) : undefined,
@@ -24,47 +25,45 @@
 </script>
 
 <section class="candidate" aria-label={candidate.name}>
-  <div
-    class="portrait"
-    class:kmt={candidate.party === '國民黨'}
-    class:dpp={candidate.party === '民進黨'}
-  >
-    {#if candidate.photo}
-      <picture>
-        <source
-          media={`(width < ${breakpoints.tablet}px)`}
-          srcset={resolveCandidatePhoto(candidate.photo.mobile)}
-        />
-        <img
-          class="photo"
-          src={resolveCandidatePhoto(candidate.photo.desktop)}
-          alt=""
-        />
-      </picture>
-    {/if}
-    <div class="identity">
-      {#if candidate.number !== undefined}<span class="number"
-          >{candidate.number}</span
-        >{/if}
-      <span class="name">{candidate.name}</span>
+  <div class="candidate-heading">
+    <div
+      class="portrait"
+      class:kmt={candidate.party === '國民黨'}
+      class:dpp={candidate.party === '民進黨'}
+    >
+      {#if candidate.photo}
+        <picture>
+          <source
+            media={`(width < ${breakpoints.tablet}px)`}
+            srcset={resolveCandidatePhoto(candidate.photo.mobile)}
+          />
+          <img
+            class="photo"
+            src={resolveCandidatePhoto(candidate.photo.desktop)}
+            alt=""
+          />
+        </picture>
+      {/if}
+      <div class="identity">
+        {#if candidate.number !== undefined}<span class="number"
+            >{candidate.number}</span
+          >{/if}
+        <span class="name">{candidate.name}</span>
+      </div>
+      {#if candidate.party}<div class="party">
+          {#if partyBadge}<img
+              class="party-badge"
+              src={partyBadge}
+              alt={candidate.party}
+            />{/if}
+          <span class="party-name">{candidate.party}</span>
+        </div>{/if}
     </div>
-    {#if candidate.party}<div class="party">
-        {#if partyBadge}<img
-            class="party-badge"
-            src={partyBadge}
-            alt={candidate.party}
-          />{/if}
-        <span class="party-name">{candidate.party}</span>
-      </div>{/if}
+    {@render footnotes?.()}
   </div>
   <div class="policies">
-    {#each policies as policy, index (policy.questionId)}
-      <PolicyCard
-        {policy}
-        {config}
-        {editable}
-        initiallyOpen={initiallyOpen && index === 0}
-      />
+    {#each policies as policy (policy.questionId)}
+      <PolicyCard {policy} {config} {editable} />
     {/each}
   </div>
 </section>
@@ -77,13 +76,20 @@
     min-width: 0;
   }
 
-  .portrait {
+  .candidate-heading {
     position: sticky;
     top: calc(var(--site-header-offset, 0px) + var(--sticky-top-height, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     align-self: start;
+    transition: top var(--site-header-transition, 0s);
+  }
+
+  .portrait {
+    position: relative;
     height: 260px;
     background: var(--neutral-gray-100);
-    transition: top var(--site-header-transition, 0s);
   }
 
   .identity {
@@ -159,8 +165,10 @@
     .candidate {
       grid-template-columns: minmax(0, 1fr);
     }
-    .portrait {
+    .candidate-heading {
       z-index: 1;
+    }
+    .portrait {
       height: 81px;
       border-radius: 1px;
       overflow: hidden;

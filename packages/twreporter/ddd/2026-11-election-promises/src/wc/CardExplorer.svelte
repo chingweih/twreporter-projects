@@ -1,9 +1,11 @@
 <script lang="ts">
   import { getContext } from 'svelte'
+  import { MediaQuery } from 'svelte/reactivity'
   import { citySelection } from '../lib/city-selection.svelte.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
   import { followTwreporterHeader } from '@lab-reporter/ddd-shared/utils/site-header.ts'
+  import { breakpoints } from '@lab-reporter/ddd-shared/utils/media-query.ts'
   import {
     cardExplorerConfigSchema,
     type ExplorerProps,
@@ -23,6 +25,7 @@
     config: configUrl = '',
     categoryId,
     topicId = $bindable(''),
+    subQuestionId = $bindable(),
     city = $bindable(''),
   }: Partial<ExplorerProps> = $props()
   const graphic =
@@ -61,6 +64,10 @@
       ? category?.topics.find((item) => item.id === topicId)
       : category?.topics[0],
   )
+  const mobile = new MediaQuery(`(width < ${breakpoints.tablet}px)`)
+  const activeQuestionId = $derived(
+    mobile.current ? (subQuestionId ?? topic?.questions?.[0]?.id) : undefined,
+  )
   const categoryPolicies = $derived(
     data.policies.filter((policy) =>
       category?.topics.some((item) => policy.questionId.startsWith(item.id)),
@@ -84,6 +91,9 @@
       (policy) =>
         topic &&
         policy.questionId.startsWith(topic.id) &&
+        (activeQuestionId
+          ? policy.questionId === activeQuestionId
+          : graphic.editable || Boolean(policy.content?.trim())) &&
         policy.city === activeCity &&
         (selectedVerdict === undefined ||
           policy.reviews.some((review) => review.verdict === selectedVerdict)),
@@ -99,7 +109,10 @@
         ? '找不到指定領域。'
         : !topic
           ? '找不到指定主題。'
-          : undefined,
+          : activeQuestionId &&
+              !topic.questions?.some(({ id }) => id === activeQuestionId)
+            ? '找不到指定子題。'
+            : undefined,
   )
   const error = $derived(graphic.error ?? data.error ?? selectionError)
   let showStickyTop = $state(false)
@@ -114,16 +127,11 @@
   }
 </script>
 
-<div
-  class="explorer"
-  class:no-footnotes={!config?.footnotes.length}
-  {@attach followTwreporterHeader}
->
+<div class="explorer" {@attach followTwreporterHeader}>
   {#if category && config}
     <Shell
       bind:title={category.label}
       bind:subtitle={config.subtitle}
-      bind:footnotes={config.footnotes}
       wide={config.wide}
       backdrop={config.backdrop}
       editable={graphic.editable}
@@ -139,7 +147,10 @@
           }))}
           value={topic?.id}
           label="政見主題"
-          onchange={(value) => (topicId = value)}
+          onchange={(value) => {
+            if (value !== topic?.id) subQuestionId = undefined
+            topicId = value
+          }}
         >
           {#snippet optionLabel(option)}
             {@const item = category.topics.find(
@@ -160,6 +171,18 @@
               placeholder="題目文字"
             />
           </p>{/if}
+        {#if mobile.current && topic?.questions?.length}
+          <FilterTabs
+            class="question-tabs"
+            options={[
+              { value: '', label: '全部' },
+              ...topic.questions.map(({ id, label }) => ({ value: id, label })),
+            ]}
+            value={activeQuestionId ?? ''}
+            label="篩選題目"
+            onchange={(value) => (subQuestionId = value)}
+          />
+        {/if}
         <span class="intro-end" {@attach observeIntroEnd}></span>
       </div>
       <div
@@ -187,6 +210,39 @@
             </div>
           {/if}
         </div>
+        {#snippet verdictFilter()}
+          <div class="verdict-filter">
+            <ChipSelector
+              options={config.verdicts.map((verdict) => ({
+                value: verdict.label,
+                label: verdict.label,
+                color: verdict.color,
+              }))}
+              value={selectedVerdict}
+              label="依評比篩選政見"
+              onchange={(value) =>
+                (selectedVerdict =
+                  selectedVerdict === value ? undefined : value)}
+            />
+          </div>
+        {/snippet}
+        {#snippet footnotes()}
+          {#if config.footnotes.length}
+            <div class="footnotes">
+              {#each config.footnotes as _, index}
+                <p>
+                  <EditableText
+                    bind:value={config.footnotes[index]}
+                    editable={graphic.editable}
+                  />
+                </p>
+              {/each}
+            </div>
+          {/if}
+        {/snippet}
+        {#if mobile.current}
+          {@render verdictFilter()}
+        {/if}
         <FilterTabs
           class="city"
           options={cities}
@@ -197,21 +253,13 @@
             activeCity = value
           }}
         />
-        <div class="verdict-filter">
-          <ChipSelector
-            options={config.verdicts.map((verdict) => ({
-              value: verdict.label,
-              label: verdict.label,
-              color: verdict.color,
-            }))}
-            value={selectedVerdict}
-            label="依評比篩選政見"
-            onchange={(value) =>
-              (selectedVerdict = selectedVerdict === value ? undefined : value)}
-          />
-        </div>
+        {#if mobile.current}
+          {@render footnotes()}
+        {:else}
+          {@render verdictFilter()}
+        {/if}
         <div class="candidates">
-          {#each candidateNames as name, index (name)}
+          {#each candidateNames as name (name)}
             {@const candidate = config.candidates.find(
               (item) => item.name === name,
             )}
@@ -223,7 +271,7 @@
                 )}
                 {config}
                 editable={graphic.editable}
-                initiallyOpen={index === 0}
+                footnotes={mobile.current ? undefined : footnotes}
               />
             {/if}
           {/each}
@@ -252,7 +300,6 @@
   }
 
   .explorer :global(.subtitle),
-  .explorer :global(.footnotes p),
   .explorer :global(.status) {
     line-height: 1.7;
   }
@@ -288,8 +335,7 @@
     letter-spacing: 0.01em;
   }
 
-  .explorer :global(.bottom .right),
-  .no-footnotes :global(.bottom) {
+  .explorer :global(.bottom) {
     display: none;
   }
 
@@ -323,6 +369,27 @@
     flex-direction: column;
     min-width: 0;
     gap: 15px;
+  }
+
+  .footnotes {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: var(--neutral-gray-500);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+  }
+
+  .footnotes p {
+    margin: 0;
+  }
+
+  @media (width >= 768px) {
+    .footnotes {
+      padding-inline: 5px;
+    }
   }
 
   .candidates {
@@ -483,6 +550,21 @@
     font-size: 14px;
     font-weight: 200;
     transition: all 0.1s ease-in-out;
+  }
+
+  .explorer :global(.question-tabs) {
+    --brand-main: #e27e85;
+  }
+
+  .explorer :global(.question-tabs .chips) {
+    gap: 4px;
+  }
+
+  .explorer :global(.question-tabs button) {
+    padding: 2px 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    line-height: 1.5;
   }
 
   .explorer :global(.city) {

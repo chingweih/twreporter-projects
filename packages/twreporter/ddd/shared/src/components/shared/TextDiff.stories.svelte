@@ -28,12 +28,7 @@
 </svelte:head>
 
 {#snippet template(args: ComponentProps<typeof TextDiff>)}
-  <div
-    style:font-family="'Roboto Slab', 'Noto Sans TC', sans-serif"
-    style:line-height="1.6"
-  >
-    <TextDiff {...args} />
-  </div>
+  <TextDiff lineHeight={1.6} letterSpacing={0} {...args} />
 {/snippet}
 
 <Story name="Default" />

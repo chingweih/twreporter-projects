@@ -25,6 +25,7 @@
       config: { control: 'text' },
       categoryId: { control: false },
       topicId: { control: false },
+      subQuestionId: { control: false },
       city: { control: 'text' },
     },
   })
@@ -49,8 +50,15 @@
         {#snippet children(graphic)}
           {#if graphic.config}
             {#each graphic.config.categories as category (category.id)}
-              {@const topicId = category.topics[0]?.id ?? ''}
-              <CardExplorer {...args} categoryId={category.id} {topicId} />
+              {@const topic = category.topics[0]}
+              {@const topicId = topic?.id ?? ''}
+              {@const subQuestionId = topic?.questions?.[0]?.id ?? ''}
+              <CardExplorer
+                {...args}
+                categoryId={category.id}
+                {topicId}
+                {subQuestionId}
+              />
               <EmbedCode
                 componentName="card-explorer"
                 tagName="twreporter-card-explorer"
@@ -59,6 +67,7 @@
                 extraProps={{
                   'category-id': category.id,
                   'topic-id': topicId,
+                  'sub-question-id': subQuestionId,
                   city: args.city ?? '',
                 }}
               />

@@ -6,6 +6,13 @@ import {
   shellConfigFields,
 } from '@lab-reporter/ddd-shared/components/shared/types.ts'
 
+const topicQuestionSchema = z
+  .object({
+    id: z.string().min(1).meta({ title: 'CSV 題目 ID' }),
+    label: z.string().min(1).meta({ title: '選項名稱' }),
+  })
+  .meta({ 'ui:order': ['id', 'label'] })
+
 export const topicSchema = z
   .object({
     id: z
@@ -14,8 +21,30 @@ export const topicSchema = z
       .meta({ title: '主題 ID', description: '同時用作 CSV 題目 ID 的前綴。' }),
     label: z.string().min(1).meta({ title: '主題名稱' }),
     question: z.string().meta({ title: '題目文字', 'ui:widget': 'textarea' }),
+    questions: z
+      .array(topicQuestionSchema)
+      .optional()
+      .meta({
+        title: '手機版題目選項',
+        description: '每個選項對應 CSV 裡的一個完整題目 ID。',
+        'ui:options': { titleKey: 'label', collapsible: true },
+      }),
   })
-  .meta({ 'ui:order': ['id', 'label', 'question'] })
+  .refine(
+    ({ id, questions }) => {
+      if (!questions) return true
+      const questionIds = questions.map((question) => question.id)
+      return (
+        new Set(questionIds).size === questionIds.length &&
+        questionIds.every((questionId) => questionId.startsWith(id))
+      )
+    },
+    {
+      path: ['questions'],
+      message: '題目 ID 不可重複，且須以主題 ID 開頭。',
+    },
+  )
+  .meta({ 'ui:order': ['id', 'label', 'question', 'questions'] })
 
 export const categorySchema = z
   .object({
@@ -73,6 +102,7 @@ export const answerRowSchema = answerKeySchema.extend({
   title: z.string().nullable(),
   content: z.string().min(1).nullable(),
   existingPolicy: z.boolean(),
+  brief_content: z.string().nullable(),
 })
 
 export const reviewRowSchema = answerKeySchema.extend({
@@ -85,6 +115,10 @@ export const answerCsvRowSchema = answerRowSchema.extend({
   title: z.string().transform((value) => (value === '' ? null : value)),
   content: z.string().transform((value) => (value === '' ? null : value)),
   existingPolicy: z.stringbool({ truthy: ['true'], falsy: ['false'] }),
+  brief_content: z
+    .string()
+    .optional()
+    .transform((value) => (value?.trim() ? value : null)),
 })
 
 export const reviewCsvRowSchema = reviewRowSchema.extend({
@@ -156,5 +190,6 @@ export type ExplorerProps = Pick<ComponentProps, 'config'> & {
   sources: { answers: string; reviews: string }
   categoryId?: Category['id']
   topicId?: Topic['id']
+  subQuestionId?: AnswerRow['questionId']
   city?: AnswerRow['city']
 }

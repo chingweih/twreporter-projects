@@ -27,7 +27,10 @@ export function readPolicies({
   reviews: CSVData
   config: CardExplorerConfig
 }): Policy[] {
-  requireCsvColumns(answers, answerRowSchema.keyof().options)
+  requireCsvColumns(
+    answers,
+    answerRowSchema.omit({ brief_content: true }).keyof().options,
+  )
   requireCsvColumns(reviews, reviewRowSchema.keyof().options)
   const candidateNames = new Set(
     config.candidates.map((candidate) => candidate.name),

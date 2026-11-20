@@ -1,37 +1,66 @@
 <script lang="ts">
+  import { MediaQuery } from 'svelte/reactivity'
+  import { breakpoints } from '@lab-reporter/ddd-shared/utils/media-query.ts'
   import type { CardExplorerConfig, Policy } from './types.ts'
   import PolicyReviews from './PolicyReviews.svelte'
   import EditableText from '@lab-reporter/ddd-shared/components/shared/EditableText.svelte'
+  import TextDiff from '@lab-reporter/ddd-shared/components/shared/TextDiff.svelte'
   const {
     policy,
     config,
     editable = false,
-    initiallyOpen = false,
   }: {
     policy: Policy
     config: CardExplorerConfig
     editable?: boolean
-    initiallyOpen?: boolean
   } = $props()
   const reviews = $derived(
     policy.reviews.filter((review) => review.verdict?.trim()),
   )
+  const full = $derived(policy.content ?? '')
+  const brief = $derived(policy.brief_content ?? full)
+  const canExpand = $derived(!editable && full !== '' && brief !== full)
+  const mobile = new MediaQuery(`(width < ${breakpoints.tablet}px)`)
+  let showFull = $state(false)
 </script>
 
 <article class:has-heading={Boolean(policy.title)}>
-  <p class="promise">
+  <div class="promise" class:expandable={canExpand}>
     {#if policy.title || editable}<strong
         >【<EditableText
           bind:value={policy.csvRow.title}
           {editable}
           placeholder="政見標題"
         />】</strong
-      >{/if}<EditableText
-      bind:value={policy.csvRow.content}
-      {editable}
-      placeholder={config.labels.unanswered}
-    />
-  </p>
+      >{/if}
+    {#if editable}
+      <EditableText
+        bind:value={policy.csvRow.content}
+        {editable}
+        placeholder={config.labels.unanswered}
+      />
+    {:else if canExpand}
+      <TextDiff
+        {brief}
+        {full}
+        {showFull}
+        fontSize={policy.title && mobile.current ? 18 : 16}
+      />
+    {:else}
+      {brief || config.labels.unanswered}
+    {/if}
+    {#if canExpand}
+      <button
+        class="text-toggle"
+        type="button"
+        aria-label={showFull ? '收合政見全文' : '展開政見全文'}
+        aria-expanded={showFull}
+        onclick={() => (showFull = !showFull)}
+      >
+        <span class="toggle-icon" aria-hidden="true"></span>
+      </button>
+    {/if}
+  </div>
   {#if policy.existingPolicy && !reviews.length}
     <span class="tag">{config.labels.existingPolicy}</span>
   {/if}
@@ -39,7 +68,6 @@
       {reviews}
       {config}
       {editable}
-      {initiallyOpen}
       existingPolicy={policy.existingPolicy}
     />{/if}
 </article>
@@ -57,7 +85,7 @@
     gap: 10px;
   }
   .promise {
-    margin: 0;
+    position: relative;
     color: var(--neutral-gray-900);
     font-size: 16px;
     font-weight: 400;
@@ -65,6 +93,57 @@
     letter-spacing: 0.05em;
     overflow-wrap: anywhere;
     white-space: pre-line;
+    text-align: justify;
+  }
+  .promise.expandable {
+    padding-inline-end: 30px;
+  }
+  .text-toggle {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .toggle-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    width: 20px;
+    height: 24px;
+    border-radius: 2px;
+  }
+  .text-toggle[aria-expanded='true'] .toggle-icon {
+    flex-direction: column-reverse;
+  }
+  .toggle-icon::before,
+  .toggle-icon::after {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border: solid currentColor;
+    border-width: 0 1.5px 1.5px 0;
+  }
+  .toggle-icon::before {
+    transform: rotate(-135deg);
+  }
+  .toggle-icon::after {
+    transform: rotate(45deg);
+  }
+  .text-toggle:hover .toggle-icon {
+    background: var(--neutral-gray-200);
+  }
+  .text-toggle:focus-visible {
+    outline: 2px solid var(--brand-heavy);
+    outline-offset: 2px;
   }
   strong {
     font-weight: 500;
