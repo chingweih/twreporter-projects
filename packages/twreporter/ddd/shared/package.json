@@ -45,8 +45,10 @@
     "vite": "^8.0.11"
   },
   "dependencies": {
+    "@chenglou/pretext": "^0.0.8",
     "@fluejs/noscroll": "^1.0.0",
     "@tanstack/svelte-query": "^6.1.28",
+    "diff": "^9.0.0",
     "modern-screenshot": "^4.7.0",
     "papaparse": "^5.5.4",
     "penpal": "8.0.1",
