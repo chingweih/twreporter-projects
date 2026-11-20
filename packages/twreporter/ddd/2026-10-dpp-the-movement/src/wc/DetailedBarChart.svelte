@@ -3,6 +3,7 @@
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import Tooltip from '@lab-reporter/ddd-shared/components/shared/Tooltip.svelte'
   import ChipSelector from '@lab-reporter/ddd-shared/components/shared/ChipSelector.svelte'
+  import { createNumberFormatter } from '@lab-reporter/ddd-shared/utils/format.ts'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
   import { detailedBarChartConfigSchema } from '../lib/components/detailed-bar-chart/types.ts'
   import { buildDetailedBarChart } from '../lib/components/detailed-bar-chart/data.ts'
@@ -79,7 +80,7 @@
       }))
       .sort((a, b) => b.amount - a.amount),
   )
-  const numberFormat = new Intl.NumberFormat('zh-TW', {
+  const numberFormat = createNumberFormatter({
     maximumFractionDigits: 1,
   })
 </script>

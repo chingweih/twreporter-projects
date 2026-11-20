@@ -1,0 +1,16 @@
+{
+  "name": "@lab-reporter/ddd-atlas",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "CC0-1.0",
+  "exports": {
+    "./taiwan/counties": {
+      "types": "./taiwan/counties.d.ts",
+      "default": "./taiwan/counties.json"
+    }
+  },
+  "dependencies": {
+    "@types/geojson": "^7946.0.16"
+  }
+}

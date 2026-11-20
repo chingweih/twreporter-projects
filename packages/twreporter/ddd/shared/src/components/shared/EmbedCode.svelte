@@ -1,12 +1,17 @@
 <script lang="ts">
   import { generateAssetUrls } from '../../utils/asset-urls.ts'
-  import type { ComponentExtraProps, ComponentProps } from '../types.ts'
+  import type {
+    ComponentAttributes,
+    ComponentExtraProps,
+    ComponentProps,
+  } from '../types.ts'
   import TextAreaCopy from './TextAreaCopy.svelte'
 
   const {
     componentName,
     tagName,
-    src = '',
+    previewStoryId,
+    src,
     config,
     sources,
     extraProps = {},
@@ -14,27 +19,28 @@
     Partial<Pick<ComponentProps, 'src'>> & {
       componentName: string
       tagName?: string
+      previewStoryId?: string
       sources?: Record<string, string>
       extraProps?: ComponentExtraProps
     } = $props()
-  const attributes = $derived(
-    sources
-      ? {
-          ...extraProps,
-          config,
-          sources: JSON.stringify(
-            Object.fromEntries(
-              Object.entries(sources).map(([id, url]) => [
-                id,
-                new URL(url, document.baseURI).href,
-              ]),
-            ),
-          ),
-        }
-      : { ...extraProps, src, config },
-  )
+  const attributes = $derived.by(() => {
+    const props: ComponentAttributes = { ...extraProps, config }
+    if (sources) {
+      props.sources = JSON.stringify(
+        Object.fromEntries(
+          Object.entries(sources).map(([id, url]) => [
+            id,
+            new URL(url, document.baseURI).href,
+          ]),
+        ),
+      )
+    } else if (src !== undefined) {
+      props.src = src
+    }
+    return props
+  })
   const { embedCode, schemaUrl, storybookIFrameUrl } = $derived(
-    generateAssetUrls(componentName, attributes, tagName),
+    generateAssetUrls(componentName, attributes, tagName, previewStoryId),
   )
 </script>
 

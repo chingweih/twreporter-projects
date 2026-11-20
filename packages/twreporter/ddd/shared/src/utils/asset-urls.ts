@@ -12,6 +12,7 @@ export function generateAssetUrls(
   componentName: string,
   attributes: ComponentAttributes,
   tagName = `twreporter-${componentName}`,
+  previewStoryId = `components-${componentName.replaceAll('-', '')}--default`,
 ) {
   const timestamp =
     import.meta.env.VITE_BUILD_TIMESTAMP ?? '<version-timestamp>'
@@ -28,7 +29,7 @@ export function generateAssetUrls(
       `components/${componentName}/${componentName}-${timestamp}.schema.json`,
     ),
     storybookIFrameUrl: getDistUrl(
-      `storybook/iframe.html?id=components-${componentName.replaceAll('-', '')}--default&viewMode=story`,
+      `storybook/iframe.html?id=${previewStoryId}&viewMode=story`,
     ),
   }
 }

@@ -1,9 +1,11 @@
 packages:
+  - '2026-11-election-vote'
   - '2026-11-election-promises'
   - '2026-09-school-traffic'
   - '2026-10-dpp-the-movement'
   - '2026-05-lawmaker'
   - '2026-07-kodokushi'
+  - 'atlas'
   - 'node-graph'
   - 'shared'
 

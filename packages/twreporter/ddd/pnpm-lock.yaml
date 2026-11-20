@@ -218,6 +218,49 @@ importers:
         specifier: ^8.0.11
         version: 8.0.11(@types/node@26.1.1)(esbuild@0.27.7)
 
+  2026-11-election-vote:
+    dependencies:
+      '@lab-reporter/ddd-shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@tanstack/svelte-query':
+        specifier: ^6.1.28
+        version: 6.1.28(svelte@5.56.10)
+      zod:
+        specifier: ^4.1.12
+        version: 4.5.2
+    devDependencies:
+      '@storybook/addon-svelte-csf':
+        specifier: ^5.1.2
+        version: 5.1.2(@storybook/svelte@10.5.3(storybook@10.5.3(@types/react@19.3.0)(prettier@3.8.3)(react@19.3.1))(svelte@5.56.10))(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(storybook@10.5.3(@types/react@19.3.0)(prettier@3.8.3)(react@19.3.1))(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
+      prettier:
+        specifier: ^3.8.3
+        version: 3.8.3
+      storybook:
+        specifier: ^10.5.3
+        version: 10.5.3(@types/react@19.3.0)(prettier@3.8.3)(react@19.3.1)
+      svelte:
+        specifier: 5.56.10
+        version: 5.56.10
+      svelte-check:
+        specifier: ^4.7.3
+        version: 4.7.3(picomatch@4.0.7)(svelte@5.56.10)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^8.0.11
+        version: 8.0.11(@types/node@26.1.1)(esbuild@0.27.7)
+
+  atlas:
+    dependencies:
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
+
   node-graph:
     dependencies:
       '@xyflow/svelte':
@@ -296,9 +339,15 @@ importers:
       '@tanstack/svelte-query':
         specifier: ^6.1.28
         version: 6.1.28(svelte@5.56.10)
+      d3-scale:
+        specifier: ^4.0.2
+        version: 4.0.2
       diff:
         specifier: ^9.0.0
         version: 9.0.0
+      maplibre-gl:
+        specifier: 5.24.0
+        version: 5.24.0
       modern-screenshot:
         specifier: ^4.7.0
         version: 4.7.0
@@ -308,6 +357,9 @@ importers:
       penpal:
         specifier: 8.0.1
         version: 8.0.1
+      svelte-maplibre-gl:
+        specifier: 2.2.1
+        version: 2.2.1(maplibre-gl@5.24.0)(svelte@5.56.10)
       zod:
         specifier: ^4.1.12
         version: 4.5.2
@@ -327,6 +379,9 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.8
         version: 5.0.8
+      '@types/d3-scale':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1
@@ -2958,6 +3013,12 @@ packages:
 
   svelte-intersection-observer@1.2.0:
     resolution: {integrity: sha512-8QRR9mSGcb+b8emGlfl/wKJQWM0Kpwyr4Qk0T/oXv3nqFZfZgXxyjBtejK1YNPKwHUpMtI0kM6nMTNPTAkixXA==}
+
+  svelte-maplibre-gl@2.2.1:
+    resolution: {integrity: sha512-HCJBs5WhKtQ4aba4AhU9sE/XE0X7NgVNRQG27qUEdsXeUGdE6ZPQoaQSyKE8WzbGR8+GGfyGFajz1+1le51TCQ==}
+    peerDependencies:
+      maplibre-gl: ^5.19.0 || ^6.0.0
+      svelte: '>=5.0.0'
 
   svelte-sonner@1.1.1:
     resolution: {integrity: sha512-5cd3p7wa4cq0NsqslMwdlPb7x1JglEZ/GKrLePWNr5bCxR1nagAVrY01FRFrXfUGs41miLt3C327+8XJo5BzZw==}
@@ -5779,6 +5840,11 @@ snapshots:
       svelte: 5.56.10
 
   svelte-intersection-observer@1.2.0: {}
+
+  svelte-maplibre-gl@2.2.1(maplibre-gl@5.24.0)(svelte@5.56.10):
+    dependencies:
+      maplibre-gl: 5.24.0
+      svelte: 5.56.10
 
   svelte-sonner@1.1.1(svelte@5.55.5):
     dependencies:
