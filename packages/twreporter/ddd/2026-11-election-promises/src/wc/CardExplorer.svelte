@@ -3,6 +3,7 @@
   import { citySelection } from '../lib/city-selection.svelte.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
+  import { followTwreporterHeader } from '@lab-reporter/ddd-shared/utils/site-header.ts'
   import {
     cardExplorerConfigSchema,
     type ExplorerProps,
@@ -103,16 +104,21 @@
   const error = $derived(graphic.error ?? data.error ?? selectionError)
   let showStickyTop = $state(false)
 
-  function observeIntro(node: HTMLDivElement) {
+  function observeIntroEnd(node: HTMLElement) {
     const observer = new IntersectionObserver(([entry]) => {
-      showStickyTop = entry.boundingClientRect.bottom <= 0
+      showStickyTop =
+        !entry.isIntersecting && entry.boundingClientRect.bottom <= 0
     })
     observer.observe(node)
-    return { destroy: () => observer.disconnect() }
+    return () => observer.disconnect()
   }
 </script>
 
-<div class="explorer" class:no-footnotes={!config?.footnotes.length}>
+<div
+  class="explorer"
+  class:no-footnotes={!config?.footnotes.length}
+  {@attach followTwreporterHeader}
+>
   {#if category && config}
     <Shell
       bind:title={category.label}
@@ -146,7 +152,7 @@
           {/snippet}
         </FilterTabs>
       {/snippet}
-      <div class="intro" use:observeIntro>
+      <div class="intro">
         {#if topic && (topic.question || graphic.editable)}<p class="question">
             <EditableText
               bind:value={topic.question}
@@ -154,10 +160,13 @@
               placeholder="題目文字"
             />
           </p>{/if}
+        <span class="intro-end" {@attach observeIntroEnd}></span>
       </div>
       <div
         class="results"
-        style:--sticky-top-height={showStickyTop ? '55px' : '0px'}
+        style:--sticky-top-height={showStickyTop
+          ? 'var(--sticky-summary-height)'
+          : '0px'}
       >
         <div class="sticky-anchor">
           {#if showStickyTop}
@@ -285,10 +294,20 @@
   }
 
   .intro {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 10px;
     min-width: 0;
+  }
+
+  .intro-end {
+    position: absolute;
+    bottom: var(--site-header-offset, 0px);
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    transition: bottom var(--site-header-transition, 0s);
   }
 
   .question {
@@ -299,6 +318,7 @@
   }
 
   .results {
+    --sticky-summary-height: 55px;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -314,17 +334,18 @@
 
   .sticky-anchor {
     position: sticky;
-    top: 0;
+    top: var(--site-header-offset, 0px);
     z-index: 2;
     height: 0;
     margin-bottom: -15px;
+    transition: top var(--site-header-transition, 0s);
   }
 
   .sticky-top {
     display: flex;
     align-items: center;
     gap: 6px;
-    height: 55px;
+    height: var(--sticky-summary-height);
     padding-block: 15px;
     border-bottom: 1px solid var(--neutral-gray-300);
     background: var(--neutral-white);

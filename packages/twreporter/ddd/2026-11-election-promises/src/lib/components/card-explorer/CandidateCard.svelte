@@ -79,10 +79,11 @@
 
   .portrait {
     position: sticky;
-    top: var(--sticky-top-height, 0px);
+    top: calc(var(--site-header-offset, 0px) + var(--sticky-top-height, 0px));
     align-self: start;
     height: 260px;
     background: var(--neutral-gray-100);
+    transition: top var(--site-header-transition, 0s);
   }
 
   .identity {
