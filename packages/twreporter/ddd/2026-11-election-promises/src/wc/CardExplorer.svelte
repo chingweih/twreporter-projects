@@ -90,6 +90,15 @@
           : undefined,
   )
   const error = $derived(graphic.error ?? data.error ?? selectionError)
+  let showStickyTop = $state(false)
+
+  function observeIntro(node: HTMLDivElement) {
+    const observer = new IntersectionObserver(([entry]) => {
+      showStickyTop = entry.boundingClientRect.bottom <= 0
+    })
+    observer.observe(node)
+    return { destroy: () => observer.disconnect() }
+  }
 </script>
 
 <div class="explorer" class:no-footnotes={!config?.footnotes.length}>
@@ -126,7 +135,7 @@
           {/snippet}
         </FilterTabs>
       {/snippet}
-      <div class="intro">
+      <div class="intro" use:observeIntro>
         {#if topic && (topic.question || graphic.editable)}<p class="question">
             <EditableText
               bind:value={topic.question}
@@ -135,7 +144,29 @@
             />
           </p>{/if}
       </div>
-      <div class="results">
+      <div
+        class="results"
+        style:--sticky-top-height={showStickyTop ? '55px' : '0px'}
+      >
+        <div class="sticky-anchor">
+          {#if showStickyTop}
+            <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need focus to scroll this region.) -->
+            <div
+              class="sticky-top"
+              class:backdrop={config.backdrop}
+              role="region"
+              aria-label="目前政見摘要"
+              tabindex="0"
+            >
+              <span class="sticky-city">{activeCity}</span>
+              <span class="sticky-summary"
+                ><strong>{category.label}</strong>｜<strong
+                  >{topic?.label}</strong
+                >｜{topic?.question ?? ''}</span
+              >
+            </div>
+          {/if}
+        </div>
         <FilterTabs
           class="city"
           options={cities}
@@ -252,6 +283,78 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 40px;
     min-width: 0;
+  }
+
+  .sticky-anchor {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    height: 0;
+    margin-bottom: -15px;
+  }
+
+  .sticky-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 55px;
+    padding-block: 15px;
+    border-bottom: 1px solid var(--neutral-gray-300);
+    background: var(--neutral-white);
+    color: var(--neutral-gray-800);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    white-space: nowrap;
+    animation: sticky-top-enter 180ms ease-out;
+  }
+
+  .sticky-top::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sticky-top:focus-visible {
+    outline-offset: -2px;
+  }
+
+  @keyframes sticky-top-enter {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sticky-top {
+      animation: none;
+    }
+  }
+
+  .sticky-top.backdrop {
+    background: var(--background);
+  }
+
+  .sticky-city {
+    flex-shrink: 0;
+    border-radius: 2px;
+    padding: 5px;
+    background: var(--neutral-gray-800);
+    color: var(--neutral-gray-100);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.13px;
+  }
+
+  .sticky-summary {
+    flex-shrink: 0;
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: 0.16px;
   }
 
   .explorer :global(.filter-tabs) {

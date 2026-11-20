@@ -79,7 +79,7 @@
 
   .portrait {
     position: sticky;
-    top: 0;
+    top: var(--sticky-top-height, 0px);
     align-self: start;
     height: 260px;
     background: var(--neutral-gray-100);
@@ -159,7 +159,7 @@
       grid-template-columns: minmax(0, 1fr);
     }
     .portrait {
-      position: relative;
+      z-index: 1;
       height: 81px;
       border-radius: 1px;
       overflow: hidden;
