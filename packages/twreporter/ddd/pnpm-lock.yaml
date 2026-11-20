@@ -223,6 +223,9 @@ importers:
       '@lab-reporter/ddd-shared':
         specifier: workspace:*
         version: link:../shared
+      '@tanstack/svelte-query':
+        specifier: ^6.1.28
+        version: 6.1.28(svelte@5.56.10)
       zod:
         specifier: ^4.1.12
         version: 4.5.2

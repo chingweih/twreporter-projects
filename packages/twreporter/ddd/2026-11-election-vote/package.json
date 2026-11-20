@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@lab-reporter/ddd-shared": "workspace:*",
+    "@tanstack/svelte-query": "^6.1.28",
     "zod": "^4.1.12"
   },
   "devDependencies": {

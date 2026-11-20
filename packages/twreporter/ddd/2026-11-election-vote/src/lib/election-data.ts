@@ -1,0 +1,202 @@
+import { queryOptions } from '@tanstack/svelte-query'
+import {
+  fetchText,
+  parseCsv,
+  requireCsvColumns,
+} from '@lab-reporter/ddd-shared/utils/fetchers.ts'
+import { z } from 'zod'
+
+const spreadsheetId = '1rrRgaTyIIhHFCUaGZ1BB4tdmx-WcoPJuKhf1w5YqKeY'
+
+const text = z.string()
+const number = z
+  .string()
+  .trim()
+  .regex(/^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/)
+  .transform((value) => Number(value.replaceAll(',', '')))
+  .pipe(z.number())
+const count = number.pipe(z.int().nonnegative())
+const percentage = text
+  .trim()
+  .transform((value) => value.replace(/%$/, ''))
+  .pipe(number)
+
+const county = {
+  縣市: text,
+  縣市代碼: text,
+}
+const township = {
+  鄉鎮市區: text,
+  鄉鎮市區代碼: text,
+}
+const village = {
+  村里: text,
+  村里代碼: text,
+}
+const countingProgress = {
+  已開所數: count,
+  應開所數: count,
+  '開票進度(%)': percentage,
+}
+const ballotTotals = {
+  投票數: count,
+  有效票: count,
+  無效票: count,
+  '投票率(%)': percentage,
+}
+const candidate = {
+  號次: count,
+  姓名: text,
+  政黨: text,
+  得票數: count,
+  '得票率(%)': percentage,
+  當選註記: text,
+}
+const candidateResults = {
+  ...candidate,
+  性別: text,
+  ...countingProgress,
+  ...ballotTotals,
+  選舉人數: count,
+}
+const analysisArea = {
+  選舉: text,
+  範圍: text,
+  縣市代碼: text,
+}
+
+function electionTab<Columns extends z.ZodRawShape>(
+  gid: string,
+  rowSchema: z.ZodObject<Columns>,
+) {
+  const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`
+  const columns = Object.keys(rowSchema.shape)
+  const rowsSchema = rowSchema.array()
+
+  async function fetchRows(signal?: AbortSignal) {
+    const csvText = await fetchText(url, signal)
+    try {
+      const csv = parseCsv(csvText)
+      requireCsvColumns(csv, columns)
+      return rowsSchema.parse(csv.rows)
+    } catch (cause) {
+      throw new Error(`Invalid election CSV in sheet tab ${gid}`, { cause })
+    }
+  }
+
+  return {
+    fetchRows,
+    options: queryOptions({
+      queryKey: ['2026-11-election-vote', gid] as const,
+      queryFn: ({ signal }) => fetchRows(signal),
+    }),
+  }
+}
+
+// Rates use percentage points (e.g. 67.91). Codes and notes retain the sheet's text.
+export const electionTabs = {
+  mayorOverview: electionTab(
+    '1427019390',
+    z.object({
+      ...county,
+      ...countingProgress,
+      '投票率(%)': percentage,
+      領先者: text,
+      領先者政黨: text,
+      領先得票: count,
+      '領先得票率(%)': percentage,
+      第二名: text,
+      第二名政黨: text,
+      第二名得票: count,
+      '第二名得票率(%)': percentage,
+      差距票數: count,
+      當選註記: text,
+    }),
+  ),
+  mayorCandidates: electionTab(
+    '1156841378',
+    z.object({ ...county, ...candidateResults }),
+  ),
+  mayorByTownship: electionTab(
+    '614079164',
+    z.object({ ...county, ...township, ...candidateResults }),
+  ),
+  mayorByVillage: electionTab(
+    '1702445830',
+    z.object({
+      ...county,
+      ...township,
+      ...village,
+      ...candidate,
+      投開票所數: count,
+      ...ballotTotals,
+      選舉人數: count,
+    }),
+  ),
+  councilors: electionTab(
+    '1538875295',
+    z.object({
+      類別: text,
+      ...county,
+      選舉區: text,
+      ...candidateResults,
+    }),
+  ),
+  townshipMayors: electionTab(
+    '1438786048',
+    z.object({ ...county, ...township, ...candidateResults }),
+  ),
+  townshipRepresentatives: electionTab(
+    '1868641016',
+    z.object({
+      類別: text,
+      ...county,
+      ...township,
+      選舉區: text,
+      ...candidateResults,
+    }),
+  ),
+  villageChiefs: electionTab(
+    '378489786',
+    z.object({ ...county, ...township, ...village, ...candidateResults }),
+  ),
+  electedCandidateAnalysis: electionTab(
+    '828170316',
+    z.object({
+      ...analysisArea,
+      ...township,
+      平均年齡: number,
+      女性: count,
+      男性: count,
+      各黨當選: text,
+    }),
+  ),
+  partyVoteShares: electionTab(
+    '1359624398',
+    z.object({
+      ...analysisArea,
+      政黨: text,
+      得票數: count,
+      '得票率(%)': percentage,
+      政黨代碼: text,
+      代碼對照方式: text,
+    }),
+  ),
+  referendum: electionTab(
+    '2090430821',
+    z.object({
+      層級: text,
+      ...county,
+      ...township,
+      同意票: count,
+      '同意率(%)': percentage,
+      不同意票: count,
+      '不同意率(%)': percentage,
+      '同意票占投票權人總數(%)': percentage,
+      通過註記: text,
+      ...countingProgress,
+      ...ballotTotals,
+      投票權人數: count,
+    }),
+  ),
+}
