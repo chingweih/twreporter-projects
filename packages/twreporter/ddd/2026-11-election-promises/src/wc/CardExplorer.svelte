@@ -77,6 +77,7 @@
       cities[0]?.value ||
       '',
   )
+  let selectedVerdict = $state<string | undefined>()
   const visiblePolicies = $derived(
     categoryPolicies.filter(
       (policy) =>
@@ -187,6 +188,19 @@
             activeCity = value
           }}
         />
+        <div class="verdict-filter">
+          <ChipSelector
+            options={config.verdicts.map((verdict) => ({
+              value: verdict.label,
+              label: verdict.label,
+              color: verdict.color,
+            }))}
+            value={selectedVerdict}
+            label="依評比篩選政見"
+            onchange={(value) =>
+              (selectedVerdict = selectedVerdict === value ? undefined : value)}
+          />
+        </div>
         <div class="candidates">
           {#each candidateNames as name, index (name)}
             {@const candidate = config.candidates.find(
