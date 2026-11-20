@@ -1,11 +1,14 @@
 <script module lang="ts">
+  import type { ComponentProps } from 'svelte'
   import { defineMeta } from '@storybook/addon-svelte-csf'
   import TextDiff from './TextDiff.svelte'
+  import { fontStylesheetUrl } from '../../utils/fonts'
 
   const { Story } = defineMeta({
     title: 'Components/TextDiff',
     component: TextDiff,
     parameters: { layout: 'padded' },
+    render: template,
     args: {
       brief:
         '臺北市社會住宅興辦總量已達36,974戶。近4年已新增盤點7,041戶潛力基地，未來將持續擴大社宅供給。',
@@ -19,6 +22,19 @@
     },
   })
 </script>
+
+<svelte:head>
+  <link rel="stylesheet" href={fontStylesheetUrl} />
+</svelte:head>
+
+{#snippet template(args: ComponentProps<typeof TextDiff>)}
+  <div
+    style:font-family="'Roboto Slab', 'Noto Sans TC', sans-serif"
+    style:line-height="1.6"
+  >
+    <TextDiff {...args} />
+  </div>
+{/snippet}
 
 <Story name="Default" />
 
