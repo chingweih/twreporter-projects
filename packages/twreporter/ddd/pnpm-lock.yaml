@@ -220,12 +220,24 @@ importers:
 
   2026-11-election-vote:
     dependencies:
+      '@lab-reporter/ddd-atlas':
+        specifier: workspace:*
+        version: link:../atlas
       '@lab-reporter/ddd-shared':
         specifier: workspace:*
         version: link:../shared
       '@tanstack/svelte-query':
         specifier: ^6.1.28
         version: 6.1.28(svelte@5.56.10)
+      d3-geo:
+        specifier: ^3.1.1
+        version: 3.1.1
+      maplibre-gl:
+        specifier: 5.24.0
+        version: 5.24.0
+      svelte-maplibre-gl:
+        specifier: 2.2.1
+        version: 2.2.1(maplibre-gl@5.24.0)(svelte@5.56.10)
       zod:
         specifier: ^4.1.12
         version: 4.5.2
@@ -233,6 +245,9 @@ importers:
       '@storybook/addon-svelte-csf':
         specifier: ^5.1.2
         version: 5.1.2(@storybook/svelte@10.5.3(storybook@10.5.3(@types/react@19.3.0)(prettier@3.8.3)(react@19.3.1))(svelte@5.56.10))(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(storybook@10.5.3(@types/react@19.3.0)(prettier@3.8.3)(react@19.3.1))(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))
+      '@types/d3-geo':
+        specifier: ^3.1.0
+        version: 3.1.0
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1

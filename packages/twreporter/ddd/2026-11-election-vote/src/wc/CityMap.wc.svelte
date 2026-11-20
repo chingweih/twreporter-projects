@@ -1,13 +1,13 @@
-<svelte:options customElement="twreporter-2026-11-election-vote-mayor-map" />
+<svelte:options customElement="twreporter-2026-11-election-vote-city-map" />
 
 <script lang="ts">
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
-  import MayorMap from './MayorMap.svelte'
+  import CityMap from './CityMap.svelte'
 
-  const { src, config }: ComponentProps = $props()
+  const { config }: Pick<ComponentProps, 'config'> = $props()
 </script>
 
 <ElectionLayout>
-  <MayorMap {src} {config} />
+  <CityMap {config} />
 </ElectionLayout>
