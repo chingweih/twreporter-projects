@@ -13,9 +13,7 @@
   <div class="city-selector">
     <div class="intro">
       <p class="description">以下圖表將預設顯示該縣市候選人政見</p>
-      <p class="question">
-        選擇想看的六都縣市，看看你家市長候選人提出什麼政見？
-      </p>
+      <p class="question">選擇你關注的直轄市，看看市長候選人提出什麼政見？</p>
     </div>
     <ChipSelector
       {options}
