@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getContext } from 'svelte'
+  import { citySelection } from '../lib/city-selection.svelte.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
   import {
@@ -68,7 +69,13 @@
       (value) => ({ value, label: value }),
     ),
   )
-  const activeCity = $derived(city || cities[0]?.value || '')
+  const defaultCity = $derived(citySelection.current)
+  let activeCity = $derived(
+    cities.find((option) => option.value === defaultCity)?.value ||
+      city ||
+      cities[0]?.value ||
+      '',
+  )
   const visiblePolicies = $derived(
     categoryPolicies.filter(
       (policy) =>
@@ -172,7 +179,10 @@
           options={cities}
           value={activeCity}
           label="縣市"
-          onchange={(value) => (city = value)}
+          onchange={(value) => {
+            city = value
+            activeCity = value
+          }}
         />
         <div class="candidates">
           {#each candidateNames as name, index (name)}

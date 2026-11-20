@@ -5,6 +5,7 @@
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import { defineMeta } from '@storybook/addon-svelte-csf'
   import CardExplorer from './CardExplorer.wc.svelte'
+  import CitySelector from './CitySelector.wc.svelte'
   import { cardExplorerConfigSchema } from '../lib/components/card-explorer/types.ts'
   import { cardExplorerGraphicContext } from '../lib/components/card-explorer/graphic-context.ts'
 
@@ -32,6 +33,12 @@
 <Story name="Default">
   {#snippet template(args)}
     <Layout>
+      <CitySelector />
+      <EmbedCode
+        componentName="city-selector"
+        tagName="twreporter-city-selector"
+        config=""
+      />
       <GraphicData
         name="twreporter-card-explorer"
         schema={cardExplorerConfigSchema}
