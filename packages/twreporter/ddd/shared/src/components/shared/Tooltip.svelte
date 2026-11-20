@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, untrack, type ComponentProps, type Snippet } from 'svelte'
-  import TooltipContent from './TooltipContent.svelte'
+  import TooltipOverlay from './TooltipOverlay.svelte'
 
   const {
     children,
@@ -10,14 +10,12 @@
   }: {
     children: Snippet
     content: Snippet
-    variant?: ComponentProps<typeof TooltipContent>['variant']
+    variant?: ComponentProps<typeof TooltipOverlay>['variant']
     onvisibilitychange?: (visible: boolean) => void
   } = $props()
   let visible = $state(false)
   let x = $state(0)
   let y = $state(0)
-  let width = $state(0)
-  let height = $state(0)
   let touchStart: { x: number; y: number } | undefined
   let touchMoved = false
   let touchInteraction = false
@@ -116,29 +114,13 @@
 </div>
 
 {#if visible}
-  <div
-    class="tooltip"
-    role="tooltip"
-    bind:clientWidth={width}
-    bind:clientHeight={height}
-    style:left={Math.max(8, Math.min(x + 12, window.innerWidth - width - 8)) +
-      'px'}
-    style:top={Math.max(8, Math.min(y + 12, window.innerHeight - height - 8)) +
-      'px'}
-  >
-    <TooltipContent {variant}>{@render content()}</TooltipContent>
-  </div>
+  <TooltipOverlay {variant} {x} {y}>
+    {@render content()}
+  </TooltipOverlay>
 {/if}
 
 <style>
   .anchor {
     min-width: 0;
-  }
-  .tooltip {
-    position: fixed;
-    z-index: 100;
-    width: max-content;
-    max-width: min(320px, calc(100vw - 32px));
-    pointer-events: none;
   }
 </style>

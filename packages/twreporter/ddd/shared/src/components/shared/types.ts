@@ -43,3 +43,37 @@ export const colorSchema = z
   .meta({ title: '顏色', 'ui:widget': 'color' })
 
 export type Color = z.infer<typeof colorSchema>
+
+export const barChartOrientationSchema = z.enum(['vertical', 'horizontal'])
+export const barChartAnnotationSchema = z
+  .object({
+    value: z.number().meta({ title: '數值' }),
+    label: z.string().trim().min(1).meta({ title: '標籤' }),
+  })
+  .meta({ 'ui:order': ['value', 'label'] })
+
+export type BarChartOrientation = z.infer<typeof barChartOrientationSchema>
+export type BarChartAnnotation = z.infer<typeof barChartAnnotationSchema>
+
+export type BarChartBar = {
+  series: string
+  value: number
+  label?: string
+}
+
+export type BarChartGroup = {
+  label?: string
+  bars: readonly BarChartBar[]
+}
+
+export type BarChartProps = {
+  label: string
+  groups: readonly BarChartGroup[]
+  orientation?: BarChartOrientation
+  showLegend?: boolean
+  axisLabel?: string
+  colors?: Readonly<Record<string, string>>
+  annotations?: readonly BarChartAnnotation[]
+  valueSuffix?: string
+  formatValue?: (value: number) => string
+}

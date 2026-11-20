@@ -1,14 +1,16 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  const { children }: { children: Snippet } = $props()
+  const { children, label }: { children: Snippet; label?: string } = $props()
   let viewport: HTMLDivElement | undefined = $state()
+  let canScroll = $state(false)
   let canScrollRight = $state(false)
 
   function updateFade() {
     if (!viewport) return
-    canScrollRight =
-      viewport.scrollWidth - viewport.clientWidth - viewport.scrollLeft > 1
+    const overflow = viewport.scrollWidth - viewport.clientWidth
+    canScroll = overflow > 1
+    canScrollRight = overflow - viewport.scrollLeft > 1
   }
 
   $effect(() => {
@@ -21,7 +23,15 @@
 </script>
 
 <div class="scroll-container">
-  <div class="viewport" bind:this={viewport} onscroll={updateFade}>
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus an overflowing scroll region.) -->
+  <div
+    class="viewport"
+    bind:this={viewport}
+    role={label ? 'region' : undefined}
+    aria-label={label}
+    tabindex={label && canScroll ? 0 : undefined}
+    onscroll={updateFade}
+  >
     {@render children()}
   </div>
   <div class="fade" class:visible={canScrollRight} aria-hidden="true"></div>

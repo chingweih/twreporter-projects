@@ -1,0 +1,28 @@
+{
+  "title": "2024 年政黨票得票率",
+  "seriesColumn": "series",
+  "valueColumn": "value",
+  "groupColumn": "group",
+  "axisLabel": "政黨票得票率",
+  "valueSuffix": "%",
+  "orientation": "horizontal",
+  "showLegend": false,
+  "seriesColors": [
+    { "series": "民進黨", "color": "#6ca198" },
+    { "series": "國民黨", "color": "#87a9d4" },
+    { "series": "民眾黨", "color": "#a27db4" },
+    { "series": "時代力量", "color": "#b2b563" }
+  ],
+  "annotations": [
+    { "value": 2, "label": "2% 未來三次可直接提名不分區" },
+    { "value": 3, "label": "3% 可獲政黨補助款" },
+    { "value": 5, "label": "5% 可分配不分區席次" }
+  ],
+  "footnotes": [
+    "註：註解註解註解",
+    "資料來源：註解註解註解",
+    "資料整理：一二三 ｜ 設計：一二三"
+  ],
+  "wide": false,
+  "backdrop": true
+}

@@ -333,6 +333,9 @@ importers:
       '@tanstack/svelte-query':
         specifier: ^6.1.28
         version: 6.1.28(svelte@5.56.10)
+      d3-scale:
+        specifier: ^4.0.2
+        version: 4.0.2
       diff:
         specifier: ^9.0.0
         version: 9.0.0
@@ -364,6 +367,9 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.8
         version: 5.0.8
+      '@types/d3-scale':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1

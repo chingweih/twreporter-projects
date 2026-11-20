@@ -1,0 +1,12 @@
+{
+  "title": "",
+  "footnotes": [],
+  "wide": false,
+  "backdrop": true,
+  "seriesColumn": "series",
+  "valueColumn": "value",
+  "orientation": "vertical",
+  "showLegend": true,
+  "seriesColors": [],
+  "annotations": []
+}
