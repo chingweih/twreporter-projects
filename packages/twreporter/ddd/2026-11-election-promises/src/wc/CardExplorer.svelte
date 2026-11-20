@@ -385,7 +385,7 @@
   }
 
   .verdict-filter :global(.chips) {
-    gap: 10px 15px;
+    gap: 0px 15px;
   }
 
   .verdict-filter :global(button) {
