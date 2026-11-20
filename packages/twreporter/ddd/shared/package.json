@@ -51,9 +51,11 @@
     "@tanstack/svelte-query": "^6.1.28",
     "d3-scale": "^4.0.2",
     "diff": "^9.0.0",
+    "maplibre-gl": "5.24.0",
     "modern-screenshot": "^4.7.0",
     "papaparse": "^5.5.4",
     "penpal": "8.0.1",
+    "svelte-maplibre-gl": "2.2.1",
     "zod": "^4.1.12"
   }
 }

@@ -345,6 +345,9 @@ importers:
       diff:
         specifier: ^9.0.0
         version: 9.0.0
+      maplibre-gl:
+        specifier: 5.24.0
+        version: 5.24.0
       modern-screenshot:
         specifier: ^4.7.0
         version: 4.7.0
@@ -354,6 +357,9 @@ importers:
       penpal:
         specifier: 8.0.1
         version: 8.0.1
+      svelte-maplibre-gl:
+        specifier: 2.2.1
+        version: 2.2.1(maplibre-gl@5.24.0)(svelte@5.56.10)
       zod:
         specifier: ^4.1.12
         version: 4.5.2
@@ -3007,6 +3013,12 @@ packages:
 
   svelte-intersection-observer@1.2.0:
     resolution: {integrity: sha512-8QRR9mSGcb+b8emGlfl/wKJQWM0Kpwyr4Qk0T/oXv3nqFZfZgXxyjBtejK1YNPKwHUpMtI0kM6nMTNPTAkixXA==}
+
+  svelte-maplibre-gl@2.2.1:
+    resolution: {integrity: sha512-HCJBs5WhKtQ4aba4AhU9sE/XE0X7NgVNRQG27qUEdsXeUGdE6ZPQoaQSyKE8WzbGR8+GGfyGFajz1+1le51TCQ==}
+    peerDependencies:
+      maplibre-gl: ^5.19.0 || ^6.0.0
+      svelte: '>=5.0.0'
 
   svelte-sonner@1.1.1:
     resolution: {integrity: sha512-5cd3p7wa4cq0NsqslMwdlPb7x1JglEZ/GKrLePWNr5bCxR1nagAVrY01FRFrXfUGs41miLt3C327+8XJo5BzZw==}
@@ -5828,6 +5840,11 @@ snapshots:
       svelte: 5.56.10
 
   svelte-intersection-observer@1.2.0: {}
+
+  svelte-maplibre-gl@2.2.1(maplibre-gl@5.24.0)(svelte@5.56.10):
+    dependencies:
+      maplibre-gl: 5.24.0
+      svelte: 5.56.10
 
   svelte-sonner@1.1.1(svelte@5.55.5):
     dependencies:
