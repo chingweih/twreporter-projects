@@ -68,7 +68,8 @@
 
   .city-selector :global(button) {
     padding: 10px 12px;
-    border-color: var(--neutral-gray-800);
+    border-color: var(--neutral-gray-300);
+    color: var(--neutral-gray-300);
     border-radius: 0;
     background: transparent;
     font-size: 16px;
@@ -76,9 +77,18 @@
     line-height: 1;
     letter-spacing: 0.05em;
     white-space: nowrap;
+    transition: all 0.1s ease-in-out;
   }
 
   .city-selector :global(button:hover:not(.active)) {
-    background: var(--neutral-gray-100);
+    color: var(--neutral-gray-700);
+    border-color: var(--neutral-gray-700);
+  }
+
+  .city-selector :global(button.active) {
+    border-color: var(--brand-main);
+    background: var(--brand-main);
+    color: var(--neutral-white);
+    font-weight: 600;
   }
 </style>
