@@ -9,10 +9,12 @@
     policy,
     config,
     editable = false,
+    compact = false,
   }: {
     policy: Policy
     config: CardExplorerConfig
     editable?: boolean
+    compact?: boolean
   } = $props()
   const reviews = $derived(
     policy.reviews.filter((review) => review.verdict?.trim()),
@@ -24,7 +26,7 @@
   let showFull = $state(false)
 </script>
 
-<article class:has-heading={Boolean(policy.title)}>
+<article class:has-heading={Boolean(policy.title)} class:compact>
   <div class="promise" class:expandable={canExpand}>
     {#if policy.title || editable}<strong
         >【<EditableText
@@ -68,6 +70,7 @@
       {reviews}
       {config}
       {editable}
+      {compact}
       existingPolicy={policy.existingPolicy}
     />{/if}
 </article>
@@ -83,6 +86,10 @@
   }
   article.has-heading {
     gap: 10px;
+  }
+  article.compact {
+    padding-bottom: 0;
+    border-bottom: 0;
   }
   .promise {
     position: relative;

@@ -18,7 +18,7 @@
 <script lang="ts">
   import Layout from '@lab-reporter/ddd-shared/components/shared/Layout.svelte'
   import type { ExplorerProps } from '../lib/components/card-explorer/types.ts'
-  import CardExplorer from './CardExplorer.svelte'
+  import PromiseCards from '../lib/components/card-explorer/PromiseCards.svelte'
 
   let {
     sources,
@@ -31,7 +31,7 @@
 </script>
 
 <Layout hideInEditor>
-  <CardExplorer
+  <PromiseCards
     {sources}
     {config}
     {categoryId}

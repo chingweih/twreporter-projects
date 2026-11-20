@@ -13,4 +13,9 @@ export const components = {
     outputDirectory: 'components/card-explorer',
     configSchema: cardExplorerConfigSchema,
   },
+  ['card-comparison']: {
+    entry: 'src/wc/card-comparison.ts',
+    outputDirectory: 'components/card-comparison',
+    configSchema: cardExplorerConfigSchema,
+  },
 } satisfies Record<string, ComponentConfig>

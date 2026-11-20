@@ -11,12 +11,14 @@
     policies,
     config,
     editable = false,
+    comparison = false,
     footnotes,
   }: {
     candidate: Candidate
     policies: Policy[]
     config: CardExplorerConfig
     editable?: boolean
+    comparison?: boolean
     footnotes?: Snippet
   } = $props()
   const partyBadge = $derived(
@@ -63,7 +65,7 @@
   </div>
   <div class="policies">
     {#each policies as policy (policy.questionId)}
-      <PolicyCard {policy} {config} {editable} />
+      <PolicyCard {policy} {config} {editable} compact={comparison} />
     {/each}
   </div>
 </section>
@@ -161,6 +163,7 @@
     height: 100%;
     object-fit: cover;
   }
+
   @media (width < 768px) {
     .candidate {
       grid-template-columns: minmax(0, 1fr);

@@ -8,11 +8,13 @@
     config,
     editable = false,
     existingPolicy = false,
+    compact = false,
   }: {
     reviews: Review[]
     config: CardExplorerConfig
     editable?: boolean
     existingPolicy?: boolean
+    compact?: boolean
   } = $props()
   const detailedReviews = $derived(
     reviews.filter((review) => review.analysis.trim()),
@@ -30,7 +32,7 @@
   })
 </script>
 
-<details>
+<details class:compact>
   <summary
     onclick={(event) => {
       if (
@@ -287,6 +289,32 @@
   }
   .collapse {
     display: none;
+  }
+
+  .compact summary {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  .compact .verdicts {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .compact .attribution {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    line-height: 1.5;
+  }
+  .compact .label-row {
+    margin-block-end: -2px;
+  }
+  .compact .toggle-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 
   @media (width < 768px) {
