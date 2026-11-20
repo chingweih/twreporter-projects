@@ -4,6 +4,7 @@
   import EmbedCode from '@lab-reporter/ddd-shared/components/shared/EmbedCode.svelte'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import { defineMeta } from '@storybook/addon-svelte-csf'
+  import CardComparison from './CardComparison.wc.svelte'
   import CardExplorer from './CardExplorer.wc.svelte'
   import CitySelector from './CitySelector.wc.svelte'
   import { cardExplorerConfigSchema } from '../lib/components/card-explorer/types.ts'
@@ -49,29 +50,44 @@
       >
         {#snippet children(graphic)}
           {#if graphic.config}
-            {#each graphic.config.categories as category (category.id)}
-              {@const topic = category.topics[0]}
-              {@const topicId = topic?.id ?? ''}
-              {@const subQuestionId = topic?.questions?.[0]?.id ?? ''}
-              <CardExplorer
-                {...args}
-                categoryId={category.id}
-                {topicId}
-                {subQuestionId}
-              />
-              <EmbedCode
-                componentName="card-explorer"
-                tagName="twreporter-card-explorer"
-                sources={args.sources}
-                config={args.config ?? ''}
-                extraProps={{
-                  'category-id': category.id,
-                  'topic-id': topicId,
-                  'sub-question-id': subQuestionId,
-                  city: args.city ?? '',
+            {@const categories = graphic.config.categories}
+            {#snippet categoryCards(comparison: boolean)}
+              {@const componentName = comparison
+                ? 'card-comparison'
+                : 'card-explorer'}
+              {@const tagName = `twreporter-${componentName}`}
+              {#each categories as category (category.id)}
+                {@const topic = category.topics[0]}
+                {@const topicId = topic?.id ?? ''}
+                {@const subQuestionId = topic?.questions?.[0]?.id ?? ''}
+                {@const props = {
+                  sources: args.sources,
+                  config: args.config,
+                  categoryId: category.id,
+                  topicId,
+                  subQuestionId,
                 }}
-              />
-            {/each}
+                {#if comparison}
+                  <CardComparison {...props} />
+                {:else}
+                  <CardExplorer {...props} city={args.city} />
+                {/if}
+                <EmbedCode
+                  {componentName}
+                  {tagName}
+                  sources={args.sources}
+                  config={args.config ?? ''}
+                  extraProps={{
+                    'category-id': category.id,
+                    'topic-id': topicId,
+                    'sub-question-id': subQuestionId,
+                    ...(!comparison && { city: args.city ?? '' }),
+                  }}
+                />
+              {/each}
+            {/snippet}
+            {@render categoryCards(false)}
+            {@render categoryCards(true)}
           {:else}
             <Shell error={graphic.error} loading={graphic.loading} />
           {/if}
