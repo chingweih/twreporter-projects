@@ -120,7 +120,7 @@
   .container {
     box-sizing: border-box;
     width: 100%;
-    border-top: 1px solid var(--neutral-gray-200);
+    border-top: 1px solid var(--neutral-gray-300);
     border-bottom: 1px solid var(--neutral-gray-300);
   }
 
@@ -136,28 +136,63 @@
     margin: 0;
     font-size: var(--text-xl);
     font-weight: 700;
-    line-height: var(--text-xl-leading);
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    overflow-wrap: anywhere;
     white-space: pre-wrap;
   }
 
   .subtitle {
-    margin: 8px 0 0;
-    color: var(--neutral-gray-600);
-    font-size: var(--text-s);
-    line-height: 1.6;
+    margin: 0;
+    color: var(--text-color);
+    font-size: var(--text-l);
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    overflow-wrap: anywhere;
     white-space: pre-wrap;
   }
 
   .footnotes {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 5px;
   }
 
   .footnotes p {
     margin: 0;
     color: var(--neutral-gray-600);
-    font-size: var(--text-s);
+    font-size: var(--text-xs);
+    line-height: 1.3;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    letter-spacing: 0.01em;
+  }
+
+  .container :global(.bottom) {
+    gap: 10px;
+  }
+
+  @media (min-width: 768px) {
+    .header h1 {
+      font-size: 26px;
+    }
+
+    .subtitle {
+      font-size: 22px;
+    }
+
+    .container :global(.frame) {
+      --top: 25px;
+      --left: 34px;
+      --right: 34px;
+      --bottom: 34px;
+    }
+
+    .container :global(.logo) {
+      width: 31px;
+      height: 32px;
+    }
   }
 
   .download-control {
@@ -174,5 +209,6 @@
     color: var(--neutral-white);
     cursor: pointer;
     font-size: 12px;
+    letter-spacing: 0.01em;
   }
 </style>

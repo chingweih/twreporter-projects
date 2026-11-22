@@ -15,11 +15,11 @@
   .election-theme {
     display: contents;
 
-    --elec-kmt-1: #dae6ed;
-    --elec-kmt-2: #bed4ea;
-    --elec-kmt-3: #87a9d4;
-    --elec-kmt-4: #517399;
-    --elec-kmt-5: #2e496b;
+    --elec-kmt-1: #DDE5EF;
+    --elec-kmt-2: #C4D2E8;
+    --elec-kmt-3: #8CA7D3;
+    --elec-kmt-4: #5171A3;
+    --elec-kmt-5: #384666;
     --elec-kmt: var(--elec-kmt-3);
 
     --elec-dpp-1: #e1e9d0;
