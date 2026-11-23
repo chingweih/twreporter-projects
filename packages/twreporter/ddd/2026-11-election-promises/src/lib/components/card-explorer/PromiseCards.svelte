@@ -125,6 +125,20 @@
       {error}
       loading={graphic.loading}
     >
+      {#snippet beforeHeader()}
+        {#if config.footnotes.length}
+          <div class="footnotes">
+            {#each config.footnotes as _, index}
+              <p>
+                <EditableText
+                  bind:value={config.footnotes[index]}
+                  editable={graphic.editable}
+                />
+              </p>
+            {/each}
+          </div>
+        {/if}
+      {/snippet}
       {#snippet topRight()}
         <FilterTabs
           class="topic"
@@ -195,20 +209,6 @@
             {questionLabels}
           />
         {:else}
-          {#snippet footnotes()}
-            {#if config.footnotes.length}
-              <div class="footnotes">
-                {#each config.footnotes as _, index}
-                  <p>
-                    <EditableText
-                      bind:value={config.footnotes[index]}
-                      editable={graphic.editable}
-                    />
-                  </p>
-                {/each}
-              </div>
-            {/if}
-          {/snippet}
           <FilterTabs
             class="city"
             options={cities}
@@ -219,14 +219,10 @@
               activeCity = value
             }}
           />
-          {#if mobile.current}
-            {@render footnotes()}
-          {/if}
           <CandidateCards
             policies={visiblePolicies}
             {config}
             editable={graphic.editable}
-            footnotes={mobile.current ? undefined : footnotes}
             {questionLabels}
           />
         {/if}
@@ -267,7 +263,7 @@
   }
 
   .explorer :global(.frame) {
-    padding: 38px 48px 42px 56px;
+    padding: 18px 48px 42px 56px;
     gap: 10px;
     color: var(--neutral-gray-800);
   }
@@ -329,6 +325,8 @@
     display: flex;
     flex-direction: column;
     gap: 7px;
+    min-height: 26px;
+    text-align: center;
     color: var(--neutral-gray-500);
     font-family: 'Noto Sans TC', sans-serif;
     font-size: 14px;
@@ -338,6 +336,7 @@
 
   .footnotes p {
     margin: 0;
+    text-wrap: balance;
   }
 
   @media (width >= 768px) {

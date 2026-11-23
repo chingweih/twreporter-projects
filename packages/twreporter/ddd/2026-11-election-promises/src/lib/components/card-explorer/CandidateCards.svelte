@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte'
   import CandidateCard from './CandidateCard.svelte'
   import type { CardExplorerConfig, Policy } from './types.ts'
 
@@ -8,14 +7,12 @@
     config,
     editable,
     comparison = false,
-    footnotes,
     questionLabels,
   }: {
     policies: Policy[]
     config: CardExplorerConfig
     editable: boolean
     comparison?: boolean
-    footnotes?: Snippet
     questionLabels?: ReadonlyMap<Policy['questionId'], string>
   } = $props()
 
@@ -34,7 +31,6 @@
         {config}
         {editable}
         {comparison}
-        {footnotes}
         {questionLabels}
       />
     {/if}

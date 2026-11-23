@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte'
   import type { Candidate, CardExplorerConfig, Policy } from './types.ts'
   import PolicyCard from './PolicyCard.svelte'
   import { partyBadges } from './party-badges.ts'
@@ -12,7 +11,6 @@
     config,
     editable = false,
     comparison = false,
-    footnotes,
     questionLabels,
   }: {
     candidate: Candidate
@@ -20,7 +18,6 @@
     config: CardExplorerConfig
     editable?: boolean
     comparison?: boolean
-    footnotes?: Snippet
     questionLabels?: ReadonlyMap<Policy['questionId'], string>
   } = $props()
   const partyBadge = $derived(
@@ -63,7 +60,6 @@
           <span class="party-name">{candidate.party}</span>
         </div>{/if}
     </div>
-    {@render footnotes?.()}
   </div>
   <div class="policies">
     {#each policies as policy (policy.questionId)}

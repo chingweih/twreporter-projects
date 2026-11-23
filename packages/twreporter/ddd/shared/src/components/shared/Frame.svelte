@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements'
 
   type Props = HTMLAttributes<HTMLDivElement> & {
+    beforeHeader?: Snippet
     topLeft?: Snippet
     topRight?: Snippet
     bottomLeft?: Snippet
@@ -11,6 +12,7 @@
   }
 
   let {
+    beforeHeader,
     topLeft,
     topRight,
     bottomLeft,
@@ -23,6 +25,7 @@
 
 <div class="container">
   <div class={['frame', className]} {...rest}>
+    {@render beforeHeader?.()}
     {#if topLeft || topRight}
       <div class="top">
         {#if topLeft}
