@@ -1,6 +1,5 @@
-import { createQuery } from '@tanstack/svelte-query'
+import { createQuery, type CreateQueryOptions } from '@tanstack/svelte-query'
 import Papa from 'papaparse'
-import { untrack } from 'svelte'
 import type { ZodType } from 'zod'
 import type { ComponentProps } from '../components/types.ts'
 import { fetchJson, fetchText, parseCsv, type CSVData } from './fetchers.ts'
@@ -10,12 +9,19 @@ export type GraphicDataProps = Pick<ComponentProps, 'config'> & {
   src?: ComponentProps['src']
   sources?: Record<string, string>
 }
+export type GraphicQueryOptions = {
+  refetchOnWindowFocus?: Extract<
+    CreateQueryOptions['refetchOnWindowFocus'],
+    boolean
+  >
+}
 type GraphicSource = CSVData & Pick<GraphicSources[number], 'id'>
 
 export function createGraphic<Config>(
   name: string,
   configSchema: ZodType<Config>,
   props: () => GraphicDataProps,
+  queryOptions?: GraphicQueryOptions,
 ) {
   const editorMode =
     window.parent !== window &&
@@ -51,6 +57,7 @@ export function createGraphic<Config>(
   })
 
   const query = createQuery(() => ({
+    ...queryOptions,
     queryKey: [name, props()] as const,
     enabled: !editorMode && !sync.connected && Boolean(props().config),
     queryFn: async ({ signal }) => {
@@ -78,11 +85,9 @@ export function createGraphic<Config>(
   $effect(() => {
     if (sync.connected) return
     const data = query.data
-    untrack(() => {
-      config = data ? structuredClone(data.config) : undefined
-      sources = data ? structuredClone(data.sources) : undefined
-      sourceError = undefined
-    })
+    config = data ? structuredClone(data.config) : undefined
+    sources = data ? structuredClone(data.sources) : undefined
+    sourceError = undefined
   })
 
   return {

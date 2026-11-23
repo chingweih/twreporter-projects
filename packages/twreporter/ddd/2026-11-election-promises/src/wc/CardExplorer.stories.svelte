@@ -7,8 +7,7 @@
   import CardComparison from './CardComparison.wc.svelte'
   import CardExplorer from './CardExplorer.wc.svelte'
   import CitySelector from './CitySelector.wc.svelte'
-  import { cardExplorerConfigSchema } from '../lib/components/card-explorer/types.ts'
-  import { cardExplorerGraphicContext } from '../lib/components/card-explorer/graphic-context.ts'
+  import { cardExplorerGraphic } from '../lib/components/card-explorer/graphic-context.ts'
 
   const { Story } = defineMeta({
     title: 'Components/CardExplorer',
@@ -42,9 +41,7 @@
         config=""
       />
       <GraphicData
-        name="twreporter-card-explorer"
-        schema={cardExplorerConfigSchema}
-        context={cardExplorerGraphicContext}
+        {...cardExplorerGraphic}
         config={args.config ?? ''}
         sources={args.sources}
       >

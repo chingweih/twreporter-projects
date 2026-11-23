@@ -4,6 +4,7 @@
   import {
     createGraphic,
     type GraphicDataProps,
+    type GraphicQueryOptions,
   } from '../../utils/graphic-data.svelte.ts'
 
   const {
@@ -13,17 +14,26 @@
     config,
     src,
     sources,
+    queryOptions,
     children,
   }: GraphicDataProps & {
     name: string
     schema: ZodType<Config>
     context: symbol
+    queryOptions?: GraphicQueryOptions
     children: Snippet<[ReturnType<typeof createGraphic<Config>>]>
   } = $props()
   const graphic = untrack(() =>
-    createGraphic(name, schema, () => ({ config, src, sources })),
+    setContext(
+      context,
+      createGraphic(
+        name,
+        schema,
+        () => ({ config, src, sources }),
+        queryOptions,
+      ),
+    ),
   )
-  untrack(() => setContext(context, graphic))
 </script>
 
 {@render children(graphic)}

@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { getContext, untrack } from 'svelte'
+  import { getContext } from 'svelte'
   import { MediaQuery } from 'svelte/reactivity'
   import { citySelection } from '../../city-selection.svelte.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
   import { followTwreporterHeader } from '@lab-reporter/ddd-shared/utils/site-header.ts'
   import { breakpoints } from '@lab-reporter/ddd-shared/utils/media-query.ts'
-  import { cardExplorerConfigSchema, type ExplorerProps } from './types.ts'
+  import type { ExplorerProps } from './types.ts'
   import { readPolicies } from './data.ts'
   import FilterTabs from '@lab-reporter/ddd-shared/components/shared/FilterTabs.svelte'
   import ChipSelector from '@lab-reporter/ddd-shared/components/shared/ChipSelector.svelte'
@@ -14,7 +14,7 @@
   import CityComparison from './CityComparison.svelte'
   import EditableText from '@lab-reporter/ddd-shared/components/shared/EditableText.svelte'
   import {
-    cardExplorerGraphicContext,
+    cardExplorerGraphic,
     type CardExplorerGraphic,
   } from './graphic-context.ts'
 
@@ -28,13 +28,12 @@
     comparison = false,
   }: Partial<ExplorerProps> & { comparison?: boolean } = $props()
   const graphic =
-    getContext<CardExplorerGraphic | undefined>(cardExplorerGraphicContext) ??
+    getContext<CardExplorerGraphic | undefined>(cardExplorerGraphic.context) ??
     createGraphic(
-      untrack(() =>
-        comparison ? 'twreporter-card-comparison' : 'twreporter-card-explorer',
-      ),
-      cardExplorerConfigSchema,
+      cardExplorerGraphic.name,
+      cardExplorerGraphic.schema,
       () => ({ sources, config: configUrl }),
+      cardExplorerGraphic.queryOptions,
     )
   const config = $derived(graphic.config)
   const data = $derived.by(() => {
