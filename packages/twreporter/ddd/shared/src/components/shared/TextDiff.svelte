@@ -3,6 +3,9 @@
   import { createSubscriber } from 'svelte/reactivity'
 
   const fontFamily = "'Roboto Slab', 'Noto Sans TC', sans-serif"
+  const resizeSettleMs = 120
+  const viewportCallbacks = new WeakMap<Element, (visible: boolean) => void>()
+  let viewportObserver: IntersectionObserver | undefined
   const trackFontLoads = createSubscriber((update) => {
     clearCache()
     function onFontLoad() {
@@ -43,19 +46,68 @@
   }
   type DiffIndex = { key: number; offset: number }
 
-  let rect = $state<DOMRectReadOnly>()
+  let nearViewport = $state(false)
+  let width = $state<number>()
+  let resizing = $state(false)
   const font = $derived(`${fontSize}px ${fontFamily}`)
-  const width = $derived(rect?.width)
-  const hasWidth = $derived(Boolean(width))
+  const canLayout = $derived(nearViewport && Boolean(width))
   const side = $derived(showFull ? 'full' : 'brief')
 
+  function observeViewport(node: HTMLElement) {
+    const observer = (viewportObserver ??= new IntersectionObserver(
+      (entries) => {
+        for (const { target, isIntersecting } of entries) {
+          viewportCallbacks.get(target)?.(isIntersecting)
+        }
+      },
+      { rootMargin: '500px 0px' },
+    ))
+    viewportCallbacks.set(node, (visible) => (nearViewport = visible))
+    observer.observe(node)
+    return () => {
+      observer.unobserve(node)
+      viewportCallbacks.delete(node)
+      nearViewport = false
+    }
+  }
+
+  function observeWidth(node: HTMLElement) {
+    let observedWidth: number | undefined
+    let resizeTimer: number | undefined
+    const observer = new ResizeObserver(([entry]) => {
+      const nextWidth = entry.contentRect.width
+      if (nextWidth === observedWidth) return
+      observedWidth = nextWidth
+      window.clearTimeout(resizeTimer)
+
+      if (!width || !nextWidth || nextWidth === width) {
+        width = nextWidth
+        resizing = false
+        return
+      }
+
+      resizing = true
+      resizeTimer = window.setTimeout(() => {
+        width = nextWidth
+        resizing = false
+      }, resizeSettleMs)
+    })
+    observer.observe(node)
+    return () => {
+      observer.disconnect()
+      window.clearTimeout(resizeTimer)
+      width = undefined
+      resizing = false
+    }
+  }
+
   $effect(() => {
-    trackFontLoads()
+    if (!nearViewport) return
     void document.fonts.load(font, brief + full).catch(() => {})
   })
 
   const prepared = $derived.by(() => {
-    if (!hasWidth) return
+    if (!canLayout) return
     trackFontLoads()
     const options = {
       whiteSpace: 'pre-wrap',
@@ -104,6 +156,18 @@
       : undefined,
   )
 
+  let animating = $state(false)
+  let previousPlacement: typeof placed
+  let previousSide: typeof side
+  $effect.pre(() => {
+    // Animate brief/full changes only after both layouts are in place.
+    animating = Boolean(
+      placed && placed === previousPlacement && side !== previousSide,
+    )
+    previousPlacement = placed
+    previousSide = side
+  })
+
   const segments = $derived.by(() => {
     if (!placed || !diffIndices) return []
     const segments = new Map<string, Segment>()
@@ -122,14 +186,17 @@
 
 <div
   class="text-diff"
+  class:animating
+  class:resizing
   style:font-family={fontFamily}
   style:font-size={`${fontSize}px`}
   style:line-height={lineHeight}
   style:letter-spacing={`${letterSpacing}em`}
-  style:height={placed ? `${placed[side].height}px` : undefined}
-  bind:contentRect={rect}
+  style:height={placed && !resizing ? `${placed[side].height}px` : undefined}
+  {@attach observeViewport}
+  {@attach nearViewport ? observeWidth : undefined}
 >
-  <span class:sr-only={placed}>{showFull ? full : brief}</span>
+  <span class:sr-only={placed && !resizing}>{showFull ? full : brief}</span>
   {#each segments as [key, segment] (key)}
     {@const position = segment[side] ?? segment.brief ?? segment.full}
     <span
@@ -153,6 +220,9 @@
     overflow-wrap: anywhere;
     white-space: pre-wrap;
     text-align: justify;
+  }
+
+  .text-diff.animating {
     transition: height 0.4s var(--ease);
   }
 
@@ -170,13 +240,24 @@
     top: 0;
     left: 0;
     white-space: pre;
+  }
+
+  .animating .segment {
     transition:
       transform 0.4s var(--ease),
       opacity 0.25s ease-out,
       visibility 0.25s;
   }
 
-  .segment.changed {
+  .text-diff.animating.resizing {
+    transition: none;
+  }
+
+  .resizing .segment {
+    display: none;
+  }
+
+  .animating .segment.changed {
     --delay: calc(0.1s + min(var(--i) * 8ms, 0.2s));
     transition-delay: 0s, var(--delay), var(--delay);
   }
@@ -184,13 +265,16 @@
   .segment.hidden {
     opacity: 0;
     visibility: hidden;
+  }
+
+  .animating .segment.hidden {
     transition-duration: 0.4s, 0.15s, 0.15s;
     transition-delay: 0s;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .text-diff,
-    .segment {
+    .text-diff.animating,
+    .animating .segment {
       transition: none;
     }
   }
