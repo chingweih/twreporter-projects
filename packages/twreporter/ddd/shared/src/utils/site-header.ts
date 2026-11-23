@@ -12,7 +12,7 @@ export const followTwreporterHeader: Attachment<HTMLElement> = (element) => {
   let frame: number | undefined
 
   const updateOffset = () => {
-    element.style.setProperty('--site-header-offset', visible ? '65px' : '0px')
+    element.style.setProperty('--site-header-offset', visible ? '64px' : '0px')
     element.style.setProperty(
       '--site-header-transition',
       visible ? '300ms ease-out' : '300ms ease-in',
