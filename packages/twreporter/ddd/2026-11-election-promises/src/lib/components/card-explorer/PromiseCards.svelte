@@ -20,11 +20,15 @@
   let {
     sources,
     config: configUrl = '',
-    categoryId,
+    categoryId = $bindable(),
     topicId = $bindable(''),
     city = $bindable(''),
     comparison = false,
-  }: Partial<ExplorerProps> & { comparison?: boolean } = $props()
+    full = false,
+  }: Partial<ExplorerProps> & {
+    comparison?: boolean
+    full?: boolean
+  } = $props()
   const graphic =
     getContext<CardExplorerGraphic | undefined>(cardExplorerGraphic.context) ??
     createGraphic(
@@ -117,6 +121,32 @@
 
 <div class="explorer" {@attach followTwreporterHeader}>
   {#if category && config}
+    {#snippet categorySelector()}
+      <FilterTabs
+        class="category"
+        options={config.categories.map(({ id, label }) => ({
+          value: String(id),
+          label,
+        }))}
+        value={String(category.id)}
+        label="政見領域"
+        onchange={(value) => {
+          const nextCategoryId = Number(value)
+          if (nextCategoryId === category?.id) return
+          categoryId = nextCategoryId
+          topicId = ''
+        }}
+      >
+        {#snippet optionLabel(option)}
+          {@const item = config.categories.find(
+            ({ id }) => String(id) === option.value,
+          )}
+          {#if item}
+            <EditableText bind:value={item.label} editable={graphic.editable} />
+          {/if}
+        {/snippet}
+      </FilterTabs>
+    {/snippet}
     <Shell
       bind:title={category.label}
       bind:subtitle={config.subtitle}
@@ -125,6 +155,7 @@
       editable={graphic.editable}
       {error}
       loading={graphic.loading}
+      heading={full ? categorySelector : undefined}
     >
       {#snippet beforeHeader()}
         {#if config.footnotes.length}
@@ -457,6 +488,28 @@
     font-weight: 600;
   }
 
+  .explorer :global(.category) {
+    --brand-main: var(--neutral-gray-800);
+  }
+
+  .explorer :global(.category button) {
+    padding: 3px 17px;
+    border-color: var(--neutral-gray-800);
+    border-radius: 22px;
+    color: var(--neutral-gray-800);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+
+  .explorer :global(.category button.active) {
+    color: var(--neutral-gray-100);
+    font-weight: 600;
+  }
+
   .explorer :global(.topic .chips) {
     gap: 5px;
     min-height: 32px;
@@ -500,6 +553,7 @@
     }
     .explorer :global(.top) {
       flex-direction: column;
+      flex-wrap: nowrap;
       align-items: stretch;
       gap: 5px;
     }

@@ -6,6 +6,7 @@
       categoryId: { attribute: 'category-id', type: 'Number', reflect: true },
       topicId: { attribute: 'topic-id', type: 'String', reflect: true },
       city: { type: 'String', reflect: true },
+      full: { type: 'String' },
     },
   }}
 />
@@ -21,15 +22,17 @@
     categoryId,
     topicId = '',
     city = '',
-  }: Partial<ExplorerProps> = $props()
+    full = 'false',
+  }: Partial<ExplorerProps> & { full?: 'true' | 'false' } = $props()
 </script>
 
 <Layout hideInEditor>
   <PromiseCards
     {sources}
     {config}
-    {categoryId}
+    bind:categoryId
     bind:topicId
     bind:city
+    full={full === 'true'}
   />
 </Layout>

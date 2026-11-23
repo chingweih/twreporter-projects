@@ -15,6 +15,7 @@
     subtitle = $bindable(),
     children,
     beforeHeader,
+    heading,
     topRight,
     footnotes = $bindable([]),
     wide = false,
@@ -30,6 +31,7 @@
     footnotes?: string[]
     children?: Snippet
     beforeHeader?: Snippet
+    heading?: Snippet
     topRight?: Snippet
     wide?: boolean
     backdrop?: boolean
@@ -55,7 +57,12 @@
     <Frame {beforeHeader} {topRight}>
       {#snippet topLeft()}
         <div class="header">
-          <h1><EditableText bind:value={title} {editable} /></h1>
+          {#if heading}
+            <h1 class="visually-hidden">{title}</h1>
+            {@render heading()}
+          {:else}
+            <h1><EditableText bind:value={title} {editable} /></h1>
+          {/if}
           {#if subtitle !== undefined && (editable || subtitle)}
             <p class="subtitle">
               <EditableText bind:value={subtitle} {editable} />
@@ -93,6 +100,15 @@
 </div>
 
 <style>
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   .status {
     margin: 0;
     padding: 20px 0;
