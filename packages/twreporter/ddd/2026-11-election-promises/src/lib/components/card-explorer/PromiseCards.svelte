@@ -77,11 +77,12 @@
       (value) => ({ value, label: value }),
     ),
   )
-  const defaultCity = $derived(citySelection.current)
-  let activeCity = $derived(
-    cities.find((option) => option.value === defaultCity)?.value ||
-      city ||
-      cities[0]?.value ||
+  // A tab click overrides the page's city in this explorer until the selection inputs change.
+  let selectedCity = $derived(citySelection.current || city)
+  const activeCity = $derived(
+    cities.find(({ value }) => value === selectedCity)?.value ??
+      cities.find(({ value }) => value === city)?.value ??
+      cities[0]?.value ??
       '',
   )
   const visiblePolicies = $derived(
@@ -216,7 +217,7 @@
             label="縣市"
             onchange={(value) => {
               city = value
-              activeCity = value
+              selectedCity = value
             }}
           />
           <CandidateCards
