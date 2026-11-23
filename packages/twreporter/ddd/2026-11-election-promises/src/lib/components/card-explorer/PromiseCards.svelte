@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getContext } from 'svelte'
+  import { innerHeight } from 'svelte/reactivity/window'
   import { citySelection } from '../../city-selection.svelte.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
@@ -10,6 +11,7 @@
   import FilterTabs from '@lab-reporter/ddd-shared/components/shared/FilterTabs.svelte'
   import CandidateCards from './CandidateCards.svelte'
   import CityComparison from './CityComparison.svelte'
+  import StickySummary from './StickySummary.svelte'
   import EditableText from '@lab-reporter/ddd-shared/components/shared/EditableText.svelte'
   import {
     cardExplorerGraphic,
@@ -107,11 +109,14 @@
   const error = $derived(graphic.error ?? data.error ?? selectionError)
   let showStickyTop = $state(false)
 
-  function observeIntroEnd(node: HTMLElement) {
-    const observer = new IntersectionObserver(([entry]) => {
-      showStickyTop =
-        !entry.isIntersecting && entry.boundingClientRect.bottom <= 0
-    })
+  function observeStickyRange(node: HTMLElement) {
+    // Observe the viewport's top edge. The attachment reruns when its height changes.
+    const height = innerHeight.current
+    if (height === undefined) return
+    const observer = new IntersectionObserver(
+      (entries) => (showStickyTop = entries.at(-1)?.isIntersecting ?? false),
+      { root: document, rootMargin: `0px 0px -${height}px 0px` },
+    )
     observer.observe(node)
     return () => observer.disconnect()
   }
@@ -201,7 +206,6 @@
             />
           </p>
         {/if}
-        <span class="intro-end" {@attach observeIntroEnd}></span>
       </div>
       <div
         class="results"
@@ -210,25 +214,21 @@
           ? 'var(--sticky-summary-height)'
           : '0px'}
       >
+        <span
+          class="sticky-range"
+          aria-hidden="true"
+          {@attach observeStickyRange}
+        ></span>
         <div class="sticky-anchor">
           {#if showStickyTop}
-            <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need focus to scroll this region.) -->
-            <div
-              class="sticky-top"
-              class:backdrop={config.backdrop}
-              role="region"
-              aria-label="目前政見摘要"
-              tabindex="0"
-            >
-              {#if !comparison}
-                <span class="sticky-city">{activeCity}</span>
-              {/if}
-              <span class="sticky-summary">
-                <strong>{category.label}</strong>｜<strong
-                  >{topic?.label}</strong
-                >{#if topic?.question}｜{topic.question}{/if}
-              </span>
-            </div>
+            <StickySummary
+              {comparison}
+              city={comparison ? undefined : activeCity}
+              categoryLabel={category.label}
+              {topic}
+              backdrop={config.backdrop}
+              scrollLabels={mobile.current}
+            />
           {/if}
         </div>
         {#if comparison}
@@ -330,15 +330,6 @@
     min-width: 0;
   }
 
-  .intro-end {
-    position: absolute;
-    bottom: var(--site-header-offset, 0px);
-    width: 1px;
-    height: 1px;
-    pointer-events: none;
-    transition: bottom var(--site-header-transition, 0s);
-  }
-
   .question {
     margin: 0;
     font-size: 18px;
@@ -348,10 +339,30 @@
 
   .results {
     --sticky-summary-height: 55px;
+    position: relative;
     display: flex;
     flex-direction: column;
     min-width: 0;
     gap: 15px;
+  }
+
+  .sticky-range {
+    position: absolute;
+    inset: calc(0px - var(--site-header-offset, 0px)) 0
+      var(--site-header-offset, 0px);
+    pointer-events: none;
+    transition:
+      top var(--site-header-transition, 0s),
+      bottom var(--site-header-transition, 0s);
+  }
+
+  .sticky-anchor {
+    position: sticky;
+    top: var(--site-header-offset, 0px);
+    z-index: 2;
+    height: 0;
+    margin-bottom: -15px;
+    transition: top var(--site-header-transition, 0s);
   }
 
   .footnotes {
@@ -376,83 +387,6 @@
     .footnotes {
       padding-inline: 5px;
     }
-  }
-
-  .sticky-anchor {
-    position: sticky;
-    top: var(--site-header-offset, 0px);
-    z-index: 2;
-    height: 0;
-    margin-bottom: -15px;
-    transition: top var(--site-header-transition, 0s);
-  }
-
-  .sticky-top {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    height: var(--sticky-summary-height);
-    padding-block: 15px;
-    border-bottom: 1px solid var(--neutral-gray-300);
-    background: var(--neutral-white);
-    color: var(--neutral-gray-800);
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    white-space: nowrap;
-    animation: sticky-top-enter 180ms ease-out;
-  }
-
-  .sticky-top::-webkit-scrollbar {
-    display: none;
-  }
-
-  .sticky-top:focus-visible {
-    outline-offset: -2px;
-  }
-
-  @keyframes sticky-top-enter {
-    from {
-      opacity: 0;
-      transform: translateY(-6px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .sticky-top {
-      animation: none;
-    }
-  }
-
-  .sticky-top.backdrop {
-    background: var(--background);
-  }
-
-  .sticky-city {
-    flex-shrink: 0;
-    border-radius: 2px;
-    padding: 5px;
-    background: var(--neutral-gray-800);
-    color: var(--neutral-gray-100);
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.13px;
-  }
-
-  .sticky-summary {
-    flex-shrink: 0;
-    font-size: 16px;
-    line-height: 1.5;
-    letter-spacing: 0.16px;
-  }
-
-  .comparison .sticky-summary {
-    font-family: 'Noto Sans TC', sans-serif;
   }
 
   .explorer :global(.filter-tabs) {

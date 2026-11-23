@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@lab-reporter/ddd-shared": "workspace:*",
+    "@selemondev/svelte-marquee": "^0.1.5",
     "zod": "^4.1.12"
   },
   "devDependencies": {
