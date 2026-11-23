@@ -16,24 +16,36 @@
     questionLabels?: ReadonlyMap<Policy['questionId'], string>
   } = $props()
 
-  const candidateNames = $derived([
-    ...new Set(policies.map((policy) => policy.candidate)),
-  ])
+  const candidates = $derived.by(() => {
+    const answersByCandidate = new Map<string, Policy[]>()
+    for (const policy of policies) {
+      const answers = answersByCandidate.get(policy.candidate)
+      if (answers) answers.push(policy)
+      else answersByCandidate.set(policy.candidate, [policy])
+    }
+    return config.candidates
+      .flatMap((candidate) => {
+        const answers = answersByCandidate.get(candidate.name)
+        if (!answers) return []
+        return [{ candidate, answers }]
+      })
+      .sort(
+        (a, b) =>
+          (a.candidate.number ?? Infinity) - (b.candidate.number ?? Infinity),
+      )
+  })
 </script>
 
 <div class="candidates" class:comparison>
-  {#each candidateNames as name (name)}
-    {@const candidate = config.candidates.find((item) => item.name === name)}
-    {#if candidate}
-      <CandidateCard
-        {candidate}
-        policies={policies.filter((policy) => policy.candidate === name)}
-        {config}
-        {editable}
-        {comparison}
-        {questionLabels}
-      />
-    {/if}
+  {#each candidates as { candidate, answers } (candidate.name)}
+    <CandidateCard
+      {candidate}
+      policies={answers}
+      {config}
+      {editable}
+      {comparison}
+      {questionLabels}
+    />
   {/each}
 </div>
 
