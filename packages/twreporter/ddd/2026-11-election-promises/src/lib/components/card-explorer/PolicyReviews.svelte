@@ -9,12 +9,14 @@
     editable = false,
     existingPolicy = false,
     compact = false,
+    inline = false,
   }: {
     reviews: Review[]
     config: CardExplorerConfig
     editable?: boolean
     existingPolicy?: boolean
     compact?: boolean
+    inline?: boolean
   } = $props()
   const detailedReviews = $derived(
     reviews.filter((review) => review.analysis.trim()),
@@ -32,7 +34,7 @@
   })
 </script>
 
-<details class:compact>
+<details class:compact class:inline>
   <summary
     onclick={(event) => {
       if (
@@ -299,6 +301,10 @@
   .compact .verdicts {
     flex-direction: column;
     gap: 5px;
+  }
+  .compact.inline .verdicts {
+    flex-direction: row;
+    gap: 5px 20px;
   }
   .compact .attribution {
     flex-direction: column;

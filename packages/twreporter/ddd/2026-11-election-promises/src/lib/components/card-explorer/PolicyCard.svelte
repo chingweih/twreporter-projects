@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { MediaQuery } from 'svelte/reactivity'
-  import { breakpoints } from '@lab-reporter/ddd-shared/utils/media-query.ts'
+  import { mobile } from './media-query.ts'
   import type { CardExplorerConfig, Policy } from './types.ts'
   import PolicyReviews from './PolicyReviews.svelte'
   import EditableText from '@lab-reporter/ddd-shared/components/shared/EditableText.svelte'
@@ -11,12 +10,16 @@
     config,
     editable = false,
     compact = false,
+    inlineReviews = false,
+    textMode,
     questionLabel,
   }: {
     policy: Policy
     config: CardExplorerConfig
     editable?: boolean
     compact?: boolean
+    inlineReviews?: boolean
+    textMode: 'expandable' | 'excerpt' | 'full'
     questionLabel?: string
   } = $props()
   const reviews = $derived(
@@ -26,13 +29,20 @@
   const brief = $derived(policy.brief_content ?? full)
   const hasAnswer = $derived(Boolean(full.trim()))
   const canExpand = $derived(!editable && hasAnswer && brief !== full)
-  const mobile = new MediaQuery(`(width < ${breakpoints.tablet}px)`)
-  const excerpt = $derived(canExpand ? textExcerpt(full, brief) : undefined)
+  const expanded = $derived(textMode === 'full')
+  const excerpt = $derived(
+    canExpand && !expanded ? textExcerpt(full, brief) : undefined,
+  )
+  const hasInlineToggle = $derived(canExpand && textMode === 'expandable')
   let showFull = $state(false)
+
+  $effect(() => {
+    if (!hasInlineToggle) showFull = false
+  })
 </script>
 
-<article class:has-heading={Boolean(policy.title)} class:compact>
-  <div class="promise" class:expandable={canExpand}>
+<article class:has-heading={Boolean(policy.title)} class:compact class:expanded>
+  <div class="promise" class:expandable={hasInlineToggle}>
     {#if questionLabel}
       <p class="sub-question">{questionLabel}</p>
     {/if}
@@ -51,7 +61,9 @@
       />
     {:else if !hasAnswer}
       {config.labels.unanswered}
-    {:else if excerpt}
+    {:else if expanded}
+      <span class="full-text">{full.trim()}</span>
+    {:else if excerpt && hasInlineToggle}
       <TextDiff
         brief={excerpt.text}
         edgeHints={excerpt}
@@ -59,10 +71,16 @@
         {showFull}
         fontSize={policy.title && mobile.current ? 18 : 16}
       />
+    {:else if excerpt}
+      <div class="excerpt">
+        <span class="edge-hint">{excerpt.start}</span>{excerpt.text}<span
+          class="edge-hint">{excerpt.end}</span
+        >
+      </div>
     {:else}
       {brief}
     {/if}
-    {#if canExpand}
+    {#if hasInlineToggle}
       <button
         class="text-toggle"
         type="button"
@@ -77,13 +95,18 @@
   {#if policy.existingPolicy && !reviews.length}
     <span class="tag">{config.labels.existingPolicy}</span>
   {/if}
-  {#if reviews.length}<PolicyReviews
-      {reviews}
-      {config}
-      {editable}
-      {compact}
-      existingPolicy={policy.existingPolicy}
-    />{/if}
+  {#if reviews.length}
+    <div class="reviews">
+      <PolicyReviews
+        {reviews}
+        {config}
+        {editable}
+        {compact}
+        inline={inlineReviews}
+        existingPolicy={policy.existingPolicy}
+      />
+    </div>
+  {/if}
 </article>
 
 <style>
@@ -95,12 +118,25 @@
     padding-bottom: 20px;
     border-bottom: 1px solid rgb(38 38 38 / 10%);
   }
-  article.has-heading {
-    gap: 10px;
-  }
   article.compact {
     padding-bottom: 0;
     border-bottom: 0;
+  }
+  article.expanded {
+    flex-shrink: 0;
+  }
+  article.expanded:only-child {
+    flex-grow: 1;
+  }
+  .compact .reviews {
+    position: relative;
+    z-index: 2;
+  }
+  .expanded .reviews:not(:has(:global(details[open]))) {
+    position: sticky;
+    inset-block-end: 0;
+    margin-block-start: auto;
+    background: var(--comparison-panel-background);
   }
   .promise {
     position: relative;
@@ -123,6 +159,16 @@
     font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.05em;
+  }
+  .expanded .promise {
+    padding-inline-end: 28px;
+  }
+  .full-text,
+  .excerpt {
+    white-space: pre-wrap;
+  }
+  .edge-hint {
+    color: var(--neutral-gray-500, #9c9c9c);
   }
   .text-toggle {
     position: absolute;

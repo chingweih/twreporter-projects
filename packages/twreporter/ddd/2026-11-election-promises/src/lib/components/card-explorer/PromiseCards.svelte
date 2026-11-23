@@ -1,11 +1,10 @@
 <script lang="ts">
   import { getContext } from 'svelte'
-  import { MediaQuery } from 'svelte/reactivity'
   import { citySelection } from '../../city-selection.svelte.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
   import { followTwreporterHeader } from '@lab-reporter/ddd-shared/utils/site-header.ts'
-  import { breakpoints } from '@lab-reporter/ddd-shared/utils/media-query.ts'
+  import { mobile } from './media-query.ts'
   import type { ExplorerProps } from './types.ts'
   import { readPolicies } from './data.ts'
   import FilterTabs from '@lab-reporter/ddd-shared/components/shared/FilterTabs.svelte'
@@ -67,7 +66,6 @@
       ? category?.topics.find((item) => item.id === topicId)
       : category?.topics[0],
   )
-  const mobile = new MediaQuery(`(width < ${breakpoints.tablet}px)`)
   const questionLabels = $derived(
     new Map(topic?.questions?.map(({ id, label }) => [id, label])),
   )
@@ -234,12 +232,14 @@
           {/if}
         </div>
         {#if comparison}
-          <CityComparison
-            policies={visiblePolicies}
-            {config}
-            editable={graphic.editable}
-            {questionLabels}
-          />
+          {#key topic?.id}
+            <CityComparison
+              policies={visiblePolicies}
+              {config}
+              editable={graphic.editable}
+              {questionLabels}
+            />
+          {/key}
         {:else}
           <FilterTabs
             class="city"
@@ -255,6 +255,7 @@
             policies={visiblePolicies}
             {config}
             editable={graphic.editable}
+            banner={mobile.current}
             {questionLabels}
           />
         {/if}

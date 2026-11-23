@@ -1,5 +1,6 @@
 <script lang="ts">
   import CandidateCards from './CandidateCards.svelte'
+  import { compactComparison, mobile } from './media-query.ts'
   import type { CardExplorerConfig, Policy } from './types.ts'
 
   const {
@@ -26,6 +27,8 @@
         {config}
         {editable}
         {questionLabels}
+        banner={compactComparison.current}
+        popover={!mobile.current && !editable}
         comparison
       />
     </section>
@@ -41,7 +44,8 @@
   }
 
   .comparison-city {
-    container: comparison-city / inline-size;
+    display: grid;
+    grid-template-rows: auto 1fr;
     min-width: 0;
     border-block-end: 1px solid var(--neutral-gray-500);
   }
@@ -62,7 +66,7 @@
     text-align: center;
   }
 
-  @container (width >= 1864px) {
+  @media (width >= 768px) {
     .cities {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       column-gap: 80px;
@@ -77,6 +81,12 @@
 
     .comparison-city:nth-child(2) {
       border-block-start: 1px solid var(--neutral-gray-500);
+    }
+  }
+
+  @media (768px <= width < 1080px) {
+    .cities {
+      column-gap: 40px;
     }
   }
 </style>
