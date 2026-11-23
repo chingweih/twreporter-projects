@@ -5,6 +5,7 @@
   import PolicyReviews from './PolicyReviews.svelte'
   import EditableText from '@lab-reporter/ddd-shared/components/shared/EditableText.svelte'
   import TextDiff from '@lab-reporter/ddd-shared/components/shared/TextDiff.svelte'
+  import { textExcerpt } from '@lab-reporter/ddd-shared/utils/text-excerpt.ts'
   const {
     policy,
     config,
@@ -26,6 +27,7 @@
   const hasAnswer = $derived(Boolean(full.trim()))
   const canExpand = $derived(!editable && hasAnswer && brief !== full)
   const mobile = new MediaQuery(`(width < ${breakpoints.tablet}px)`)
+  const excerpt = $derived(canExpand ? textExcerpt(full, brief) : undefined)
   let showFull = $state(false)
 </script>
 
@@ -49,9 +51,10 @@
       />
     {:else if !hasAnswer}
       {config.labels.unanswered}
-    {:else if canExpand}
+    {:else if excerpt}
       <TextDiff
-        {brief}
+        brief={excerpt.text}
+        edgeHints={excerpt}
         {full}
         {showFull}
         fontSize={policy.title && mobile.current ? 18 : 16}

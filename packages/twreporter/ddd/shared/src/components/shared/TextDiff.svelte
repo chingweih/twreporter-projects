@@ -25,6 +25,7 @@
     full,
     brief,
     showFull = false,
+    edgeHints,
     fontSize = 16,
     lineHeight = 1.7,
     letterSpacing = 0.05,
@@ -32,6 +33,7 @@
     full: string
     brief: string
     showFull?: boolean
+    edgeHints?: { start: string; end: string }
     fontSize?: number
     lineHeight?: number
     letterSpacing?: number
@@ -41,6 +43,7 @@
   type Segment = {
     text: string
     offset: number
+    hint?: boolean
     brief?: Position
     full?: Position
   }
@@ -52,6 +55,9 @@
   const font = $derived(`${fontSize}px ${fontFamily}`)
   const canLayout = $derived(nearViewport && Boolean(width))
   const side = $derived(showFull ? 'full' : 'brief')
+  const startHint = $derived(edgeHints?.start ?? '')
+  const endHint = $derived(edgeHints?.end ?? '')
+  const briefText = $derived(startHint + brief + endHint)
 
   function observeViewport(node: HTMLElement) {
     const observer = (viewportObserver ??= new IntersectionObserver(
@@ -103,7 +109,7 @@
 
   $effect(() => {
     if (!nearViewport) return
-    void document.fonts.load(font, brief + full).catch(() => {})
+    void document.fonts.load(font, briefText + full).catch(() => {})
   })
 
   const prepared = $derived.by(() => {
@@ -114,9 +120,21 @@
       letterSpacing: letterSpacing * fontSize,
     } as const
     return {
-      brief: prepareWithSegments(brief, font, options),
+      brief: prepareWithSegments(briefText, font, options),
       full: prepareWithSegments(full, font, options),
     }
+  })
+  const briefHints = $derived.by(() => {
+    let offset = 0
+    const endStart = startHint.length + brief.length
+    return prepared?.brief.segments.map((text) => {
+      const start = offset
+      offset += text.length
+      return (
+        (startHint.length > 0 && offset <= startHint.length) ||
+        (endHint.length > 0 && start >= endStart)
+      )
+    })
   })
   const diffIndices = $derived.by(() => {
     if (!prepared) return
@@ -177,6 +195,7 @@
         const key = `${diff.key}:${from}:${text}`
         const segment = segments.get(key) ?? { text, offset: diff.offset }
         segment[side] = { x, y }
+        if (side === 'brief') segment.hint = briefHints?.[index]
         segments.set(key, segment)
       }
     }
@@ -196,13 +215,17 @@
   {@attach observeViewport}
   {@attach nearViewport ? observeWidth : undefined}
 >
-  <span class:sr-only={placed && !resizing}>{showFull ? full : brief}</span>
+  <span class:sr-only={placed && !resizing}
+    >{#if showFull}{full}{:else}<span class="edge-hint">{startHint}</span
+      >{brief}<span class="edge-hint">{endHint}</span>{/if}</span
+  >
   {#each segments as [key, segment] (key)}
     {@const position = segment[side] ?? segment.brief ?? segment.full}
     <span
       class="segment"
       class:changed={!segment.brief || !segment.full}
       class:hidden={!segment[side]}
+      class:edge-hint={!showFull && segment.hint}
       style:--i={segment.offset}
       style:transform="translate({position?.x}px, {position?.y}px)"
       aria-hidden="true">{segment.text}</span
@@ -255,6 +278,10 @@
 
   .resizing .segment {
     display: none;
+  }
+
+  .edge-hint {
+    color: var(--neutral-gray-500, #9c9c9c);
   }
 
   .animating .segment.changed {
