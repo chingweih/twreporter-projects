@@ -61,12 +61,12 @@
 
   .city-selector :global(.chips) {
     justify-content: center;
-    gap: 0;
+    gap: 1px;
   }
 
   .city-selector :global(button) {
     padding: 10px 12px;
-    border-color: var(--neutral-gray-300);
+    border: 0;
     color: var(--neutral-gray-300);
     border-radius: 0;
     background: transparent;
@@ -78,15 +78,37 @@
     transition: all 0.1s ease-in-out;
   }
 
+  .city-selector :global(button:not(:focus-visible)) {
+    outline: 1px solid var(--neutral-gray-300);
+  }
+
   .city-selector :global(button:hover:not(.active)) {
     color: var(--neutral-gray-700);
-    border-color: var(--neutral-gray-700);
   }
 
   .city-selector :global(button.active) {
-    border-color: var(--brand-main);
     background: var(--brand-main);
     color: var(--neutral-white);
     font-weight: 600;
+  }
+
+  .city-selector :global(button:hover:not(.active, :focus-visible)) {
+    outline-color: var(--neutral-gray-700);
+  }
+
+  .city-selector :global(button.active:not(:focus-visible)) {
+    outline-color: var(--brand-main);
+  }
+
+  @media (max-width: 500px) {
+    .city-selector {
+      padding: 0 34px;
+    }
+
+    .city-selector :global(.chips) {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
   }
 </style>
