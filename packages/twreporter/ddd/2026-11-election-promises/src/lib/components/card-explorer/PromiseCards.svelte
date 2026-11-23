@@ -368,7 +368,7 @@
   .footnotes {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 1px;
     min-height: 26px;
     text-align: center;
     color: var(--neutral-gray-500);
@@ -428,13 +428,14 @@
   }
 
   .explorer :global(.category button) {
-    padding: 3px 17px;
-    border-color: var(--neutral-gray-800);
-    border-radius: 22px;
-    color: var(--neutral-gray-800);
+    padding: 2px 15px;
+    border-width: 1.5px;
+    padding: 2px 12px;
+    border-radius: 40px;
+    font-size: 14px;
+    transition: all 0.1s ease-in-out;
     font-family: 'Noto Sans TC', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 18px;
     line-height: 1.5;
     letter-spacing: 0.01em;
     white-space: nowrap;
@@ -460,7 +461,6 @@
     padding: 2px 12px;
     border-radius: 40px;
     font-size: 14px;
-    font-weight: 200;
     transition: all 0.1s ease-in-out;
   }
 
