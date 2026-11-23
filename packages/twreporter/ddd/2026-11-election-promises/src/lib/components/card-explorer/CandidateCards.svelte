@@ -9,12 +9,14 @@
     editable,
     comparison = false,
     footnotes,
+    questionLabels,
   }: {
     policies: Policy[]
     config: CardExplorerConfig
     editable: boolean
     comparison?: boolean
     footnotes?: Snippet
+    questionLabels?: ReadonlyMap<Policy['questionId'], string>
   } = $props()
 
   const candidateNames = $derived([
@@ -33,6 +35,7 @@
         {editable}
         {comparison}
         {footnotes}
+        {questionLabels}
       />
     {/if}
   {/each}

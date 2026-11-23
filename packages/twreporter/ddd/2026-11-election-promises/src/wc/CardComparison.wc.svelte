@@ -5,11 +5,6 @@
       sources: { type: 'Object' },
       categoryId: { attribute: 'category-id', type: 'Number', reflect: true },
       topicId: { attribute: 'topic-id', type: 'String', reflect: true },
-      subQuestionId: {
-        attribute: 'sub-question-id',
-        type: 'String',
-        reflect: true,
-      },
     },
   }}
 />
@@ -24,17 +19,9 @@
     config = '',
     categoryId,
     topicId = '',
-    subQuestionId,
   }: Partial<Omit<ExplorerProps, 'city'>> = $props()
 </script>
 
 <Layout hideInEditor>
-  <PromiseCards
-    comparison
-    {sources}
-    {config}
-    {categoryId}
-    bind:topicId
-    bind:subQuestionId
-  />
+  <PromiseCards comparison {sources} {config} {categoryId} bind:topicId />
 </Layout>

@@ -5,11 +5,6 @@
       sources: { type: 'Object' },
       categoryId: { attribute: 'category-id', type: 'Number', reflect: true },
       topicId: { attribute: 'topic-id', type: 'String', reflect: true },
-      subQuestionId: {
-        attribute: 'sub-question-id',
-        type: 'String',
-        reflect: true,
-      },
       city: { type: 'String', reflect: true },
     },
   }}
@@ -25,7 +20,6 @@
     config = '',
     categoryId,
     topicId = '',
-    subQuestionId,
     city = '',
   }: Partial<ExplorerProps> = $props()
 </script>
@@ -36,7 +30,6 @@
     {config}
     {categoryId}
     bind:topicId
-    bind:subQuestionId
     bind:city
   />
 </Layout>

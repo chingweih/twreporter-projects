@@ -29,7 +29,6 @@
       extraProps={{
         'category-id': categoryId,
         'topic-id': args.topicId ?? '',
-        'sub-question-id': args.subQuestionId ?? '',
       }}
     />
   {/snippet}

@@ -25,7 +25,6 @@
       config: { control: 'text' },
       categoryId: { control: false },
       topicId: { control: false },
-      subQuestionId: { control: false },
       city: { control: 'text' },
     },
   })
@@ -56,13 +55,11 @@
               {#each categories as category (category.id)}
                 {@const topic = category.topics[0]}
                 {@const topicId = topic?.id ?? ''}
-                {@const subQuestionId = topic?.questions?.[0]?.id ?? ''}
                 {@const props = {
                   sources: args.sources,
                   config: args.config,
                   categoryId: category.id,
                   topicId,
-                  subQuestionId,
                 }}
                 {#if comparison}
                   <CardComparison {...props} />
@@ -77,7 +74,6 @@
                   extraProps={{
                     'category-id': category.id,
                     'topic-id': topicId,
-                    'sub-question-id': subQuestionId,
                     ...(!comparison && { city: args.city ?? '' }),
                   }}
                 />

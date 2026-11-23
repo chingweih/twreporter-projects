@@ -10,24 +10,30 @@
     config,
     editable = false,
     compact = false,
+    questionLabel,
   }: {
     policy: Policy
     config: CardExplorerConfig
     editable?: boolean
     compact?: boolean
+    questionLabel?: string
   } = $props()
   const reviews = $derived(
     policy.reviews.filter((review) => review.verdict?.trim()),
   )
   const full = $derived(policy.content ?? '')
   const brief = $derived(policy.brief_content ?? full)
-  const canExpand = $derived(!editable && full !== '' && brief !== full)
+  const hasAnswer = $derived(Boolean(full.trim()))
+  const canExpand = $derived(!editable && hasAnswer && brief !== full)
   const mobile = new MediaQuery(`(width < ${breakpoints.tablet}px)`)
   let showFull = $state(false)
 </script>
 
 <article class:has-heading={Boolean(policy.title)} class:compact>
   <div class="promise" class:expandable={canExpand}>
+    {#if questionLabel}
+      <p class="sub-question">{questionLabel}</p>
+    {/if}
     {#if policy.title || editable}<strong
         >【<EditableText
           bind:value={policy.csvRow.title}
@@ -41,6 +47,8 @@
         {editable}
         placeholder={config.labels.unanswered}
       />
+    {:else if !hasAnswer}
+      {config.labels.unanswered}
     {:else if canExpand}
       <TextDiff
         {brief}
@@ -49,7 +57,7 @@
         fontSize={policy.title && mobile.current ? 18 : 16}
       />
     {:else}
-      {brief || config.labels.unanswered}
+      {brief}
     {/if}
     {#if canExpand}
       <button
@@ -104,6 +112,14 @@
   }
   .promise.expandable {
     padding-inline-end: 30px;
+  }
+  .sub-question {
+    margin: 0;
+    color: var(--neutral-gray-700);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
   }
   .text-toggle {
     position: absolute;

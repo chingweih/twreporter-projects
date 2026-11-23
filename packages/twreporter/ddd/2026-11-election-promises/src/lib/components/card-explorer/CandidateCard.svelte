@@ -13,6 +13,7 @@
     editable = false,
     comparison = false,
     footnotes,
+    questionLabels,
   }: {
     candidate: Candidate
     policies: Policy[]
@@ -20,6 +21,7 @@
     editable?: boolean
     comparison?: boolean
     footnotes?: Snippet
+    questionLabels?: ReadonlyMap<Policy['questionId'], string>
   } = $props()
   const partyBadge = $derived(
     candidate.party ? partyBadges.get(candidate.party) : undefined,
@@ -65,7 +67,13 @@
   </div>
   <div class="policies">
     {#each policies as policy (policy.questionId)}
-      <PolicyCard {policy} {config} {editable} compact={comparison} />
+      <PolicyCard
+        {policy}
+        {config}
+        {editable}
+        compact={comparison}
+        questionLabel={questionLabels?.get(policy.questionId)}
+      />
     {/each}
   </div>
 </section>

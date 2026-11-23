@@ -9,7 +9,6 @@
   import type { ExplorerProps } from './types.ts'
   import { readPolicies } from './data.ts'
   import FilterTabs from '@lab-reporter/ddd-shared/components/shared/FilterTabs.svelte'
-  import ChipSelector from '@lab-reporter/ddd-shared/components/shared/ChipSelector.svelte'
   import CandidateCards from './CandidateCards.svelte'
   import CityComparison from './CityComparison.svelte'
   import EditableText from '@lab-reporter/ddd-shared/components/shared/EditableText.svelte'
@@ -23,7 +22,6 @@
     config: configUrl = '',
     categoryId,
     topicId = $bindable(''),
-    subQuestionId = $bindable(),
     city = $bindable(''),
     comparison = false,
   }: Partial<ExplorerProps> & { comparison?: boolean } = $props()
@@ -66,15 +64,8 @@
       : category?.topics[0],
   )
   const mobile = new MediaQuery(`(width < ${breakpoints.tablet}px)`)
-  const showSubQuestions = $derived(comparison || mobile.current)
-  const activeQuestionId = $derived.by(() => {
-    if (!showSubQuestions) return
-    if (subQuestionId || (!comparison && subQuestionId === ''))
-      return subQuestionId
-    return topic?.questions?.[0]?.id
-  })
-  const activeQuestion = $derived(
-    topic?.questions?.find(({ id }) => id === activeQuestionId),
+  const questionLabels = $derived(
+    new Map(topic?.questions?.map(({ id, label }) => [id, label])),
   )
   const categoryPolicies = $derived(
     data.policies.filter((policy) =>
@@ -93,21 +84,12 @@
       cities[0]?.value ||
       '',
   )
-  let selectedVerdict = $state<string | undefined>()
   const visiblePolicies = $derived(
     categoryPolicies.filter(
       (policy) =>
         topic &&
         policy.questionId.startsWith(topic.id) &&
-        (activeQuestionId
-          ? policy.questionId === activeQuestionId
-          : graphic.editable || Boolean(policy.content?.trim())) &&
-        (comparison ||
-          (policy.city === activeCity &&
-            (selectedVerdict === undefined ||
-              policy.reviews.some(
-                (review) => review.verdict === selectedVerdict,
-              )))),
+        (comparison || policy.city === activeCity),
     ),
   )
   const selectionError = $derived(
@@ -117,9 +99,7 @@
         ? '找不到指定領域。'
         : !topic
           ? '找不到指定主題。'
-          : activeQuestionId && !activeQuestion
-            ? '找不到指定子題。'
-            : undefined,
+          : undefined,
   )
   const error = $derived(graphic.error ?? data.error ?? selectionError)
   let showStickyTop = $state(false)
@@ -154,10 +134,7 @@
           }))}
           value={topic?.id}
           label="政見主題"
-          onchange={(value) => {
-            if (value !== topic?.id) subQuestionId = undefined
-            topicId = value
-          }}
+          onchange={(value) => (topicId = value)}
         >
           {#snippet optionLabel(option)}
             {@const item = category.topics.find(
@@ -171,34 +148,14 @@
         </FilterTabs>
       {/snippet}
       <div class="intro">
-        {#snippet question()}
-          {#if topic && (topic.question || graphic.editable)}
-            <p class="question">
-              <EditableText
-                bind:value={topic.question}
-                editable={graphic.editable}
-                placeholder="題目文字"
-              />
-            </p>
-          {/if}
-        {/snippet}
-        {#if !comparison}
-          {@render question()}
-        {/if}
-        {#if showSubQuestions && topic?.questions?.length}
-          <FilterTabs
-            class="question-tabs"
-            options={[
-              ...(comparison ? [] : [{ value: '', label: '全部' }]),
-              ...topic.questions.map(({ id, label }) => ({ value: id, label })),
-            ]}
-            value={activeQuestionId ?? ''}
-            label="篩選題目"
-            onchange={(value) => (subQuestionId = value)}
-          />
-        {/if}
-        {#if comparison}
-          {@render question()}
+        {#if topic && (topic.question || graphic.editable)}
+          <p class="question">
+            <EditableText
+              bind:value={topic.question}
+              editable={graphic.editable}
+              placeholder="題目文字"
+            />
+          </p>
         {/if}
         <span class="intro-end" {@attach observeIntroEnd}></span>
       </div>
@@ -225,9 +182,7 @@
               <span class="sticky-summary">
                 <strong>{category.label}</strong>｜<strong
                   >{topic?.label}</strong
-                >{#if comparison && activeQuestion}｜<strong
-                    >{activeQuestion.label}</strong
-                  >{/if}{#if topic?.question}｜{topic.question}{/if}
+                >{#if topic?.question}｜{topic.question}{/if}
               </span>
             </div>
           {/if}
@@ -237,24 +192,9 @@
             policies={visiblePolicies}
             {config}
             editable={graphic.editable}
+            {questionLabels}
           />
         {:else}
-          {#snippet verdictFilter()}
-            <div class="verdict-filter">
-              <ChipSelector
-                options={config.verdicts.map((verdict) => ({
-                  value: verdict.label,
-                  label: verdict.label,
-                  color: verdict.color,
-                }))}
-                value={selectedVerdict}
-                label="依評比篩選政見"
-                onchange={(value) =>
-                  (selectedVerdict =
-                    selectedVerdict === value ? undefined : value)}
-              />
-            </div>
-          {/snippet}
           {#snippet footnotes()}
             {#if config.footnotes.length}
               <div class="footnotes">
@@ -269,9 +209,6 @@
               </div>
             {/if}
           {/snippet}
-          {#if mobile.current}
-            {@render verdictFilter()}
-          {/if}
           <FilterTabs
             class="city"
             options={cities}
@@ -284,14 +221,13 @@
           />
           {#if mobile.current}
             {@render footnotes()}
-          {:else}
-            {@render verdictFilter()}
           {/if}
           <CandidateCards
             policies={visiblePolicies}
             {config}
             editable={graphic.editable}
             footnotes={mobile.current ? undefined : footnotes}
+            {questionLabels}
           />
         {/if}
       </div>
@@ -487,33 +423,6 @@
     font-family: 'Noto Sans TC', sans-serif;
   }
 
-  .verdict-filter :global(.chips) {
-    gap: 0px 15px;
-  }
-
-  .verdict-filter :global(button) {
-    gap: 5px;
-    padding: 0 5px 0 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: var(--neutral-gray-800);
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 1.5;
-    letter-spacing: 0.8px;
-  }
-
-  .verdict-filter :global(.swatch) {
-    width: 4px;
-    height: 16px;
-    border-radius: 1px;
-  }
-
-  .verdict-filter :global(button):hover {
-    font-weight: 500;
-  }
-
   .explorer :global(.filter-tabs) {
     --brand-main: var(--brand-heavy);
     --neutral-gray-50: var(--neutral-white);
@@ -565,21 +474,6 @@
     font-size: 14px;
     font-weight: 200;
     transition: all 0.1s ease-in-out;
-  }
-
-  .explorer :global(.question-tabs) {
-    --brand-main: #e27e85;
-  }
-
-  .explorer :global(.question-tabs .chips) {
-    gap: 4px;
-  }
-
-  .explorer :global(.question-tabs button) {
-    padding: 2px 12px;
-    border-radius: 5px;
-    font-size: 16px;
-    line-height: 1.5;
   }
 
   .explorer :global(.city) {

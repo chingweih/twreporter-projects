@@ -9,7 +9,7 @@ import {
 const topicQuestionSchema = z
   .object({
     id: z.string().min(1).meta({ title: 'CSV 題目 ID' }),
-    label: z.string().min(1).meta({ title: '選項名稱' }),
+    label: z.string().min(1).meta({ title: '子題名稱' }),
   })
   .meta({ 'ui:order': ['id', 'label'] })
 
@@ -25,8 +25,8 @@ export const topicSchema = z
       .array(topicQuestionSchema)
       .optional()
       .meta({
-        title: '手機版題目選項',
-        description: '每個選項對應 CSV 裡的一個完整題目 ID。',
+        title: '子題',
+        description: '每道子題對應 CSV 裡的一個完整題目 ID。',
         'ui:options': { titleKey: 'label', collapsible: true },
       }),
   })
@@ -190,6 +190,5 @@ export type ExplorerProps = Pick<ComponentProps, 'config'> & {
   sources: { answers: string; reviews: string }
   categoryId?: Category['id']
   topicId?: Topic['id']
-  subQuestionId?: AnswerRow['questionId']
   city?: AnswerRow['city']
 }

@@ -6,10 +6,12 @@
     policies,
     config,
     editable,
+    questionLabels,
   }: {
     policies: Policy[]
     config: CardExplorerConfig
     editable: boolean
+    questionLabels: ReadonlyMap<Policy['questionId'], string>
   } = $props()
 
   const cities = $derived([...new Set(policies.map((policy) => policy.city))])
@@ -23,6 +25,7 @@
         policies={policies.filter((policy) => policy.city === city)}
         {config}
         {editable}
+        {questionLabels}
         comparison
       />
     </section>
