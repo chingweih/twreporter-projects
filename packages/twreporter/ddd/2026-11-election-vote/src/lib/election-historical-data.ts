@@ -19,7 +19,7 @@ const nullableCount = count.or(blank)
 const nullablePercentage = percentage.or(blank)
 const signedCount = number.pipe(z.int())
 
-const districtResult = z.object({
+const areaResult = z.object({
   選舉: count,
   縣市: text,
   鄉鎮市區: text,
@@ -35,7 +35,8 @@ const districtResult = z.object({
   無效票: count,
   投票率: percentage,
 })
-const villageResult = districtResult.extend({
+const districtResult = areaResult.extend({ 區內名次: count })
+const villageResult = areaResult.extend({
   villagecode: text,
   村里: text,
   性別: text,
