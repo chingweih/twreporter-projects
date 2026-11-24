@@ -1,10 +1,10 @@
 <svelte:options
-  customElement="twreporter-2026-11-election-vote-city-result-1"
+  customElement="twreporter-2026-11-election-vote-taipei-turnout"
 />
 
 <script lang="ts">
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
-  import { firstBatch } from '../lib/batches/first.ts'
+  import { secondBatch } from '../lib/batches/second.ts'
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
@@ -12,5 +12,5 @@
 </script>
 
 <ElectionLayout>
-  <ElectionGraphic batch={firstBatch} {config} graphicKey="7-city-result-1" />
+  <ElectionGraphic batch={secondBatch} {config} graphicKey="2-taipei-turnout" />
 </ElectionLayout>

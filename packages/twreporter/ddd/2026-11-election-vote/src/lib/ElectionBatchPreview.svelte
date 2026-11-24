@@ -5,7 +5,7 @@
   import {
     electionComponentPrefix,
     type ElectionBatch,
-    type ElectionGraphicKey,
+    type ElectionBatchGraphic,
   } from './batch-config.ts'
   import ElectionLayout from './ElectionLayout.svelte'
 
@@ -16,7 +16,7 @@
   }: {
     batch: ElectionBatch
     config: string
-    children: Snippet<[ElectionGraphicKey]>
+    children: Snippet<[ElectionBatchGraphic]>
   } = $props()
 </script>
 
@@ -27,13 +27,16 @@
     context={batch.context}
     {config}
   >
-    {#each batch.graphics as { key, name } (key)}
-      {@render children(key)}
+    {#each batch.graphics as graphic (graphic.key)}
+      {@render children(graphic)}
       <EmbedCode
-        componentName={name}
-        tagName={`${electionComponentPrefix}-${name}`}
+        componentName={graphic.name}
+        tagName={`${electionComponentPrefix}-${graphic.name}`}
         previewStoryId={batch.previewStoryId}
         {config}
+        extraProps={graphic.city === undefined
+          ? undefined
+          : { city: graphic.city }}
       />
     {/each}
   </GraphicData>

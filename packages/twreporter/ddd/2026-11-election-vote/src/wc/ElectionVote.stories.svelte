@@ -19,7 +19,7 @@
 <Story name="Default">
   {#snippet template({ config })}
     <ElectionBatchPreview batch={firstBatch} {config}>
-      {#snippet children(key)}
+      {#snippet children({ key })}
         {#if key === '1-city-map'}
           <CityMap {config} />
         {:else}

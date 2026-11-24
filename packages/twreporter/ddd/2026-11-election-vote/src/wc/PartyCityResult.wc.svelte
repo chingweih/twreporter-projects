@@ -1,5 +1,5 @@
 <svelte:options
-  customElement="twreporter-2026-11-election-vote-taipei-historical-mobilization"
+  customElement="twreporter-2026-11-election-vote-party-city-result"
 />
 
 <script lang="ts">
@@ -15,6 +15,6 @@
   <ElectionGraphic
     batch={firstBatch}
     {config}
-    graphicKey="4-taipei-historical-mobilization"
+    graphicKey="3-party-city-result"
   />
 </ElectionLayout>

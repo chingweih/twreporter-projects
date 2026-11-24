@@ -1,10 +1,10 @@
 <svelte:options
-  customElement="twreporter-2026-11-election-vote-city-historical-grid"
+  customElement="twreporter-2026-11-election-vote-city-council-party"
 />
 
 <script lang="ts">
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
-  import { firstBatch } from '../lib/batches/first.ts'
+  import { secondBatch } from '../lib/batches/second.ts'
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
@@ -13,8 +13,8 @@
 
 <ElectionLayout>
   <ElectionGraphic
-    batch={firstBatch}
+    batch={secondBatch}
     {config}
-    graphicKey="3-city-historical-grid"
+    graphicKey="4-city-council-party"
   />
 </ElectionLayout>

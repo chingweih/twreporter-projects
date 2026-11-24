@@ -10,5 +10,5 @@
 </script>
 
 <ElectionLayout>
-  <ElectionGraphic batch={firstBatch} {config} graphicKey="5-ref-result" />
+  <ElectionGraphic batch={firstBatch} {config} graphicKey="4-ref-result" />
 </ElectionLayout>

@@ -14,12 +14,14 @@ type GraphicDefaults = Pick<
   Parameters<typeof createShellConfigSchema>[0],
   'title' | 'footnotes'
 >
-type BatchDefaults = { sharedFootnote: string } & Record<
-  ElectionGraphicKey,
-  GraphicDefaults
+type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
+  Partial<Pick<GraphicDefaults, 'footnotes'>> & {
+    name?: string
+    city?: string
+  }
+export type ElectionBatchConfig = { sharedFootnote: string } & Partial<
+  Record<ElectionGraphicKey, GraphicDefaults>
 >
-export type ElectionBatchConfig = Pick<BatchDefaults, 'sharedFootnote'> &
-  Partial<Record<ElectionGraphicKey, GraphicDefaults>>
 
 function graphicConfig(defaults: GraphicDefaults) {
   return createShellConfigSchema({ ...defaults, wide: false, backdrop: true })
@@ -30,22 +32,28 @@ function graphicConfig(defaults: GraphicDefaults) {
 export function defineElectionBatch({
   configUrl,
   previewStoryId,
-  defaults: { sharedFootnote, ...graphicDefaults },
+  sharedFootnote = '資料來源：中央選舉委員會 ｜ 資料整理：林奕甫、黃靖緯、簡毅慧、江世民',
+  graphics,
 }: {
   configUrl: string
   previewStoryId: string
-  defaults: BatchDefaults
+  sharedFootnote?: string
+  graphics: Record<ElectionGraphicKey, GraphicDefinition>
 }) {
   const graphicConfigs: Record<
     ElectionGraphicKey,
     ReturnType<typeof graphicConfig>
   > = {}
-  const graphicKeys = Object.keys(graphicDefaults).map((key) =>
-    graphicKeySchema.parse(key),
+  const defaults: ElectionBatchConfig = { sharedFootnote }
+  const entries = Object.entries(graphics).map(
+    ([entry, { title, footnotes = [], name, city }]) => {
+      const key = graphicKeySchema.parse(entry)
+      const fields = { title, footnotes }
+      defaults[key] = fields
+      graphicConfigs[key] = graphicConfig(fields)
+      return { key, name: name ?? key.slice(key.indexOf('-') + 1), city }
+    },
   )
-  for (const key of graphicKeys) {
-    graphicConfigs[key] = graphicConfig(graphicDefaults[key])
-  }
 
   const schema: z.ZodType<ElectionBatchConfig> = z
     .object({
@@ -55,7 +63,10 @@ export function defineElectionBatch({
       }),
       ...graphicConfigs,
     })
-    .meta({ title: '開票圖表', 'ui:order': ['sharedFootnote', ...graphicKeys] })
+    .meta({
+      title: '開票圖表',
+      'ui:order': ['sharedFootnote', ...entries.map(({ key }) => key)],
+    })
 
   const name = `${electionComponentPrefix}:${configUrl}`
   return {
@@ -64,11 +75,10 @@ export function defineElectionBatch({
     configUrl,
     previewStoryId,
     schema,
-    graphics: graphicKeys.map((key) => ({
-      key,
-      name: key.slice(key.indexOf('-') + 1),
-    })),
+    defaults,
+    graphics: entries,
   }
 }
 
 export type ElectionBatch = ReturnType<typeof defineElectionBatch>
+export type ElectionBatchGraphic = ElectionBatch['graphics'][number]

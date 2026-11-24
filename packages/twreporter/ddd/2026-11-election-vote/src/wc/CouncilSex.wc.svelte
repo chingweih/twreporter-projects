@@ -1,8 +1,8 @@
-<svelte:options customElement="twreporter-2026-11-election-vote-vote-turnout" />
+<svelte:options customElement="twreporter-2026-11-election-vote-council-sex" />
 
 <script lang="ts">
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
-  import { firstBatch } from '../lib/batches/first.ts'
+  import { secondBatch } from '../lib/batches/second.ts'
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
@@ -10,5 +10,5 @@
 </script>
 
 <ElectionLayout>
-  <ElectionGraphic batch={firstBatch} {config} graphicKey="6-vote-turnout" />
+  <ElectionGraphic batch={secondBatch} {config} graphicKey="7-council-sex" />
 </ElectionLayout>

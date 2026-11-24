@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "storybook dev -p 5173 --no-open",
-    "storybook:build": "storybook build",
+    "dev": "pnpm run generate:configs && storybook dev -p 5173 --no-open",
+    "storybook:build": "pnpm run generate:configs && storybook build",
+    "generate:configs": "node --experimental-strip-types scripts/generate-configs.ts",
     "build": "pnpm run check-types && node --experimental-strip-types scripts/build.ts && pnpm run storybook:build",
     "check-types": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
     "format": "prettier --write .",

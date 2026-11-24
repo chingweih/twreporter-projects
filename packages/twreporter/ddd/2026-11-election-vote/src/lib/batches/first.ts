@@ -1,8 +1,12 @@
-import defaults from '../../../public/election-vote.json' with { type: 'json' }
 import { defineElectionBatch } from '../batch-config.ts'
 
 export const firstBatch = defineElectionBatch({
-  defaults,
   configUrl: './election-vote.json',
   previewStoryId: 'components-electionvote--default',
+  graphics: {
+    '1-city-map': { title: '2026縣市首長當選人一覽' },
+    '2-city-grid': { title: '歷屆縣市長黨籍變化' },
+    '3-party-city-result': { title: '歷屆縣市長席次變化' },
+    '4-ref-result': { title: '2026核電公投通過／不通過' },
+  },
 })
