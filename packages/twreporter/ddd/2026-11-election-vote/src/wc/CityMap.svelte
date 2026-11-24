@@ -1,5 +1,6 @@
 <script lang="ts">
   import counties from '@lab-reporter/ddd-atlas/taiwan/counties' with { type: 'json' }
+  import { splitTaiwanCounties } from '@lab-reporter/ddd-atlas/taiwan/map'
   import MapCanvas from '@lab-reporter/ddd-shared/components/shared/MapCanvas.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { formatNumber } from '@lab-reporter/ddd-shared/utils/format.ts'
@@ -17,24 +18,8 @@
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
   import { partyColorVars, resolvePartyColor } from '../lib/party-colors.ts'
 
-  const offshore = countiesByGroup.get('離島') ?? []
-  const offshoreCodes = new Set(
-    offshore.map((county) => county.properties.code),
-  )
-  const taiwan = {
-    type: 'FeatureCollection',
-    features: counties.features.filter(
-      (county) => !offshoreCodes.has(county.properties.code),
-    ),
-  } satisfies typeof counties
+  const { mainIsland: taiwan, insets } = splitTaiwanCounties(counties)
   const bounds = geoPath().bounds(taiwan)
-  const insets = offshore.map((county) => ({
-    code: county.properties.code,
-    geometry: {
-      type: 'FeatureCollection' as const,
-      features: [county],
-    },
-  }))
   const preserveDrawingBuffer = new URLSearchParams(window.location.search).has(
     'download',
   )
@@ -52,13 +37,18 @@
   const displayedParties = $derived(
     [...(overview.data ?? [])]
       .filter(([, result]) => result.領先者.trim())
-      .map(([code, result]) => ({
-        code,
+      .map(([countyCode, result]) => ({
+        countyCode,
         ...resolvePartyColor(result.領先者政黨.trim()),
       })),
   )
   const partyTokens = $derived(
-    new Map(displayedParties.map(({ code, colorVar }) => [code, colorVar])),
+    new Map(
+      displayedParties.map(({ countyCode, colorVar }) => [
+        countyCode,
+        colorVar,
+      ]),
+    ),
   )
   const legend = $derived(
     Object.entries(partyColorVars).filter(([party]) =>
@@ -83,15 +73,15 @@
       theme.getPropertyValue('--elec-grayscale-1').trim() || theme.color
     // The MapLibre style parser needs a resolved color for the canvas.
     const colors = Object.fromEntries(
-      [...partyTokens].map(([code, token]) => [
-        code,
+      [...partyTokens].map(([countyCode, token]) => [
+        countyCode,
         theme.getPropertyValue(token).trim() || neutralFill,
       ]),
     )
     return {
       'fill-color': [
         'coalesce',
-        ['get', ['get', 'code'], ['literal', colors]],
+        ['get', ['get', 'countyCode'], ['literal', colors]],
         neutralFill,
       ],
       'fill-outline-color':
@@ -105,14 +95,14 @@
   {#each countiesByGroup as [region, counties] (region)}
     {#if (region === '東' || region === '離島') === (side === 'east')}
       <ul class="results" aria-label={region}>
-        {#each counties as { properties: { code, name } } (code)}
-          {@const result = overview.data?.get(code)}
+        {#each counties as { properties: { countyCode, name } } (countyCode)}
+          {@const result = overview.data?.get(countyCode)}
           {@const candidate = result?.領先者.trim()}
           <li>
             <strong>{name}</strong>
             <span
               class="swatch"
-              style:background-color="var({partyTokens.get(code) ??
+              style:background-color="var({partyTokens.get(countyCode) ??
                 '--elec-grayscale-1'})"
               role="img"
               aria-label={candidate
@@ -185,13 +175,13 @@
     <div class="west">{@render results('west')}</div>
     <div class="east">{@render results('east')}</div>
     <div class="insets" aria-hidden="true">
-      {#each insets as { code, geometry } (code)}
-        <div class="inset" class:penghu={code === '10016'}>
+      {#each insets as { countyCode, geometry } (countyCode)}
+        <div class="inset" class:penghu={countyCode === '10016'}>
           <CountyShapes
             {geometry}
             {partyTokens}
             width={120}
-            height={code === '10016' ? 176 : 84}
+            height={countyCode === '10016' ? 176 : 84}
           />
         </div>
       {/each}

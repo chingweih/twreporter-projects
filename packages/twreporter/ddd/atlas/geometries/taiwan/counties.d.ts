@@ -1,9 +1,10 @@
 import type { FeatureCollection, MultiPolygon, Polygon } from "geojson";
+import type {
+  TaiwanCountyGroup,
+  TaiwanCountyProperties,
+} from "../../src/taiwan/properties.ts";
 
-export type TaiwanCountyProperties = {
-  code: string;
-  name: string;
-};
+export type { TaiwanCountyGroup, TaiwanCountyProperties };
 
 declare const counties: FeatureCollection<
   Polygon | MultiPolygon,

@@ -3,21 +3,76 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "license": "CC0-1.0",
+  "engines": {
+    "node": ">=22.18"
+  },
   "exports": {
+    "./taiwan/map": "./src/taiwan/map.ts",
     "./taiwan/counties": {
-      "types": "./taiwan/counties.d.ts",
-      "default": "./taiwan/counties.json"
+      "types": "./geometries/taiwan/counties.d.ts",
+      "default": "./geometries/taiwan/2026/counties.json"
+    },
+    "./taiwan/districts": {
+      "types": "./geometries/taiwan/districts.d.ts",
+      "default": "./geometries/taiwan/2026/districts.json"
+    },
+    "./taiwan/counties/*/districts": {
+      "types": "./geometries/taiwan/districts.d.ts",
+      "default": "./geometries/taiwan/2026/counties/*/districts.json"
+    },
+    "./taiwan/counties/*/villages": {
+      "types": "./geometries/taiwan/villages.d.ts",
+      "default": "./geometries/taiwan/2026/counties/*/villages.json"
+    },
+    "./taiwan/2026/counties": {
+      "types": "./geometries/taiwan/counties.d.ts",
+      "default": "./geometries/taiwan/2026/counties.json"
+    },
+    "./taiwan/2026/districts": {
+      "types": "./geometries/taiwan/districts.d.ts",
+      "default": "./geometries/taiwan/2026/districts.json"
+    },
+    "./taiwan/2026/counties/*/districts": {
+      "types": "./geometries/taiwan/districts.d.ts",
+      "default": "./geometries/taiwan/2026/counties/*/districts.json"
+    },
+    "./taiwan/2026/counties/*/villages": {
+      "types": "./geometries/taiwan/villages.d.ts",
+      "default": "./geometries/taiwan/2026/counties/*/villages.json"
+    },
+    "./taiwan/2022/counties": {
+      "types": "./geometries/taiwan/counties.d.ts",
+      "default": "./geometries/taiwan/2022/counties.json"
+    },
+    "./taiwan/2022/districts": {
+      "types": "./geometries/taiwan/districts.d.ts",
+      "default": "./geometries/taiwan/2022/districts.json"
+    },
+    "./taiwan/2022/counties/*/districts": {
+      "types": "./geometries/taiwan/districts.d.ts",
+      "default": "./geometries/taiwan/2022/counties/*/districts.json"
+    },
+    "./taiwan/2022/counties/*/villages": {
+      "types": "./geometries/taiwan/villages.d.ts",
+      "default": "./geometries/taiwan/2022/counties/*/villages.json"
     }
   },
   "scripts": {
-    "format": "prettier --write \"**/*.{json,geojson}\"",
-    "format:check": "prettier --check \"**/*.{json,geojson}\""
+    "generate": "node src/generate/cli.ts",
+    "check-types": "tsc -p tsconfig.json",
+    "format": "prettier --write \"**/*.{json,ts}\"",
+    "format:check": "prettier --check \"**/*.{json,ts}\""
   },
   "dependencies": {
-    "@types/geojson": "^7946.0.16"
+    "@types/geojson": "^7946.0.16",
+    "zod": "4.5.2"
   },
   "devDependencies": {
-    "prettier": "^3.8.3"
+    "@types/node": "24.12.2",
+    "commander": "14.0.3",
+    "mapshaper": "0.8.4",
+    "prettier": "^3.8.3",
+    "typescript": "5.9.3",
+    "zod-geojson": "1.7.1"
   }
 }

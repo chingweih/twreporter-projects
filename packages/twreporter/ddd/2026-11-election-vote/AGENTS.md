@@ -9,7 +9,7 @@
 - Use `createGraphic` to load the config and handle editor synchronization. Read spreadsheet data through the typed TanStack Query options in `src/lib/election-data.ts`.
 - Use `createShellConfigSchema` for title and footnotes. Give each graphic a numbered key in the batch config. Bind the editable Shell fields to that entry and use Shell's `error`, `loading`, `empty`, and `emptyMessage` props for status messages.
 - Import public config JSON for defaults and pass it to `createShellConfigSchema`. Keep sample values in the JSON rather than repeating them in schemas.
-- Keep result values in the spreadsheet. Use the project city-group mapping for fixed geographic groups. Validate required CSV headers before calculating a chart.
+- Keep result values in the spreadsheet. Use the atlas county `group` property for fixed geographic groups. Validate required CSV headers before calculating a chart.
 - Config is a CMS form. Add clear field titles and explicit `ui:order` metadata because database JSON storage can reorder object keys. The build emits JSON Schema draft-07 for the CMS validator.
 - CMS metadata supports `ui:widget`, `ui:enumNames`, and `ui:options`. Use `layout: 'two-column'` for short mappings and `titleKey` with `collapsible: true` for long arrays. Add matching `ui:order` metadata to nested objects when field order matters.
 - Use shared `ChipSelector`, `Tooltip`, and `ScrollFade` where they fit. Use Shell's CSS variables for fixed styles and shared `colorSchema` for editable hex colors with the CMS color picker. Keep project-specific theme colors in the project. Shell and Storybook load Roboto Slab before Noto Sans TC.

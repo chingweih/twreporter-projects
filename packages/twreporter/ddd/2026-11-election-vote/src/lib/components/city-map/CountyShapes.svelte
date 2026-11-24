@@ -26,17 +26,17 @@
       )
     const path = geoPath(projection).digits(2)
     return geometry.features.map((county) => ({
-      code: county.properties.code,
+      countyCode: county.properties.countyCode,
       path: path(county) ?? '',
     }))
   })
 </script>
 
 <svg viewBox="0 0 {width} {height}" aria-hidden="true">
-  {#each paths as county (county.code)}
+  {#each paths as county (county.countyCode)}
     <path
       d={county.path}
-      fill="var({partyTokens.get(county.code) ?? '--elec-grayscale-1'})"
+      fill="var({partyTokens.get(county.countyCode) ?? '--elec-grayscale-1'})"
       stroke="var(--neutral-white)"
       stroke-width="1"
       vector-effect="non-scaling-stroke"

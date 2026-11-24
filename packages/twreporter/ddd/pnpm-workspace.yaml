@@ -11,7 +11,10 @@ packages:
 
 allowBuilds:
   '@clerk/shared': true
+  # Optional native subdependencies pulled in by mapshaper.
+  better-sqlite3: false
   esbuild: true
+  msgpackr-extract: false
 
 patchedDependencies:
   '@reuters-graphics/graphics-components@3.2.0': patches/@reuters-graphics__graphics-components@3.2.0.patch
