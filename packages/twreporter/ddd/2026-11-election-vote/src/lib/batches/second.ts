@@ -1,6 +1,7 @@
 import { defineElectionBatch } from '../batch-config.ts'
 
 const taipei = '63000'
+const newTaipei = '65000'
 
 export const secondBatch = defineElectionBatch({
   configUrl: './election-vote-second.json',
@@ -18,5 +19,25 @@ export const secondBatch = defineElectionBatch({
     '6-council-age': { title: '2026當選議員年齡分布' },
     '7-council-sex': { title: '2026當選議員性別分布' },
     '8-hualien': { title: '傅家王朝歷屆得票率變化' },
+    '9-taipei-result-map': {
+      name: 'city-result-map',
+      city: taipei,
+      title: '2026台北市長選舉結果地圖',
+    },
+    '10-ntp-result-map': {
+      name: 'city-result-map',
+      city: newTaipei,
+      title: '2026新北市長選舉結果地圖',
+    },
+    '11-taipei-comparison-map': {
+      name: 'city-comparison-map',
+      city: taipei,
+      title: '2026台北市長選舉結果與2022比較地圖',
+    },
+    '12-ntp-comparison-map': {
+      name: 'city-comparison-map',
+      city: newTaipei,
+      title: '2026新北市長選舉結果與2022比較地圖',
+    },
   },
 })
