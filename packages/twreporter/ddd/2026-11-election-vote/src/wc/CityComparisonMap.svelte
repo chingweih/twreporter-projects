@@ -6,17 +6,32 @@
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { secondBatch } from '../lib/batches/second.ts'
   import CityDistrictMaps from '../lib/components/city-result-map/CityDistrictMaps.svelte'
-  import {
-    cityGeometries,
-    type CityGeometry,
-  } from '../lib/components/city-result-map/geometry.ts'
+  import type { HistoricalCityGeometry } from '../lib/components/city-result-map/data.ts'
+  import { cityGeometries } from '../lib/components/city-result-map/geometry.ts'
+  import { historicalElectionTabs } from '../lib/election-historical-data.ts'
   import ElectionCityGraphic from '../lib/ElectionCityGraphic.svelte'
 
   const { config, city }: Pick<ComponentProps, 'config'> & { city?: string } =
     $props()
-  const previousGeometries = new Map<string, CityGeometry>([
-    ['63000', { districts: taipeiDistricts, villages: taipeiVillages }],
-    ['65000', { districts: newTaipeiDistricts, villages: newTaipeiVillages }],
+  const previousGeometries = new Map<string, HistoricalCityGeometry>([
+    [
+      '63000',
+      {
+        districts: taipeiDistricts,
+        villages: taipeiVillages,
+        townshipResults: historicalElectionTabs.taipeiMayorByTownship,
+        villageResults: historicalElectionTabs.taipeiMayorByVillage,
+      },
+    ],
+    [
+      '65000',
+      {
+        districts: newTaipeiDistricts,
+        villages: newTaipeiVillages,
+        townshipResults: historicalElectionTabs.newTaipeiMayorByTownship,
+        villageResults: historicalElectionTabs.newTaipeiMayorByVillage,
+      },
+    ],
   ])
 </script>
 

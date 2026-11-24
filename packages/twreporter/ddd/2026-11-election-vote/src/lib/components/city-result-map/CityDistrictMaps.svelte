@@ -1,10 +1,17 @@
 <script lang="ts">
   import type { MapTooltipTarget } from '@lab-reporter/ddd-shared/components/shared/D3Map.svelte'
-  import { createQuery } from '@tanstack/svelte-query'
+  import { createQuery, skipToken } from '@tanstack/svelte-query'
   import { tick } from 'svelte'
   import { electionTabs } from '../../election-data.ts'
   import { partyColorVars } from '../../party-colors.ts'
-  import { areaColor, indexAreaResults, noLeader } from './data.ts'
+  import {
+    areaColor,
+    indexAreaResults,
+    indexHistoricalAreaResults,
+    noLeader,
+    type AreaResult,
+    type HistoricalCityGeometry,
+  } from './data.ts'
   import DistrictVillageMap from './DistrictVillageMap.svelte'
   import { assignedVillagesInDistrict, type CityGeometry } from './geometry.ts'
 
@@ -13,7 +20,7 @@
     previous,
   }: {
     current: CityGeometry
-    previous?: CityGeometry
+    previous?: HistoricalCityGeometry
   } = $props()
 
   let selectedCode = $state<string>()
@@ -39,7 +46,6 @@
   }))
   const villageQuery = createQuery(() => ({
     ...electionTabs.mayorByVillage.options,
-    enabled: focus !== undefined,
     select: (rows) =>
       indexAreaResults({
         rows,
@@ -49,18 +55,46 @@
       }),
   }))
   const results = $derived(focus ? villageQuery : townshipQuery)
-  const areaCodes = $derived(
-    focus
-      ? assignedVillagesInDistrict(current.villages, selectedCode).map(
-          ({ properties }) => properties.villageCode,
-        )
-      : current.districts.features.map(
-          ({ properties }) => properties.districtCode,
-        ),
+  const historicalTownships = createQuery(() => ({
+    ...(previous?.townshipResults.options ?? {
+      queryKey: ['historical-city-results', 'township'] as const,
+      queryFn: skipToken,
+    }),
+    select: (rows) =>
+      indexHistoricalAreaResults({ rows, cityCode, villages: false }),
+  }))
+  const historicalVillages = createQuery(() => ({
+    ...(previous?.villageResults.options ?? {
+      queryKey: ['historical-city-results', 'village'] as const,
+      queryFn: skipToken,
+    }),
+    select: (rows) =>
+      indexHistoricalAreaResults({ rows, cityCode, villages: true }),
+  }))
+  const historicalQuery = $derived(
+    focus ? historicalVillages : historicalTownships,
   )
+
   const areaColors = $derived(
-    new Set(areaCodes.map((code) => areaColor(results.data?.get(code)))),
+    new Set([
+      ...visibleColors(current, results.data),
+      ...(previous ? visibleColors(previous, historicalQuery.data) : []),
+    ]),
   )
+
+  function visibleColors(
+    geometry: CityGeometry,
+    data?: ReadonlyMap<string, AreaResult>,
+  ) {
+    if (!data) return []
+    return focus
+      ? assignedVillagesInDistrict(geometry.villages, selectedCode).map(
+          ({ properties }) => areaColor(data.get(properties.villageCode)),
+        )
+      : geometry.districts.features.map(({ properties }) =>
+          areaColor(data.get(properties.districtCode)),
+        )
+  }
   const legend = $derived(
     Object.entries(partyColorVars).filter(
       ([party, token]) =>
@@ -85,6 +119,21 @@
   }
 </script>
 
+{#snippet status(query: typeof results)}
+  {#if query.isPending}
+    <p class="status" role="status">開票資料載入中……</p>
+  {:else if query.isError}
+    <p class="status" role="status">無法載入開票資料。</p>
+  {/if}
+{/snippet}
+
+{#snippet panelHeading(year: number, query: typeof results)}
+  <header class="panel-heading">
+    <h2>{year}</h2>
+    {@render status(query)}
+  </header>
+{/snippet}
+
 <div class="toolbar">
   {#if focus}
     <button
@@ -105,11 +154,10 @@
       返回全市
     </button>
   {/if}
-  {#if results.isPending}
-    <p class="status" role="status">開票資料載入中……</p>
-  {:else if results.isError}
-    <p class="status" role="status">無法載入開票資料。</p>
-  {:else}
+  {#if !previous}
+    {@render status(results)}
+  {/if}
+  {#if results.data || (previous && historicalQuery.data)}
     <ul class="legend" aria-label="得票最高候選人的政黨">
       {#each legend as [party, token] (party)}
         <li>
@@ -128,20 +176,22 @@
 <div class="maps" class:comparison={Boolean(previous)}>
   {#if previous}
     <section class="map-panel" aria-label="2022">
-      <h2>2022</h2>
+      {@render panelHeading(2022, historicalQuery)}
       <DistrictVillageMap
         geometry={previous}
         counterpart={current}
         frame={current.districts}
         {focus}
         onselect={selectDistrict}
+        onreset={showDistricts}
+        results={historicalQuery}
         bind:tooltipTarget
       />
     </section>
   {/if}
   <section class="map-panel" aria-label={previous ? '2026' : undefined}>
     {#if previous}
-      <h2>2026</h2>
+      {@render panelHeading(2026, results)}
     {/if}
     <DistrictVillageMap
       geometry={current}
@@ -149,6 +199,7 @@
       frame={current.districts}
       {focus}
       onselect={selectDistrict}
+      onreset={showDistricts}
       {results}
       bind:tooltipTarget
     />
@@ -241,9 +292,17 @@
     font-size: var(--text-xs);
   }
 
-  h2 {
+  .panel-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 8px;
     flex-shrink: 0;
-    margin: 0 0 6px;
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    margin: 0;
     font-size: var(--text-m);
     font-weight: 700;
   }

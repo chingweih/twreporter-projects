@@ -18,6 +18,7 @@
     frame,
     focus,
     onselect,
+    onreset,
     results,
     tooltipTarget = $bindable(),
   }: {
@@ -26,9 +27,10 @@
     frame: TaiwanDistrictCollection
     focus?: TaiwanDistrictCollection['features'][number]
     onselect: (code: string, button: SVGPathElement) => void
-    results?: Pick<
+    onreset: () => void
+    results: Pick<
       CreateQueryResult<Map<string, AreaResult>>,
-      'data' | 'isPending'
+      'data' | 'isPending' | 'isError'
     >
     tooltipTarget?: MapTooltipTarget
   } = $props()
@@ -70,6 +72,7 @@
   bind:tooltipTarget
   {tooltipId}
   containTooltip={counterpart !== undefined}
+  onbackgroundclick={focus ? onreset : undefined}
   label={focus ? `${focus.properties.name}村里地圖` : '行政區地圖'}
   style="background: var(--neutral-gray-100); min-height: 0; flex: 1 1 auto"
 >
@@ -78,9 +81,8 @@
       {#each districts.features as { properties: area, geometry } (area.districtCode)}
         <path
           class="district"
-          class:boundary-only={!results}
           d={path(geometry)}
-          fill="var({areaColor(results?.data?.get(area.districtCode))})"
+          fill="var({areaColor(results.data?.get(area.districtCode))})"
           data-map-tooltip={focus ? undefined : area.districtCode}
           role="button"
           tabindex={focus ? -1 : 0}
@@ -100,9 +102,8 @@
     {#each districtVillages as { properties: village, geometry } (village.villageCode)}
       <path
         class="village"
-        class:boundary-only={!results}
         d={path(geometry)}
-        fill="var({areaColor(results?.data?.get(village.villageCode))})"
+        fill="var({areaColor(results.data?.get(village.villageCode))})"
         data-map-tooltip={village.villageCode}
         role="button"
         tabindex="0"
@@ -134,7 +135,7 @@
         : counterpart?.districts.features.find(
             ({ properties }) => properties.districtCode === code,
           )?.properties.name}
-    {@const result = results?.data?.get(code)}
+    {@const result = results.data?.get(code)}
     <strong
       >{(focus?.properties.name ?? '') +
         (area?.name ?? counterpartName ?? code)}</strong
@@ -161,7 +162,9 @@
           {/each}
         </ul>
       {/if}
-    {:else if results}
+    {:else if results.isError}
+      <div>無法載入開票資料。</div>
+    {:else}
       <div>{results.isPending ? '開票資料載入中……' : '尚無開票結果'}</div>
     {/if}
   {/snippet}
@@ -209,12 +212,6 @@
 
   .inactive .district {
     fill: var(--elec-grayscale-1);
-  }
-
-  .boundary-only,
-  .inactive .boundary-only {
-    fill: transparent;
-    stroke: var(--neutral-gray-500);
   }
 
   .outline {

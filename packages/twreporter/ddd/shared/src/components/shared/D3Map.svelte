@@ -28,6 +28,7 @@
     tooltipId,
     tooltipTarget = $bindable(),
     containTooltip = false,
+    onbackgroundclick,
   }: {
     geometry: GeoPermissibleObjects
     width: number
@@ -41,6 +42,7 @@
     tooltipId?: string
     tooltipTarget?: MapTooltipTarget
     containTooltip?: boolean
+    onbackgroundclick?: () => void
   } = $props()
 
   let svg = $state<SVGSVGElement>()
@@ -132,6 +134,13 @@
       stopScroll()
       stopResize()
     }
+  })
+
+  $effect(() => {
+    if (!svg || !onbackgroundclick) return
+    return on(svg, 'click', (event) => {
+      if (event.target === event.currentTarget) onbackgroundclick?.()
+    })
   })
 
   const path = $derived(
