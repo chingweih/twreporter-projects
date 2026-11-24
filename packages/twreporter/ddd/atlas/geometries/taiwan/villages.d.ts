@@ -3,9 +3,11 @@ import type { TaiwanVillageProperties } from "../../src/taiwan/properties.ts";
 
 export type { TaiwanVillageProperties };
 
-declare const villages: FeatureCollection<
+export type TaiwanVillageCollection = FeatureCollection<
   Polygon | MultiPolygon,
   TaiwanVillageProperties
 >;
+
+declare const villages: TaiwanVillageCollection;
 
 export default villages;

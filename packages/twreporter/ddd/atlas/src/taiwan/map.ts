@@ -6,6 +6,9 @@ import type {
 } from "geojson";
 import type { TaiwanCountyProperties } from "./properties.ts";
 
+export type { TaiwanDistrictCollection } from "../../geometries/taiwan/districts.d.ts";
+export type { TaiwanVillageCollection } from "../../geometries/taiwan/villages.d.ts";
+
 export interface GeoBounds {
   minLon: number;
   maxLon: number;

@@ -3,9 +3,11 @@ import type { TaiwanDistrictProperties } from "../../src/taiwan/properties.ts";
 
 export type { TaiwanDistrictProperties };
 
-declare const districts: FeatureCollection<
+export type TaiwanDistrictCollection = FeatureCollection<
   Polygon | MultiPolygon,
   TaiwanDistrictProperties
 >;
+
+declare const districts: TaiwanDistrictCollection;
 
 export default districts;
