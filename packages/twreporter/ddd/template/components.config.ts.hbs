@@ -1,10 +1,11 @@
 import type { ComponentConfig } from '@lab-reporter/ddd-shared/vite-config'
 import { {{camelCase componentName}}ConfigSchema } from './src/lib/components/{{componentName}}/types.ts'
 
-export const components = {
+export const components: Record<string, ComponentConfig> = {
   ['{{componentName}}']: {
     entry: 'src/wc/{{componentName}}.ts',
     outputDirectory: 'components/{{componentName}}',
+    version: 1,
     configSchema: {{camelCase componentName}}ConfigSchema,
   },
-} satisfies Record<string, ComponentConfig>
+}

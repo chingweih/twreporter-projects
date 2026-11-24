@@ -10,7 +10,7 @@
     "check-types": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "deploy": "pnpm run build && gcloud storage cp --recursive ./dist/components/* $BUCKET/components/ && gcloud storage cp --recursive ./storybook-static/* $BUCKET/storybook/ --cache-control='no-cache'",
+    "deploy": "pnpm run build && node --experimental-strip-types scripts/deploy.ts",
     "deploy:dev": "BUCKET=gs://data-reporter-infographics/dev/{{projectName}} RELEASE=dev pnpm run deploy",
     "deploy:prod": "BUCKET=gs://projects.twreporter.org/twreporter/ddd/{{projectName}} RELEASE=prod pnpm run deploy"
   },

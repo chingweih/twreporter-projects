@@ -32,10 +32,11 @@ export function createStorybookConfig(
       <style>body { font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif; }</style>`,
     viteFinal(config) {
       config.publicDir = false
-      const componentScript = globSync('components/**/*.js', {
+      const timestamp = globSync('components/**/*.js', {
         cwd: resolve(root, 'dist'),
-      })[0]
-      const timestamp = componentScript?.match(/-(\d+)\.js$/)?.[1]
+      })
+        .map((file) => file.match(/-(\d+)\.js$/)?.[1])
+        .find((value) => value !== undefined)
 
       config.define = {
         ...config.define,

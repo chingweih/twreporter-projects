@@ -2,11 +2,13 @@ import { resolve } from 'node:path'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import type { UserConfig } from 'vite'
 import { z } from 'zod'
+import { withComponentVersion } from '../src/utils/component-name.ts'
 
 export type ComponentConfig = {
   entry: string
   outputDirectory: string
   configSchema: z.ZodType
+  version?: number
 }
 
 type ComponentBuildOptions = {
@@ -21,7 +23,16 @@ export function createComponentConfig(
   component: ComponentConfig,
   options: ComponentBuildOptions,
 ): UserConfig {
-  const version = `-${options.timestamp}`
+  const versioned = component.version !== undefined
+  const outputDirectory = withComponentVersion(
+    component.outputDirectory,
+    component.version,
+  )
+  const scriptName = versioned ? 'embed' : name
+  const schemaFileName = versioned
+    ? 'schema.json'
+    : `${name}-${options.timestamp}.schema.json`
+  // Keep the build-time schema import independent of the registry version.
   const schemaImportSuffix = `dist/${component.outputDirectory}/${name}.schema.json?url&no-inline`
   const schemaId = `\0twreporter-schema:${name}`
 
@@ -67,11 +78,11 @@ export function createComponentConfig(
       rolldownOptions: {
         output: {
           codeSplitting: false,
-          entryFileNames: `${component.outputDirectory}/${name}${version}.js`,
+          entryFileNames: `${outputDirectory}/${scriptName}-${options.timestamp}.js`,
           assetFileNames: (asset) =>
             asset.names.some((assetName) => assetName.endsWith('.schema.json'))
-              ? `${component.outputDirectory}/${name}${version}.schema.json`
-              : `${component.outputDirectory}/[name]${version}.[ext]`,
+              ? `${outputDirectory}/${schemaFileName}`
+              : `${outputDirectory}/[name]-${options.timestamp}.[ext]`,
         },
       },
     },

@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./build": "./config/build.ts",
+    "./deploy": "./config/deploy.ts",
     "./vite-config": "./config/vite.ts",
     "./svelte-config": "./svelte.config.ts",
     "./prettier-config": "./config/prettier.js",
@@ -29,6 +30,7 @@
   },
   "packageManager": "pnpm@10.33.0",
   "devDependencies": {
+    "@google-cloud/storage": "^9.0.0",
     "@storybook/addon-docs": "10.5.3",
     "@storybook/addon-svelte-csf": "^5.1.2",
     "@storybook/svelte-vite": "^10.5.3",
