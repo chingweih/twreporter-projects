@@ -29,7 +29,7 @@
     {#if topLeft || topRight}
       <div class="top">
         {#if topLeft}
-          <div class="corner">{@render topLeft()}</div>
+          <div class="corner left">{@render topLeft()}</div>
         {/if}
         {#if topRight}
           <div class="corner right">{@render topRight()}</div>

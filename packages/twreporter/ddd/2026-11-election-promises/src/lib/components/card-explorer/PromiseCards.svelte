@@ -304,12 +304,17 @@
   .explorer :global(.top) {
     align-items: center;
     flex-wrap: wrap;
+    justify-content: start;
     gap: 10px;
+    width: 100%;
+  }
+
+  .explorer :global(.top .corner.left) {
+    margin-right: auto;
   }
 
   .explorer :global(.top .corner.right) {
-    width: auto;
-    max-width: 80vw;
+    margin: 0;
   }
 
   .explorer :global(.header h1) {
@@ -376,6 +381,7 @@
     font-size: 14px;
     line-height: 1.5;
     letter-spacing: 0.01em;
+    width: 100%;
   }
 
   .footnotes p {
@@ -485,17 +491,6 @@
     .explorer :global(.frame) {
       padding: 34px;
       gap: 5px;
-    }
-    .explorer :global(.top) {
-      flex-direction: column;
-      flex-wrap: nowrap;
-      align-items: stretch;
-      gap: 5px;
-    }
-    .explorer :global(.top .corner.right) {
-      width: 100%;
-      max-width: 100%;
-      margin-left: 0;
     }
     .explorer :global(.topic button) {
       padding: 2px 12px;
