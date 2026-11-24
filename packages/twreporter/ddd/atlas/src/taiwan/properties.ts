@@ -24,6 +24,7 @@ export type TaiwanDistrictProperties = z.infer<typeof districtProperties>;
 export const villageProperties = z.strictObject({
   villageCode,
   name: z.string().min(1).nullable(),
+  unassigned: z.boolean(),
   countyCode,
   districtCode,
   note: z.string().min(1).exactOptional(),

@@ -101,6 +101,7 @@ export const outputSchemas = {
         const result: TaiwanVillageProperties = {
           villageCode: VILLCODE,
           name: VILLNAME || null,
+          unassigned: !VILLNAME,
           countyCode: COUNTYCODE,
           districtCode: TOWNCODE,
         };

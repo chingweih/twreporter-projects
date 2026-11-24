@@ -35,7 +35,7 @@ Public property types come from the [Zod schemas](src/taiwan/properties.ts) that
 
 - Counties (`TaiwanCountyProperties`): `{ countyCode, name, group }` where `group` is `'北' | '中' | '南' | '東' | '離島'`. Features are ordered by editorial region group.
 - Districts (`TaiwanDistrictProperties`): `{ districtCode, name, countyCode }`, sorted by `districtCode`.
-- Villages (`TaiwanVillageProperties`): `{ villageCode, name, countyCode, districtCode, note? }`, sorted by `villageCode`. `name` is `null` on unassigned village polygons (for example `未編定村里` or `高雄市旗津區代管` in 2022), with `note` carrying the label. Some source village names contain editorial brackets (such as `[那]拔里`), so join on `villageCode`.
+- Villages (`TaiwanVillageProperties`): `{ villageCode, name, unassigned, countyCode, districtCode, note? }`, sorted by `villageCode`. Filter on `unassigned` to exclude polygons without an assigned village. These features have a `null` name and may carry a label in `note`, such as `未編定村里` or `高雄市旗津區代管` in 2022. Some source village names contain editorial brackets (such as `[那]拔里`), so join on `villageCode`.
 
 ### Map helpers
 
