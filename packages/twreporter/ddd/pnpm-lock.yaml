@@ -381,6 +381,9 @@ importers:
       '@tanstack/svelte-query':
         specifier: ^6.1.28
         version: 6.1.28(svelte@5.56.10)
+      d3-geo:
+        specifier: ^3.1.1
+        version: 3.1.1
       d3-scale:
         specifier: ^4.0.2
         version: 4.0.2
@@ -421,6 +424,9 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.8
         version: 5.0.8
+      '@types/d3-geo':
+        specifier: ^3.1.0
+        version: 3.1.0
       '@types/d3-scale':
         specifier: ^4.0.9
         version: 4.0.9
