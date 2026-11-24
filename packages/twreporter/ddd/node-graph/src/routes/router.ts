@@ -4,7 +4,7 @@ import GraphEditor from './app/graphs/[graphId].svelte'
 import DesignEditor from './app/graphs/designs/[designId].svelte'
 import Home from './app/index.svelte'
 import Login from './app/login.svelte'
-import Layout from './layout.svelte'
+import Layout from './Layout.svelte'
 import Settings from './app/settings.svelte'
 
 export const {

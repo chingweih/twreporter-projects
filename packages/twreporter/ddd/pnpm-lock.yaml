@@ -278,6 +278,10 @@ importers:
       '@types/geojson':
         specifier: ^7946.0.16
         version: 7946.0.16
+    devDependencies:
+      prettier:
+        specifier: ^3.8.3
+        version: 3.8.3
 
   node-graph:
     dependencies:

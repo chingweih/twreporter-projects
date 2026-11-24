@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "create-project": "plop --plopfile plopfile.mjs project"
+    "create-project": "plop --plopfile plopfile.mjs project",
+    "format": "pnpm -r run \"/^format(?::fix)?$/\"",
+    "check-types": "pnpm -r run check-types"
   },
   "devDependencies": {
     "plop": "^4.0.5"

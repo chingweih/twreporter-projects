@@ -17,9 +17,9 @@
 
     "check-types": "pnpm run --parallel \"/^check-types:.*/\"",
     "check-types:web": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-    "check-types:convex": "convex codegen",
+    "check-types:convex": "tsc -p convex/tsconfig.json",
 
-    "deploy": "pnpm run check-types && pnpm run deploy:convex && pnpm run build:web && pnpm run upload:web && pnpm run build:lib && pnpm run upload:lib",
+    "deploy": "convex codegen --typecheck disable && pnpm run check-types && pnpm run deploy:convex && pnpm run build:web && pnpm run upload:web && pnpm run build:lib && pnpm run upload:lib",
     "deploy:staging": "BUCKET=gs://data-reporter-infographics/dev/node-graph RELEASE=staging pnpm run deploy",
     "deploy:prod": "BUCKET=gs://projects.twreporter.org/twreporter/ddd/node-graph RELEASE=production pnpm run deploy",
 

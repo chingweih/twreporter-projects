@@ -10,7 +10,14 @@
       "default": "./taiwan/counties.json"
     }
   },
+  "scripts": {
+    "format": "prettier --write \"**/*.{json,geojson}\"",
+    "format:check": "prettier --check \"**/*.{json,geojson}\""
+  },
   "dependencies": {
     "@types/geojson": "^7946.0.16"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.3"
   }
 }
