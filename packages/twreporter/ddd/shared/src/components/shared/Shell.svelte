@@ -18,6 +18,8 @@
     heading,
     topRight,
     footnotes = $bindable([]),
+    readOnlyFootnote,
+    footnotePrefix,
     wide = false,
     backdrop = true,
     editable = false,
@@ -29,6 +31,8 @@
     title?: string
     subtitle?: string
     footnotes?: string[]
+    readOnlyFootnote?: string
+    footnotePrefix?: (index: number) => string
     children?: Snippet
     beforeHeader?: Snippet
     heading?: Snippet
@@ -81,8 +85,16 @@
       {/if}
       {#snippet bottomLeft()}
         <div class="footnotes">
+          {#if readOnlyFootnote}
+            <p>{readOnlyFootnote}</p>
+          {/if}
           {#each footnotes as _, index}
-            <p><EditableText bind:value={footnotes[index]} {editable} /></p>
+            <p>
+              {footnotePrefix?.(index) ?? ''}<EditableText
+                bind:value={footnotes[index]}
+                {editable}
+              />
+            </p>
           {/each}
         </div>
       {/snippet}
