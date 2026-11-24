@@ -1,25 +1,16 @@
-import { queryOptions } from '@tanstack/svelte-query'
-import {
-  fetchText,
-  parseCsv,
-  requireCsvColumns,
-} from '@lab-reporter/ddd-shared/utils/fetchers.ts'
 import { z } from 'zod'
+import {
+  createElectionSheet,
+  sheetCount as count,
+  sheetNumber as number,
+  sheetPercentage as percentage,
+} from './election-sheet.ts'
 
-const spreadsheetId = '1rrRgaTyIIhHFCUaGZ1BB4tdmx-WcoPJuKhf1w5YqKeY'
-
+const electionTab = createElectionSheet({
+  spreadsheetId: '1rrRgaTyIIhHFCUaGZ1BB4tdmx-WcoPJuKhf1w5YqKeY',
+  queryNamespace: '2026-11-election-vote',
+})
 const text = z.string()
-const number = z
-  .string()
-  .trim()
-  .regex(/^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/)
-  .transform((value) => Number(value.replaceAll(',', '')))
-  .pipe(z.number())
-const count = number.pipe(z.int().nonnegative())
-const percentage = text
-  .trim()
-  .transform((value) => value.replace(/%$/, ''))
-  .pipe(number)
 
 const county = {
   縣市: text,
@@ -63,34 +54,6 @@ const analysisArea = {
   選舉: text,
   範圍: text,
   縣市代碼: text,
-}
-
-function electionTab<Columns extends z.ZodRawShape>(
-  gid: string,
-  rowSchema: z.ZodObject<Columns>,
-) {
-  const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`
-  const columns = Object.keys(rowSchema.shape)
-  const rowsSchema = rowSchema.array()
-
-  async function fetchRows(signal?: AbortSignal) {
-    const csvText = await fetchText(url, signal)
-    try {
-      const csv = parseCsv(csvText)
-      requireCsvColumns(csv, columns)
-      return rowsSchema.parse(csv.rows)
-    } catch (cause) {
-      throw new Error(`Invalid election CSV in sheet tab ${gid}`, { cause })
-    }
-  }
-
-  return {
-    fetchRows,
-    options: queryOptions({
-      queryKey: ['2026-11-election-vote', gid] as const,
-      queryFn: ({ signal }) => fetchRows(signal),
-    }),
-  }
 }
 
 // Rates use percentage points (e.g. 67.91). Codes and notes retain the sheet's text.
