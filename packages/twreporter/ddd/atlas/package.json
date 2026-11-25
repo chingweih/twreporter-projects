@@ -8,6 +8,10 @@
   },
   "exports": {
     "./taiwan/map": "./src/taiwan/map.ts",
+    "./taiwan/village-changes": {
+      "types": "./geometries/taiwan/village-changes.d.ts",
+      "default": "./geometries/taiwan/village-changes.json"
+    },
     "./taiwan/counties": {
       "types": "./geometries/taiwan/counties.d.ts",
       "default": "./geometries/taiwan/2026/counties.json"
@@ -69,8 +73,10 @@
   },
   "devDependencies": {
     "@types/node": "24.12.2",
+    "@types/papaparse": "^5.5.2",
     "commander": "14.0.3",
     "mapshaper": "0.8.4",
+    "papaparse": "^5.5.4",
     "prettier": "^3.8.3",
     "typescript": "5.9.3",
     "zod-geojson": "1.7.1"

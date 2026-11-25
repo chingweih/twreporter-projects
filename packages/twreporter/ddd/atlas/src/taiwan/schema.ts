@@ -44,12 +44,12 @@ const cleanText = z
   .string()
   .refine(
     (value) => !value.includes("\uFFFD"),
-    "Unexpected replacement character (check DBF UTF-8 encoding)",
+    "Unexpected replacement character (check UTF-8 encoding)",
   )
   .transform((value) => value.trim().replaceAll("臺", "台"));
-const hanText = cleanText.refine(
+export const hanText = cleanText.refine(
   (value) => hasHan.test(value),
-  "Expected Traditional Chinese text (check DBF UTF-8 encoding)",
+  "Expected Chinese text (check UTF-8 encoding)",
 );
 
 export const outputSchemas = {

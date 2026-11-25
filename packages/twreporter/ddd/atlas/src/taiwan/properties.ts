@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const countyCode = z.string().regex(/^\d{5}$/);
 const districtCode = z.string().regex(/^\d{8}$/);
-const villageCode = z.string().regex(/^[\dA-Z]{11}$/);
+export const villageCode = z.string().regex(/^[\dA-Z]{11}$/);
 
 export const taiwanCountyGroup = z.enum(["北", "中", "南", "東", "離島"]);
 export type TaiwanCountyGroup = z.infer<typeof taiwanCountyGroup>;
@@ -30,3 +30,20 @@ export const villageProperties = z.strictObject({
   note: z.string().min(1).exactOptional(),
 });
 export type TaiwanVillageProperties = z.infer<typeof villageProperties>;
+
+export const villageExtentStatus = z.enum([
+  "equivalent",
+  "different",
+  "unverified",
+]);
+
+export type TaiwanVillageChanges = {
+  beforeYear: string;
+  afterYear: string;
+  groups: {
+    id: string;
+    beforeIds: string[];
+    afterIds: string[];
+    extent: z.infer<typeof villageExtentStatus>;
+  }[];
+};
