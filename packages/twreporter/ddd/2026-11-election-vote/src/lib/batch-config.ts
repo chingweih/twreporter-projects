@@ -46,6 +46,11 @@ type GraphicDefaults = Pick<
   valuePosition?: 'left' | 'center' | 'outside'
   xAxisFontSize?: number
   yAxisFontSize?: number
+  pointRadius?: number
+  xTickCount?: number
+  xMin?: number
+  showEqualityLine?: boolean
+  xMax?: number
   yTickCount?: number
   yMax?: number
   showArea?: boolean
@@ -80,6 +85,11 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     valuePosition?: 'left' | 'center' | 'outside'
     xAxisFontSize?: number
     yAxisFontSize?: number
+    pointRadius?: number
+    xTickCount?: number
+    xMin?: number
+    showEqualityLine?: boolean
+    xMax?: number
     yTickCount?: number
     yMax?: number
     showArea?: boolean
@@ -150,7 +160,7 @@ function graphicConfig(defaults: GraphicDefaults) {
         : {},
     )
     .extend(
-      defaults.yTickCount !== undefined
+      defaults.yTickCount !== undefined && defaults.pointRadius === undefined
         ? {
             showXAxis: barChartXAxisSchema.default(defaults.showXAxis ?? true),
             showYAxis: z
@@ -278,6 +288,73 @@ function graphicConfig(defaults: GraphicDefaults) {
           }
         : {},
     )
+    .extend(
+      defaults.pointRadius !== undefined
+        ? {
+            pointRadius: z
+              .number()
+              .positive()
+              .max(20)
+              .default(defaults.pointRadius)
+              .meta({ title: '圓點半徑（px）' }),
+            xTickCount: z
+              .number()
+              .int()
+              .min(1)
+              .max(20)
+              .default(defaults.xTickCount ?? 5)
+              .meta({ title: 'X 軸刻度數量' }),
+            yTickCount: z
+              .number()
+              .int()
+              .min(1)
+              .max(20)
+              .default(defaults.yTickCount ?? 5)
+              .meta({ title: 'Y 軸刻度數量' }),
+            xMin: z.number().optional().meta({
+              title: 'X 軸最小值',
+              description: '留空則依兩張圖的資料自動涵蓋負值。',
+            }),
+            showEqualityLine: z
+              .boolean()
+              .default(defaults.showEqualityLine ?? false)
+              .meta({ title: '顯示 X = Y 參考線' }),
+            xMax: z
+              .number()
+              .positive()
+              .default(defaults.xMax ?? 100)
+              .meta({ title: 'X 軸最大值' }),
+            yMax: z
+              .number()
+              .positive()
+              .default(defaults.yMax ?? 100)
+              .meta({ title: 'Y 軸最大值' }),
+            chartBackdrop: barChartBackdropSchema.default(
+              defaults.chartBackdrop ?? false,
+            ),
+            showXAxis: z
+              .boolean()
+              .default(defaults.showXAxis ?? true)
+              .meta({ title: '顯示 X 軸' }),
+            showYAxis: z
+              .boolean()
+              .default(defaults.showYAxis ?? true)
+              .meta({ title: '顯示 Y 軸' }),
+            showXGrid: z
+              .boolean()
+              .default(defaults.showXGrid ?? true)
+              .meta({ title: '顯示 X 軸網格' }),
+            showYGrid: z
+              .boolean()
+              .default(defaults.showYGrid ?? true)
+              .meta({ title: '顯示 Y 軸網格' }),
+            showTooltip: z
+              .boolean()
+              .default(defaults.showTooltip ?? true)
+              .meta({ title: '顯示 Tooltip' }),
+          }
+        : {},
+    )
     .meta({
       title: defaults.title,
       'ui:order': [
@@ -303,7 +380,25 @@ function graphicConfig(defaults: GraphicDefaults) {
               'yAxisFontSize',
             ]
           : []),
-        ...(defaults.yTickCount !== undefined
+        ...(defaults.pointRadius !== undefined
+          ? [
+              'pointRadius',
+              'xTickCount',
+              'yTickCount',
+              'xMin',
+              'showEqualityLine',
+              'xMax',
+              'yMax',
+              'chartBackdrop',
+              'showXAxis',
+              'showYAxis',
+              'showXGrid',
+              'showYGrid',
+              'showTooltip',
+            ]
+          : []),
+        ...(defaults.yTickCount !== undefined &&
+        defaults.pointRadius === undefined
           ? [
               'showArea',
               'showTooltip',
@@ -382,6 +477,11 @@ export function defineElectionBatch({
         valuePosition,
         xAxisFontSize,
         yAxisFontSize,
+        pointRadius,
+        xTickCount,
+        xMin,
+        showEqualityLine,
+        xMax,
         yTickCount,
         yMax,
         showArea,
@@ -416,7 +516,24 @@ export function defineElectionBatch({
               yAxisFontSize,
             }
           : {}),
-        ...(yTickCount !== undefined
+        ...(pointRadius !== undefined
+          ? {
+              pointRadius,
+              xTickCount,
+              xMin,
+              showEqualityLine,
+              xMax,
+              yTickCount,
+              yMax,
+              chartBackdrop,
+              showXAxis,
+              showYAxis,
+              showXGrid,
+              showYGrid,
+              showTooltip,
+            }
+          : {}),
+        ...(yTickCount !== undefined && pointRadius === undefined
           ? {
               showArea: showArea ?? false,
               showTooltip,

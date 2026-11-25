@@ -118,6 +118,22 @@ export const secondBatch = defineElectionBatch({
     },
     '13-taipei-party-scatter': {
       title: '2022黃珊珊的票流向哪？',
+      showEqualityLine: true,
+      pointRadius: 3,
+      xTickCount: 5,
+      yTickCount: 5,
+      xMax: 40,
+      yMax: 40,
+      chartBackdrop: false,
+      showXAxis: true,
+      showYAxis: true,
+      showXGrid: true,
+      showYGrid: true,
+      showTooltip: true,
+      footnotes: [
+        '虛線為 X＝Y；催票率差異以 2026 減 2022 計算，單位為百分點；相關性不等同個別選民的票流向。',
+        '每點代表一個村里，催票率＝得票數 ÷ 選舉人數；綠營以 2022 陳時中與 2026 沈伯洋比較，藍營以兩屆蔣萬安比較。',
+      ],
     },
   },
 })
