@@ -11,8 +11,15 @@
   }}
 />
 
+<script module lang="ts">
+  import Layout, {
+    createLayoutQueryClient,
+  } from '@lab-reporter/ddd-shared/components/shared/Layout.svelte'
+
+  const queryClient = createLayoutQueryClient()
+</script>
+
 <script lang="ts">
-  import Layout from '@lab-reporter/ddd-shared/components/shared/Layout.svelte'
   import type { ExplorerProps } from '../lib/components/card-explorer/types.ts'
   import PromiseCards from '../lib/components/card-explorer/PromiseCards.svelte'
 
@@ -26,7 +33,7 @@
   }: Partial<ExplorerProps> & { full?: 'true' | 'false' } = $props()
 </script>
 
-<Layout hideInEditor>
+<Layout hideInEditor {queryClient}>
   <PromiseCards
     {sources}
     {config}

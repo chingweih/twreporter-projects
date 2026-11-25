@@ -1,9 +1,17 @@
+<script module lang="ts">
+  import { QueryCache, QueryClient } from '@tanstack/svelte-query'
+
+  export function createLayoutQueryClient() {
+    return new QueryClient({
+      queryCache: new QueryCache({
+        onError: (error) => console.error(error),
+      }),
+    })
+  }
+</script>
+
 <script lang="ts">
-  import {
-    QueryCache,
-    QueryClient,
-    QueryClientProvider,
-  } from '@tanstack/svelte-query'
+  import { QueryClientProvider } from '@tanstack/svelte-query'
   import type { Snippet } from 'svelte'
   import { fontStylesheetUrl } from '../../utils/fonts'
   import { keystoneEditorDomains } from '../../utils/domains'
@@ -11,12 +19,12 @@
   const {
     children,
     hideInEditor = false,
-  }: { children: Snippet; hideInEditor?: boolean } = $props()
-  const queryClient = new QueryClient({
-    queryCache: new QueryCache({
-      onError: (error) => console.error(error),
-    }),
-  })
+    queryClient = createLayoutQueryClient(),
+  }: {
+    children: Snippet
+    hideInEditor?: boolean
+    queryClient?: QueryClient
+  } = $props()
 </script>
 
 <svelte:head>
