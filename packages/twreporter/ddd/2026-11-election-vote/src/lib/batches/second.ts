@@ -7,7 +7,17 @@ export const secondBatch = defineElectionBatch({
   configUrl: './election-vote-second.json',
   previewStoryId: 'components-electionvotesecondbatch--default',
   graphics: {
-    '1-city-turnout': { title: '歷屆縣市長選舉投票率' },
+    '1-city-turnout': {
+      title: '歷屆縣市長選舉投票率',
+      showArea: true,
+      showValue: true,
+      showXAxis: true,
+      showYAxis: true,
+      showXGrid: true,
+      showYGrid: true,
+      yTickCount: 5,
+      yMax: 100,
+    },
     '2-taipei-turnout': { title: '歷屆台北市長投票率' },
     '3-taipei-mobilization': {
       name: 'city-mobilization',

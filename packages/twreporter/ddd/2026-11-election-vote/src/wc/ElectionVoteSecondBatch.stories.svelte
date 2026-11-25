@@ -6,6 +6,7 @@
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
   import CityComparisonMap from './CityComparisonMap.svelte'
   import CityResultMap from './CityResultMap.svelte'
+  import CityTurnout from './CityTurnout.svelte'
 
   const { Story } = defineMeta({
     title: 'Components/ElectionVoteSecondBatch',
@@ -18,7 +19,9 @@
   {#snippet template({ config })}
     <ElectionBatchPreview batch={secondBatch} {config}>
       {#snippet children({ key, name, city })}
-        {#if name === 'city-result-map'}
+        {#if name === 'city-turnout'}
+          <CityTurnout {config} />
+        {:else if name === 'city-result-map'}
           <CityResultMap {config} {city} />
         {:else if name === 'city-comparison-map'}
           <CityComparisonMap {config} {city} />

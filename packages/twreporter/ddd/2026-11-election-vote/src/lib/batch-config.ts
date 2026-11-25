@@ -39,6 +39,13 @@ type GraphicDefaults = Pick<
   valuePosition?: 'left' | 'center' | 'outside'
   xAxisFontSize?: number
   yAxisFontSize?: number
+  yTickCount?: number
+  yMax?: number
+  showArea?: boolean
+  showValue?: boolean
+  showYAxis?: boolean
+  showXGrid?: boolean
+  showYGrid?: boolean
 }
 type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
   Partial<Pick<GraphicDefaults, 'footnotes'>> & {
@@ -54,6 +61,13 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     valuePosition?: 'left' | 'center' | 'outside'
     xAxisFontSize?: number
     yAxisFontSize?: number
+    yTickCount?: number
+    yMax?: number
+    showArea?: boolean
+    showValue?: boolean
+    showYAxis?: boolean
+    showXGrid?: boolean
+    showYGrid?: boolean
   }
 export type ElectionBatchConfig = {
   sharedFootnote: string[]
@@ -96,10 +110,66 @@ function graphicConfig(defaults: GraphicDefaults) {
           }
         : {},
     )
+    .extend(
+      defaults.yTickCount !== undefined
+        ? {
+            showXAxis: barChartXAxisSchema.default(defaults.showXAxis ?? true),
+            showYAxis: z
+              .boolean()
+              .default(defaults.showYAxis ?? true)
+              .meta({ title: '顯示 Y 軸' }),
+            showXGrid: z
+              .boolean()
+              .default(defaults.showXGrid ?? false)
+              .meta({ title: '顯示 X 軸網格（垂直線）' }),
+            showYGrid: z
+              .boolean()
+              .default(defaults.showYGrid ?? true)
+              .meta({ title: '顯示 Y 軸網格（水平線）' }),
+            showArea: z
+              .boolean()
+              .default(defaults.showArea ?? false)
+              .meta({ title: '顯示漸層面積' }),
+            showValue: z
+              .boolean()
+              .default(defaults.showValue ?? false)
+              .meta({ title: '顯示資料點數值' }),
+            yTickCount: z
+              .number()
+              .int()
+              .min(1)
+              .max(20)
+              .default(defaults.yTickCount)
+              .meta({
+                title: 'Y 軸刻度數量',
+                description: '目標刻度數量；實際數量依易讀的刻度間距調整。',
+              }),
+            yMax: z
+              .number()
+              .positive()
+              .default(defaults.yMax ?? 100)
+              .meta({
+                title: 'Y 軸最大值',
+              }),
+          }
+        : {},
+    )
     .meta({
       title: defaults.title,
       'ui:order': [
         'title',
+        ...(defaults.yTickCount !== undefined
+          ? [
+              'showArea',
+              'showValue',
+              'showXAxis',
+              'showYAxis',
+              'showXGrid',
+              'showYGrid',
+              'yTickCount',
+              'yMax',
+            ]
+          : []),
         ...(defaults.mode
           ? [
               'mode',
@@ -156,12 +226,31 @@ export function defineElectionBatch({
         valuePosition,
         xAxisFontSize,
         yAxisFontSize,
+        yTickCount,
+        yMax,
+        showArea,
+        showValue = false,
+        showYAxis = true,
+        showXGrid = false,
+        showYGrid = true,
       },
     ]) => {
       const key = graphicKeySchema.parse(entry)
       const fields = {
         title,
         footnotes,
+        ...(yTickCount !== undefined
+          ? {
+              showArea: showArea ?? false,
+              showValue,
+              showXAxis,
+              showYAxis,
+              showXGrid,
+              showYGrid,
+              yTickCount,
+              yMax: yMax ?? 100,
+            }
+          : {}),
         ...(mode
           ? {
               mode,
