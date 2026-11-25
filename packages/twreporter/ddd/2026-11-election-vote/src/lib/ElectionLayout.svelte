@@ -15,10 +15,10 @@
   .election-theme {
     display: contents;
 
-    --elec-kmt-1: #DDE5EF;
-    --elec-kmt-2: #C4D2E8;
-    --elec-kmt-3: #8CA7D3;
-    --elec-kmt-4: #5171A3;
+    --elec-kmt-1: #dde5ef;
+    --elec-kmt-2: #c4d2e8;
+    --elec-kmt-3: #8ca7d3;
+    --elec-kmt-4: #5171a3;
     --elec-kmt-5: #384666;
     --elec-kmt: var(--elec-kmt-3);
 
