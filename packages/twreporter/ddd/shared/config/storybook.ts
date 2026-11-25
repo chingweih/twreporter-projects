@@ -10,7 +10,12 @@ export function createStorybookConfig(
   configDirectory: string,
 ): StorybookConfig {
   const root = resolve(configDirectory, '..')
-  const staticDirs = []
+  const staticDirs = [
+    {
+      from: resolve(import.meta.dirname, 'storybook-assets'),
+      to: '/storybook-assets',
+    },
+  ]
   for (const directory of ['public', 'local']) {
     const from = resolve(root, directory)
     if (existsSync(from)) {
@@ -23,8 +28,13 @@ export function createStorybookConfig(
     addons: [
       dirname(require.resolve('@storybook/addon-docs/package.json')),
       dirname(require.resolve('@storybook/addon-svelte-csf/package.json')),
+      resolve(import.meta.dirname, 'storybook-branding/preset.ts'),
     ],
     framework: dirname(require.resolve('@storybook/svelte-vite/package.json')),
+    features: {
+      menuOnboardingChecklist: false,
+      sidebarOnboardingChecklist: false,
+    },
     previewAnnotations: [
       resolve(import.meta.dirname, 'storybook-backgrounds.ts'),
     ],
