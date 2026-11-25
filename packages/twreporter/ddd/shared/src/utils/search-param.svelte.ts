@@ -1,17 +1,22 @@
 import { createSubscriber } from 'svelte/reactivity'
 
+const searchParamChangeEvent = 'twreporter:search-param-change'
+
 export class SearchParam {
   readonly #key: string
   #subscribe = createSubscriber((update) => {
-    if (
-      !('navigation' in window) ||
-      !(window.navigation instanceof EventTarget)
-    ) {
-      throw new Error('SearchParam requires the Navigation API.')
+    const navigation = 'navigation' in window ? window.navigation : undefined
+    if (navigation instanceof EventTarget) {
+      navigation.addEventListener('currententrychange', update)
+      return () => navigation.removeEventListener('currententrychange', update)
     }
-    const navigation = window.navigation
-    navigation.addEventListener('currententrychange', update)
-    return () => navigation.removeEventListener('currententrychange', update)
+
+    window.addEventListener('popstate', update)
+    window.addEventListener(searchParamChangeEvent, update)
+    return () => {
+      window.removeEventListener('popstate', update)
+      window.removeEventListener(searchParamChangeEvent, update)
+    }
   })
 
   constructor(key: string) {
@@ -32,6 +37,7 @@ export class SearchParam {
     }
     if (url.href !== window.location.href) {
       window.history.pushState(window.history.state, '', url)
+      window.dispatchEvent(new Event(searchParamChangeEvent))
     }
   }
 }
