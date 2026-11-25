@@ -4,6 +4,8 @@ import {
   sheetCount as count,
   sheetNumber as number,
   sheetPercentage as percentage,
+  sheetPositiveCount as positiveCount,
+  sheetTownshipCode as townshipCode,
 } from './election-sheet.ts'
 
 const electionTab = createElectionSheet({
@@ -11,18 +13,32 @@ const electionTab = createElectionSheet({
   queryNamespace: '2026-11-election-vote',
 })
 const text = z.string()
+const blank = text.trim().length(0)
+const countyCode = text.trim().regex(/^\d{1,5}$/)
+const age = number.pipe(z.number().nonnegative())
 
 const county = {
   縣市: text,
-  縣市代碼: text,
+  縣市代碼: countyCode,
+}
+const aggregateCounty = {
+  ...county,
+  縣市代碼: countyCode.or(blank),
 }
 const township = {
   鄉鎮市區: text,
-  鄉鎮市區代碼: text,
+  鄉鎮市區代碼: townshipCode,
+}
+const aggregateTownship = {
+  ...township,
+  鄉鎮市區代碼: townshipCode.or(blank),
 }
 const village = {
   村里: text,
-  村里代碼: text,
+  村里代碼: text
+    .trim()
+    .regex(/^\d{1,11}(?:\s*、\s*\d{1,11})*$/)
+    .or(blank),
 }
 const countingProgress = {
   已開所數: count,
@@ -36,7 +52,7 @@ const ballotTotals = {
   '投票率(%)': percentage,
 }
 const candidate = {
-  號次: count,
+  號次: positiveCount,
   姓名: text,
   政黨: text,
   得票數: count,
@@ -53,10 +69,10 @@ const candidateResults = {
 const analysisArea = {
   選舉: text,
   範圍: text,
-  縣市代碼: text,
+  縣市代碼: aggregateCounty.縣市代碼,
 }
 
-// Rates use percentage points (e.g. 67.91). Codes and notes retain the sheet's text.
+// Rates use percentage points (e.g. 67.91). Codes stay as strings to preserve leading zeros.
 export const electionTabs = {
   mayorOverview: electionTab(
     '1427019390',
@@ -67,7 +83,7 @@ export const electionTabs = {
       領先者: text,
       領先者政黨: text,
       領先得票: count,
-      '領先得票率(%)': percentage.pipe(z.number().min(0).max(100)),
+      '領先得票率(%)': percentage,
       第二名: text,
       第二名政黨: text,
       第二名得票: count,
@@ -127,8 +143,8 @@ export const electionTabs = {
     '828170316',
     z.object({
       ...analysisArea,
-      ...township,
-      平均年齡: number,
+      ...aggregateTownship,
+      平均年齡: age,
       女性: count,
       男性: count,
       各黨當選: text,
@@ -149,8 +165,8 @@ export const electionTabs = {
     '2090430821',
     z.object({
       層級: text,
-      ...county,
-      ...township,
+      ...aggregateCounty,
+      ...aggregateTownship,
       同意票: count,
       '同意率(%)': percentage,
       不同意票: count,
@@ -182,7 +198,7 @@ export const electionTabs = {
     '1093605211',
     z.object({
       ...county,
-      號次: count,
+      號次: positiveCount,
       姓名: text,
       政黨: text,
       性別: text,
@@ -197,7 +213,7 @@ export const electionTabs = {
   councilPartySeats: electionTab(
     '353170477',
     z.object({
-      ...county,
+      ...aggregateCounty,
       政黨: text,
       當選席次: count,
       總席次: count,
@@ -207,7 +223,7 @@ export const electionTabs = {
   councilorAgeDistribution: electionTab(
     '1205371306',
     z.object({
-      ...county,
+      ...aggregateCounty,
       未滿40歲: count,
       '40-49歲': count,
       '50-59歲': count,
@@ -218,13 +234,13 @@ export const electionTabs = {
       '40-49歲(%)': percentage,
       '50-59歲(%)': percentage,
       '60歲以上(%)': percentage,
-      平均年齡: number,
+      平均年齡: age,
     }),
   ),
   councilorGenderDistribution: electionTab(
     '470490366',
     z.object({
-      ...county,
+      ...aggregateCounty,
       女性: count,
       男性: count,
       當選人數: count,

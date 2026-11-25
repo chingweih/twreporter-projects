@@ -13,11 +13,17 @@ export const sheetNumber = z
   .transform((value) => Number(value.replaceAll(',', '')))
   .pipe(z.number())
 export const sheetCount = sheetNumber.pipe(z.int().nonnegative())
+export const sheetPositiveCount = sheetNumber.pipe(z.int().positive())
+export const sheetTownshipCode = z
+  .string()
+  .trim()
+  .regex(/^\d{1,8}$/)
 export const sheetPercentage = z
   .string()
   .trim()
   .transform((value) => value.replace(/%$/, ''))
   .pipe(sheetNumber)
+  .pipe(z.number().min(0).max(100))
 
 export function createElectionSheet({
   spreadsheetId,

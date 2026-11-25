@@ -4,6 +4,8 @@ import {
   sheetCount as count,
   sheetNumber as number,
   sheetPercentage as percentage,
+  sheetPositiveCount as positiveCount,
+  sheetTownshipCode as townshipCode,
 } from './election-sheet.ts'
 
 const historicalTab = createElectionSheet({
@@ -20,11 +22,11 @@ const nullablePercentage = percentage.or(blank)
 const signedCount = number.pipe(z.int())
 
 const areaResult = z.object({
-  選舉: count,
+  選舉: positiveCount,
   縣市: text,
   鄉鎮市區: text,
-  towncode: text,
-  號次: count,
+  towncode: townshipCode,
+  號次: positiveCount,
   姓名: text,
   政黨: text,
   得票數: count,
@@ -35,14 +37,14 @@ const areaResult = z.object({
   無效票: count,
   投票率: percentage,
 })
-const districtResult = areaResult.extend({ 區內名次: count })
+const districtResult = areaResult.extend({ 區內名次: positiveCount })
 const villageResult = areaResult.extend({
-  villagecode: text,
+  villagecode: text.trim().regex(/^\d{1,11}$/),
   村里: text,
   性別: text,
   現任: text,
   當選: text,
-  里內名次: count,
+  里內名次: positiveCount,
 })
 
 // Rates use percentage points. Administrative codes and election-cycle labels stay as text.
@@ -51,7 +53,7 @@ export const historicalElectionTabs = {
     '0',
     z.object({
       縣市: text,
-      '2022 投票日': text,
+      '2022 投票日': z.iso.date(),
       當選人: text,
       政黨: text,
       得票數: count,
@@ -85,7 +87,7 @@ export const historicalElectionTabs = {
     '640468238',
     z.object({
       案次: text,
-      年份: count,
+      年份: positiveCount,
       投票權人: count,
       投票率: percentage,
       同意占投票數: percentage,
@@ -157,7 +159,7 @@ export const historicalElectionTabs = {
       '40–49 歲（人）': count,
       '50–59 歲（人）': count,
       '60 歲以上（人）': count,
-      '中位數（歲）': number,
+      '中位數（歲）': number.pipe(z.number().nonnegative()),
     }),
   ),
   // The tab has no headers yet. Retain its CSV fields as text until it has a schema.
@@ -175,14 +177,14 @@ export const historicalElectionTabs = {
   hualienFuFamilyResults: historicalTab(
     '159550621',
     z.object({
-      年: count,
+      年: positiveCount,
       候選人: text,
       推薦政黨: text,
       得票: nullableCount,
       '得票率（%）': nullablePercentage,
       '催票率（%）': nullablePercentage,
       結果: text,
-      名次: nullableCount.or(z.literal('—').transform(() => null)),
+      名次: positiveCount.or(blank).or(z.literal('—').transform(() => null)),
       參選人數: nullableCount,
     }),
   ),
