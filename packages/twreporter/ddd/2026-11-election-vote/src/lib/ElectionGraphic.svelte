@@ -24,7 +24,7 @@
   }: Pick<ComponentProps, 'config'> & {
     batch: ElectionBatch
     graphicKey: ElectionGraphicKey
-    children?: Snippet
+    children?: Snippet<[NonNullable<ElectionBatchConfig[ElectionGraphicKey]>]>
     error?: string
     loading?: boolean
     empty?: boolean
@@ -92,7 +92,7 @@
     {loading}
     empty={empty ?? !children}
   >
-    {@render children?.()}
+    {@render children?.(entry)}
   </Shell>
 {:else}
   <Shell

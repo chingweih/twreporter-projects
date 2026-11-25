@@ -6,6 +6,12 @@
   "seriesColumn": "series",
   "valueColumn": "value",
   "orientation": "vertical",
+  "mode": "grouped",
+  "chartBackdrop": true,
+  "barGap": 0.2,
+  "showXAxis": true,
+  "showValues": true,
+  "showTotals": true,
   "showLegend": true,
   "seriesColors": [],
   "annotations": []

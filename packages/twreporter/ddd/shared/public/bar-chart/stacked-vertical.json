@@ -1,0 +1,11 @@
+{
+  "title": "堆疊長條圖：正值、負值與零值",
+  "mode": "stacked",
+  "orientation": "vertical",
+  "groupColumn": "group",
+  "seriesColors": [
+    { "series": "A", "color": "#87a9d4" },
+    { "series": "B", "color": "#6ca198" },
+    { "series": "C", "color": "#a27db4" }
+  ]
+}

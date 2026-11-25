@@ -31,6 +31,20 @@
 
 <Story exportName="Default" name="Vertical" />
 <Story
+  name="Stacked Horizontal"
+  args={{
+    src: './bar-chart/stacked.csv',
+    config: './bar-chart/stacked-horizontal.json',
+  }}
+/>
+<Story
+  name="Stacked Vertical"
+  args={{
+    src: './bar-chart/stacked.csv',
+    config: './bar-chart/stacked-vertical.json',
+  }}
+/>
+<Story
   name="Horizontal"
   args={{
     src: './bar-chart/horizontal.csv',

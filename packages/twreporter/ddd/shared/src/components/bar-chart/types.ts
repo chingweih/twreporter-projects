@@ -2,6 +2,14 @@ import { z } from 'zod'
 import defaults from '../../../public/bar-chart/defaults.json' with { type: 'json' }
 import {
   barChartAnnotationSchema,
+  barChartBackdropSchema,
+  barChartGapSchema,
+  barChartXAxisSchema,
+  barChartShowValuesSchema,
+  barChartShowTotalsSchema,
+  barChartValuePositionSchema,
+  barChartAxisFontSizeSchema,
+  barChartModeSchema,
   barChartOrientationSchema,
   colorSchema,
   createShellConfigSchema,
@@ -28,11 +36,31 @@ export const barChartConfigSchema = createShellConfigSchema(defaults)
       description: '欄位值相同的資料歸為一組，空白值歸為無標籤的一組。',
     }),
     labelColumn: z.string().trim().optional().meta({ title: '長條標籤欄位' }),
+    mode: barChartModeSchema
+      .default(barChartModeSchema.parse(defaults.mode))
+      .meta({
+        title: '呈現方式',
+        'ui:enumNames': ['一般／分組', '堆疊'],
+      }),
     orientation: barChartOrientationSchema
       .default(barChartOrientationSchema.parse(defaults.orientation))
       .meta({ title: '方向', 'ui:enumNames': ['直向', '橫向'] }),
     showLegend: z.boolean().default(defaults.showLegend).meta({
       title: '顯示圖例',
+    }),
+    chartBackdrop: barChartBackdropSchema.default(defaults.chartBackdrop),
+    barGap: barChartGapSchema.default(defaults.barGap),
+    showXAxis: barChartXAxisSchema.default(defaults.showXAxis),
+    showValues: barChartShowValuesSchema.default(defaults.showValues),
+    showTotals: barChartShowTotalsSchema.default(defaults.showTotals),
+    valuePosition: barChartValuePositionSchema,
+    xAxisFontSize: barChartAxisFontSizeSchema.meta({
+      title: 'X 軸字級（px）',
+      description: '留空沿用 responsive theme 字級。',
+    }),
+    yAxisFontSize: barChartAxisFontSizeSchema.meta({
+      title: 'Y 軸字級（px）',
+      description: '留空沿用 responsive theme 字級。',
     }),
     axisLabel: z.string().optional().meta({ title: '數值軸標籤' }),
     valueSuffix: z.string().optional().meta({ title: '數值後綴' }),
@@ -61,9 +89,18 @@ export const barChartConfigSchema = createShellConfigSchema(defaults)
       'groupColumn',
       'labelColumn',
       'orientation',
+      'mode',
       'axisLabel',
       'valueSuffix',
       'showLegend',
+      'chartBackdrop',
+      'barGap',
+      'showXAxis',
+      'showValues',
+      'showTotals',
+      'valuePosition',
+      'xAxisFontSize',
+      'yAxisFontSize',
       'seriesColors',
       'annotations',
       'footnotes',

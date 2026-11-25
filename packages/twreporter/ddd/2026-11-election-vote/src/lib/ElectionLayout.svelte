@@ -43,6 +43,20 @@
     --elec-gogo-5: #614766;
     --elec-gogo: var(--elec-gogo-3);
 
+    --elec-new-1: #f2ebcf;
+    --elec-new-2: #e5d69d;
+    --elec-new-3: #c8b45f;
+    --elec-new-4: #91803f;
+    --elec-new-5: #62572f;
+    --elec-new: var(--elec-new-3);
+
+    --elec-pfp-1: #f2e2d3;
+    --elec-pfp-2: #e6c5a3;
+    --elec-pfp-3: #cc965f;
+    --elec-pfp-4: #96683f;
+    --elec-pfp-5: #674b32;
+    --elec-pfp: var(--elec-pfp-3);
+
     --elec-grayscale-1: #e8e3e3;
     --elec-grayscale-2: #d1cdcd;
     --elec-grayscale-3: #aaa5a5;

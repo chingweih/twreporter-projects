@@ -48,6 +48,15 @@
       label={config.title || '長條圖'}
       groups={data.groups}
       orientation={config.orientation}
+      mode={config.mode}
+      chartBackdrop={config.chartBackdrop}
+      barGap={config.barGap}
+      showXAxis={config.showXAxis}
+      showValues={config.showValues}
+      showTotals={config.showTotals}
+      valuePosition={config.valuePosition}
+      xAxisFontSize={config.xAxisFontSize}
+      yAxisFontSize={config.yAxisFontSize}
       showLegend={config.showLegend}
       axisLabel={config.axisLabel}
       annotations={config.annotations}

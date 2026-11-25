@@ -1,4 +1,15 @@
-import { createShellConfigSchema } from '@lab-reporter/ddd-shared/components/shared/types.ts'
+import {
+  barChartModeSchema,
+  barChartBackdropSchema,
+  barChartGapSchema,
+  barChartXAxisSchema,
+  barChartShowValuesSchema,
+  barChartShowTotalsSchema,
+  barChartValuePositionSchema,
+  barChartAxisFontSizeSchema,
+  type BarChartMode,
+  createShellConfigSchema,
+} from '@lab-reporter/ddd-shared/components/shared/types.ts'
 import { z } from 'zod'
 
 export const electionComponentPrefix = 'twreporter-2026-11-election-vote'
@@ -16,11 +27,30 @@ export type ElectionGraphicKey = z.infer<typeof graphicKeySchema>
 type GraphicDefaults = Pick<
   Parameters<typeof createShellConfigSchema>[0],
   'title' | 'footnotes'
->
+> & {
+  mode?: BarChartMode
+  chartBackdrop?: boolean
+  barGap?: number
+  showXAxis?: boolean
+  showValues?: boolean
+  showTotals?: boolean
+  valuePosition?: 'left' | 'center' | 'outside'
+  xAxisFontSize?: number
+  yAxisFontSize?: number
+}
 type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
   Partial<Pick<GraphicDefaults, 'footnotes'>> & {
     name?: string
     city?: string
+    mode?: BarChartMode
+    chartBackdrop?: boolean
+    barGap?: number
+    showXAxis?: boolean
+    showValues?: boolean
+    showTotals?: boolean
+    valuePosition?: 'left' | 'center' | 'outside'
+    xAxisFontSize?: number
+    yAxisFontSize?: number
   }
 export type ElectionBatchConfig = {
   sharedFootnote: string[]
@@ -29,7 +59,59 @@ export type ElectionBatchConfig = {
 function graphicConfig(defaults: GraphicDefaults) {
   return createShellConfigSchema({ ...defaults, wide: false, backdrop: true })
     .pick({ title: true, footnotes: true })
-    .meta({ title: defaults.title, 'ui:order': ['title', 'footnotes'] })
+    .extend(
+      defaults.mode
+        ? {
+            mode: barChartModeSchema.default(defaults.mode).meta({
+              title: '呈現方式',
+              'ui:enumNames': ['一般／分組', '堆疊'],
+            }),
+            chartBackdrop: barChartBackdropSchema.default(
+              defaults.chartBackdrop ?? true,
+            ),
+            barGap: barChartGapSchema.default(defaults.barGap ?? 0.2),
+            showXAxis: barChartXAxisSchema.default(defaults.showXAxis ?? true),
+            showValues: barChartShowValuesSchema.default(
+              defaults.showValues ?? true,
+            ),
+            showTotals: barChartShowTotalsSchema.default(
+              defaults.showTotals ?? true,
+            ),
+            valuePosition:
+              defaults.valuePosition === undefined
+                ? barChartValuePositionSchema
+                : barChartValuePositionSchema.default(defaults.valuePosition),
+            xAxisFontSize: (defaults.xAxisFontSize === undefined
+              ? barChartAxisFontSizeSchema
+              : barChartAxisFontSizeSchema.default(defaults.xAxisFontSize)
+            ).meta({ title: 'X 軸字級（px）' }),
+            yAxisFontSize: (defaults.yAxisFontSize === undefined
+              ? barChartAxisFontSizeSchema
+              : barChartAxisFontSizeSchema.default(defaults.yAxisFontSize)
+            ).meta({ title: 'Y 軸字級（px）' }),
+          }
+        : {},
+    )
+    .meta({
+      title: defaults.title,
+      'ui:order': [
+        'title',
+        ...(defaults.mode
+          ? [
+              'mode',
+              'chartBackdrop',
+              'barGap',
+              'showXAxis',
+              'showValues',
+              'showTotals',
+              'valuePosition',
+              'xAxisFontSize',
+              'yAxisFontSize',
+            ]
+          : []),
+        'footnotes',
+      ],
+    })
 }
 
 export function defineElectionBatch({
@@ -52,9 +134,42 @@ export function defineElectionBatch({
   > = {}
   const defaults: ElectionBatchConfig = { sharedFootnote }
   const entries = Object.entries(graphics).map(
-    ([entry, { title, footnotes = [], name, city }]) => {
+    ([
+      entry,
+      {
+        title,
+        footnotes = [],
+        name,
+        city,
+        mode,
+        chartBackdrop = true,
+        barGap = 0.2,
+        showXAxis = true,
+        showValues = true,
+        showTotals = true,
+        valuePosition,
+        xAxisFontSize,
+        yAxisFontSize,
+      },
+    ]) => {
       const key = graphicKeySchema.parse(entry)
-      const fields = { title, footnotes }
+      const fields = {
+        title,
+        footnotes,
+        ...(mode
+          ? {
+              mode,
+              chartBackdrop,
+              barGap,
+              showXAxis,
+              showValues,
+              showTotals,
+              valuePosition,
+              xAxisFontSize,
+              yAxisFontSize,
+            }
+          : {}),
+      }
       defaults[key] = fields
       graphicConfigs[key] = graphicConfig(fields)
       return { key, name: name ?? key.slice(key.indexOf('-') + 1), city }

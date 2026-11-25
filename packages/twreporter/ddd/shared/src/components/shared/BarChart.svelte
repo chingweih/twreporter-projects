@@ -1,24 +1,30 @@
 <script lang="ts">
   import { scaleBand, scaleLinear } from 'd3-scale'
   import { formatNumber } from '../../utils/format.ts'
-  import ScrollFade from './ScrollFade.svelte'
   import TooltipOverlay from './TooltipOverlay.svelte'
+  import Legend from './Legend.svelte'
   import type { BarChartBar, BarChartProps } from './types.ts'
 
   const descriptionId = $props.id()
   const groupGap = 10
   const annotationStep = 24
-  const horizontalBarStep = 42
-  const minimumHorizontalPlotWidth = 154
   const labelGap = 10
   const estimatedCharacterWidth = 8.5
   const estimatedWideCharacterWidth = 14
-  const estimatedVerticalCategoryCharacterWidth = 6.5
 
   const {
     label,
     groups,
     orientation = 'vertical',
+    mode = 'grouped',
+    chartBackdrop = true,
+    barGap = 0.2,
+    showXAxis = true,
+    showValues = true,
+    showTotals = true,
+    valuePosition,
+    xAxisFontSize,
+    yAxisFontSize,
     colors = {},
     showLegend = true,
     annotations = [],
@@ -28,7 +34,13 @@
   }: BarChartProps = $props()
 
   let width = $state(0)
-  let hovered = $state<{
+  let containerHeight = $state(0)
+  let hoveredSeries = $state<string>()
+  const stacked = $derived(mode === 'stacked')
+  const labelPosition = $derived(
+    valuePosition ?? (stacked ? 'center' : 'outside'),
+  )
+  let hovered = $state.raw<{
     x: number
     y: number
     labels: string
@@ -40,10 +52,17 @@
   const series = $derived([...new Set(bars.map((bar) => bar.series))])
   const hasGroupLabels = $derived(nonemptyGroups.some((group) => group.label))
   const barLabels = $derived(bars.map((bar) => bar.label ?? ''))
-  const hasBarLabels = $derived(barLabels.some(Boolean))
-  const gapWidth = $derived(groupGap * Math.max(0, nonemptyGroups.length - 1))
+  const hasBarLabels = $derived(!stacked && barLabels.some(Boolean))
+  const gapWidth = $derived(
+    stacked ? 0 : groupGap * Math.max(0, nonemptyGroups.length - 1),
+  )
   const values = $derived([
-    ...bars.map((bar) => bar.value),
+    ...(stacked
+      ? nonemptyGroups.flatMap((group) => [
+          group.bars.reduce((sum, bar) => sum + Math.min(0, bar.value), 0),
+          group.bars.reduce((sum, bar) => sum + Math.max(0, bar.value), 0),
+        ])
+      : bars.map((bar) => bar.value)),
     ...annotations.map((annotation) => annotation.value),
   ])
   const minValue = $derived(Math.min(0, ...values))
@@ -54,7 +73,7 @@
     ),
   )
   const negativeValueGutter = $derived(
-    horizontal && minValue < 0
+    horizontal && minValue < 0 && labelPosition === 'outside' && showValues
       ? estimatedLabelWidth(
           values
             .filter((value) => value < 0)
@@ -64,71 +83,57 @@
   )
   const barLabelGutter = $derived(
     horizontal && hasBarLabels
-      ? Math.max(66, estimatedLabelWidth(barLabels) + labelGap)
+      ? estimatedLabelWidth(barLabels, yAxisFontSize) + labelGap
       : 0,
   )
   const groupLabelGutter = $derived(
     horizontal && hasGroupLabels
-      ? Math.max(
-          102,
-          estimatedLabelWidth(
-            nonemptyGroups.map((group) => group.label ?? ''),
-          ) + labelGap,
-        )
+      ? estimatedLabelWidth(
+          nonemptyGroups.map((group) => group.label ?? ''),
+          yAxisFontSize,
+        ) + labelGap
       : 0,
   )
   const leftGutter = $derived(
     horizontal
-      ? 10 + groupLabelGutter + barLabelGutter + negativeValueGutter
-      : Math.max(
-          38,
-          estimatedLabelWidth(
-            valueDomainScale.ticks(6).map((tick) => formatValue(tick)),
-          ) + labelGap,
-        ),
+      ? groupLabelGutter + barLabelGutter + negativeValueGutter
+      : estimatedLabelWidth(
+          valueDomainScale.ticks(6).map((tick) => formatValue(tick)),
+          yAxisFontSize,
+        ) + labelGap,
   )
   const rightGutter = $derived(
-    horizontal
-      ? Math.max(
-          48,
-          estimatedLabelWidth(
-            values
-              .filter((value) => value >= 0)
-              .map((value) => formatValue(value)),
-          ) + labelGap,
-        )
-      : 10,
+    horizontal &&
+      ((stacked && showTotals) || (showValues && labelPosition === 'outside'))
+      ? estimatedLabelWidth(
+          values
+            .filter((value) => value >= 0)
+            .map((value) => formatValue(value)),
+        ) + labelGap
+      : 0,
   )
   const topGutter = $derived(
-    horizontal ? 12 + annotations.length * annotationStep : 24,
-  )
-  const verticalBarStep = $derived(
-    Math.max(
-      26,
-      estimatedLabelWidth(bars.map((bar) => formatValue(bar.value))),
-      estimatedLabelWidth(barLabels, estimatedVerticalCategoryCharacterWidth),
-    ),
-  )
-  const minWidth = $derived(
-    leftGutter +
-      rightGutter +
-      (horizontal
-        ? minimumHorizontalPlotWidth
-        : bars.length * verticalBarStep + gapWidth),
+    horizontal
+      ? (showXAxis ? 12 : 0) + annotations.length * annotationStep
+      : 24,
   )
   const plotWidth = $derived(Math.max(0, width - leftGutter - rightGutter))
   const plotHeight = $derived(
-    horizontal
-      ? bars.length * horizontalBarStep + gapWidth
-      : Math.min(360, Math.max(216, Math.round(width * 0.52))),
+    Math.max(
+      0,
+      containerHeight -
+        topGutter -
+        (showXAxis
+          ? horizontal
+            ? Math.max(26, (xAxisFontSize ?? 14) + 12)
+            : Math.max(52, (xAxisFontSize ?? 14) * 2 + 24)
+          : 0),
+    ),
   )
-  const categoryLabelY = $derived(plotHeight + (minValue < 0 ? 38 : 18))
-  const height = $derived(
-    topGutter +
-      (horizontal
-        ? plotHeight + 26
-        : categoryLabelY + 14 + (hasBarLabels && hasGroupLabels ? 20 : 0)),
+  const categoryLabelY = $derived(
+    plotHeight + Math.max(minValue < 0 ? 38 : 18, (xAxisFontSize ?? 14) + 4),
   )
+  const height = $derived(containerHeight)
   const tickCount = $derived(horizontal && plotWidth < 260 ? 3 : 6)
   const valueScale = $derived(
     valueDomainScale
@@ -140,23 +145,43 @@
   // Reserve group gaps before placing the equal-width bands.
   const categoryScale = $derived(
     scaleBand(
-      bars.map((_, index) => index),
+      (stacked ? nonemptyGroups : bars).map((_, index) => index),
       [0, Math.max(0, (horizontal ? plotHeight : plotWidth) - gapWidth)],
-    ).padding(0.2),
+    )
+      .paddingInner(barGap)
+      .paddingOuter(0),
   )
   const band = $derived(categoryScale.bandwidth())
   const plottedGroups = $derived.by(() => {
     let index = 0
     return nonemptyGroups.map((group, groupIndex) => {
+      let positive = 0
+      let negative = 0
       const plottedBars = group.bars.map((bar) => {
-        const offset = (categoryScale(index++) ?? 0) + groupIndex * groupGap
-        return { ...bar, offset, end: valueScale(bar.value) }
+        const offset = stacked
+          ? (categoryScale(groupIndex) ?? 0)
+          : (categoryScale(index++) ?? 0) + groupIndex * groupGap
+        const start = stacked ? (bar.value < 0 ? negative : positive) : 0
+        if (bar.value < 0) negative += bar.value
+        else positive += bar.value
+        return {
+          ...bar,
+          offset,
+          start: valueScale(start),
+          end: valueScale(start + bar.value),
+        }
       })
       const center =
         (plottedBars[0]?.offset ?? 0) +
-        ((plottedBars.length - 1) * categoryScale.step()) / 2 +
+        (stacked ? 0 : ((plottedBars.length - 1) * categoryScale.step()) / 2) +
         band / 2
-      return { label: group.label, center, bars: plottedBars }
+      return {
+        label: group.label,
+        center,
+        bars: plottedBars,
+        positive,
+        negative,
+      }
     })
   })
   const description = $derived(
@@ -185,18 +210,17 @@
       : 'var(--bar-chart-color, currentColor)'
   }
 
-  function estimatedLabelWidth(
-    labels: readonly string[],
-    characterWidth = estimatedCharacterWidth,
-  ) {
+  function estimatedLabelWidth(labels: readonly string[], fontSize = 14) {
     return Math.max(
       0,
       ...labels.map((label) => {
         const wideCharacters = label.match(/[^\x00-\x7f]/g)?.length ?? 0
         const narrowCharacters = label.length - wideCharacters
         return Math.ceil(
-          narrowCharacters * characterWidth +
-            wideCharacters * estimatedWideCharacterWidth,
+          ((narrowCharacters * estimatedCharacterWidth +
+            wideCharacters * estimatedWideCharacterWidth) *
+            fontSize) /
+            14,
         )
       }),
     )
@@ -223,172 +247,280 @@
   function hideTooltip() {
     hovered = undefined
   }
+
+  function isDimmed(bar: BarChartBar) {
+    return hoveredSeries !== undefined
+      ? bar.series !== hoveredSeries
+      : hovered !== undefined && hovered.bar !== bar
+  }
 </script>
 
 <svelte:window onscrollcapture={hideTooltip} onresize={hideTooltip} />
 
 {#if bars.length}
-  <div class="chart">
+  <div class="chart" class:plain={!chartBackdrop}>
     {#if showLegend}
-      <ul class="legend" aria-label="圖例">
-        {#each series as name (name)}
-          <li>
-            <span style:background-color={seriesColor(name)}></span>
-            {name}
-          </li>
-        {/each}
-      </ul>
+      <Legend
+        items={series.map((name) => ({
+          label: name,
+          color: seriesColor(name),
+        }))}
+        active={hoveredSeries ?? hovered?.bar.series}
+        onhover={(name) => {
+          hoveredSeries = name
+        }}
+      />
     {/if}
     {#if axisLabel && !horizontal}
       <p class="axis-label">{axisLabel}</p>
     {/if}
-    <ScrollFade {label}>
-      <div bind:clientWidth={width} style:min-width="{minWidth}px">
-        {#if width}
-          <svg
-            viewBox="0 0 {width} {height}"
-            role="img"
-            aria-label={label}
-            aria-describedby={descriptionId}
-          >
-            <desc id={descriptionId}>{description}</desc>
-            <g transform="translate({leftGutter}, {topGutter})">
-              {#each ticks as tick (tick)}
-                {@const position = valueScale(tick)}
-                <line class="grid" {...axisLine(position)} />
-                <text
-                  class="tick"
-                  x={horizontal ? position : -8}
-                  y={horizontal ? plotHeight + 18 : position}
-                  text-anchor={horizontal ? 'middle' : 'end'}
-                  dominant-baseline={horizontal ? undefined : 'middle'}
-                  >{formatValue(tick)}</text
-                >
-              {/each}
-              {#each plottedGroups as group}
-                {#each group.bars as bar}
-                  {@const start = Math.min(baseline, bar.end)}
-                  {@const length = Math.abs(bar.end - baseline)}
-                  {@const center = bar.offset + band / 2}
-                  <g
-                    role="group"
-                    onpointerenter={(event) =>
-                      showTooltip(event, bar, group.label)}
-                    onpointermove={(event) =>
-                      showTooltip(event, bar, group.label)}
-                    onpointerleave={hideTooltip}
-                    onpointercancel={hideTooltip}
-                  >
+    <div
+      class="plot"
+      bind:clientWidth={width}
+      bind:clientHeight={containerHeight}
+    >
+      {#if width}
+        <svg
+          viewBox="0 0 {width} {height}"
+          role="img"
+          aria-label={label}
+          aria-describedby={descriptionId}
+        >
+          <desc id={descriptionId}>{description}</desc>
+          <g transform="translate({leftGutter}, {topGutter})">
+            {#each horizontal && !showXAxis ? [] : ticks as tick (tick)}
+              {@const position = valueScale(tick)}
+              <line class="grid" {...axisLine(position)} />
+              <text
+                class="tick"
+                style:font-size={horizontal
+                  ? xAxisFontSize
+                    ? `${xAxisFontSize}px`
+                    : undefined
+                  : yAxisFontSize
+                    ? `${yAxisFontSize}px`
+                    : undefined}
+                x={horizontal ? position : -8}
+                y={horizontal
+                  ? plotHeight + Math.max(18, xAxisFontSize ?? 14)
+                  : position}
+                text-anchor={horizontal ? 'middle' : 'end'}
+                dominant-baseline={horizontal ? undefined : 'middle'}
+                >{formatValue(tick)}</text
+              >
+            {/each}
+            {#each plottedGroups as group, groupIndex}
+              {#if stacked}
+                <defs>
+                  <clipPath id="{descriptionId}-stack-{groupIndex}">
                     <rect
-                      x={horizontal ? start : bar.offset}
-                      y={horizontal ? bar.offset : start}
-                      width={horizontal ? length : band}
-                      height={horizontal ? band : length}
-                      fill={seriesColor(bar.series)}
+                      x={horizontal
+                        ? valueScale(group.negative)
+                        : group.center - band / 2}
+                      y={horizontal
+                        ? group.center - band / 2
+                        : valueScale(group.positive)}
+                      width={horizontal
+                        ? valueScale(group.positive) -
+                          valueScale(group.negative)
+                        : band}
+                      height={horizontal
+                        ? band
+                        : valueScale(group.negative) -
+                          valueScale(group.positive)}
+                      rx="2"
                     />
-                    {#if horizontal}
-                      <text
-                        class="value"
-                        x={bar.end + (bar.value < 0 ? -6 : 6)}
-                        y={center}
-                        text-anchor={bar.value < 0 ? 'end' : 'start'}
-                        dominant-baseline="middle"
-                        >{formatValue(bar.value)}</text
-                      >
-                      {#if bar.label}
-                        <text
-                          class="category"
-                          x={-8 - negativeValueGutter}
-                          y={center}
-                          text-anchor="end"
-                          dominant-baseline="middle">{bar.label}</text
-                        >
-                      {/if}
-                    {:else}
-                      <text
-                        class="value"
-                        x={center}
-                        y={bar.end + (bar.value < 0 ? 16 : -6)}
-                        text-anchor="middle">{formatValue(bar.value)}</text
-                      >
-                      {#if bar.label}
-                        <text
-                          class="category bar-label"
-                          x={center}
-                          y={categoryLabelY}
-                          text-anchor="middle">{bar.label}</text
-                        >
-                      {/if}
-                    {/if}
-                  </g>
-                {/each}
-                {#if group.label}
-                  {#if horizontal}
+                  </clipPath>
+                </defs>
+              {/if}
+              {#each group.bars as bar, barIndex}
+                {@const start = Math.min(bar.start, bar.end)}
+                {@const length = Math.abs(bar.end - bar.start)}
+                {@const before =
+                  stacked &&
+                  group.bars
+                    .slice(0, barIndex)
+                    .some((other) => other.value * bar.value > 0)
+                    ? 0.5
+                    : 0}
+                {@const after =
+                  stacked &&
+                  group.bars
+                    .slice(barIndex + 1)
+                    .some((other) => other.value * bar.value > 0)
+                    ? 0.5
+                    : 0}
+                {@const inset = horizontal === bar.value >= 0 ? before : after}
+                {@const visibleLength = Math.max(0, length - before - after)}
+                {@const center = bar.offset + band / 2}
+                <g
+                  role="group"
+                  onpointerenter={(event) =>
+                    showTooltip(event, bar, group.label)}
+                  onpointermove={(event) =>
+                    showTooltip(event, bar, group.label)}
+                  onpointerleave={hideTooltip}
+                  onpointercancel={hideTooltip}
+                >
+                  <rect
+                    x={horizontal ? start + inset : bar.offset}
+                    y={horizontal ? bar.offset : start + inset}
+                    width={horizontal ? visibleLength : band}
+                    height={horizontal ? band : visibleLength}
+                    fill={seriesColor(bar.series)}
+                    opacity={isDimmed(bar) ? 0.5 : 1}
+                    clip-path={stacked
+                      ? `url(#${descriptionId}-stack-${groupIndex})`
+                      : undefined}
+                    rx={stacked ? undefined : 2}
+                  />
+                  {#if showValues && bar.value !== 0 && (labelPosition === 'outside' || ((horizontal ? visibleLength : band) > estimatedLabelWidth( [formatValue(bar.value)], ) + 8 && (horizontal ? band : visibleLength) > 16))}
                     <text
-                      class="category"
-                      x={-8 - barLabelGutter - negativeValueGutter}
-                      y={group.center}
-                      text-anchor="end"
-                      dominant-baseline="middle">{group.label}</text
-                    >
-                  {:else}
-                    <text
-                      class="category"
-                      x={group.center}
-                      y={categoryLabelY + (hasBarLabels ? 20 : 0)}
-                      text-anchor="middle">{group.label}</text
+                      class="value"
+                      opacity={isDimmed(bar) ? 0.15 : 1}
+                      x={horizontal
+                        ? labelPosition === 'outside'
+                          ? bar.end + (bar.value < 0 ? -10 : 10)
+                          : labelPosition === 'left'
+                            ? start + inset + 8
+                            : (bar.start + bar.end) / 2
+                        : labelPosition === 'left'
+                          ? bar.offset + 4
+                          : center}
+                      y={horizontal
+                        ? center
+                        : labelPosition === 'outside'
+                          ? bar.end + (bar.value < 0 ? 16 : -6)
+                          : (bar.start + bar.end) / 2}
+                      text-anchor={labelPosition === 'left'
+                        ? 'start'
+                        : horizontal && labelPosition === 'outside'
+                          ? bar.value < 0
+                            ? 'end'
+                            : 'start'
+                          : 'middle'}
+                      dominant-baseline={!horizontal &&
+                      labelPosition === 'outside'
+                        ? undefined
+                        : 'middle'}>{formatValue(bar.value)}</text
                     >
                   {/if}
-                {/if}
+                  {#if !stacked && horizontal}
+                    {#if bar.label}
+                      <text
+                        class="category"
+                        style:font-size={yAxisFontSize
+                          ? `${yAxisFontSize}px`
+                          : undefined}
+                        x={-8 - negativeValueGutter}
+                        y={center}
+                        text-anchor="end"
+                        dominant-baseline="middle">{bar.label}</text
+                      >
+                    {/if}
+                  {:else if !stacked}
+                    {#if bar.label && showXAxis}
+                      <text
+                        class="category bar-label"
+                        style:font-size={xAxisFontSize
+                          ? `${xAxisFontSize}px`
+                          : undefined}
+                        x={center}
+                        y={categoryLabelY}
+                        text-anchor="middle">{bar.label}</text
+                      >
+                    {/if}
+                  {/if}
+                </g>
               {/each}
-              <line class="baseline" {...axisLine(baseline)} />
-              {#each annotations as annotation, index}
-                {@const position = valueScale(annotation.value)}
+              {#if stacked && showTotals && group.negative === 0}
+                <text
+                  class="value"
+                  x={horizontal ? valueScale(group.positive) + 6 : group.center}
+                  y={horizontal ? group.center : valueScale(group.positive) - 6}
+                  text-anchor={horizontal ? 'start' : 'middle'}
+                  dominant-baseline={horizontal ? 'middle' : undefined}
+                  >{formatValue(group.positive)}</text
+                >
+              {/if}
+              {#if group.label && (horizontal || showXAxis)}
                 {#if horizontal}
-                  {@const lane = (index + 1) * annotationStep - topGutter}
-                  {@const alignEnd = position > plotWidth / 2}
-                  <line
-                    class="annotation"
-                    x1={position}
-                    x2={position}
-                    y1={lane}
-                    y2={plotHeight}
-                  />
-                  <circle
-                    class="annotation-point"
-                    cx={position}
-                    cy={lane}
-                    r="3"
-                  />
                   <text
-                    class="annotation-label"
-                    x={position + (alignEnd ? -8 : 8)}
-                    y={lane}
-                    text-anchor={alignEnd ? 'end' : 'start'}
-                    dominant-baseline="middle">{annotation.label}</text
+                    class="category"
+                    style:font-size={yAxisFontSize
+                      ? `${yAxisFontSize}px`
+                      : undefined}
+                    x={-8 - barLabelGutter - negativeValueGutter}
+                    y={group.center}
+                    text-anchor="end"
+                    dominant-baseline="middle">{group.label}</text
                   >
                 {:else}
-                  <line class="annotation" {...axisLine(position)} />
                   <text
-                    class="annotation-label"
-                    x={plotWidth - 2}
-                    y={position - 6}
-                    text-anchor="end">{annotation.label}</text
+                    class="category"
+                    style:font-size={xAxisFontSize
+                      ? `${xAxisFontSize}px`
+                      : undefined}
+                    x={group.center}
+                    y={categoryLabelY +
+                      (hasBarLabels
+                        ? Math.max(20, (xAxisFontSize ?? 14) + 6)
+                        : 0)}
+                    text-anchor="middle">{group.label}</text
                   >
                 {/if}
-              {/each}
-            </g>
-          </svg>
-        {/if}
-      </div>
-    </ScrollFade>
+              {/if}
+            {/each}
+            {#if !horizontal || showXAxis}<line
+                class="baseline"
+                {...axisLine(baseline)}
+              />{/if}
+            {#each annotations as annotation, index}
+              {@const position = valueScale(annotation.value)}
+              {#if horizontal}
+                {@const lane = (index + 1) * annotationStep - topGutter}
+                {@const alignEnd = position > plotWidth / 2}
+                <line
+                  class="annotation"
+                  x1={position}
+                  x2={position}
+                  y1={lane}
+                  y2={plotHeight}
+                />
+                <circle
+                  class="annotation-point"
+                  cx={position}
+                  cy={lane}
+                  r="3"
+                />
+                <text
+                  class="annotation-label"
+                  x={position + (alignEnd ? -8 : 8)}
+                  y={lane}
+                  text-anchor={alignEnd ? 'end' : 'start'}
+                  dominant-baseline="middle">{annotation.label}</text
+                >
+              {:else}
+                <line class="annotation" {...axisLine(position)} />
+                <text
+                  class="annotation-label"
+                  x={plotWidth - 2}
+                  y={position - 6}
+                  text-anchor="end">{annotation.label}</text
+                >
+              {/if}
+            {/each}
+          </g>
+        </svg>
+      {/if}
+    </div>
     {#if hovered}
       <TooltipOverlay x={hovered.x} y={hovered.y}>
         <div>{hovered.labels}</div>
         <strong>{formatValue(hovered.bar.value)}</strong>
       </TooltipOverlay>
     {/if}
-    {#if axisLabel && horizontal}
+    {#if axisLabel && horizontal && showXAxis}
       <p class="axis-label bottom">{axisLabel}</p>
     {/if}
   </div>
@@ -396,29 +528,21 @@
 
 <style>
   .chart {
+    display: flex;
+    flex-direction: column;
+    height: var(--bar-chart-height, 100%);
+    min-height: 0;
+    box-sizing: border-box;
     min-width: 0;
     padding: 12px 8px 8px;
     background: var(--neutral-gray-50);
     color: var(--text-color);
     font-size: var(--text-xs);
+    gap: 10px;
   }
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px 20px;
-    margin: 0 0 10px;
+  .chart.plain {
     padding: 0;
-    list-style: none;
-  }
-  .legend li {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .legend span {
-    width: 1em;
-    height: 1em;
+    background: transparent;
   }
   .axis-label {
     margin: 0 0 0 4px;
@@ -428,12 +552,32 @@
     margin: 0;
     text-align: center;
   }
+  .plot {
+    position: relative;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: var(--bar-chart-aspect-ratio, 4 / 3);
+  }
   svg {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
+    height: 100%;
   }
   text {
     fill: currentColor;
+  }
+  rect,
+  .value {
+    transition: opacity 150ms ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    rect,
+    .value {
+      transition: none;
+    }
   }
   .grid {
     stroke: var(--neutral-gray-200);
@@ -454,7 +598,7 @@
     font-size: 0.9em;
   }
   .value {
-    font-weight: 700;
+    font-weight: 400;
   }
   .annotation {
     stroke: var(--neutral-gray-700);

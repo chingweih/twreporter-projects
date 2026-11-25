@@ -70,7 +70,7 @@
     height: 100%;
     padding: var(--top) var(--right) var(--bottom) var(--left);
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
   }
 
   .top,
@@ -83,7 +83,7 @@
   }
 
   .bottom {
-    margin-top: auto;
+    margin-top: 10px;
     align-items: flex-end;
   }
 
