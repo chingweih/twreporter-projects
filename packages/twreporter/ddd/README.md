@@ -26,12 +26,12 @@ See the generated project's README for development and deployment commands.
 
 From the project directory, use `pnpm deploy:dev` for a preview or `pnpm deploy:prod` to publish. Locally, run `gcloud auth application-default login` first. In CI, install dev dependencies and configure Application Default Credentials through Workload Identity Federation. Set `GOOGLE_CLOUD_PROJECT` if the SDK cannot detect your Google Cloud project.
 
-- **OTA.** Keep `version` in `components.config.ts`. The deploy replaces `components/<name>-v<version>/embed.js`. The production schema stays fixed. Use dev to preview schema edits before a version bump.
-- **Breaking release.** Increase `version` and use the new script, schema, and preview URLs in the CMS. Keep the component name and HTML tag. Load only one version of a tag per document, including across client-side navigation.
+- **OTA.** Keep `version` in `components.config.ts`. Each deploy publishes `embed.js` and `schema.json` under `components/<name>-v<version>/`.
+- **Breaking release.** Increase `version` and use the new script and schema URLs in the CMS. Keep the component name and HTML tag. Load only one version of a tag per document, including across client-side navigation.
 - **CMS edits.** Update `src` or `config` in the CMS. The component does not need a build.
 
-Open the Storybook URL printed by the deploy and copy the URLs below the graphic. For existing CMS embeds, switch the script, schema, and preview URLs once to adopt OTA updates. CMS preview URLs point to the Storybook build they came from. Copy a newer preview URL if editors need to see an OTA in the preview.
+Open the Storybook URL printed by the deploy and copy the URLs below the graphic. Each deploy publishes Storybook to `storybook/index.html`. CMS previews use `storybook/iframe.html` with the story ID in the query string. Update existing CMS embeds once to use the stable script, schema, and preview URLs.
 
-If a deploy fails, rerun the same `pnpm deploy:dev` or `pnpm deploy:prod` command to get a new build ID. For a versioned rollback, copy the previous `embed-<build-id>.js` over that version's `embed.js` with `gcloud storage cp --cache-control=no-cache --if-generation-match=<live-generation>`.
+If a deploy fails, rerun the same `pnpm deploy:dev` or `pnpm deploy:prod` command to get a new build ID. For a versioned rollback, copy the previous `embed-<build-id>.js` over that version's `embed.js` with `gcloud storage cp --cache-control=no-cache`.
 
 Omit `version` to publish timestamped scripts and schemas.
