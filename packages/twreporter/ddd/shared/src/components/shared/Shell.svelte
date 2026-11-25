@@ -22,6 +22,8 @@
     footnotePrefix,
     wide = false,
     backdrop = true,
+    containerHeight,
+    containerAspectRatio,
     editable = false,
     error,
     loading = false,
@@ -39,6 +41,8 @@
     topRight?: Snippet
     wide?: boolean
     backdrop?: boolean
+    containerHeight?: number
+    containerAspectRatio?: number
     editable?: boolean
     error?: string
     loading?: boolean
@@ -57,7 +61,12 @@
 </script>
 
 <div class={['outer', { wide }]}>
-  <div class={['container', { backdrop }]} bind:this={container}>
+  <div
+    class={['container', { backdrop }]}
+    style:height={containerHeight ? `${containerHeight}px` : undefined}
+    style:aspect-ratio={containerHeight ? undefined : containerAspectRatio}
+    bind:this={container}
+  >
     <Frame {beforeHeader} {topRight}>
       {#snippet topLeft()}
         <div class="header">
@@ -80,6 +89,8 @@
         <p class="status" role="status">資料載入中……</p>
       {:else if empty}
         <p class="status" role="status">{emptyMessage}</p>
+      {:else if containerHeight || containerAspectRatio}
+        <div class="sized-content">{@render children?.()}</div>
       {:else}
         {@render children?.()}
       {/if}
@@ -154,6 +165,16 @@
     border-bottom: 1px solid var(--neutral-gray-300);
   }
 
+  .sized-content {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .sized-content > :global(*) {
+    flex: 1 1 0;
+    min-height: 0;
+  }
   .container.backdrop {
     background: var(--background);
   }

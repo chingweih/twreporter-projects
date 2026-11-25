@@ -87,6 +87,8 @@
     readOnlyFootnotes={sharedNotes}
     footnotePrefix={(index) => `註${numberFootnotes ? index + 1 : ''}：`}
     {wide}
+    containerHeight={entry.containerHeight}
+    containerAspectRatio={entry.containerAspectRatio}
     editable={graphic.editable}
     error={graphic.error ?? error}
     {loading}

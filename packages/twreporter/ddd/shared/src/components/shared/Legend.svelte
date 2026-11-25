@@ -43,7 +43,7 @@
   li {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     transition: opacity 150ms ease;
   }
   span {

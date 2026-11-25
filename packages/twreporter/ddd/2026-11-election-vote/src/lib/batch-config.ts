@@ -29,7 +29,10 @@ type GraphicDefaults = Pick<
   Parameters<typeof createShellConfigSchema>[0],
   'title' | 'footnotes'
 > & {
+  containerHeight?: number
+  containerAspectRatio?: number
   mode?: BarChartMode
+  cellGap?: number
   chartBackdrop?: boolean
   barGap?: number
   groupGap?: number
@@ -52,10 +55,16 @@ type GraphicDefaults = Pick<
   showYGrid?: boolean
 }
 type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
-  Partial<Pick<GraphicDefaults, 'footnotes'>> & {
+  Partial<
+    Pick<
+      GraphicDefaults,
+      'footnotes' | 'containerHeight' | 'containerAspectRatio'
+    >
+  > & {
     name?: string
     city?: string
     mode?: BarChartMode
+    cellGap?: number
     chartBackdrop?: boolean
     barGap?: number
     groupGap?: number
@@ -84,6 +93,16 @@ export type ElectionBatchConfig = {
 function graphicConfig(defaults: GraphicDefaults) {
   return createShellConfigSchema({ ...defaults, wide: false, backdrop: true })
     .pick({ title: true, footnotes: true })
+    .extend({
+      containerHeight: z.number().positive().optional().meta({
+        title: '整張圖表高度（px）',
+        description: '包含標題、圖例、圖表和頁尾；優先於長寬比。留空則自動。',
+      }),
+      containerAspectRatio: z.number().positive().optional().meta({
+        title: '整張圖表長寬比（寬 ÷ 高）',
+        description: '1 為正方形，0.75 為 3:4；留空則自動。',
+      }),
+    })
     .extend(
       defaults.mode
         ? {
@@ -179,7 +198,9 @@ function graphicConfig(defaults: GraphicDefaults) {
         : {},
     )
     .extend(
-      defaults.mode || defaults.yTickCount !== undefined
+      defaults.mode ||
+        defaults.yTickCount !== undefined ||
+        defaults.cellGap !== undefined
         ? {
             hoverFocusXAxis: z
               .boolean()
@@ -192,12 +213,60 @@ function graphicConfig(defaults: GraphicDefaults) {
           }
         : {},
     )
+    .extend(
+      defaults.cellGap !== undefined
+        ? {
+            cellGap: z
+              .number()
+              .min(0)
+              .max(40)
+              .default(defaults.cellGap)
+              .meta({ title: '格子間距（px）' }),
+            chartBackdrop: barChartBackdropSchema.default(
+              defaults.chartBackdrop ?? false,
+            ),
+            showTooltip: z
+              .boolean()
+              .default(defaults.showTooltip ?? true)
+              .meta({ title: '顯示 Tooltip' }),
+            showXAxis: z
+              .boolean()
+              .default(defaults.showXAxis ?? true)
+              .meta({ title: '顯示年份' }),
+            showValues: z
+              .boolean()
+              .default(defaults.showValues ?? true)
+              .meta({ title: '顯示當選人姓名' }),
+            xAxisFontSize: barChartAxisFontSizeSchema.meta({
+              title: '年份字級（px）',
+            }),
+            yAxisFontSize: barChartAxisFontSizeSchema.meta({
+              title: '縣市字級（px）',
+            }),
+          }
+        : {},
+    )
     .meta({
       title: defaults.title,
       'ui:order': [
         'title',
-        ...(defaults.mode || defaults.yTickCount !== undefined
+        'containerHeight',
+        'containerAspectRatio',
+        ...(defaults.mode ||
+        defaults.yTickCount !== undefined ||
+        defaults.cellGap !== undefined
           ? ['hoverFocusXAxis', 'hoverFocusYAxis']
+          : []),
+        ...(defaults.cellGap !== undefined
+          ? [
+              'chartBackdrop',
+              'cellGap',
+              'showXAxis',
+              'showValues',
+              'showTooltip',
+              'xAxisFontSize',
+              'yAxisFontSize',
+            ]
           : []),
         ...(defaults.yTickCount !== undefined
           ? [
@@ -259,9 +328,12 @@ export function defineElectionBatch({
       {
         title,
         footnotes = [],
+        containerHeight,
+        containerAspectRatio,
         name,
         city,
         mode,
+        cellGap,
         chartBackdrop = true,
         barGap = 4,
         groupGap = 10,
@@ -288,8 +360,21 @@ export function defineElectionBatch({
       const fields = {
         title,
         footnotes,
-        ...(mode || yTickCount !== undefined
+        ...(containerHeight !== undefined ? { containerHeight } : {}),
+        ...(containerAspectRatio !== undefined ? { containerAspectRatio } : {}),
+        ...(mode || yTickCount !== undefined || cellGap !== undefined
           ? { hoverFocusXAxis, hoverFocusYAxis }
+          : {}),
+        ...(cellGap !== undefined
+          ? {
+              cellGap,
+              chartBackdrop,
+              showTooltip,
+              showXAxis,
+              showValues,
+              xAxisFontSize,
+              yAxisFontSize,
+            }
           : {}),
         ...(yTickCount !== undefined
           ? {
