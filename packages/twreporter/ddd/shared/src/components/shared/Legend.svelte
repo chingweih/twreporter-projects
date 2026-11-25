@@ -5,7 +5,7 @@
     onhover,
   }: {
     items: readonly { label: string; color: string }[]
-    active?: string
+    active?: string | readonly string[]
     onhover?: (label: string | undefined) => void
   } = $props()
 </script>
@@ -13,7 +13,12 @@
 <ul class="legend" aria-label="圖例">
   {#each items as item (item.label)}
     <li
-      style:opacity={active !== undefined && active !== item.label ? 0.25 : 1}
+      style:opacity={active !== undefined &&
+      (typeof active === 'string'
+        ? active !== item.label
+        : !active.includes(item.label))
+        ? 0.25
+        : 1}
       onpointerenter={(event) => {
         if (event.pointerType !== 'touch') onhover?.(item.label)
       }}

@@ -3,6 +3,7 @@
   import { onMount } from 'svelte'
   import { formatNumber } from '../../utils/format.ts'
   import TooltipOverlay from './TooltipOverlay.svelte'
+  import TooltipRows from './TooltipRows.svelte'
   import Legend from './Legend.svelte'
   import type { BarChartBar, BarChartProps } from './types.ts'
 
@@ -585,20 +586,13 @@
     </div>
     {#if hovered}
       <TooltipOverlay x={hovered.x} y={hovered.y} title={hovered.labels}>
-        <div class="tooltip-rows">
-          {#each hovered.rows as item}
-            <div class="tooltip-row">
-              <span
-                class="tooltip-swatch"
-                style:background={seriesColor(item.series)}
-              ></span>
-              <span
-                >{[item.label, item.series].filter(Boolean).join(' · ')}</span
-              >
-              <span class="tooltip-value">{formatValue(item.value)}</span>
-            </div>
-          {/each}
-        </div>
+        <TooltipRows
+          rows={hovered.rows.map((item) => ({
+            label: [item.label, item.series].filter(Boolean).join(' · '),
+            value: formatValue(item.value),
+            color: seriesColor(item.series),
+          }))}
+        />
       </TooltipOverlay>
     {/if}
     {#if axisLabel && horizontal && showXAxis}
@@ -608,27 +602,6 @@
 {/if}
 
 <style>
-  .tooltip-rows {
-    display: grid;
-    gap: 2px;
-  }
-  .tooltip-row {
-    display: grid;
-    grid-template-columns: 1em minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 8px;
-  }
-  .tooltip-swatch {
-    width: 1em;
-    height: 1em;
-    border-radius: 2px;
-  }
-  .tooltip-value {
-    padding-left: 10px;
-    border-left: 1px solid var(--neutral-gray-200, #ddd);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
   .chart {
     display: flex;
     flex-direction: column;

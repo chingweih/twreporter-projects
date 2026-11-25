@@ -7,8 +7,7 @@
 
 <script lang="ts">
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
-  import { secondBatch } from '../lib/batches/second.ts'
-  import ElectionCityGraphic from '../lib/ElectionCityGraphic.svelte'
+  import TaipeiMobilization from './TaipeiMobilization.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
   const { config, city }: Pick<ComponentProps, 'config'> & { city?: string } =
@@ -16,10 +15,5 @@
 </script>
 
 <ElectionLayout>
-  <ElectionCityGraphic
-    batch={secondBatch}
-    name="city-mobilization"
-    {config}
-    {city}
-  />
+  <TaipeiMobilization {config} {city} />
 </ElectionLayout>

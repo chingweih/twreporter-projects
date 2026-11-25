@@ -7,6 +7,7 @@
   import CityComparisonMap from './CityComparisonMap.svelte'
   import CityResultMap from './CityResultMap.svelte'
   import CityTurnout from './CityTurnout.svelte'
+  import TaipeiMobilization from './TaipeiMobilization.svelte'
 
   const { Story } = defineMeta({
     title: 'Components/ElectionVoteSecondBatch',
@@ -23,6 +24,8 @@
           <CityTurnout {config} />
         {:else if name === 'taipei-turnout'}
           <CityTurnout {config} taipei />
+        {:else if name === 'city-mobilization'}
+          <TaipeiMobilization {config} {city} />
         {:else if name === 'city-result-map'}
           <CityResultMap {config} {city} />
         {:else if name === 'city-comparison-map'}

@@ -3,12 +3,14 @@
   import { scaleLinear } from 'd3-scale'
   import Legend from './Legend.svelte'
   import TooltipOverlay from './TooltipOverlay.svelte'
+  import TooltipRows from './TooltipRows.svelte'
 
   const {
     label,
     data,
     colors = {},
     showArea = false,
+    showTooltip = true,
     showValue = false,
     showXAxis = true,
     showYAxis = true,
@@ -26,9 +28,10 @@
     formatValue = String,
   }: {
     label: string
-    data: readonly { series: string; x: number; value: number }[]
+    data: readonly { series: string; x: number; value: number | null }[]
     colors?: Record<string, string>
     showArea?: boolean
+    showTooltip?: boolean
     showValue?: boolean
     showXAxis?: boolean
     showYAxis?: boolean
@@ -49,6 +52,7 @@
   let width = $state(0)
   let height = $state(0)
   let active = $state<string>()
+  let hoveredLine = $state<string>()
   let hovered = $state<{
     x: number
     y: number
@@ -65,7 +69,10 @@
   ]
   const validData = $derived(
     data.filter(
-      (point) => Number.isFinite(point.x) && Number.isFinite(point.value),
+      (point): point is { series: string; x: number; value: number } =>
+        point.value !== null &&
+        Number.isFinite(point.x) &&
+        Number.isFinite(point.value),
     ),
   )
   const series = $derived([...new Set(validData.map((point) => point.series))])
@@ -78,11 +85,31 @@
   const groups = $derived(
     items.map((item) => ({
       ...item,
+      segments: segmentsFor(item.label),
       points: validData
         .filter((point) => point.series === item.label)
         .sort((a, b) => a.x - b.x),
     })),
   )
+  function segmentsFor(series: string) {
+    const segments: { x: number; value: number }[][] = []
+    let current: { x: number; value: number }[] = []
+    for (const point of data
+      .filter((point) => point.series === series)
+      .sort((a, b) => a.x - b.x)) {
+      if (
+        point.value === null ||
+        !Number.isFinite(point.value) ||
+        !Number.isFinite(point.x)
+      ) {
+        current = []
+      } else {
+        if (!current.length) segments.push(current)
+        current.push({ x: point.x, value: point.value })
+      }
+    }
+    return segments
+  }
   const xExtent = $derived(
     xDomain ??
       (validData.length
@@ -156,7 +183,7 @@
       ),
   )
   const focused = $derived(
-    active ?? (hovered?.rows ? undefined : hovered?.series),
+    active ?? (hovered?.rows ? undefined : (hovered?.series ?? hoveredLine)),
   )
   function hoverTick(tick: number, x: number, y: number) {
     const rows = validData.filter((point) => point.x === tick)
@@ -183,7 +210,7 @@
 <div class="chart" class:plain={!chartBackdrop}>
   {#if items.length > 1}<Legend
       {items}
-      active={focused}
+      active={focused ?? hovered?.rows?.map((row) => row.series)}
       onhover={(name) => (active = name)}
     />{/if}
   <div class="chart-body">
@@ -291,8 +318,11 @@
           {/if}
           {#each groups as group, index}
             <g
-              opacity={focused !== undefined && focused !== group.label
-                ? 0.5
+              opacity={(focused !== undefined && focused !== group.label) ||
+              (focused === undefined &&
+                hovered?.rows !== undefined &&
+                !hovered.rows.some((row) => row.series === group.label))
+                ? 0.25
                 : 1}
             >
               {#if showArea && group.points.length > 1}
@@ -316,23 +346,46 @@
                     />
                   </linearGradient>
                 </defs>
-                <path
-                  d={`${path(group.points)} L${xScale(group.points[group.points.length - 1].x)},${yScale(Math.max(yExtent[0], Math.min(yExtent[1], 0)))} L${xScale(group.points[0].x)},${yScale(Math.max(yExtent[0], Math.min(yExtent[1], 0)))} Z`}
-                  fill={`url(#${gradientId}-area-${index})`}
-                />
+                {#each group.segments as segment}
+                  <path
+                    d={`${path(segment)} L${xScale(segment[segment.length - 1].x)},${yScale(Math.max(yExtent[0], Math.min(yExtent[1], 0)))} L${xScale(segment[0].x)},${yScale(Math.max(yExtent[0], Math.min(yExtent[1], 0)))} Z`}
+                    fill={`url(#${gradientId}-area-${index})`}
+                  />
+                {/each}
               {/if}
-              <path
-                d={path(group.points)}
-                fill="none"
-                stroke={group.color}
-                stroke-width="2"
-                stroke-linejoin="round"
-                stroke-linecap="round"
-              />
+              {#each group.segments as segment}
+                <g
+                  role="group"
+                  aria-label={group.label}
+                  onpointerenter={() => {
+                    hoveredLine = group.label
+                    hovered = undefined
+                  }}
+                  onpointerleave={() => (hoveredLine = undefined)}
+                >
+                  <path class="line-hit" d={path(segment)} />
+                </g>
+                <path
+                  d={path(segment)}
+                  fill="none"
+                  stroke={group.color}
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+              {/each}
               {#each group.points as point, pointIndex}
-                {#if showValue}
+                {#if showValue || hoveredLine === group.label || (hovered?.pointX === point.x && (hovered.rows !== undefined || hovered.series === group.label))}
                   <text
                     class="value"
+                    class:dimmed={hovered
+                      ? !(
+                          hovered.pointX === point.x &&
+                          (hovered.rows !== undefined ||
+                            hovered.series === group.label)
+                        )
+                      : hoveredLine !== undefined &&
+                        hoveredLine !== group.label}
                     class:highlighted={hovered?.pointX === point.x &&
                       (hovered.rows !== undefined ||
                         hovered.series === group.label)}
@@ -404,13 +457,17 @@
   </div>
   {#if showXAxis && xLabel}<div class="axis-label bottom">{xLabel}</div>{/if}
 </div>
-{#if hovered}<TooltipOverlay
+{#if showTooltip && hovered}<TooltipOverlay
     x={hovered.x}
     y={hovered.y}
     title={formatX(hovered.pointX)}
-    >{#each hovered.rows ?? [hovered] as row}<div>
-        {row.series}：{formatValue(row.value)}
-      </div>{/each}</TooltipOverlay
+    ><TooltipRows
+      rows={(hovered.rows ?? [hovered]).map((row) => ({
+        label: row.series,
+        value: formatValue(row.value),
+        color: items.find((item) => item.label === row.series)?.color,
+      }))}
+    /></TooltipOverlay
   >{/if}
 
 <style>
@@ -475,6 +532,7 @@
     fill: var(--neutral-gray-700);
   }
   .value {
+    transition: opacity 150ms ease;
     fill: var(--neutral-gray-800);
     paint-order: stroke;
     stroke: var(--neutral-gray-50);
@@ -487,6 +545,9 @@
   .value.highlighted {
     font-weight: 500;
   }
+  .value.dimmed {
+    opacity: 0.25;
+  }
   .grid {
     stroke: var(--neutral-gray-300);
     pointer-events: none;
@@ -498,6 +559,12 @@
   }
   path {
     pointer-events: none;
+  }
+  .line-hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 12px;
+    pointer-events: stroke;
   }
   .x-grid {
     stroke: var(--neutral-gray-200);
@@ -519,6 +586,9 @@
     r: 5px;
   }
   @media (prefers-reduced-motion: reduce) {
+    .value {
+      transition: none;
+    }
     g {
       transition: none;
     }

@@ -42,6 +42,7 @@ type GraphicDefaults = Pick<
   yTickCount?: number
   yMax?: number
   showArea?: boolean
+  showTooltip?: boolean
   showValue?: boolean
   showYAxis?: boolean
   showXGrid?: boolean
@@ -65,6 +66,7 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     yTickCount?: number
     yMax?: number
     showArea?: boolean
+    showTooltip?: boolean
     showValue?: boolean
     showYAxis?: boolean
     showXGrid?: boolean
@@ -136,6 +138,10 @@ function graphicConfig(defaults: GraphicDefaults) {
               .boolean()
               .default(defaults.showArea ?? false)
               .meta({ title: '顯示漸層面積' }),
+            showTooltip: z
+              .boolean()
+              .default(defaults.showTooltip ?? true)
+              .meta({ title: '顯示 Tooltip' }),
             showValue: z
               .boolean()
               .default(defaults.showValue ?? false)
@@ -167,6 +173,7 @@ function graphicConfig(defaults: GraphicDefaults) {
         ...(defaults.yTickCount !== undefined
           ? [
               'showArea',
+              'showTooltip',
               'showValue',
               'showXAxis',
               'showYAxis',
@@ -236,6 +243,7 @@ export function defineElectionBatch({
         yTickCount,
         yMax,
         showArea,
+        showTooltip = true,
         showValue = false,
         showYAxis = true,
         showXGrid = false,
@@ -250,6 +258,7 @@ export function defineElectionBatch({
         ...(yTickCount !== undefined
           ? {
               showArea: showArea ?? false,
+              showTooltip,
               showValue,
               showXAxis,
               showYAxis,

@@ -57,6 +57,7 @@
         colors={{ [series]: 'var(--elec-red)' }}
         chartBackdrop={false}
         showArea={entry.showArea}
+        showTooltip={entry.showTooltip}
         showValue={entry.showValue}
         showXAxis={entry.showXAxis}
         showYAxis={entry.showYAxis}

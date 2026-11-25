@@ -9,6 +9,7 @@ export const secondBatch = defineElectionBatch({
   graphics: {
     '1-city-turnout': {
       title: '歷屆縣市長選舉投票率',
+      showTooltip: false,
       gridHover: true,
       showArea: true,
       showValue: true,
@@ -21,6 +22,7 @@ export const secondBatch = defineElectionBatch({
     },
     '2-taipei-turnout': {
       title: '歷屆台北市長投票率',
+      showTooltip: false,
       gridHover: true,
       showArea: true,
       showValue: true,
@@ -35,6 +37,16 @@ export const secondBatch = defineElectionBatch({
       name: 'city-mobilization',
       city: taipei,
       title: '台北市長選舉歷屆各黨催票率變化',
+      showTooltip: true,
+      showArea: false,
+      showValue: false,
+      showXAxis: true,
+      showYAxis: true,
+      showXGrid: true,
+      showYGrid: true,
+      gridHover: true,
+      yTickCount: 6,
+      yMax: 50,
     },
     '4-city-council-party': { title: '2026各縣市議會席次比較' },
     '5-tpp-gogo': { title: '2026民眾黨、台灣前進議員提名與當選狀態' },
