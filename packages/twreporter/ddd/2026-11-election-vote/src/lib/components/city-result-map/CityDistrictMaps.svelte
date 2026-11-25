@@ -1,7 +1,6 @@
 <script lang="ts">
-  import type { MapTooltipTarget } from '@lab-reporter/ddd-shared/components/shared/D3Map.svelte'
+  import { MapDrilldown } from '@lab-reporter/ddd-shared/utils/map-drilldown.svelte.ts'
   import { createQuery, skipToken } from '@tanstack/svelte-query'
-  import { tick } from 'svelte'
   import { electionTabs } from '../../election-data.ts'
   import { partyColorVars } from '../../party-colors.ts'
   import {
@@ -23,14 +22,12 @@
     previous?: HistoricalCityGeometry
   } = $props()
 
-  let selectedCode = $state<string>()
-  let tooltipTarget = $state.raw<MapTooltipTarget>()
-  let trigger: SVGPathElement | undefined
-  const focus = $derived(
+  const drilldown = new MapDrilldown((key) =>
     current.districts.features.find(
-      ({ properties }) => properties.districtCode === selectedCode,
+      ({ properties }) => properties.districtCode === key,
     ),
   )
+  const focus = $derived(drilldown.focus)
   const cityCode = $derived(
     current.districts.features[0]?.properties.countyCode,
   )
@@ -88,9 +85,10 @@
   ) {
     if (!data) return []
     return focus
-      ? assignedVillagesInDistrict(geometry.villages, selectedCode).map(
-          ({ properties }) => areaColor(data.get(properties.villageCode)),
-        )
+      ? assignedVillagesInDistrict(
+          geometry.villages,
+          drilldown.selectedKey,
+        ).map(({ properties }) => areaColor(data.get(properties.villageCode)))
       : geometry.districts.features.map(({ properties }) =>
           areaColor(data.get(properties.districtCode)),
         )
@@ -103,20 +101,6 @@
         areaColors.has(token),
     ),
   )
-
-  function selectDistrict(code: string, button: SVGPathElement) {
-    if (selectedCode !== undefined) return
-    trigger = button
-    tooltipTarget = undefined
-    selectedCode = code
-  }
-
-  async function showDistricts() {
-    tooltipTarget = undefined
-    selectedCode = undefined
-    await tick()
-    trigger?.focus({ preventScroll: true })
-  }
 </script>
 
 {#snippet status(query: typeof results)}
@@ -138,8 +122,8 @@
   {#if focus}
     <button
       type="button"
-      onclick={showDistricts}
-      {@attach (button) => button.focus({ preventScroll: true })}
+      bind:this={drilldown.backButton}
+      onclick={() => drilldown.reset()}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -181,11 +165,8 @@
         geometry={previous}
         counterpart={current}
         frame={current.districts}
-        {focus}
-        onselect={selectDistrict}
-        onreset={showDistricts}
+        {drilldown}
         results={historicalQuery}
-        bind:tooltipTarget
       />
     </section>
   {/if}
@@ -197,11 +178,8 @@
       geometry={current}
       counterpart={previous}
       frame={current.districts}
-      {focus}
-      onselect={selectDistrict}
-      onreset={showDistricts}
+      {drilldown}
       {results}
-      bind:tooltipTarget
     />
   </section>
 </div>

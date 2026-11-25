@@ -1,49 +1,33 @@
 <script lang="ts">
   import type { TaiwanDistrictCollection } from '@lab-reporter/ddd-atlas/taiwan/map'
-  import D3Map, {
-    type MapTooltipTarget,
-  } from '@lab-reporter/ddd-shared/components/shared/D3Map.svelte'
+  import D3DrilldownMap from '@lab-reporter/ddd-shared/components/shared/D3DrilldownMap.svelte'
   import { formatNumber } from '@lab-reporter/ddd-shared/utils/format.ts'
+  import type { MapDrilldown } from '@lab-reporter/ddd-shared/utils/map-drilldown.svelte.ts'
   import type { CreateQueryResult } from '@tanstack/svelte-query'
   import { areaColor, type AreaResult } from './data.ts'
   import { assignedVillagesInDistrict, type CityGeometry } from './geometry.ts'
 
-  const width = 640
-  const height = 540
-  const padding = 24
-  const tooltipId = $props.id()
-  let {
+  const {
     geometry,
     counterpart,
     frame,
-    focus,
-    onselect,
-    onreset,
+    drilldown,
     results,
-    tooltipTarget = $bindable(),
   }: {
     geometry: CityGeometry
     counterpart?: CityGeometry
     frame: TaiwanDistrictCollection
-    focus?: TaiwanDistrictCollection['features'][number]
-    onselect: (code: string, button: SVGPathElement) => void
-    onreset: () => void
+    drilldown: MapDrilldown<TaiwanDistrictCollection['features'][number]>
     results: Pick<
       CreateQueryResult<Map<string, AreaResult>>,
       'data' | 'isPending' | 'isError'
     >
-    tooltipTarget?: MapTooltipTarget
   } = $props()
 
   const { districts, villages } = $derived(geometry)
-  const districtCode = $derived(focus?.properties.districtCode)
-  const district = $derived(
-    districts.features.find(
-      (feature) => feature.properties.districtCode === districtCode,
-    ),
-  )
+  const focus = $derived(drilldown.focus)
   const districtVillages = $derived(
-    assignedVillagesInDistrict(villages, districtCode),
+    assignedVillagesInDistrict(villages, drilldown.selectedKey),
   )
   const areas = $derived(
     focus
@@ -56,74 +40,36 @@
           name: properties.name,
         })),
   )
-
-  function showVillageTooltip(key: string, path: SVGPathElement) {
-    if (!path.ownerSVGElement) return
-    tooltipTarget = { key, focus, source: path.ownerSVGElement }
-  }
 </script>
 
-<D3Map
+<D3DrilldownMap
   geometry={frame}
-  {width}
-  {height}
-  {padding}
-  {focus}
-  bind:tooltipTarget
-  {tooltipId}
+  width={640}
+  height={540}
+  padding={24}
+  {drilldown}
+  regions={districts.features.map(
+    ({ properties: { districtCode, name }, geometry }) => ({
+      key: districtCode,
+      geometry,
+      label: `查看${name}村里`,
+      fill: `var(${areaColor(results.data?.get(districtCode))})`,
+    }),
+  )}
+  details={districtVillages.map(
+    ({ properties: { villageCode, name }, geometry }) => ({
+      key: villageCode,
+      geometry,
+      label: `查看${name ?? villageCode}得票`,
+      fill: `var(${areaColor(results.data?.get(villageCode))})`,
+    }),
+  )}
   containTooltip={counterpart !== undefined}
-  onbackgroundclick={focus ? onreset : undefined}
   label={focus ? `${focus.properties.name}村里地圖` : '行政區地圖'}
-  style="background: var(--neutral-gray-100); min-height: 0; flex: 1 1 auto"
+  style="background: var(--neutral-gray-100); min-height: 0; flex: 1 1 auto;
+    --drilldown-context-fill: var(--elec-grayscale-1);
+    --drilldown-outline-color: var(--elec-grayscale-4)"
 >
-  {#snippet children(path)}
-    <g class:inactive={Boolean(focus)} aria-hidden={focus ? true : undefined}>
-      {#each districts.features as { properties: area, geometry } (area.districtCode)}
-        <path
-          class="district"
-          d={path(geometry)}
-          fill="var({areaColor(results.data?.get(area.districtCode))})"
-          data-map-tooltip={focus ? undefined : area.districtCode}
-          role="button"
-          tabindex={focus ? -1 : 0}
-          aria-label={`查看${area.name}村里`}
-          aria-describedby={tooltipTarget?.key === area.districtCode && !focus
-            ? tooltipId
-            : undefined}
-          onclick={(event) => onselect(area.districtCode, event.currentTarget)}
-          onkeydown={(event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') return
-            event.preventDefault()
-            onselect(area.districtCode, event.currentTarget)
-          }}
-        />
-      {/each}
-    </g>
-    {#each districtVillages as { properties: village, geometry } (village.villageCode)}
-      <path
-        class="village"
-        d={path(geometry)}
-        fill="var({areaColor(results.data?.get(village.villageCode))})"
-        data-map-tooltip={village.villageCode}
-        role="button"
-        tabindex="0"
-        aria-label={`查看${village.name ?? village.villageCode}得票`}
-        aria-describedby={tooltipTarget?.key === village.villageCode
-          ? tooltipId
-          : undefined}
-        onclick={(event) =>
-          showVillageTooltip(village.villageCode, event.currentTarget)}
-        onkeydown={(event) => {
-          if (event.key !== 'Enter' && event.key !== ' ') return
-          event.preventDefault()
-          showVillageTooltip(village.villageCode, event.currentTarget)
-        }}
-      />
-    {/each}
-    {#if district}
-      <path class="outline" d={path(district)} />
-    {/if}
-  {/snippet}
   {#snippet tooltip(code)}
     {@const area = areas.find((area) => area.code === code)}
     {@const counterpartName = area
@@ -168,7 +114,7 @@
       <div>{results.isPending ? '開票資料載入中……' : '尚無開票結果'}</div>
     {/if}
   {/snippet}
-</D3Map>
+</D3DrilldownMap>
 
 <style>
   hr {
@@ -182,41 +128,5 @@
     padding: 0;
     font-size: 0.85em;
     list-style: none;
-  }
-
-  .district:focus,
-  .village:focus {
-    outline: none;
-  }
-
-  path {
-    stroke: var(--neutral-white);
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-  }
-
-  .district {
-    cursor: pointer;
-  }
-
-  .district:hover,
-  .district:focus-visible,
-  .village:hover,
-  .village:focus-visible {
-    filter: brightness(0.86);
-  }
-
-  .inactive {
-    pointer-events: none;
-  }
-
-  .inactive .district {
-    fill: var(--elec-grayscale-1);
-  }
-
-  .outline {
-    fill: none;
-    stroke: var(--elec-grayscale-4);
-    pointer-events: none;
   }
 </style>
