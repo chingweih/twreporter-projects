@@ -67,8 +67,8 @@
   containTooltip={counterpart !== undefined}
   label={focus ? `${focus.properties.name}村里地圖` : '行政區地圖'}
   style="background: var(--neutral-gray-100); min-height: 0; flex: 1 1 auto;
-    --drilldown-context-fill: var(--elec-grayscale-1);
-    --drilldown-outline-color: var(--elec-grayscale-4)"
+    --drilldown-context-fill: var(--elec-gray-1);
+    --drilldown-outline-color: var(--elec-gray-4)"
 >
   {#snippet tooltip(code)}
     {@const area = areas.find((area) => area.code === code)}

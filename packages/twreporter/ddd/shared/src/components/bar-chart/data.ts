@@ -17,9 +17,14 @@ export function parseBarChartCsv(
     valueColumn,
     groupColumn,
     labelColumn,
+    valueLabels,
   }: Pick<
     BarChartConfig,
-    'seriesColumn' | 'valueColumn' | 'groupColumn' | 'labelColumn'
+    | 'seriesColumn'
+    | 'valueColumn'
+    | 'groupColumn'
+    | 'labelColumn'
+    | 'valueLabels'
   >,
 ): BarChartGroup[] {
   requireCsvColumns(csv, [
@@ -27,6 +32,7 @@ export function parseBarChartCsv(
     valueColumn,
     groupColumn ?? '',
     labelColumn ?? '',
+    ...(valueLabels ?? []).map((label) => label.column),
   ])
 
   const groups = new Map<string, BarChartBar[]>()
@@ -42,7 +48,19 @@ export function parseBarChartCsv(
 
     const group = groupColumn ? row[groupColumn].trim() : ''
     const label = labelColumn ? row[labelColumn].trim() : ''
-    const bar = { series, value: value.data, label: label || undefined }
+    const bar: BarChartBar = {
+      series,
+      value: value.data,
+      label: label || undefined,
+      ...(valueLabels?.length
+        ? {
+            valueLabels: valueLabels.map(({ column, position }) => ({
+              text: row[column].trim(),
+              position,
+            })),
+          }
+        : {}),
+    }
     const bars = groups.get(group)
     if (bars) bars.push(bar)
     else groups.set(group, [bar])

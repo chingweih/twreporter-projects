@@ -46,6 +46,10 @@ export type Color = z.infer<typeof colorSchema>
 
 export const barChartModeSchema = z.enum(['grouped', 'stacked'])
 export type BarChartMode = z.infer<typeof barChartModeSchema>
+export const barChartGroupGapSchema = z.number().nonnegative().meta({
+  title: '組間距（px）',
+  description: '一般／分組圖各組之間的額外間距；堆疊圖不使用此設定。',
+})
 export const barChartValuePositionSchema = z
   .enum(['left', 'center', 'outside'])
   .optional()
@@ -62,9 +66,9 @@ export const barChartShowTotalsSchema = z
   .meta({ title: '顯示堆疊總值' })
 export const barChartAxisFontSizeSchema = z.number().min(8).max(48).optional()
 export const barChartXAxisSchema = z.boolean().meta({ title: '顯示 X 軸' })
-export const barChartGapSchema = z.number().min(0).max(0.9).meta({
-  title: '長條間距比例',
-  description: '0 為無間距，0.2 為每格的 20%；堆疊圖調整各組間距。',
+export const barChartGapSchema = z.number().nonnegative().meta({
+  title: '長條間距（px）',
+  description: '長條之間的像素間距；堆疊圖調整各組間距。空間不足時會縮小間距。',
 })
 export const barChartBackdropSchema = z.boolean().meta({
   title: '圖表底色與內距',
@@ -84,6 +88,12 @@ export type BarChartAnnotation = z.infer<typeof barChartAnnotationSchema>
 export type BarChartBar = {
   series: string
   value: number
+  valueLabel?: string
+  outsideValueLabel?: string
+  valueLabels?: readonly {
+    text: string
+    position: 'left' | 'center' | 'outside'
+  }[]
   label?: string
 }
 
@@ -99,6 +109,7 @@ export type BarChartProps = {
   mode?: BarChartMode
   chartBackdrop?: boolean
   barGap?: number
+  groupGap?: number
   showXAxis?: boolean
   showValues?: boolean
   showTotals?: boolean

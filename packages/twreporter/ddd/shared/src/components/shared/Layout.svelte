@@ -141,7 +141,7 @@
 
   @media (max-width: 767px) {
     .theme {
-      --text-xs: 12px;
+      --text-xs: 14px;
       --text-s: 14px;
       --text-m: 16px;
       --text-l: 18px;

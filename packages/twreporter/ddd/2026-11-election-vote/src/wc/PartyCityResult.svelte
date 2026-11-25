@@ -13,7 +13,7 @@
     { name: '民眾黨', color: '--elec-tpp' },
     { name: '親民黨', color: '--elec-pfp' },
     { name: '新黨', color: '--elec-new' },
-    { name: '無黨籍', color: '--elec-grayscale-2' },
+    { name: '無黨籍', color: '--elec-gray-2' },
   ] as const
   const colors = Object.fromEntries(
     parties.map(({ name, color }) => [name, `var(${color})`]),
@@ -45,7 +45,8 @@
         {colors}
         mode={entry.mode ?? 'stacked'}
         chartBackdrop={entry.chartBackdrop ?? false}
-        barGap={entry.barGap ?? 0.2}
+        barGap={entry.barGap ?? 4}
+        groupGap={entry.groupGap ?? 10}
         showXAxis={entry.showXAxis ?? false}
         showValues={entry.showValues ?? true}
         showTotals={entry.showTotals ?? true}

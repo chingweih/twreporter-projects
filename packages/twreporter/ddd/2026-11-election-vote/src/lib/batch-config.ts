@@ -2,6 +2,7 @@ import {
   barChartModeSchema,
   barChartBackdropSchema,
   barChartGapSchema,
+  barChartGroupGapSchema,
   barChartXAxisSchema,
   barChartShowValuesSchema,
   barChartShowTotalsSchema,
@@ -31,6 +32,7 @@ type GraphicDefaults = Pick<
   mode?: BarChartMode
   chartBackdrop?: boolean
   barGap?: number
+  groupGap?: number
   showXAxis?: boolean
   showValues?: boolean
   showTotals?: boolean
@@ -45,6 +47,7 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     mode?: BarChartMode
     chartBackdrop?: boolean
     barGap?: number
+    groupGap?: number
     showXAxis?: boolean
     showValues?: boolean
     showTotals?: boolean
@@ -69,7 +72,8 @@ function graphicConfig(defaults: GraphicDefaults) {
             chartBackdrop: barChartBackdropSchema.default(
               defaults.chartBackdrop ?? true,
             ),
-            barGap: barChartGapSchema.default(defaults.barGap ?? 0.2),
+            barGap: barChartGapSchema.default(defaults.barGap ?? 4),
+            groupGap: barChartGroupGapSchema.default(defaults.groupGap ?? 10),
             showXAxis: barChartXAxisSchema.default(defaults.showXAxis ?? true),
             showValues: barChartShowValuesSchema.default(
               defaults.showValues ?? true,
@@ -101,6 +105,7 @@ function graphicConfig(defaults: GraphicDefaults) {
               'mode',
               'chartBackdrop',
               'barGap',
+              'groupGap',
               'showXAxis',
               'showValues',
               'showTotals',
@@ -143,7 +148,8 @@ export function defineElectionBatch({
         city,
         mode,
         chartBackdrop = true,
-        barGap = 0.2,
+        barGap = 4,
+        groupGap = 10,
         showXAxis = true,
         showValues = true,
         showTotals = true,
@@ -161,6 +167,7 @@ export function defineElectionBatch({
               mode,
               chartBackdrop,
               barGap,
+              groupGap,
               showXAxis,
               showValues,
               showTotals,

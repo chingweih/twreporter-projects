@@ -70,7 +70,7 @@
     if (!tileStyle || !mapFrame) return
     const theme = getComputedStyle(mapFrame)
     const neutralFill =
-      theme.getPropertyValue('--elec-grayscale-1').trim() || theme.color
+      theme.getPropertyValue('--elec-gray-1').trim() || theme.color
     // The MapLibre style parser needs a resolved color for the canvas.
     const colors = Object.fromEntries(
       [...partyTokens].map(([countyCode, token]) => [
@@ -103,7 +103,7 @@
             <span
               class="swatch"
               style:background-color="var({partyTokens.get(countyCode) ??
-                '--elec-grayscale-1'})"
+                '--elec-gray-1'})"
               role="img"
               aria-label={candidate
                 ? result?.領先者政黨.trim() || '未提供政黨'

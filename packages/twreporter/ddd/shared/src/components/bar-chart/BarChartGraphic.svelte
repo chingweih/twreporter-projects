@@ -51,6 +51,7 @@
       mode={config.mode}
       chartBackdrop={config.chartBackdrop}
       barGap={config.barGap}
+      groupGap={config.groupGap}
       showXAxis={config.showXAxis}
       showValues={config.showValues}
       showTotals={config.showTotals}

@@ -4,6 +4,7 @@ import {
   barChartAnnotationSchema,
   barChartBackdropSchema,
   barChartGapSchema,
+  barChartGroupGapSchema,
   barChartXAxisSchema,
   barChartShowValuesSchema,
   barChartShowTotalsSchema,
@@ -50,10 +51,40 @@ export const barChartConfigSchema = createShellConfigSchema(defaults)
     }),
     chartBackdrop: barChartBackdropSchema.default(defaults.chartBackdrop),
     barGap: barChartGapSchema.default(defaults.barGap),
+    groupGap: barChartGroupGapSchema.default(defaults.groupGap),
     showXAxis: barChartXAxisSchema.default(defaults.showXAxis),
     showValues: barChartShowValuesSchema.default(defaults.showValues),
     showTotals: barChartShowTotalsSchema.default(defaults.showTotals),
     valuePosition: barChartValuePositionSchema,
+    valueLabels: z
+      .array(
+        z
+          .object({
+            column: z
+              .string()
+              .trim()
+              .min(1)
+              .meta({
+                title: '資料欄位',
+                description: '直接使用該欄文字，單位與格式由資料提供。',
+              }),
+            position: z
+              .enum(['left', 'center', 'outside'])
+              .meta({
+                title: '位置',
+                'ui:enumNames': ['靠左', '置中', '外側'],
+              }),
+          })
+          .meta({ 'ui:order': ['column', 'position'] }),
+      )
+      .max(2)
+      .optional()
+      .meta({
+        title: '自訂數值標籤',
+        description:
+          '最多兩個；留空沿用數值欄位與數值位置。請選不同位置以避免重疊。',
+        'ui:options': { titleKey: 'column', collapsible: true },
+      }),
     xAxisFontSize: barChartAxisFontSizeSchema.meta({
       title: 'X 軸字級（px）',
       description: '留空沿用 responsive theme 字級。',
@@ -95,10 +126,12 @@ export const barChartConfigSchema = createShellConfigSchema(defaults)
       'showLegend',
       'chartBackdrop',
       'barGap',
+      'groupGap',
       'showXAxis',
       'showValues',
       'showTotals',
       'valuePosition',
+      'valueLabels',
       'xAxisFontSize',
       'yAxisFontSize',
       'seriesColors',

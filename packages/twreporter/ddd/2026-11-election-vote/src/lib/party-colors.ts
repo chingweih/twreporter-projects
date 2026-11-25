@@ -3,8 +3,8 @@ export const partyColorVars = {
   民主進步黨: '--elec-dpp',
   台灣民眾黨: '--elec-tpp',
   台灣前進: '--elec-gogo',
-  無黨籍: '--elec-grayscale',
-  其他: '--elec-grayscale-4',
+  無黨籍: '--elec-gray',
+  其他: '--elec-gray-4',
 } as const
 
 export function resolvePartyColor(party: string) {

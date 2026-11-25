@@ -57,12 +57,12 @@
     --elec-pfp-5: #674b32;
     --elec-pfp: var(--elec-pfp-3);
 
-    --elec-grayscale-1: #e8e3e3;
-    --elec-grayscale-2: #d1cdcd;
-    --elec-grayscale-3: #aaa5a5;
-    --elec-grayscale-4: #6b6868;
-    --elec-grayscale-5: #464242;
-    --elec-grayscale: var(--elec-grayscale-3);
+    --elec-gray-1: #e8e3e3;
+    --elec-gray-2: #d1cdcd;
+    --elec-gray-3: #aaa5a5;
+    --elec-gray-4: #6b6868;
+    --elec-gray-5: #464242;
+    --elec-gray: var(--elec-gray-3);
 
     --elec-red-1: #f5e0e1;
     --elec-red-2: #f5bfc4;

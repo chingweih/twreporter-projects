@@ -5,6 +5,7 @@
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
   import CityMap from './CityMap.svelte'
   import PartyCityResult from './PartyCityResult.svelte'
+  import RefResult from './RefResult.svelte'
 
   const { Story } = defineMeta({
     title: 'Components/ElectionVote',
@@ -25,6 +26,8 @@
           <CityMap {config} />
         {:else if key === '3-party-city-result'}
           <PartyCityResult {config} />
+        {:else if key === '4-ref-result'}
+          <RefResult {config} />
         {:else}
           <ElectionGraphic batch={firstBatch} {config} graphicKey={key} />
         {/if}

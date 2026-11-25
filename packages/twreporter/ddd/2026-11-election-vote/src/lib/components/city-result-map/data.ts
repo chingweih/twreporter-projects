@@ -26,7 +26,7 @@ export type AreaResult = {
   tied: boolean
   majorPartyCandidates: VoteRow[]
 }
-export const noLeader = '--elec-grayscale-2'
+export const noLeader = '--elec-gray-2'
 
 export function indexHistoricalAreaResults({
   rows,
