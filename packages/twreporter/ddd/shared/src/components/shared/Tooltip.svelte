@@ -5,12 +5,14 @@
   const {
     children,
     content,
-    variant = 'dark',
+    variant = 'light',
+    title,
     onvisibilitychange,
   }: {
     children: Snippet
     content: Snippet
     variant?: ComponentProps<typeof TooltipOverlay>['variant']
+    title?: string
     onvisibilitychange?: (visible: boolean) => void
   } = $props()
   let visible = $state(false)
@@ -114,7 +116,7 @@
 </div>
 
 {#if visible}
-  <TooltipOverlay {variant} {x} {y}>
+  <TooltipOverlay {variant} {title} {x} {y}>
     {@render content()}
   </TooltipOverlay>
 {/if}

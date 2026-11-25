@@ -9,6 +9,7 @@
     y,
     bounds,
     id,
+    title,
   }: {
     children: Snippet
     variant?: ComponentProps<typeof TooltipContent>['variant']
@@ -16,6 +17,7 @@
     y: number
     bounds?: DOMRectReadOnly
     id?: string
+    title?: string
   } = $props()
   let width = $state(0)
   let height = $state(0)
@@ -44,7 +46,7 @@
     style:top={`${position.top}px`}
     style:max-width={bounds ? `min(320px, ${position.maxWidth}px)` : undefined}
   >
-    <TooltipContent {variant}>{@render children()}</TooltipContent>
+    <TooltipContent {variant} {title}>{@render children()}</TooltipContent>
   </div>
 {/if}
 

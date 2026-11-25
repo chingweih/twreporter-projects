@@ -45,6 +45,7 @@
     y: number
     labels: string
     bar: BarChartBar
+    rows: readonly BarChartBar[]
   }>()
   const horizontal = $derived(orientation === 'horizontal')
   const nonemptyGroups = $derived(groups.filter((group) => group.bars.length))
@@ -235,13 +236,14 @@
   function showTooltip(
     event: PointerEvent,
     bar: BarChartBar,
-    groupLabel?: string,
+    group: { label?: string; bars: readonly BarChartBar[] },
   ) {
     if (event.pointerType === 'touch') return
-    const labels = [...new Set([groupLabel, bar.label, bar.series])]
-      .filter(Boolean)
-      .join(' · ')
-    hovered = { x: event.clientX, y: event.clientY, labels, bar }
+    const labels = group.label || bar.label || bar.series
+    const rows = group.label
+      ? group.bars.filter((item) => item.value !== 0)
+      : [bar]
+    hovered = { x: event.clientX, y: event.clientY, labels, bar, rows }
   }
 
   function hideTooltip() {
@@ -355,10 +357,8 @@
                 {@const center = bar.offset + band / 2}
                 <g
                   role="group"
-                  onpointerenter={(event) =>
-                    showTooltip(event, bar, group.label)}
-                  onpointermove={(event) =>
-                    showTooltip(event, bar, group.label)}
+                  onpointerenter={(event) => showTooltip(event, bar, group)}
+                  onpointermove={(event) => showTooltip(event, bar, group)}
                   onpointerleave={hideTooltip}
                   onpointercancel={hideTooltip}
                 >
@@ -515,9 +515,21 @@
       {/if}
     </div>
     {#if hovered}
-      <TooltipOverlay x={hovered.x} y={hovered.y}>
-        <div>{hovered.labels}</div>
-        <strong>{formatValue(hovered.bar.value)}</strong>
+      <TooltipOverlay x={hovered.x} y={hovered.y} title={hovered.labels}>
+        <div class="tooltip-rows">
+          {#each hovered.rows as item}
+            <div class="tooltip-row">
+              <span
+                class="tooltip-swatch"
+                style:background={seriesColor(item.series)}
+              ></span>
+              <span
+                >{[item.label, item.series].filter(Boolean).join(' · ')}</span
+              >
+              <span class="tooltip-value">{formatValue(item.value)}</span>
+            </div>
+          {/each}
+        </div>
       </TooltipOverlay>
     {/if}
     {#if axisLabel && horizontal && showXAxis}
@@ -527,6 +539,27 @@
 {/if}
 
 <style>
+  .tooltip-rows {
+    display: grid;
+    gap: 2px;
+  }
+  .tooltip-row {
+    display: grid;
+    grid-template-columns: 1em minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .tooltip-swatch {
+    width: 1em;
+    height: 1em;
+    border-radius: 2px;
+  }
+  .tooltip-value {
+    padding-left: 10px;
+    border-left: 1px solid var(--neutral-gray-200, #ddd);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
   .chart {
     display: flex;
     flex-direction: column;
