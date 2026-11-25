@@ -418,6 +418,9 @@ importers:
       '@google-cloud/storage':
         specifier: ^9.0.0
         version: 9.0.0
+      '@lab-reporter/ddd-atlas':
+        specifier: workspace:*
+        version: link:../atlas
       '@storybook/addon-docs':
         specifier: 10.5.3
         version: 10.5.3(@types/react@19.3.0)(esbuild@0.27.7)(rollup@4.60.3)(storybook@10.5.3(@types/react@19.3.0)(prettier@3.8.3)(react@19.3.1))(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))

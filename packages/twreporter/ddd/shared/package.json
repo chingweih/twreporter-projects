@@ -31,6 +31,7 @@
   "packageManager": "pnpm@10.33.0",
   "devDependencies": {
     "@google-cloud/storage": "^9.0.0",
+    "@lab-reporter/ddd-atlas": "workspace:*",
     "@storybook/addon-docs": "10.5.3",
     "@storybook/addon-svelte-csf": "^5.1.2",
     "@storybook/svelte-vite": "^10.5.3",
