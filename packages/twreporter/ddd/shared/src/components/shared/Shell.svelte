@@ -18,7 +18,7 @@
     heading,
     topRight,
     footnotes = $bindable([]),
-    readOnlyFootnote,
+    readOnlyFootnotes = [],
     footnotePrefix,
     wide = false,
     backdrop = true,
@@ -31,7 +31,7 @@
     title?: string
     subtitle?: string
     footnotes?: string[]
-    readOnlyFootnote?: string
+    readOnlyFootnotes?: readonly string[]
     footnotePrefix?: (index: number) => string
     children?: Snippet
     beforeHeader?: Snippet
@@ -85,9 +85,6 @@
       {/if}
       {#snippet bottomLeft()}
         <div class="footnotes">
-          {#if readOnlyFootnote}
-            <p>{readOnlyFootnote}</p>
-          {/if}
           {#each footnotes as _, index}
             <p>
               {footnotePrefix?.(index) ?? ''}<EditableText
@@ -95,6 +92,9 @@
                 {editable}
               />
             </p>
+          {/each}
+          {#each readOnlyFootnotes as note}
+            <p>{note}</p>
           {/each}
         </div>
       {/snippet}
