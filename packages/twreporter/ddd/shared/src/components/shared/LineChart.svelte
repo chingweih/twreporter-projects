@@ -180,6 +180,18 @@
   const focused = $derived(
     active ?? (hovered?.rows ? undefined : (hovered?.series ?? hoveredLine)),
   )
+  function focusedYTick(tick: number) {
+    return (hovered?.rows ?? (hovered ? [hovered] : [])).some(
+      (point) =>
+        yTicks.reduce(
+          (closest, candidate) =>
+            Math.abs(candidate - point.value) < Math.abs(closest - point.value)
+              ? candidate
+              : closest,
+          yTicks[0],
+        ) === tick,
+    )
+  }
   function hoverTick(tick: number, x: number, y: number) {
     const rows = validData.filter((point) => point.x === tick)
     if (!rows.length) {
@@ -205,7 +217,11 @@
   }
 </script>
 
-<div class="chart" class:plain={!chartBackdrop}>
+<div
+  class="chart"
+  class:plain={!chartBackdrop}
+  class:axis-hovered={hovered !== undefined}
+>
   {#if items.length > 1}<Legend
       {items}
       active={focused ?? hovered?.rows?.map((row) => row.series)}
@@ -265,6 +281,8 @@
             />
             {#each yTicks as tick}
               <text
+                class:axis-focused={focusedYTick(tick)}
+                class="axis-tick"
                 x={left - 8}
                 y={yScale(tick)}
                 text-anchor="end"
@@ -299,8 +317,12 @@
                   if (event.key === 'Escape') hovered = undefined
                 }}
               >
-                <text x={xScale(tick)} y={height - 4} text-anchor="middle"
-                  >{formatX(tick)}</text
+                <text
+                  class:axis-focused={hovered?.pointX === tick}
+                  class="axis-tick"
+                  x={xScale(tick)}
+                  y={height - 4}
+                  text-anchor="middle">{formatX(tick)}</text
                 >
               </g>
             {/each}
@@ -469,6 +491,21 @@
   >{/if}
 
 <style>
+  .axis-focused {
+    font-weight: 700;
+    fill: var(--text-color);
+  }
+  .axis-tick {
+    transition: opacity 150ms ease;
+  }
+  .axis-hovered .axis-tick:not(.axis-focused) {
+    opacity: 0.25;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .axis-tick {
+      transition: none;
+    }
+  }
   .hover-indicator {
     stroke: var(--neutral-gray-500);
     stroke-width: 1px;

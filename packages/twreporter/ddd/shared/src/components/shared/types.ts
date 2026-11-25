@@ -90,6 +90,7 @@ export type BarChartOrientation = z.infer<typeof barChartOrientationSchema>
 export type BarChartAnnotation = z.infer<typeof barChartAnnotationSchema>
 
 export type BarChartBar = {
+  axisValue?: number
   series: string
   value: number
   valueLabel?: string
@@ -107,6 +108,10 @@ export type BarChartGroup = {
 }
 
 export type BarChartProps = {
+  showXGrid?: boolean
+  showTooltip?: boolean
+  xAxisPosition?: 'top' | 'bottom'
+  valueTicks?: readonly { value: number; label: string }[]
   label: string
   groups: readonly BarChartGroup[]
   orientation?: BarChartOrientation

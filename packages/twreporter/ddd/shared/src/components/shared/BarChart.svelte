@@ -41,7 +41,11 @@
     barGap = 4,
     groupGap = 10,
     showXAxis = true,
+    showXGrid = true,
+    xAxisPosition = 'bottom',
+    valueTicks,
     showValues = true,
+    showTooltip = true,
     showTotals = true,
     valuePosition,
     xAxisFontSize,
@@ -183,7 +187,8 @@
     horizontal
       ? groupLabelGutter + barLabelGutter + negativeValueGutter
       : estimatedLabelWidth(
-          valueDomainScale.ticks(6).map((tick) => formatValue(tick)),
+          valueTicks?.map((tick) => tick.label) ??
+            valueDomainScale.ticks(6).map((tick) => formatValue(tick)),
           yAxisFontSize,
         ) + labelGap,
   )
@@ -207,7 +212,12 @@
       : 0,
   )
   const topGutter = $derived(
-    horizontal ? annotations.length * annotationStep : 24,
+    horizontal
+      ? annotations.length * annotationStep +
+          (showXAxis && xAxisPosition === 'top'
+            ? Math.max(22, (xAxisFontSize ?? themeFontSize) + 8)
+            : 0)
+      : 24,
   )
   const plotWidth = $derived(Math.max(0, width - leftGutter - rightGutter))
   const plotHeight = $derived(
@@ -217,7 +227,9 @@
         topGutter -
         (showXAxis
           ? horizontal
-            ? Math.max(22, (xAxisFontSize ?? themeFontSize) + 8)
+            ? xAxisPosition === 'top'
+              ? 0
+              : Math.max(22, (xAxisFontSize ?? themeFontSize) + 8)
             : Math.max(52, (xAxisFontSize ?? 14) * 2 + 24)
           : 0),
     ),
@@ -232,7 +244,9 @@
       .copy()
       .range(horizontal ? [0, plotWidth] : [plotHeight, 0]),
   )
-  const ticks = $derived(valueScale.ticks(tickCount))
+  const ticks = $derived(
+    valueTicks?.map((tick) => tick.value) ?? valueScale.ticks(tickCount),
+  )
   const baseline = $derived(valueScale(0))
   const categoryCount = $derived(stacked ? nonemptyGroups.length : bars.length)
   const categoryLength = $derived(
@@ -342,7 +356,7 @@
       : { y1: position, y2: position, x2: plotWidth }
   }
 
-  function showTooltip(
+  function hoverBar(
     event: PointerEvent,
     bar: BarChartBar,
     group: { label?: string; bars: readonly BarChartBar[] },
@@ -358,6 +372,22 @@
   function hideTooltip() {
     hovered = undefined
   }
+  function focusedTick(tick: number) {
+    if (!hovered) return false
+    if (valueTicks) {
+      return hovered.bar.axisValue === tick
+    }
+    return (
+      ticks.reduce(
+        (closest, candidate) =>
+          Math.abs(candidate - hovered!.bar.value) <
+          Math.abs(closest - hovered!.bar.value)
+            ? candidate
+            : closest,
+        ticks[0],
+      ) === tick
+    )
+  }
 
   function isDimmed(bar: BarChartBar) {
     return hoveredSeries !== undefined
@@ -369,7 +399,12 @@
 <svelte:window onscrollcapture={hideTooltip} onresize={hideTooltip} />
 
 {#if bars.length}
-  <div class="chart" class:plain={!chartBackdrop} bind:this={chartElement}>
+  <div
+    class="chart"
+    class:plain={!chartBackdrop}
+    class:axis-hovered={hovered !== undefined}
+    bind:this={chartElement}
+  >
     {#if showLegend}
       <Legend
         items={series.map((name) => ({
@@ -401,9 +436,13 @@
           <g transform="translate({leftGutter}, {topGutter})">
             {#each horizontal && !showXAxis ? [] : ticks as tick (tick)}
               {@const position = valueScale(tick)}
-              <line class="grid" {...axisLine(position)} />
+              {#if !horizontal || showXGrid}<line
+                  class="grid"
+                  {...axisLine(position)}
+                />{/if}
               <text
                 class="tick"
+                class:axis-focused={focusedTick(tick)}
                 style:font-size={horizontal
                   ? xAxisFontSize
                     ? `${xAxisFontSize}px`
@@ -413,11 +452,14 @@
                     : undefined}
                 x={horizontal ? position : -8}
                 y={horizontal
-                  ? plotHeight + Math.max(18, xAxisFontSize ?? 14)
+                  ? xAxisPosition === 'top'
+                    ? -8
+                    : plotHeight + Math.max(18, xAxisFontSize ?? 14)
                   : position}
                 text-anchor={horizontal ? 'middle' : 'end'}
                 dominant-baseline={horizontal ? undefined : 'middle'}
-                >{formatValue(tick)}</text
+                >{valueTicks?.find((item) => item.value === tick)?.label ??
+                  formatValue(tick)}</text
               >
             {/each}
             {#each plottedGroups as group, groupIndex}
@@ -466,8 +508,8 @@
                 {@const center = bar.offset + band / 2}
                 <g
                   role="group"
-                  onpointerenter={(event) => showTooltip(event, bar, group)}
-                  onpointermove={(event) => showTooltip(event, bar, group)}
+                  onpointerenter={(event) => hoverBar(event, bar, group)}
+                  onpointermove={(event) => hoverBar(event, bar, group)}
                   onpointerleave={hideTooltip}
                   onpointercancel={hideTooltip}
                 >
@@ -523,6 +565,7 @@
                     {#if bar.label}
                       <text
                         class="category"
+                        class:axis-focused={hovered?.bar === bar}
                         style:font-size={yAxisFontSize
                           ? `${yAxisFontSize}px`
                           : undefined}
@@ -536,6 +579,7 @@
                     {#if bar.label && showXAxis}
                       <text
                         class="category bar-label"
+                        class:axis-focused={hovered?.bar === bar}
                         style:font-size={xAxisFontSize
                           ? `${xAxisFontSize}px`
                           : undefined}
@@ -561,6 +605,7 @@
                 {#if horizontal}
                   <text
                     class="category"
+                    class:axis-focused={hovered?.labels === group.label}
                     style:font-size={yAxisFontSize
                       ? `${yAxisFontSize}px`
                       : undefined}
@@ -572,6 +617,7 @@
                 {:else}
                   <text
                     class="category"
+                    class:axis-focused={hovered?.labels === group.label}
                     style:font-size={xAxisFontSize
                       ? `${xAxisFontSize}px`
                       : undefined}
@@ -629,7 +675,7 @@
         </svg>
       {/if}
     </div>
-    {#if hovered}
+    {#if showTooltip && hovered}
       <TooltipOverlay x={hovered.x} y={hovered.y} title={hovered.labels}>
         <TooltipRows
           rows={hovered.rows.map((item) => ({
@@ -709,6 +755,24 @@
   .annotation,
   .annotation-label {
     pointer-events: none;
+  }
+  .axis-focused {
+    font-weight: 700;
+    fill: var(--text-color);
+  }
+  .tick,
+  .category {
+    transition: opacity 150ms ease;
+  }
+  .axis-hovered .tick:not(.axis-focused),
+  .axis-hovered .category:not(.axis-focused) {
+    opacity: 0.25;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tick,
+    .category {
+      transition: none;
+    }
   }
   .tick,
   .category {

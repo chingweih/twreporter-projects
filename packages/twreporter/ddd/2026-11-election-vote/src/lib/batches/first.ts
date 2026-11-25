@@ -5,7 +5,18 @@ export const firstBatch = defineElectionBatch({
   previewStoryId: 'components-electionvote--default',
   graphics: {
     '1-city-map': { title: '2026縣市首長當選人一覽' },
-    '2-city-grid': { title: '歷屆縣市長黨籍變化' },
+    '2-city-grid': {
+      title: '歷屆縣市長黨籍變化',
+      showXGrid: false,
+      showTooltip: false,
+      mode: 'stacked-percent',
+      chartBackdrop: false,
+      showXAxis: true,
+      showTotals: false,
+      showValues: true,
+      valuePosition: 'center',
+      barGap: 4,
+    },
     '3-party-city-result': {
       title: '歷屆縣市長席次變化',
       mode: 'stacked',

@@ -2,13 +2,12 @@
 
 <script lang="ts">
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
-  import { firstBatch } from '../lib/batches/first.ts'
-  import ElectionGraphic from '../lib/ElectionGraphic.svelte'
+  import CityGrid from './CityGrid.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
   const { config }: Pick<ComponentProps, 'config'> = $props()
 </script>
 
 <ElectionLayout>
-  <ElectionGraphic batch={firstBatch} {config} graphicKey="2-city-grid" />
+  <CityGrid {config} />
 </ElectionLayout>

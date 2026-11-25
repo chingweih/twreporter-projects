@@ -87,12 +87,20 @@ function graphicConfig(defaults: GraphicDefaults) {
               title: '呈現方式',
               'ui:enumNames': ['一般／分組', '堆疊', '百分比堆疊'],
             }),
+            showTooltip: z
+              .boolean()
+              .default(defaults.showTooltip ?? true)
+              .meta({ title: '顯示 Tooltip' }),
             chartBackdrop: barChartBackdropSchema.default(
               defaults.chartBackdrop ?? true,
             ),
             barGap: barChartGapSchema.default(defaults.barGap ?? 4),
             groupGap: barChartGroupGapSchema.default(defaults.groupGap ?? 10),
             showXAxis: barChartXAxisSchema.default(defaults.showXAxis ?? true),
+            showXGrid: z
+              .boolean()
+              .default(defaults.showXGrid ?? true)
+              .meta({ title: '顯示 X 軸網格（垂直線）' }),
             showValues: barChartShowValuesSchema.default(
               defaults.showValues ?? true,
             ),
@@ -192,6 +200,8 @@ function graphicConfig(defaults: GraphicDefaults) {
               'groupGap',
               'showXAxis',
               'showValues',
+              'showXGrid',
+              'showTooltip',
               'showTotals',
               'valuePosition',
               'xAxisFontSize',
@@ -246,7 +256,7 @@ export function defineElectionBatch({
         showTooltip = true,
         showValue = false,
         showYAxis = true,
-        showXGrid = false,
+        showXGrid,
         gridHover = true,
         showYGrid = true,
       },
@@ -262,7 +272,7 @@ export function defineElectionBatch({
               showValue,
               showXAxis,
               showYAxis,
-              showXGrid,
+              showXGrid: showXGrid ?? false,
               gridHover,
               showYGrid,
               yTickCount,
@@ -272,6 +282,8 @@ export function defineElectionBatch({
         ...(mode
           ? {
               mode,
+              showXGrid: showXGrid ?? true,
+              showTooltip,
               chartBackdrop,
               barGap,
               groupGap,
