@@ -9,6 +9,7 @@ export const secondBatch = defineElectionBatch({
   graphics: {
     '1-city-turnout': {
       title: '歷屆縣市長選舉投票率',
+      hoverFocusYAxis: false,
       showTooltip: false,
       gridHover: true,
       showArea: true,
@@ -22,6 +23,7 @@ export const secondBatch = defineElectionBatch({
     },
     '2-taipei-turnout': {
       title: '歷屆台北市長投票率',
+      hoverFocusYAxis: false,
       showTooltip: false,
       gridHover: true,
       showArea: true,
@@ -37,6 +39,7 @@ export const secondBatch = defineElectionBatch({
       name: 'city-mobilization',
       city: taipei,
       title: '台北市長選舉歷屆各黨催票率變化',
+      hoverFocusYAxis: false,
       showTooltip: true,
       showArea: false,
       showValue: false,
@@ -82,6 +85,7 @@ export const secondBatch = defineElectionBatch({
     },
     '8-hualien': {
       title: '傅家王朝歷屆得票率變化',
+      hoverFocusYAxis: false,
       showArea: true,
       showTooltip: true,
       showValue: true,

@@ -41,6 +41,8 @@
     barGap = 4,
     groupGap = 10,
     showXAxis = true,
+    hoverFocusXAxis = true,
+    hoverFocusYAxis = true,
     showXGrid = true,
     xAxisPosition = 'bottom',
     valueTicks,
@@ -442,6 +444,9 @@
                 />{/if}
               <text
                 class="tick"
+                class:axis-focus-disabled={!(horizontal
+                  ? hoverFocusXAxis
+                  : hoverFocusYAxis)}
                 class:axis-focused={focusedTick(tick)}
                 style:font-size={horizontal
                   ? xAxisFontSize
@@ -565,6 +570,9 @@
                     {#if bar.label}
                       <text
                         class="category"
+                        class:axis-focus-disabled={!(horizontal
+                          ? hoverFocusYAxis
+                          : hoverFocusXAxis)}
                         class:axis-focused={hovered?.bar === bar}
                         style:font-size={yAxisFontSize
                           ? `${yAxisFontSize}px`
@@ -579,6 +587,7 @@
                     {#if bar.label && showXAxis}
                       <text
                         class="category bar-label"
+                        class:axis-focus-disabled={!hoverFocusXAxis}
                         class:axis-focused={hovered?.bar === bar}
                         style:font-size={xAxisFontSize
                           ? `${xAxisFontSize}px`
@@ -605,6 +614,9 @@
                 {#if horizontal}
                   <text
                     class="category"
+                    class:axis-focus-disabled={!(horizontal
+                      ? hoverFocusYAxis
+                      : hoverFocusXAxis)}
                     class:axis-focused={hovered?.labels === group.label}
                     style:font-size={yAxisFontSize
                       ? `${yAxisFontSize}px`
@@ -617,6 +629,9 @@
                 {:else}
                   <text
                     class="category"
+                    class:axis-focus-disabled={!(horizontal
+                      ? hoverFocusYAxis
+                      : hoverFocusXAxis)}
                     class:axis-focused={hovered?.labels === group.label}
                     style:font-size={xAxisFontSize
                       ? `${xAxisFontSize}px`
@@ -756,7 +771,7 @@
   .annotation-label {
     pointer-events: none;
   }
-  .axis-focused {
+  .axis-focused:not(.axis-focus-disabled) {
     font-weight: 700;
     fill: var(--text-color);
   }
@@ -764,8 +779,8 @@
   .category {
     transition: opacity 150ms ease;
   }
-  .axis-hovered .tick:not(.axis-focused),
-  .axis-hovered .category:not(.axis-focused) {
+  .axis-hovered .tick:not(.axis-focused):not(.axis-focus-disabled),
+  .axis-hovered .category:not(.axis-focused):not(.axis-focus-disabled) {
     opacity: 0.25;
   }
   @media (prefers-reduced-motion: reduce) {

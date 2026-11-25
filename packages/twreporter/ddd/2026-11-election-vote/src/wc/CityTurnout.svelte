@@ -52,6 +52,8 @@
     <div class="chart-container">
       <LineChart
         label={entry.title}
+        hoverFocusXAxis={entry.hoverFocusXAxis}
+        hoverFocusYAxis={entry.hoverFocusYAxis}
         yLabel="投票率（%）"
         {data}
         colors={{ [series]: 'var(--elec-red)' }}

@@ -19,7 +19,7 @@
     { series: '民眾黨', column: '民眾黨席次', color: 'var(--elec-tpp)' },
     { series: '無黨籍', column: '無黨籍席次', color: 'var(--elec-gray-2)' },
     { series: '其他', column: '其他席次', color: 'var(--elec-gray-3)' },
-    { series: '時代力量', column: '時代力量席次', color: 'var(--elec-new-2)', },
+    { series: '時代力量', column: '時代力量席次', color: 'var(--elec-new-2)' },
     { series: '民進黨', column: '民進黨席次', color: 'var(--elec-dpp)' },
   ] as const
   const ages = [
@@ -117,6 +117,8 @@
     <div class="chart-container">
       <BarChart
         label={entry.title}
+        hoverFocusXAxis={entry.hoverFocusXAxis}
+        hoverFocusYAxis={entry.hoverFocusYAxis}
         {groups}
         {colors}
         orientation="horizontal"

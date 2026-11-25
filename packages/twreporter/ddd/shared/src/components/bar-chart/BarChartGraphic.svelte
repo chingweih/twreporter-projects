@@ -53,6 +53,8 @@
       barGap={config.barGap}
       groupGap={config.groupGap}
       showXAxis={config.showXAxis}
+      hoverFocusXAxis={config.hoverFocusXAxis}
+      hoverFocusYAxis={config.hoverFocusYAxis}
       showValues={config.showValues}
       showTotals={config.showTotals}
       valuePosition={config.valuePosition}

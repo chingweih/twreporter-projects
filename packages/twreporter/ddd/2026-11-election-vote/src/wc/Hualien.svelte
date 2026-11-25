@@ -31,6 +31,8 @@
     <div class="chart-container">
       <LineChart
         label={entry.title}
+        hoverFocusXAxis={entry.hoverFocusXAxis}
+        hoverFocusYAxis={entry.hoverFocusYAxis}
         yLabel="得票率（%）"
         {data}
         colors={{ 傅家得票率: 'var(--elec-kmt)' }}
