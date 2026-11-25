@@ -25,6 +25,9 @@ export function createStorybookConfig(
       dirname(require.resolve('@storybook/addon-svelte-csf/package.json')),
     ],
     framework: dirname(require.resolve('@storybook/svelte-vite/package.json')),
+    previewAnnotations: [
+      resolve(import.meta.dirname, 'storybook-backgrounds.ts'),
+    ],
     previewHead: (head) => `${head}
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
