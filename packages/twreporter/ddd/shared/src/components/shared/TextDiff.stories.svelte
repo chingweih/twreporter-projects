@@ -5,7 +5,7 @@
   import { fontStylesheetUrl } from '../../utils/fonts'
 
   const { Story } = defineMeta({
-    title: 'Core/TextDiff',
+    title: 'UI/TextDiff',
     component: TextDiff,
     parameters: { layout: 'padded' },
     render: template,

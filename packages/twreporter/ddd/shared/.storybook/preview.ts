@@ -15,6 +15,11 @@ try {
 
 export const parameters = {
   layout: 'fullscreen',
+  options: {
+    storySort: {
+      order: ['Components', 'Core', 'Layout', 'UI', 'Editor'],
+    },
+  },
 } satisfies Parameters
 
 const preview = {
