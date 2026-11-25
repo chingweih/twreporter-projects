@@ -13,6 +13,7 @@
     showXAxis = true,
     showYAxis = true,
     showXGrid = false,
+    gridHover = true,
     showYGrid = true,
     chartBackdrop = true,
     xLabel,
@@ -32,6 +33,7 @@
     showXAxis?: boolean
     showYAxis?: boolean
     showXGrid?: boolean
+    gridHover?: boolean
     showYGrid?: boolean
     chartBackdrop?: boolean
     xLabel?: string
@@ -53,6 +55,7 @@
     series: string
     pointX: number
     value: number
+    rows?: readonly { series: string; value: number }[]
   }>()
   const palette = [
     'var(--chart-olive-3)',
@@ -152,7 +155,21 @@
             0 || index === ticks.length - 1,
       ),
   )
-  const focused = $derived(active ?? hovered?.series)
+  const focused = $derived(
+    active ?? (hovered?.rows ? undefined : hovered?.series),
+  )
+  function hoverTick(tick: number, x: number, y: number) {
+    const rows = validData.filter((point) => point.x === tick)
+    if (!rows.length) return
+    hovered = {
+      x,
+      y,
+      pointX: tick,
+      series: rows[0].series,
+      value: rows[0].value,
+      rows,
+    }
+  }
   function path(points: readonly { x: number; value: number }[]) {
     return points
       .map(
@@ -173,17 +190,33 @@
     {#if showYAxis && yLabel}<div class="axis-label y-label">{yLabel}</div>{/if}
     <div class="plot" bind:clientWidth={width} bind:clientHeight={height}>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label}>
-        <title>{label}</title>
         {#if validData.length && width > left && height > 36}
           {#if showXGrid}
             {#each xTicks as tick}
-              <line
-                class="grid x-grid"
-                x1={xScale(tick)}
-                x2={xScale(tick)}
-                y1={10}
-                y2={yScale.range()[0]}
-              />
+              <g
+                role="group"
+                aria-label={formatX(tick)}
+                onpointerenter={(event) =>
+                  hoverTick(tick, event.clientX, event.clientY)}
+                onpointermove={(event) =>
+                  hoverTick(tick, event.clientX, event.clientY)}
+                onpointerleave={() => (hovered = undefined)}
+              >
+                <line
+                  class="grid x-grid"
+                  x1={xScale(tick)}
+                  x2={xScale(tick)}
+                  y1={10}
+                  y2={yScale.range()[0]}
+                />
+                {#if gridHover}<line
+                    class="x-grid-hit"
+                    x1={xScale(tick)}
+                    x2={xScale(tick)}
+                    y1={10}
+                    y2={yScale.range()[0]}
+                  />{/if}
+              </g>
             {/each}
           {/if}
           {#if showYGrid}
@@ -222,11 +255,39 @@
               y1={yScale.range()[0]}
               y2={yScale.range()[0]}
             />
-            {#each xTicks as tick}<text
-                x={xScale(tick)}
-                y={height - 4}
-                text-anchor="middle">{formatX(tick)}</text
-              >{/each}
+            {#each xTicks as tick}
+              <g
+                role="button"
+                tabindex="0"
+                aria-label={`查看 ${formatX(tick)}`}
+                onpointerenter={(event) =>
+                  hoverTick(tick, event.clientX, event.clientY)}
+                onpointermove={(event) =>
+                  hoverTick(tick, event.clientX, event.clientY)}
+                onpointerleave={() => (hovered = undefined)}
+                onfocus={(event) => {
+                  const bounds = event.currentTarget.getBoundingClientRect()
+                  hoverTick(tick, bounds.x + bounds.width / 2, bounds.bottom)
+                }}
+                onblur={() => (hovered = undefined)}
+                onkeydown={(event) => {
+                  if (event.key === 'Escape') hovered = undefined
+                }}
+              >
+                <text x={xScale(tick)} y={height - 4} text-anchor="middle"
+                  >{formatX(tick)}</text
+                >
+              </g>
+            {/each}
+          {/if}
+          {#if hovered}
+            <line
+              class="hover-indicator"
+              x1={xScale(hovered.pointX)}
+              x2={xScale(hovered.pointX)}
+              y1={yScale.range()[1]}
+              y2={yScale.range()[0]}
+            />
           {/if}
           {#each groups as group, index}
             <g
@@ -272,6 +333,9 @@
                 {#if showValue}
                   <text
                     class="value"
+                    class:highlighted={hovered?.pointX === point.x &&
+                      (hovered.rows !== undefined ||
+                        hovered.series === group.label)}
                     x={xScale(point.x)}
                     y={yScale(point.value) - 10}
                     text-anchor={pointIndex === 0
@@ -344,12 +408,21 @@
     x={hovered.x}
     y={hovered.y}
     title={formatX(hovered.pointX)}
-    ><div>{hovered.series}：{formatValue(hovered.value)}</div></TooltipOverlay
+    >{#each hovered.rows ?? [hovered] as row}<div>
+        {row.series}：{formatValue(row.value)}
+      </div>{/each}</TooltipOverlay
   >{/if}
 
 <style>
+  .hover-indicator {
+    stroke: var(--neutral-gray-500);
+    stroke-width: 1px;
+    stroke-dasharray: 2 2;
+    pointer-events: none;
+  }
   .baseline {
     stroke: var(--neutral-gray-500);
+    pointer-events: none;
   }
   .chart {
     display: flex;
@@ -402,6 +475,7 @@
     fill: var(--neutral-gray-700);
   }
   .value {
+    fill: var(--neutral-gray-800);
     paint-order: stroke;
     stroke: var(--neutral-gray-50);
     stroke-width: 4px;
@@ -410,8 +484,20 @@
   .plain .value {
     stroke: var(--background, var(--neutral-white, #fff));
   }
+  .value.highlighted {
+    font-weight: 500;
+  }
   .grid {
     stroke: var(--neutral-gray-300);
+    pointer-events: none;
+  }
+  .x-grid-hit {
+    stroke: transparent;
+    stroke-width: 16px;
+    pointer-events: stroke;
+  }
+  path {
+    pointer-events: none;
   }
   .x-grid {
     stroke: var(--neutral-gray-200);

@@ -21,6 +21,8 @@
       {#snippet children({ key, name, city })}
         {#if name === 'city-turnout'}
           <CityTurnout {config} />
+        {:else if name === 'taipei-turnout'}
+          <CityTurnout {config} taipei />
         {:else if name === 'city-result-map'}
           <CityResultMap {config} {city} />
         {:else if name === 'city-comparison-map'}

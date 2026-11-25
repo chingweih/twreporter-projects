@@ -45,6 +45,7 @@ type GraphicDefaults = Pick<
   showValue?: boolean
   showYAxis?: boolean
   showXGrid?: boolean
+  gridHover?: boolean
   showYGrid?: boolean
 }
 type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
@@ -67,6 +68,7 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     showValue?: boolean
     showYAxis?: boolean
     showXGrid?: boolean
+    gridHover?: boolean
     showYGrid?: boolean
   }
 export type ElectionBatchConfig = {
@@ -122,6 +124,10 @@ function graphicConfig(defaults: GraphicDefaults) {
               .boolean()
               .default(defaults.showXGrid ?? false)
               .meta({ title: '顯示 X 軸網格（垂直線）' }),
+            gridHover: z
+              .boolean()
+              .default(defaults.gridHover ?? true)
+              .meta({ title: '啟用 X 軸網格 Hover' }),
             showYGrid: z
               .boolean()
               .default(defaults.showYGrid ?? true)
@@ -165,6 +171,7 @@ function graphicConfig(defaults: GraphicDefaults) {
               'showXAxis',
               'showYAxis',
               'showXGrid',
+              'gridHover',
               'showYGrid',
               'yTickCount',
               'yMax',
@@ -232,6 +239,7 @@ export function defineElectionBatch({
         showValue = false,
         showYAxis = true,
         showXGrid = false,
+        gridHover = true,
         showYGrid = true,
       },
     ]) => {
@@ -246,6 +254,7 @@ export function defineElectionBatch({
               showXAxis,
               showYAxis,
               showXGrid,
+              gridHover,
               showYGrid,
               yTickCount,
               yMax: yMax ?? 100,

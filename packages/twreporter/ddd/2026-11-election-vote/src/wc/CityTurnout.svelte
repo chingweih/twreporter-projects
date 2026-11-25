@@ -6,15 +6,36 @@
   import { historicalElectionTabs } from '../lib/election-historical-data.ts'
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
-  const history = createQuery(
-    () => historicalElectionTabs.mayorTurnoutHistory.options,
+  const {
+    config,
+    taipei = false,
+  }: Pick<ComponentProps, 'config'> & { taipei?: boolean } = $props()
+  const cityHistory = createQuery(() => ({
+    ...historicalElectionTabs.mayorTurnoutHistory.options,
+    enabled: !taipei,
+  }))
+  const taipeiHistory = createQuery(() => ({
+    ...historicalElectionTabs.taipeiMayorTurnoutHistory.options,
+    enabled: taipei,
+  }))
+  const history = $derived(taipei ? taipeiHistory : cityHistory)
+  const series = $derived(taipei ? '台北市長投票率' : '縣市長投票率')
+  const rows = $derived(
+    taipei
+      ? (taipeiHistory.data ?? []).map((row) => ({
+          label: row.屆次,
+          value: row['台北市長投票率（%）'],
+        }))
+      : (cityHistory.data ?? []).map((row) => ({
+          label: row.屆次,
+          value: row['縣市長投票率（%）'],
+        })),
   )
   const data = $derived(
-    (history.data ?? []).map((row, index) => ({
-      series: '縣市長投票率',
+    rows.map((row, index) => ({
+      series,
       x: index,
-      value: row['縣市長投票率（%）'],
+      value: row.value,
     })),
   )
 </script>
@@ -22,7 +43,7 @@
 <ElectionGraphic
   batch={secondBatch}
   {config}
-  graphicKey="1-city-turnout"
+  graphicKey={taipei ? '2-taipei-turnout' : '1-city-turnout'}
   error={history.error?.message}
   loading={history.isPending}
   empty={!data.length}
@@ -33,18 +54,19 @@
         label={entry.title}
         yLabel="投票率（%）"
         {data}
-        colors={{ 縣市長投票率: 'var(--elec-red)' }}
+        colors={{ [series]: 'var(--elec-red)' }}
         chartBackdrop={false}
         showArea={entry.showArea}
         showValue={entry.showValue}
         showXAxis={entry.showXAxis}
         showYAxis={entry.showYAxis}
         showXGrid={entry.showXGrid}
+        gridHover={entry.gridHover}
         showYGrid={entry.showYGrid}
         xTickCount={8}
         yTickCount={entry.yTickCount}
         yDomain={[0, entry.yMax ?? 100]}
-        formatX={(value) => history.data?.[value]?.屆次 ?? ''}
+        formatX={(value) => rows[value]?.label ?? ''}
         formatValue={(value) => `${value}%`}
       />
     </div>
