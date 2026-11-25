@@ -13,6 +13,8 @@
     showTooltip = true,
     showValue = false,
     showXAxis = true,
+    hoverFocusXAxis = true,
+    hoverFocusYAxis = true,
     showYAxis = true,
     showXGrid = false,
     gridHover = true,
@@ -34,6 +36,8 @@
     showTooltip?: boolean
     showValue?: boolean
     showXAxis?: boolean
+    hoverFocusXAxis?: boolean
+    hoverFocusYAxis?: boolean
     showYAxis?: boolean
     showXGrid?: boolean
     gridHover?: boolean
@@ -282,6 +286,7 @@
             {#each yTicks as tick}
               <text
                 class:axis-focused={focusedYTick(tick)}
+                class:axis-focus-disabled={!hoverFocusYAxis}
                 class="axis-tick"
                 x={left - 8}
                 y={yScale(tick)}
@@ -319,6 +324,7 @@
               >
                 <text
                   class:axis-focused={hovered?.pointX === tick}
+                  class:axis-focus-disabled={!hoverFocusXAxis}
                   class="axis-tick"
                   x={xScale(tick)}
                   y={height - 4}
@@ -491,14 +497,14 @@
   >{/if}
 
 <style>
-  .axis-focused {
+  .axis-focused:not(.axis-focus-disabled) {
     font-weight: 700;
     fill: var(--text-color);
   }
   .axis-tick {
     transition: opacity 150ms ease;
   }
-  .axis-hovered .axis-tick:not(.axis-focused) {
+  .axis-hovered .axis-tick:not(.axis-focused):not(.axis-focus-disabled) {
     opacity: 0.25;
   }
   @media (prefers-reduced-motion: reduce) {

@@ -53,6 +53,14 @@ export const barChartConfigSchema = createShellConfigSchema(defaults)
     barGap: barChartGapSchema.default(defaults.barGap),
     groupGap: barChartGroupGapSchema.default(defaults.groupGap),
     showXAxis: barChartXAxisSchema.default(defaults.showXAxis),
+    hoverFocusXAxis: z
+      .boolean()
+      .default(true)
+      .meta({ title: 'Hover 聚焦 X 軸刻度' }),
+    hoverFocusYAxis: z
+      .boolean()
+      .default(true)
+      .meta({ title: 'Hover 聚焦 Y 軸刻度' }),
     showValues: barChartShowValuesSchema.default(defaults.showValues),
     showTotals: barChartShowTotalsSchema.default(defaults.showTotals),
     valuePosition: barChartValuePositionSchema,
@@ -122,6 +130,8 @@ export const barChartConfigSchema = createShellConfigSchema(defaults)
       'barGap',
       'groupGap',
       'showXAxis',
+      'hoverFocusXAxis',
+      'hoverFocusYAxis',
       'showValues',
       'showTotals',
       'valuePosition',

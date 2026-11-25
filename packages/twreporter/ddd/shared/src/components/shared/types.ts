@@ -108,6 +108,8 @@ export type BarChartGroup = {
 }
 
 export type BarChartProps = {
+  hoverFocusXAxis?: boolean
+  hoverFocusYAxis?: boolean
   showXGrid?: boolean
   showTooltip?: boolean
   xAxisPosition?: 'top' | 'bottom'

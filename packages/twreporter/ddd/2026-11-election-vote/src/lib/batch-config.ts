@@ -34,6 +34,8 @@ type GraphicDefaults = Pick<
   barGap?: number
   groupGap?: number
   showXAxis?: boolean
+  hoverFocusXAxis?: boolean
+  hoverFocusYAxis?: boolean
   showValues?: boolean
   showTotals?: boolean
   valuePosition?: 'left' | 'center' | 'outside'
@@ -58,6 +60,8 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     barGap?: number
     groupGap?: number
     showXAxis?: boolean
+    hoverFocusXAxis?: boolean
+    hoverFocusYAxis?: boolean
     showValues?: boolean
     showTotals?: boolean
     valuePosition?: 'left' | 'center' | 'outside'
@@ -174,10 +178,27 @@ function graphicConfig(defaults: GraphicDefaults) {
           }
         : {},
     )
+    .extend(
+      defaults.mode || defaults.yTickCount !== undefined
+        ? {
+            hoverFocusXAxis: z
+              .boolean()
+              .default(defaults.hoverFocusXAxis ?? true)
+              .meta({ title: 'Hover 聚焦 X 軸刻度' }),
+            hoverFocusYAxis: z
+              .boolean()
+              .default(defaults.hoverFocusYAxis ?? true)
+              .meta({ title: 'Hover 聚焦 Y 軸刻度' }),
+          }
+        : {},
+    )
     .meta({
       title: defaults.title,
       'ui:order': [
         'title',
+        ...(defaults.mode || defaults.yTickCount !== undefined
+          ? ['hoverFocusXAxis', 'hoverFocusYAxis']
+          : []),
         ...(defaults.yTickCount !== undefined
           ? [
               'showArea',
@@ -245,6 +266,8 @@ export function defineElectionBatch({
         barGap = 4,
         groupGap = 10,
         showXAxis = true,
+        hoverFocusXAxis = true,
+        hoverFocusYAxis = true,
         showValues = true,
         showTotals = true,
         valuePosition,
@@ -265,6 +288,9 @@ export function defineElectionBatch({
       const fields = {
         title,
         footnotes,
+        ...(mode || yTickCount !== undefined
+          ? { hoverFocusXAxis, hoverFocusYAxis }
+          : {}),
         ...(yTickCount !== undefined
           ? {
               showArea: showArea ?? false,

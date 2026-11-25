@@ -41,6 +41,8 @@
     <div class="chart-container">
       <BarChart
         label={entry.title}
+        hoverFocusXAxis={entry.hoverFocusXAxis}
+        hoverFocusYAxis={entry.hoverFocusYAxis}
         {groups}
         {colors}
         mode={entry.mode ?? 'stacked'}
