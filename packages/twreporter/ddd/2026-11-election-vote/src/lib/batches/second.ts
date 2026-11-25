@@ -117,5 +117,8 @@ export const secondBatch = defineElectionBatch({
       city: newTaipei,
       title: '2026新北市長選舉結果與2022比較地圖',
     },
+    '13-taipei-party-scatter': {
+      title: '2022黃珊珊的票流向哪？',
+    },
   },
 })
