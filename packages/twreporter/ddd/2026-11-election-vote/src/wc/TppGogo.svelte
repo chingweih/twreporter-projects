@@ -23,45 +23,48 @@
   const sections = $derived(
     ['民眾黨', '台灣前進成員合計'].map((title, sectionIndex) => ({
       title,
-      years: ([2018, 2022, 2026] as const).map((year) => {
-        const bars = parties
-          .filter((_, index) => (sectionIndex === 0 ? index === 0 : index > 0))
-          .map((party) => {
-            const rows = (nominations.data ?? []).filter(
-              (row) =>
-                row.政黨 === party.label &&
-                (sectionIndex === 0 || row['2026 所屬聯盟'] === '台灣前進'),
+      years: ([2018, 2022, 2026] as const)
+        .filter((year) => sectionIndex !== 0 || year !== 2018)
+        .map((year) => {
+          const bars = parties
+            .filter((_, index) =>
+              sectionIndex === 0 ? index === 0 : index > 0,
             )
-            const available = rows.some(
-              (row) => year === 2026 || row[`${year} 提名`] !== null,
-            )
-            const total = rows.reduce(
-              (sum, row) =>
-                sum +
-                (year === 2026 ? row['2026 登記'] : (row[`${year} 提名`] ?? 0)),
-              0,
-            )
-            const elected =
-              year === 2026
-                ? null
-                : rows.reduce((sum, row) => sum + (row[`${year} 當選`] ?? 0), 0)
-            return { ...party, total, elected, available }
-          })
-        return {
-          year,
-          bars,
-          total: bars.reduce((sum, bar) => sum + bar.total, 0),
-          elected: bars.reduce((sum, bar) => sum + (bar.elected ?? 0), 0),
-          available: bars.some((bar) => bar.available),
-        }
-      }),
+            .map((party) => {
+              const rows = (nominations.data ?? []).filter(
+                (row) =>
+                  row.政黨 === party.label &&
+                  (sectionIndex === 0 || row['2026 所屬聯盟'] === '台灣前進'),
+              )
+              const available = rows.some(
+                (row) => year === 2026 || row[`${year} 提名`] !== null,
+              )
+              const total = rows.reduce(
+                (sum, row) =>
+                  sum +
+                  (year === 2026
+                    ? row['2026 登記']
+                    : (row[`${year} 提名`] ?? 0)),
+                0,
+              )
+              const elected =
+                year === 2026
+                  ? null
+                  : rows.reduce(
+                      (sum, row) => sum + (row[`${year} 當選`] ?? 0),
+                      0,
+                    )
+              return { ...party, total, elected, available }
+            })
+          return {
+            year,
+            bars,
+            total: bars.reduce((sum, bar) => sum + bar.total, 0),
+            elected: bars.reduce((sum, bar) => sum + (bar.elected ?? 0), 0),
+            available: bars.some((bar) => bar.available),
+          }
+        }),
     })),
-  )
-  const maxTotal = $derived(
-    Math.max(
-      1,
-      ...sections.flatMap((section) => section.years.map((row) => row.total)),
-    ),
   )
 </script>
 
@@ -76,61 +79,62 @@
   {#snippet children(entry)}
     <div class="chart" class:backdrop={entry.chartBackdrop}>
       <Legend items={parties} {active} onhover={(label) => (active = label)} />
-      <p class="encoding">
-        外框：提名人數　實色：當選人數　斜線：2026 登記人數
-      </p>
       {#each sections as section}
         <section aria-label={section.title}>
           <h3>{section.title}</h3>
-          {#if section.title !== '民眾黨'}<p class="note">
-              依 2026 聯盟成員回溯加總；2018、2022 各黨分別參選。
-            </p>{/if}
+          <p class="note">
+            {section.title === '民眾黨'
+              ? '2019 年成立，未參與 2018 選舉。'
+              : '依 2026 聯盟成員回溯加總；2018、2022 各黨分別參選。'}
+          </p>
           {#each section.years as row}
             <div class="year-row">
               <span class="year">{row.year}</span>
               <div>
                 {#if row.available}
                   <div
-                    class="bars"
-                    style:width={`${entry.mode === 'stacked-percent' ? 100 : (row.total / maxTotal) * 100}%`}
-                    style:gap={`${entry.barGap ?? 4}px`}
+                    class="parties"
+                    style:--unit-columns={entry.unitColumns ?? 15}
+                    style:--unit-gap={`${entry.unitGap ?? 4}px`}
                   >
                     {#each row.bars.filter((bar) => bar.total > 0) as bar}
                       <div
-                        class="segment"
-                        style:flex-grow={bar.total}
-                        style:flex-basis="0"
-                        style:opacity={active && active !== bar.label
-                          ? 0.25
-                          : 1}
-                        onpointerenter={() => (active = bar.label)}
-                        onpointerleave={() => (active = undefined)}
-                        role="group"
-                        aria-label={bar.label}
+                        class="party"
+                        style:--party-color={bar.color}
+                        class:dimmed={active !== undefined &&
+                          active !== bar.label}
                       >
-                        <Tooltip title={`${row.year} · ${bar.label}`}>
+                        <Tooltip
+                          title={`${row.year} · ${bar.label}`}
+                          onvisibilitychange={(visible) => {
+                            if (visible) active = bar.label
+                            else if (active === bar.label) active = undefined
+                          }}
+                        >
                           {#snippet children()}
-                            <button
-                              type="button"
-                              class="bar"
-                              class:pending={row.year === 2026}
-                              style:--party-color={bar.color}
-                              aria-label={row.year === 2026
-                                ? `登記 ${bar.total} 人`
-                                : `提名 ${bar.total} 人，當選 ${bar.elected} 人`}
+                            <div
+                              class="units"
+                              role="group"
+                              aria-label={bar.label}
                             >
-                              {#if bar.elected !== null}<div
-                                  class="elected"
-                                  style:width={`${(bar.elected / bar.total) * 100}%`}
-                                ></div>{/if}
-                            </button>
+                              {#each Array.from({ length: bar.total }, (_, index) => index) as index}
+                                <button
+                                  type="button"
+                                  class="unit"
+                                  class:unelected={bar.elected !== null &&
+                                    index >= bar.elected}
+                                  class:pending={bar.elected === null}
+                                  aria-label={`${row.year} ${bar.label} 第 ${index + 1} 人：${bar.elected === null ? '待開票' : index < bar.elected ? '當選' : '未當選'}`}
+                                ></button>
+                              {/each}
+                            </div>
                           {/snippet}
                           {#snippet content()}
                             <TooltipRows
-                              rows={row.year === 2026
+                              rows={bar.elected === null
                                 ? [
                                     {
-                                      label: '登記',
+                                      label: '登記（待開票）',
                                       value: `${bar.total} 人`,
                                       color: bar.color,
                                     },
@@ -146,6 +150,11 @@
                                       value: `${bar.elected} 人`,
                                       color: bar.color,
                                     },
+                                    {
+                                      label: '未當選',
+                                      value: `${bar.total - bar.elected} 人`,
+                                      color: `color-mix(in srgb, ${bar.color} 20%, transparent)`,
+                                    },
                                   ]}
                             />
                           {/snippet}
@@ -153,7 +162,7 @@
                       </div>
                     {/each}
                   </div>
-                  {#if entry.showValues || entry.showTotals}<p class="summary">
+                  {#if entry.showTotals}<p class="summary">
                       {row.year === 2026
                         ? `登記 ${row.total} 人，尚無當選資料`
                         : `提名 ${row.total} 人 · 當選 ${row.elected} 人`}
@@ -185,11 +194,17 @@
   h3 {
     font-size: var(--text-s);
     margin: 16px 0 8px;
+    padding: 6px 8px;
+    border-radius: 2px;
+    text-align: center;
+    font-weight: 500;
+    border-top: 1px solid var(--neutral-gray-300);
+    border-bottom: 1px solid var(--neutral-gray-300);
   }
-  .encoding,
   .note {
-    color: var(--neutral-gray-600);
+    color: var(--neutral-gray-500);
     margin: 0 0 8px;
+    text-align: center;
   }
   .year-row {
     display: grid;
@@ -202,44 +217,49 @@
     padding-top: 6px;
     font-weight: 500;
   }
-  .bars {
-    display: flex;
-    height: 32px;
+  .parties {
+    display: grid;
+    gap: 6px;
   }
-  .segment {
+  .party {
     min-width: 0;
     transition: opacity 150ms ease;
   }
-  .bar {
+  .dimmed {
+    opacity: 0.25;
+  }
+  .units {
+    display: grid;
+    grid-template-columns: repeat(var(--unit-columns), minmax(0, 1fr));
+    gap: var(--unit-gap);
+  }
+  .unit {
     display: block;
     width: 100%;
+    aspect-ratio: 1;
+    min-width: 0;
     padding: 0;
-    background: transparent;
-    position: relative;
-    height: 32px;
-    border: 2px solid var(--party-color);
-    box-sizing: border-box;
-    overflow: hidden;
+    border: 0;
     border-radius: 2px;
-  }
-  .elected {
-    position: absolute;
-    inset: 0 auto 0 0;
     background: var(--party-color);
   }
+  .unelected {
+    background: color-mix(in srgb, var(--party-color) 20%, transparent);
+  }
   .pending {
-    border-color: var(--neutral-gray-400);
     background: repeating-linear-gradient(
       135deg,
       transparent 0 4px,
-      var(--neutral-gray-300) 4px 6px
+      color-mix(in srgb, var(--party-color) 35%, transparent) 4px 6px
     );
+    border: 1px solid color-mix(in srgb, var(--party-color) 50%, transparent);
   }
-  .summary {
-    margin: 6px 0 0;
+  .unit:focus-visible {
+    outline: 2px solid var(--text-color);
+    outline-offset: 1px;
   }
   @media (prefers-reduced-motion: reduce) {
-    .segment {
+    .party {
       transition: none;
     }
   }

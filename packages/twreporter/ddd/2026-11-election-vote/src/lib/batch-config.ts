@@ -32,6 +32,8 @@ type GraphicDefaults = Pick<
   containerHeight?: number
   containerAspectRatio?: number
   mode?: BarChartMode
+  unitColumns?: number
+  unitGap?: number
   cellGap?: number
   chartBackdrop?: boolean
   barGap?: number
@@ -64,6 +66,8 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     name?: string
     city?: string
     mode?: BarChartMode
+    unitColumns?: number
+    unitGap?: number
     cellGap?: number
     chartBackdrop?: boolean
     barGap?: number
@@ -246,12 +250,43 @@ function graphicConfig(defaults: GraphicDefaults) {
           }
         : {},
     )
+    .extend(
+      defaults.unitColumns !== undefined
+        ? {
+            unitColumns: z
+              .number()
+              .int()
+              .min(1)
+              .max(50)
+              .default(defaults.unitColumns)
+              .meta({
+                title: '每列人數',
+                description: '每格代表 1 人，各政黨使用相同格子尺寸。',
+              }),
+            unitGap: z
+              .number()
+              .min(0)
+              .max(20)
+              .default(defaults.unitGap ?? 4)
+              .meta({ title: '格子間距（px）' }),
+            chartBackdrop: barChartBackdropSchema.default(
+              defaults.chartBackdrop ?? false,
+            ),
+            showTotals: barChartShowTotalsSchema.default(
+              defaults.showTotals ?? true,
+            ),
+          }
+        : {},
+    )
     .meta({
       title: defaults.title,
       'ui:order': [
         'title',
         'containerHeight',
         'containerAspectRatio',
+        ...(defaults.unitColumns !== undefined
+          ? ['unitColumns', 'unitGap', 'chartBackdrop', 'showTotals']
+          : []),
         ...(defaults.mode ||
         defaults.yTickCount !== undefined ||
         defaults.cellGap !== undefined
@@ -333,6 +368,8 @@ export function defineElectionBatch({
         name,
         city,
         mode,
+        unitColumns,
+        unitGap,
         cellGap,
         chartBackdrop = true,
         barGap = 4,
@@ -362,6 +399,9 @@ export function defineElectionBatch({
         footnotes,
         ...(containerHeight !== undefined ? { containerHeight } : {}),
         ...(containerAspectRatio !== undefined ? { containerAspectRatio } : {}),
+        ...(unitColumns !== undefined
+          ? { unitColumns, unitGap: unitGap ?? 4, chartBackdrop, showTotals }
+          : {}),
         ...(mode || yTickCount !== undefined || cellGap !== undefined
           ? { hoverFocusXAxis, hoverFocusYAxis }
           : {}),
