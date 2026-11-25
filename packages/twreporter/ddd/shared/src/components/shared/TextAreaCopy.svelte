@@ -37,9 +37,8 @@
   }
 
   .embed-code {
-    width: 300px;
-    margin: 4px 10px;
-    padding: 10px;
+    width: 30%;
+    padding: 5px;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -49,10 +48,10 @@
     box-sizing: border-box;
     display: block;
     width: 100%;
-    height: 100px;
+    height: 75px;
     border: 1px #cdcdcd solid;
     font-size: 12px;
     font-family: monospace;
-    padding: 10px;
+    padding: 7px 10px;
   }
 </style>
