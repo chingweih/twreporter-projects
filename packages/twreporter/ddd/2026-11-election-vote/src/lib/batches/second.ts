@@ -56,7 +56,14 @@ export const secondBatch = defineElectionBatch({
       showTotals: false,
       valuePosition: 'center',
     },
-    '5-tpp-gogo': { title: '2026民眾黨、台灣前進議員提名與當選狀態' },
+    '5-tpp-gogo': {
+      title: '2026民眾黨、台灣前進議員提名與當選狀態',
+      mode: 'stacked',
+      chartBackdrop: false,
+      showXAxis: false,
+      showTotals: true,
+      valuePosition: 'center',
+    },
     '6-council-age': {
       title: '2026當選議員年齡分布',
       mode: 'stacked-percent',

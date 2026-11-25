@@ -9,6 +9,7 @@
   import CityTurnout from './CityTurnout.svelte'
   import CouncilChart from './CouncilChart.svelte'
   import Hualien from './Hualien.svelte'
+  import TppGogo from './TppGogo.svelte'
   import TaipeiMobilization from './TaipeiMobilization.svelte'
 
   const { Story } = defineMeta({
@@ -36,6 +37,8 @@
           <CouncilChart {config} kind="sex" />
         {:else if name === 'hualien'}
           <Hualien {config} />
+        {:else if name === 'tpp-gogo'}
+          <TppGogo {config} />
         {:else if name === 'city-result-map'}
           <CityResultMap {config} {city} />
         {:else if name === 'city-comparison-map'}
