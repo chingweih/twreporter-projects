@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import { basename, join, posix, relative, sep } from 'node:path'
 import { Storage } from '@google-cloud/storage'
 import { withComponentVersion } from '../src/utils/component-name.ts'
@@ -60,7 +60,7 @@ export async function deployProject(
           throw new Error(`Build the project before deploying ${name}.`)
         }
         const destination = posix.join(...prefix, directory)
-        const [entry, schema] = await Promise.all([
+        const [entry, [schemaExists]] = await Promise.all([
           versioned
             ? bucket
                 .file(`${destination}/embed.js`)
@@ -68,29 +68,20 @@ export async function deployProject(
                 .catch(ignoreMissingObject)
             : undefined,
           versioned && production
-            ? bucket
-                .file(`${destination}/schema.json`)
-                .download()
-                .catch(ignoreMissingObject)
-            : undefined,
+            ? bucket.file(`${destination}/schema.json`).exists()
+            : [false],
         ])
         const generation = entry ? entry[0].generation : 0
         if (generation === undefined)
           throw new Error(`Cannot read generation for ${directory}.`)
-        const schemaFile = `${localDirectory}/schema.json`
-        if (schema && !schema[0].equals(readFileSync(schemaFile))) {
-          throw new Error(
-            `Schema changed for ${name}. Bump its registry version.`,
-          )
-        }
         return {
           destination,
           archive,
           buildId: archive.slice(entryPrefix.length, -3),
           versioned,
           generation,
-          schemaFile,
-          publishSchema: versioned && !schema,
+          schemaFile: `${localDirectory}/schema.json`,
+          publishSchema: versioned && !schemaExists,
           artifacts: files
             .filter(
               (file) =>
