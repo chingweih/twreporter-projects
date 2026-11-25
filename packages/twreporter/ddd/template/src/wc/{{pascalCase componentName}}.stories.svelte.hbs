@@ -1,6 +1,7 @@
 <script module lang="ts">
   import EmbedCode from '@lab-reporter/ddd-shared/components/shared/EmbedCode.svelte'
   import { defineMeta } from '@storybook/addon-svelte-csf'
+  import { components } from '../../components.config.ts'
   import {{pascalCase componentName}} from './{{pascalCase componentName}}.wc.svelte'
 
   const { Story } = defineMeta({
@@ -22,6 +23,7 @@
     <{{pascalCase componentName}} {...args} />
     <EmbedCode
       componentName="{{componentName}}"
+      version={components['{{componentName}}'].version}
       tagName="twreporter-{{projectName}}-{{componentName}}"
       {...args}
     />

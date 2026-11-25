@@ -1,6 +1,7 @@
 import type { ComponentConfig } from '@lab-reporter/ddd-shared/vite-config'
 import { electionBatches } from './src/lib/batches/index.ts'
 
+const version = 1
 const registeredComponents = new Map<string, ComponentConfig>()
 
 for (const batch of electionBatches) {
@@ -13,6 +14,7 @@ for (const batch of electionBatches) {
     registeredComponents.set(name, {
       entry: `src/wc/${name}.ts`,
       outputDirectory: `components/${name}`,
+      version,
       configSchema: batch.schema,
     })
   }

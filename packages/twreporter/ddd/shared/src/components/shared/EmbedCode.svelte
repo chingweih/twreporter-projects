@@ -9,6 +9,7 @@
 
   const {
     componentName,
+    version,
     tagName,
     previewStoryId,
     src,
@@ -18,6 +19,7 @@
   }: Pick<ComponentProps, 'config'> &
     Partial<Pick<ComponentProps, 'src'>> & {
       componentName: string
+      version?: number
       tagName?: string
       previewStoryId?: string
       sources?: Record<string, string>
@@ -40,7 +42,13 @@
     return props
   })
   const { embedCode, schemaUrl, storybookIFrameUrl } = $derived(
-    generateAssetUrls(componentName, attributes, tagName, previewStoryId),
+    generateAssetUrls(
+      componentName,
+      attributes,
+      tagName,
+      previewStoryId,
+      version,
+    ),
   )
 </script>
 

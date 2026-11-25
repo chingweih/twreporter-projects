@@ -34,10 +34,10 @@ pnpm format:check
 pnpm build
 ```
 
-The build creates component scripts and JSON Schemas in `dist/components/<name>` and Storybook in `storybook-static`. Each script exports `schemaUrl`. Script and schema filenames include the same build timestamp.
+The build writes `embed.js`, its archived bundle, and `schema.json` to `dist/components/<name>-v<version>`. It also builds Storybook.
 
 ## Deploy
 
-Authenticate with Google Cloud CLI, then run `pnpm deploy:dev` or `pnpm deploy:prod`. Components are under `<project-url>/components` and Storybook is under `<project-url>/storybook`.
+Run `pnpm deploy:dev` or `pnpm deploy:prod`. Open the Storybook URL from the deploy, set the absolute batch `config` URL, and copy the embed below each graphic.
 
-Host the batch config JSON and set its URL in the batch story's `config` control. Use Copy below each graphic to get its embed code.
+All election graphics share the `version` in `components.config.ts`. Keep it for an OTA and increase it for a breaking release. See the [release guide](../README.md#publish-components) for rollback.
