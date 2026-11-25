@@ -287,12 +287,18 @@ importers:
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
+      '@types/papaparse':
+        specifier: ^5.5.2
+        version: 5.5.2
       commander:
         specifier: 14.0.3
         version: 14.0.3
       mapshaper:
         specifier: 0.8.4
         version: 0.8.4(@types/geojson@7946.0.16)(@types/node@24.12.2)
+      papaparse:
+        specifier: ^5.5.4
+        version: 5.5.4
       prettier:
         specifier: ^3.8.3
         version: 3.8.3

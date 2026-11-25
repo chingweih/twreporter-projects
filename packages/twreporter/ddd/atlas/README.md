@@ -35,7 +35,25 @@ Public property types come from the [Zod schemas](src/taiwan/properties.ts) that
 
 - Counties (`TaiwanCountyProperties`): `{ countyCode, name, group }` where `group` is `'北' | '中' | '南' | '東' | '離島'`. Features are ordered by editorial region group.
 - Districts (`TaiwanDistrictProperties`): `{ districtCode, name, countyCode }`, sorted by `districtCode`.
-- Villages (`TaiwanVillageProperties`): `{ villageCode, name, unassigned, countyCode, districtCode, note? }`, sorted by `villageCode`. Filter on `unassigned` to exclude polygons without an assigned village. These features have a `null` name and may carry a label in `note`, such as `未編定村里` or `高雄市旗津區代管` in 2022. Some source village names contain editorial brackets (such as `[那]拔里`), so join on `villageCode`.
+- Villages (`TaiwanVillageProperties`): `{ villageCode, name, unassigned, countyCode, districtCode, note? }`, sorted by `villageCode`. Filter on `unassigned` to exclude polygons without an assigned village. These features have a `null` name and may carry a label in `note`, such as `未編定村里` or `高雄市旗津區代管` in 2022. The village changes CSV supplies the village names for 2022 and 2026. Join on `villageCode`.
+
+### Village changes
+
+```ts
+import villageChanges from '@lab-reporter/ddd-atlas/taiwan/village-changes'
+
+const changes = villageChanges.find(
+  ({ beforeYear, afterYear }) => beforeYear === '2022' && afterYear === '2026',
+)
+```
+
+Each group contains its `id`, `beforeIds`, `afterIds`, and `extent`. IDs are strings. Use both full ID lists when comparing tallies and count each source tally once. Editors can supply an extent status, and the generator defaults to `unverified`. The 2022–2026 pair includes 三和村 (`10013280006`), which lacks a polygon in both snapshots.
+
+Keep all year pairs in `sources/taiwan/village-changes.csv`. Each row has `before_year,after_year,comparison_unit,before_id,after_id,before_name,after_name,change_type,reason`. The year columns identify the pair, and each `comparison_unit` belongs to that pair. Keep `change_type` and `reason` in the CSV as notes about individual rows. The optional `extent_status` column accepts `equivalent`, `different`, or `unverified` and must agree within a group. The optional `missing_geometry` column accepts `before`, `after`, or `both` for entries with no assigned polygon. Keep the village IDs so the entries can still join to records such as election tallies.
+
+The CSV display names clean up editorial brackets from the source archives, and Atlas applies its usual `臺` to `台` normalization. The spellings 濓新里 and 濓洞里 match the two codes in the March 2026 household-registration table. [Village code table](https://www.ris.gov.tw/documents/data/5/1/11503VillageUTF8.pdf)
+
+Add rows to the same CSV for a new pair. Regenerate the affected snapshots to apply name changes, then run `pnpm generate village-changes` to validate all pairs against their snapshots and update the export.
 
 ### Map helpers
 
@@ -51,8 +69,9 @@ From this package, run these commands with Node.js 22.18 or later. The generator
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm generate 2026
 pnpm generate 2022
+pnpm generate 2026
+pnpm generate village-changes
 pnpm check-types
 ```
 
