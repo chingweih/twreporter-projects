@@ -5,9 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  '@reuters-graphics/graphics-components@3.2.0':
-    hash: a01e0295a75cf9d231ed858735eb0ceea61c404f683981707ef0f534b3112441
-    path: patches/@reuters-graphics__graphics-components@3.2.0.patch
+  '@reuters-graphics/graphics-components@3.2.0': a01e0295a75cf9d231ed858735eb0ceea61c404f683981707ef0f534b3112441
 
 importers:
 
@@ -95,7 +93,7 @@ importers:
         version: link:../shared
       '@reuters-graphics/graphics-components':
         specifier: 3.2.0
-        version: 3.2.0(patch_hash=a01e0295a75cf9d231ed858735eb0ceea61c404f683981707ef0f534b3112441)(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(@types/node@26.1.1)(lightningcss@1.32.0)(svelte@5.56.10)(typescript@5.9.3)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))
+        version: 3.2.0(patch_hash=a01e0295a75cf9d231ed858735eb0ceea61c404f683981707ef0f534b3112441)(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0)(svelte@5.56.10)(typescript@5.9.3)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))
       '@tanstack/svelte-query':
         specifier: ^6.1.28
         version: 6.1.28(svelte@5.56.10)
@@ -387,6 +385,9 @@ importers:
       '@tanstack/svelte-query':
         specifier: ^6.1.28
         version: 6.1.28(svelte@5.56.10)
+      d3-color:
+        specifier: ^3.1.1
+        version: 3.1.1
       d3-geo:
         specifier: ^3.1.1
         version: 3.1.1
@@ -417,7 +418,7 @@ importers:
     devDependencies:
       '@google-cloud/storage':
         specifier: ^9.0.0
-        version: 9.0.0
+        version: 9.0.0(supports-color@7.2.0)
       '@lab-reporter/ddd-atlas':
         specifier: workspace:*
         version: link:../atlas
@@ -436,6 +437,9 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.8
         version: 5.0.8
+      '@types/d3-color':
+        specifier: ^3.1.3
+        version: 3.1.3
       '@types/d3-geo':
         specifier: ^3.1.0
         version: 3.1.0
@@ -2366,6 +2370,10 @@ packages:
 
   d3-color@3.1.0:
     resolution: {integrity: sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==}
+    engines: {node: '>=12'}
+
+  d3-color@3.1.1:
+    resolution: {integrity: sha512-lfab8x0Bj0UO7SNsY8dZSbNIA6ipbkE3X0NG9nqjCu6CfCHZseuDnOSJY7hidKrjpP++i1M2qT+FlAdPKYRilA==}
     engines: {node: '>=12'}
 
   d3-contour@4.0.2:
@@ -4492,15 +4500,15 @@ snapshots:
 
   '@google-cloud/promisify@6.2.1': {}
 
-  '@google-cloud/storage@9.0.0':
+  '@google-cloud/storage@9.0.0(supports-color@7.2.0)':
     dependencies:
       '@google-cloud/paginator': 7.2.0
       '@google-cloud/promisify': 6.2.1
       async-retry: 1.3.3
       duplexify: 4.1.3
       fast-xml-parser: 5.12.1
-      gaxios: 8.3.3
-      google-auth-library: 11.3.4
+      gaxios: 8.3.3(supports-color@7.2.0)
+      google-auth-library: 11.3.4(supports-color@7.2.0)
       mime: 3.0.0
       p-limit: 3.1.0
     transitivePeerDependencies:
@@ -4928,7 +4936,7 @@ snapshots:
 
   '@resvg/resvg-wasm@2.6.2': {}
 
-  '@reuters-graphics/graphics-components@3.2.0(patch_hash=a01e0295a75cf9d231ed858735eb0ceea61c404f683981707ef0f534b3112441)(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(@types/node@26.1.1)(lightningcss@1.32.0)(svelte@5.56.10)(typescript@5.9.3)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))':
+  '@reuters-graphics/graphics-components@3.2.0(patch_hash=a01e0295a75cf9d231ed858735eb0ceea61c404f683981707ef0f534b3112441)(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0)(svelte@5.56.10)(typescript@5.9.3)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))':
     dependencies:
       '@fortawesome/free-regular-svg-icons': 6.7.2
       '@fortawesome/free-solid-svg-icons': 6.7.2
@@ -4950,7 +4958,7 @@ snapshots:
       svelte-fa: 4.0.4(svelte@5.56.10)
       svelte-intersection-observer: 1.2.0
       ua-parser-js: 2.0.10
-      vitest: 3.2.7(@types/node@26.1.1)(lightningcss@1.32.0)
+      vitest: 3.2.7(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0)
     transitivePeerDependencies:
       - '@edge-runtime/vm'
       - '@opentelemetry/api'
@@ -5257,7 +5265,7 @@ snapshots:
   '@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.55.5)(vite@8.0.11(@types/node@24.12.2)(esbuild@0.27.7)))(svelte@5.55.5)(typescript@6.0.3)(vite@8.0.11(@types/node@24.12.2)(esbuild@0.27.7))':
     dependencies:
       '@standard-schema/spec': 1.1.0
-      '@sveltejs/acorn-typescript': 1.0.9(acorn@8.16.0)
+      '@sveltejs/acorn-typescript': 1.0.13(acorn@8.16.0)
       '@sveltejs/vite-plugin-svelte': 7.1.1(svelte@5.55.5)(vite@8.0.11(@types/node@24.12.2)(esbuild@0.27.7))
       '@types/cookie': 0.6.0
       acorn: 8.16.0
@@ -5278,7 +5286,7 @@ snapshots:
   '@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7)))(svelte@5.56.10)(typescript@5.9.3)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))':
     dependencies:
       '@standard-schema/spec': 1.1.0
-      '@sveltejs/acorn-typescript': 1.0.9(acorn@8.16.0)
+      '@sveltejs/acorn-typescript': 1.0.13(acorn@8.16.0)
       '@sveltejs/vite-plugin-svelte': 7.1.1(svelte@5.56.10)(vite@8.0.11(@types/node@26.1.1)(esbuild@0.27.7))
       '@types/cookie': 0.6.0
       acorn: 8.16.0
@@ -6009,6 +6017,8 @@ snapshots:
 
   d3-color@3.1.0: {}
 
+  d3-color@3.1.1: {}
+
   d3-contour@4.0.2:
     dependencies:
       d3-array: 3.2.4
@@ -6054,7 +6064,7 @@ snapshots:
 
   d3-interpolate@3.0.1:
     dependencies:
-      d3-color: 3.1.0
+      d3-color: 3.1.1
 
   d3-path@3.1.0: {}
 
@@ -6152,9 +6162,11 @@ snapshots:
 
   dayjs@1.11.23: {}
 
-  debug@4.4.3:
+  debug@4.4.3(supports-color@7.2.0):
     dependencies:
       ms: 2.1.3
+    optionalDependencies:
+      supports-color: 7.2.0
 
   decode-uri-component@0.2.2: {}
 
@@ -6487,17 +6499,17 @@ snapshots:
 
   fzstd@0.1.1: {}
 
-  gaxios@8.3.3:
+  gaxios@8.3.3(supports-color@7.2.0):
     dependencies:
       extend: 3.0.2
-      https-proxy-agent: 7.0.6
+      https-proxy-agent: 7.0.6(supports-color@7.2.0)
       node-fetch: 3.3.2
     transitivePeerDependencies:
       - supports-color
 
-  gcp-metadata@9.2.3:
+  gcp-metadata@9.2.3(supports-color@7.2.0):
     dependencies:
-      gaxios: 8.3.3
+      gaxios: 8.3.3(supports-color@7.2.0)
       google-logging-utils: 2.2.0
       json-bigint: 1.0.0
     transitivePeerDependencies:
@@ -6566,12 +6578,12 @@ snapshots:
       is-windows: 1.0.2
       which: 1.3.1
 
-  google-auth-library@11.3.4:
+  google-auth-library@11.3.4(supports-color@7.2.0):
     dependencies:
       base64-js: 1.5.1
       ecdsa-sig-formatter: 1.0.11
-      gaxios: 8.3.3
-      gcp-metadata: 9.2.3
+      gaxios: 8.3.3(supports-color@7.2.0)
+      gcp-metadata: 9.2.3(supports-color@7.2.0)
       google-logging-utils: 2.2.0
       jws: 4.0.1
     transitivePeerDependencies:
@@ -6598,10 +6610,10 @@ snapshots:
     dependencies:
       parse-passwd: 1.0.0
 
-  https-proxy-agent@7.0.6:
+  https-proxy-agent@7.0.6(supports-color@7.2.0):
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@7.2.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -7885,10 +7897,10 @@ snapshots:
 
   v8flags@4.0.1: {}
 
-  vite-node@3.2.4(@types/node@26.1.1)(lightningcss@1.32.0):
+  vite-node@3.2.4(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@7.2.0)
       es-module-lexer: 1.7.0
       pathe: 2.0.3
       vite: 7.3.3(@types/node@26.1.1)(lightningcss@1.32.0)
@@ -7968,7 +7980,7 @@ snapshots:
     optionalDependencies:
       vite: 8.0.11(@types/node@26.1.1)(esbuild@0.27.7)
 
-  vitest@3.2.7(@types/node@26.1.1)(lightningcss@1.32.0):
+  vitest@3.2.7(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.7
@@ -7979,7 +7991,7 @@ snapshots:
       '@vitest/spy': 3.2.7
       '@vitest/utils': 3.2.7
       chai: 5.3.3
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@7.2.0)
       expect-type: 1.4.0
       magic-string: 0.30.21
       pathe: 2.0.3
@@ -7991,7 +8003,7 @@ snapshots:
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
       vite: 7.3.3(@types/node@26.1.1)(lightningcss@1.32.0)
-      vite-node: 3.2.4(@types/node@26.1.1)(lightningcss@1.32.0)
+      vite-node: 3.2.4(@types/node@26.1.1)(lightningcss@1.32.0)(supports-color@7.2.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.1.1

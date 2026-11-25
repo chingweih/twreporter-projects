@@ -145,7 +145,7 @@
       --text-s: 14px;
       --text-m: 16px;
       --text-l: 18px;
-      --text-xl: 22px;
+      --text-xl: 24px;
     }
   }
 

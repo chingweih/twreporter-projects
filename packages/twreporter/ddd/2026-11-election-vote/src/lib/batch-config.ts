@@ -85,7 +85,7 @@ function graphicConfig(defaults: GraphicDefaults) {
         ? {
             mode: barChartModeSchema.default(defaults.mode).meta({
               title: '呈現方式',
-              'ui:enumNames': ['一般／分組', '堆疊'],
+              'ui:enumNames': ['一般／分組', '堆疊', '百分比堆疊'],
             }),
             chartBackdrop: barChartBackdropSchema.default(
               defaults.chartBackdrop ?? true,

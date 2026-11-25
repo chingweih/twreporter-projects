@@ -1,5 +1,6 @@
 <script lang="ts">
   import { scaleBand, scaleLinear } from 'd3-scale'
+  import { lab } from 'd3-color'
   import { onMount } from 'svelte'
   import { formatNumber } from '../../utils/format.ts'
   import TooltipOverlay from './TooltipOverlay.svelte'
@@ -8,6 +9,24 @@
   import type { BarChartBar, BarChartProps } from './types.ts'
 
   const descriptionId = $props.id()
+  function contrastText(node: SVGTextElement, color: string | undefined) {
+    let frame = 0
+    function update(color: string | undefined) {
+      cancelAnimationFrame(frame)
+      node.style.removeProperty('fill')
+      if (color === undefined) return
+      frame = requestAnimationFrame(() => {
+        const rect = node.parentElement?.querySelector('rect')
+        if (rect)
+          node.style.fill =
+            lab(getComputedStyle(rect).fill).l < 55
+              ? 'var(--neutral-white, #fff)'
+              : 'var(--text-color, #333)'
+      })
+    }
+    update(color)
+    return { update, destroy: () => cancelAnimationFrame(frame) }
+  }
   const annotationStep = 24
   const labelGap = 10
   const estimatedCharacterWidth = 8.5
@@ -15,7 +34,7 @@
 
   const {
     label,
-    groups,
+    groups: sourceGroups,
     orientation = 'vertical',
     mode = 'grouped',
     chartBackdrop = true,
@@ -32,7 +51,10 @@
     annotations = [],
     axisLabel,
     valueSuffix = '',
-    formatValue = (value) => formatNumber(value) + valueSuffix,
+    formatValue = (value) =>
+      mode === 'stacked-percent'
+        ? `${Number(value.toFixed(1))}%`
+        : formatNumber(value) + valueSuffix,
   }: BarChartProps = $props()
 
   let width = $state(0)
@@ -60,7 +82,24 @@
   })
   let containerHeight = $state(0)
   let hoveredSeries = $state<string>()
-  const stacked = $derived(mode === 'stacked')
+  const stacked = $derived(mode !== 'grouped')
+  const groups = $derived(
+    mode === 'stacked-percent'
+      ? sourceGroups.map((group) => {
+          const total = group.bars.reduce(
+            (sum, bar) => sum + Math.abs(bar.value),
+            0,
+          )
+          return {
+            ...group,
+            bars: group.bars.map((bar) => ({
+              ...bar,
+              value: total ? (bar.value / total) * 100 : 0,
+            })),
+          }
+        })
+      : sourceGroups,
+  )
   const labelPosition = $derived(
     valuePosition ?? (stacked ? 'center' : 'outside'),
   )
@@ -106,9 +145,12 @@
   const minValue = $derived(Math.min(0, ...values))
   const maxValue = $derived(Math.max(0, ...values))
   const valueDomainScale = $derived(
-    scaleLinear([minValue, minValue === maxValue ? 1 : maxValue], [0, 1]).nice(
-      6,
-    ),
+    scaleLinear(
+      mode === 'stacked-percent'
+        ? [minValue < 0 ? -100 : 0, maxValue > 0 || minValue === 0 ? 100 : 0]
+        : [minValue, minValue === maxValue ? 1 : maxValue],
+      [0, 1],
+    ).nice(6),
   )
   const negativeValueGutter = $derived(
     horizontal &&
@@ -446,6 +488,9 @@
                     {#if showValues && bar.value !== 0 && valueLabel.text && (position === 'outside' || ((horizontal ? visibleLength : band) > estimatedLabelWidth( [valueLabel.text], ) + 8 && (horizontal ? band : visibleLength) > 16))}
                       <text
                         class="value"
+                        use:contrastText={position === 'outside'
+                          ? undefined
+                          : seriesColor(bar.series)}
                         opacity={isDimmed(bar) ? 0.15 : 1}
                         x={horizontal
                           ? position === 'outside'

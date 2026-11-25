@@ -44,7 +44,11 @@ export const colorSchema = z
 
 export type Color = z.infer<typeof colorSchema>
 
-export const barChartModeSchema = z.enum(['grouped', 'stacked'])
+export const barChartModeSchema = z.enum([
+  'grouped',
+  'stacked',
+  'stacked-percent',
+])
 export type BarChartMode = z.infer<typeof barChartModeSchema>
 export const barChartGroupGapSchema = z.number().nonnegative().meta({
   title: '組間距（px）',

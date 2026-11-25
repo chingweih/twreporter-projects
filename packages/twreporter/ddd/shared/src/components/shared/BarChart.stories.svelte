@@ -44,6 +44,10 @@
 
 <Story name="Grouped" />
 <Story
+  name="Percentage stacked"
+  args={{ mode: 'stacked-percent', orientation: 'horizontal' }}
+/>
+<Story
   name="Stacked horizontal"
   args={{ mode: 'stacked', orientation: 'horizontal' }}
 />

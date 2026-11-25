@@ -41,7 +41,7 @@ export const barChartConfigSchema = createShellConfigSchema(defaults)
       .default(barChartModeSchema.parse(defaults.mode))
       .meta({
         title: '呈現方式',
-        'ui:enumNames': ['一般／分組', '堆疊'],
+        'ui:enumNames': ['一般／分組', '堆疊', '百分比堆疊'],
       }),
     orientation: barChartOrientationSchema
       .default(barChartOrientationSchema.parse(defaults.orientation))
@@ -60,20 +60,14 @@ export const barChartConfigSchema = createShellConfigSchema(defaults)
       .array(
         z
           .object({
-            column: z
-              .string()
-              .trim()
-              .min(1)
-              .meta({
-                title: '資料欄位',
-                description: '直接使用該欄文字，單位與格式由資料提供。',
-              }),
-            position: z
-              .enum(['left', 'center', 'outside'])
-              .meta({
-                title: '位置',
-                'ui:enumNames': ['靠左', '置中', '外側'],
-              }),
+            column: z.string().trim().min(1).meta({
+              title: '資料欄位',
+              description: '直接使用該欄文字，單位與格式由資料提供。',
+            }),
+            position: z.enum(['left', 'center', 'outside']).meta({
+              title: '位置',
+              'ui:enumNames': ['靠左', '置中', '外側'],
+            }),
           })
           .meta({ 'ui:order': ['column', 'position'] }),
       )
