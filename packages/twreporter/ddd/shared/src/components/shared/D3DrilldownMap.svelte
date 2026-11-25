@@ -16,6 +16,7 @@
 
   const {
     drilldown,
+    parentKey,
     regions,
     details,
     ...map
@@ -31,12 +32,16 @@
     | 'containTooltip'
   > & {
     drilldown: MapDrilldown<GeoPermissibleObjects>
+    parentKey?: string
     regions: readonly DrilldownArea[]
     details: readonly DrilldownArea[]
   } = $props()
 
   const tooltipId = $props.id()
   const focus = $derived(drilldown.focus)
+  const context = $derived(
+    focus !== undefined && parentKey !== drilldown.selectedKey,
+  )
   const selected = $derived(
     regions.find((region) => region.key === drilldown.selectedKey),
   )
@@ -52,29 +57,32 @@
   {focus}
   {tooltipId}
   bind:tooltipTarget={drilldown.tooltipTarget}
-  onbackgroundclick={focus ? () => drilldown.reset() : undefined}
+  onbackgroundclick={focus ? () => drilldown.back() : undefined}
 >
   {#snippet children(path)}
     {#each regions as region (region.key)}
       {@const isSelected = region === selected}
       <path
-        class:context={Boolean(focus)}
+        class:context
         class:selected={isSelected}
         d={path(region.geometry)}
         fill={region.fill}
-        data-map-tooltip={focus ? undefined : region.key}
+        data-map-region={region.key}
+        data-map-tooltip={context ? undefined : region.key}
         role="button"
         tabindex={isSelected ? -1 : 0}
         aria-hidden={isSelected || undefined}
         aria-label={region.label}
-        aria-describedby={!focus && drilldown.tooltipTarget?.key === region.key
+        aria-describedby={!context &&
+        drilldown.tooltipTarget?.key === region.key
           ? tooltipId
           : undefined}
-        onclick={(event) => drilldown.select(region.key, event.currentTarget)}
+        onclick={(event) =>
+          drilldown.select(region.key, event.currentTarget, parentKey)}
         onkeydown={(event) => {
           if (event.key !== 'Enter' && event.key !== ' ') return
           event.preventDefault()
-          drilldown.select(region.key, event.currentTarget)
+          drilldown.select(region.key, event.currentTarget, parentKey)
         }}
       />
     {/each}
