@@ -34,72 +34,73 @@
   })
 </script>
 
-<details class:compact class:inline>
-  <summary
-    onclick={(event) => {
-      if (
-        editable &&
-        event.target instanceof HTMLElement &&
-        event.target.closest('[contenteditable], select')
-      )
-        event.preventDefault()
-    }}
-  >
-    <div class="verdicts">
-      {#each groups as group, index}
-        {@const verdict = config.verdicts.find(
-          (item) => item.label === group.label,
-        )}
-        {#if verdict}
-          <div class="verdict">
-            <span
-              class="swatch"
-              style:background={verdict.color}
-              aria-hidden="true"
-            ></span>
-            <div
-              class="attribution"
-              class:existing-policy={existingPolicy && index === 0}
-            >
-              <div class="label-row">
-                {#if editable}
-                  {@const review = group.reviews[0]}
-                  {#if review}
-                    <select
-                      aria-label="評比"
-                      bind:value={review.csvRow.verdict}
-                    >
-                      {#each config.verdicts as option}<option
-                          value={option.label}>{option.label}</option
-                        >{/each}
-                    </select>
-                  {/if}
-                {:else}
-                  <span class="label">{verdict.label}</span>
+{#snippet verdicts()}
+  <div class="verdicts">
+    {#each groups as group, index}
+      {@const verdict = config.verdicts.find(
+        (item) => item.label === group.label,
+      )}
+      {#if verdict}
+        <div class="verdict">
+          <span
+            class="swatch"
+            style:background={verdict.color}
+            aria-hidden="true"
+          ></span>
+          <div
+            class="attribution"
+            class:existing-policy={existingPolicy && index === 0}
+          >
+            <div class="label-row">
+              {#if editable}
+                {@const review = group.reviews[0]}
+                {#if review}
+                  <select aria-label="評比" bind:value={review.csvRow.verdict}>
+                    {#each config.verdicts as option}<option
+                        value={option.label}>{option.label}</option
+                      >{/each}
+                  </select>
                 {/if}
-                {#if existingPolicy && index === 0}<span class="tag"
-                    >{config.labels.existingPolicy}</span
-                  >{/if}
-              </div>
-              <span class="source"
-                >{#each group.reviews as review, sourceIndex}{#if sourceIndex > 0}、{/if}<EditableText
-                    bind:value={review.csvRow.source}
-                    {editable}
-                  />{/each}</span
-              >
+              {:else}
+                <span class="label">{verdict.label}</span>
+              {/if}
+              {#if existingPolicy && index === 0}<span class="tag"
+                  >{config.labels.existingPolicy}</span
+                >{/if}
             </div>
+            <span class="source"
+              >{#each group.reviews as review, sourceIndex}{#if sourceIndex > 0}、{/if}<EditableText
+                  bind:value={review.csvRow.source}
+                  {editable}
+                />{/each}</span
+            >
           </div>
-        {/if}
-      {/each}
-    </div>
-    <span class="toggle"
-      ><span class="toggle-label">{config.labels.reviewDetails}</span><span
-        class="arrow"
-        aria-hidden="true"
-      ></span></span
+        </div>
+      {/if}
+    {/each}
+  </div>
+{/snippet}
+
+{#if detailedReviews.length}
+  <details class:compact class:inline>
+    <summary
+      onclick={(event) => {
+        if (
+          editable &&
+          event.target instanceof HTMLElement &&
+          event.target.closest('[contenteditable], select')
+        )
+          event.preventDefault()
+      }}
     >
-  </summary>
-  {#if detailedReviews.length}
+      {@render verdicts()}
+      <span class="toggle"
+        ><span class="toggle-label">{config.labels.reviewDetails}</span><span
+          class="arrow"
+          aria-hidden="true"
+        ></span></span
+      >
+    </summary>
     <div class="review-content">
       <div class="reviews">
         {#each detailedReviews as review}
@@ -125,8 +126,12 @@
         ></span></button
       >
     </div>
-  {/if}
-</details>
+  </details>
+{:else}
+  <div class:compact class:inline>
+    {@render verdicts()}
+  </div>
+{/if}
 
 <style>
   summary {
