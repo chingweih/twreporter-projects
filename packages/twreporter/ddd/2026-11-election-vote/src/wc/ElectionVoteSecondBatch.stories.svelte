@@ -8,6 +8,7 @@
   import CityResultMap from './CityResultMap.svelte'
   import CityTurnout from './CityTurnout.svelte'
   import CouncilChart from './CouncilChart.svelte'
+  import Hualien from './Hualien.svelte'
   import TaipeiMobilization from './TaipeiMobilization.svelte'
 
   const { Story } = defineMeta({
@@ -33,6 +34,8 @@
           <CouncilChart {config} kind="age" />
         {:else if name === 'council-sex'}
           <CouncilChart {config} kind="sex" />
+        {:else if name === 'hualien'}
+          <Hualien {config} />
         {:else if name === 'city-result-map'}
           <CityResultMap {config} {city} />
         {:else if name === 'city-comparison-map'}

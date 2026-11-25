@@ -110,14 +110,14 @@
     }
     return segments
   }
+  const xValues = $derived(
+    [...new Set(data.map((point) => point.x).filter(Number.isFinite))].sort(
+      (a, b) => a - b,
+    ),
+  )
   const xExtent = $derived(
     xDomain ??
-      (validData.length
-        ? [
-            Math.min(...validData.map((point) => point.x)),
-            Math.max(...validData.map((point) => point.x)),
-          ]
-        : [0, 1]),
+      (xValues.length ? [xValues[0], xValues[xValues.length - 1]] : [0, 1]),
   )
   const yExtent = $derived(
     yDomain ?? [
@@ -161,33 +161,31 @@
       .range([left, Math.max(left, width - right)]),
   )
   const xTicks = $derived(
-    [...new Set(validData.map((point) => point.x))]
-      .sort((a, b) => a - b)
-      .filter(
-        (_, index, ticks) =>
-          index %
-            Math.max(
-              1,
-              Math.ceil(
-                ticks.length /
-                  Math.max(
-                    1,
-                    Math.min(
-                      xTickCount,
-                      Math.floor((width - left - right) / 70),
-                    ),
-                  ),
-              ),
-            ) ===
-            0 || index === ticks.length - 1,
-      ),
+    xValues.filter(
+      (_, index, ticks) =>
+        index %
+          Math.max(
+            1,
+            Math.ceil(
+              ticks.length /
+                Math.max(
+                  1,
+                  Math.min(xTickCount, Math.floor((width - left - right) / 70)),
+                ),
+            ),
+          ) ===
+          0 || index === ticks.length - 1,
+    ),
   )
   const focused = $derived(
     active ?? (hovered?.rows ? undefined : (hovered?.series ?? hoveredLine)),
   )
   function hoverTick(tick: number, x: number, y: number) {
     const rows = validData.filter((point) => point.x === tick)
-    if (!rows.length) return
+    if (!rows.length) {
+      hovered = undefined
+      return
+    }
     hovered = {
       x,
       y,
