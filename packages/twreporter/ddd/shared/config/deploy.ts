@@ -55,7 +55,6 @@ export async function deployProject(
       return {
         destination,
         archive,
-        buildId: archive.slice(entryPrefix.length, -3),
         versioned,
         schemaFile: `${localDirectory}/schema.json`,
         artifacts: files
@@ -67,12 +66,6 @@ export async function deployProject(
       }
     },
   )
-  const builds = new Set(releases.map(({ buildId }) => buildId))
-  const [build] = builds
-  if (!build || builds.size !== 1) {
-    throw new Error('Build all components together before deploying.')
-  }
-
   for (const { artifacts, destination } of releases) {
     await Promise.all(
       artifacts.map((path) =>
@@ -80,19 +73,6 @@ export async function deployProject(
       ),
     )
   }
-  const storybookDirectory = 'storybook-static'
-  const storybookPrefix = posix.join(...prefix, 'storybook', build)
-  const storybookFiles = readdirSync(storybookDirectory, {
-    recursive: true,
-    withFileTypes: true,
-  }).filter((entry) => entry.isFile())
-  await Promise.all(
-    storybookFiles.map((entry) => {
-      const path = join(entry.parentPath, entry.name)
-      const objectName = relative(storybookDirectory, path).split(sep).join('/')
-      return uploadArtifact(path, `${storybookPrefix}/${objectName}`)
-    }),
-  )
   for (const { destination, schemaFile, versioned } of releases) {
     if (versioned) {
       await bucket.upload(schemaFile, {
@@ -112,5 +92,22 @@ export async function deployProject(
         })
     }
   }
-  console.log(`Storybook: ${publicRoot}/storybook/${build}/index.html`)
+
+  const storybookDirectory = 'storybook-static'
+  const storybookPrefix = posix.join(...prefix, 'storybook')
+  const storybookFiles = readdirSync(storybookDirectory, {
+    recursive: true,
+    withFileTypes: true,
+  }).filter((entry) => entry.isFile())
+  await Promise.all(
+    storybookFiles.map((entry) => {
+      const path = join(entry.parentPath, entry.name)
+      const objectName = relative(storybookDirectory, path).split(sep).join('/')
+      return bucket.upload(path, {
+        destination: `${storybookPrefix}/${objectName}`,
+        metadata: { cacheControl: noCache },
+      })
+    }),
+  )
+  console.log(`Storybook: ${publicRoot}/storybook/index.html`)
 }
