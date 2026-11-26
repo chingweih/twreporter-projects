@@ -58,6 +58,15 @@
         yLabel="催票率（%）"
         {data}
         {colors}
+        pointColor={(series, x) =>
+          series === '民進黨' && history.data?.[x]?.台北市長屆次 === '2014'
+            ? 'var(--elec-gray)'
+            : undefined}
+        lineSegmentStyle={(series, fromX, toX) =>
+          series === '民進黨' &&
+          [fromX, toX].some((x) => history.data?.[x]?.台北市長屆次 === '2014')
+            ? { color: 'var(--elec-gray)', dasharray: '1 7' }
+            : undefined}
         chartBackdrop={false}
         showArea={entry.showArea}
         showTooltip={entry.showTooltip}

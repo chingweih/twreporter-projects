@@ -10,6 +10,8 @@
     label,
     data,
     colors = {},
+    pointColor,
+    lineSegmentStyle,
     showArea = false,
     showTooltip = true,
     showValue = false,
@@ -39,6 +41,12 @@
     label: string
     data: readonly { series: string; x: number; value: number | null }[]
     colors?: Record<string, string>
+    pointColor?: (series: string, x: number) => string | undefined
+    lineSegmentStyle?: (
+      series: string,
+      fromX: number,
+      toX: number,
+    ) => { color?: string; dasharray?: string } | undefined
     showArea?: boolean
     showTooltip?: boolean
     showValue?: boolean
@@ -448,14 +456,24 @@
                 >
                   <path class="line-hit" d={path(segment)} />
                 </g>
-                <path
-                  d={path(segment)}
-                  fill="none"
-                  stroke={group.color}
-                  stroke-width={lineWidth}
-                  stroke-linejoin="round"
-                  stroke-linecap="round"
-                />
+                {#each lineSegmentStyle && segment.length > 1 ? segment
+                      .slice(1)
+                      .map( (point, index) => [segment[index], point], ) : [segment] as part}
+                  {@const style = lineSegmentStyle?.(
+                    group.label,
+                    part[0].x,
+                    part[part.length - 1].x,
+                  )}
+                  <path
+                    d={path(part)}
+                    fill="none"
+                    stroke={style?.color ?? group.color}
+                    stroke-dasharray={style?.dasharray}
+                    stroke-width={lineWidth}
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                  />
+                {/each}
               {/each}
               {#each group.points as point}
                 <g
@@ -506,13 +524,13 @@
                     cx={xScale(point.x)}
                     cy={yScale(point.value)}
                     r={linePointRadius + 3.5}
-                    stroke={group.color}
+                    stroke={pointColor?.(group.label, point.x) ?? group.color}
                   />
                   <circle
                     cx={xScale(point.x)}
                     cy={yScale(point.value)}
                     r={linePointRadius}
-                    fill={group.color}
+                    fill={pointColor?.(group.label, point.x) ?? group.color}
                   />
                 </g>
               {/each}
