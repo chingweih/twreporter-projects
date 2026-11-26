@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { lineChartOptions } from './options.ts'
   import LineChart from '@lab-reporter/ddd-shared/components/shared/LineChart.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
-  import { secondBatch } from '../lib/batches/second.ts'
-  import { historicalElectionTabs } from '../lib/election-historical-data.ts'
-  import ElectionGraphic from '../lib/ElectionGraphic.svelte'
+  import { secondBatch } from '../../batches/second.ts'
+  import { historicalElectionTabs } from '../../election-historical-data.ts'
+  import ElectionGraphic from '../../ElectionGraphic.svelte'
   const { config }: Pick<ComponentProps, 'config'> = $props()
   const history = createQuery(
     () => historicalElectionTabs.hualienFuFamilyResults.options,
@@ -30,29 +31,11 @@
   {#snippet children(entry)}
     <div class="chart-container">
       <LineChart
-        label={entry.title}
-        hoverFocusXAxis={entry.hoverFocusXAxis}
-        hoverFocusYAxis={entry.hoverFocusYAxis}
+        {...lineChartOptions(entry)}
         yLabel="得票率（%）"
         {data}
         colors={{ 傅家得票率: 'var(--elec-red)' }}
-        chartBackdrop={false}
-        showArea={entry.showArea}
-        showTooltip={entry.showTooltip}
-        showValue={entry.showValue}
-        showXAxis={entry.showXAxis}
-        showYAxis={entry.showYAxis}
-        showXGrid={entry.showXGrid}
-        showYGrid={entry.showYGrid}
-        gridHover={entry.gridHover}
         xTickCount={6}
-        yLabelHorizontalTexts={entry.yLabelHorizontalTexts}
-        connectGaps={entry.connectGaps}
-        gapDasharray={entry.gapDasharray}
-        lineWidth={entry.lineWidth}
-        linePointRadius={entry.linePointRadius}
-        yTickCount={entry.yTickCount}
-        yDomain={[0, entry.yMax ?? 100]}
         formatValue={(value) => `${value}%`}
       />
     </div>

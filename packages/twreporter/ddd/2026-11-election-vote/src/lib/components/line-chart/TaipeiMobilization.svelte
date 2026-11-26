@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { lineChartOptions } from './options.ts'
   import LineChart from '@lab-reporter/ddd-shared/components/shared/LineChart.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
-  import { secondBatch } from '../lib/batches/second.ts'
-  import { historicalElectionTabs } from '../lib/election-historical-data.ts'
-  import ElectionGraphic from '../lib/ElectionGraphic.svelte'
+  import { secondBatch } from '../../batches/second.ts'
+  import { historicalElectionTabs } from '../../election-historical-data.ts'
+  import ElectionGraphic from '../../ElectionGraphic.svelte'
 
   const {
     config,
@@ -52,9 +53,7 @@
     <div class="chart-container">
       <LineChart
         showAllXTicks
-        label={entry.title}
-        hoverFocusXAxis={entry.hoverFocusXAxis}
-        hoverFocusYAxis={entry.hoverFocusYAxis}
+        {...lineChartOptions(entry)}
         yLabel="催票率（%）"
         {data}
         {colors}
@@ -67,23 +66,7 @@
           [fromX, toX].some((x) => history.data?.[x]?.台北市長屆次 === '2014')
             ? { color: 'var(--elec-gray)', dasharray: '1 7' }
             : undefined}
-        chartBackdrop={false}
-        showArea={entry.showArea}
-        showTooltip={entry.showTooltip}
-        showValue={entry.showValue}
-        showXAxis={entry.showXAxis}
-        showYAxis={entry.showYAxis}
-        showXGrid={entry.showXGrid}
-        showYGrid={entry.showYGrid}
-        gridHover={entry.gridHover}
         xTickCount={8}
-        yLabelHorizontalTexts={entry.yLabelHorizontalTexts}
-        connectGaps={entry.connectGaps}
-        gapDasharray={entry.gapDasharray}
-        lineWidth={entry.lineWidth}
-        linePointRadius={entry.linePointRadius}
-        yTickCount={entry.yTickCount}
-        yDomain={[0, entry.yMax ?? 100]}
         formatX={(value) => history.data?.[value]?.台北市長屆次 ?? ''}
         formatValue={(value) => `${value}%`}
       />

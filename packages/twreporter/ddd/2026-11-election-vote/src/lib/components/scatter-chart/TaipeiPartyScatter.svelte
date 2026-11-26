@@ -2,10 +2,10 @@
   import ScatterChart from '@lab-reporter/ddd-shared/components/shared/ScatterChart.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
-  import { secondBatch } from '../lib/batches/second.ts'
-  import { electionTabs } from '../lib/election-data.ts'
-  import { historicalElectionTabs } from '../lib/election-historical-data.ts'
-  import ElectionGraphic from '../lib/ElectionGraphic.svelte'
+  import { secondBatch } from '../../batches/second.ts'
+  import { electionTabs } from '../../election-data.ts'
+  import { historicalElectionTabs } from '../../election-historical-data.ts'
+  import ElectionGraphic from '../../ElectionGraphic.svelte'
 
   const { config }: Pick<ComponentProps, 'config'> = $props()
   const historical = createQuery(

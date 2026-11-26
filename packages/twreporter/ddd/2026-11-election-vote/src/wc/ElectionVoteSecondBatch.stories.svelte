@@ -6,12 +6,12 @@
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
   import CityComparisonMap from './CityComparisonMap.svelte'
   import CityResultMap from './CityResultMap.svelte'
-  import CityTurnout from './CityTurnout.svelte'
-  import CouncilChart from './CouncilChart.svelte'
-  import Hualien from './Hualien.svelte'
-  import TaipeiPartyScatter from './TaipeiPartyScatter.svelte'
-  import TppGogo from './TppGogo.svelte'
-  import TaipeiMobilization from './TaipeiMobilization.svelte'
+  import CityTurnout from '../lib/components/line-chart/CityTurnout.svelte'
+  import CouncilChart from '../lib/components/bar-chart/CouncilChart.svelte'
+  import Hualien from '../lib/components/line-chart/Hualien.svelte'
+  import TaipeiPartyScatter from '../lib/components/scatter-chart/TaipeiPartyScatter.svelte'
+  import TppGogo from '../lib/components/nomination-units/TppGogo.svelte'
+  import TaipeiMobilization from '../lib/components/line-chart/TaipeiMobilization.svelte'
 
   const { Story } = defineMeta({
     title: 'Components/ElectionVoteSecondBatch',

@@ -4,9 +4,9 @@
   import TooltipRows from '@lab-reporter/ddd-shared/components/shared/TooltipRows.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
-  import { firstBatch } from '../lib/batches/first.ts'
-  import { historicalElectionTabs } from '../lib/election-historical-data.ts'
-  import ElectionGraphic from '../lib/ElectionGraphic.svelte'
+  import { firstBatch } from '../../batches/first.ts'
+  import { historicalElectionTabs } from '../../election-historical-data.ts'
+  import ElectionGraphic from '../../ElectionGraphic.svelte'
 
   const { config }: Pick<ComponentProps, 'config'> = $props()
   const history = createQuery(

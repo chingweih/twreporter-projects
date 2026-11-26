@@ -2,7 +2,7 @@
 
 <script lang="ts">
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
-  import CityTurnout from './CityTurnout.svelte'
+  import CityTurnout from '../lib/components/line-chart/CityTurnout.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
   const { config }: Pick<ComponentProps, 'config'> = $props()

@@ -4,9 +4,9 @@
   import TooltipRows from '@lab-reporter/ddd-shared/components/shared/TooltipRows.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
-  import { secondBatch } from '../lib/batches/second.ts'
-  import { historicalElectionTabs } from '../lib/election-historical-data.ts'
-  import ElectionGraphic from '../lib/ElectionGraphic.svelte'
+  import { secondBatch } from '../../batches/second.ts'
+  import { historicalElectionTabs } from '../../election-historical-data.ts'
+  import ElectionGraphic from '../../ElectionGraphic.svelte'
 
   function fitUnits(
     node: HTMLDivElement,
@@ -165,14 +165,12 @@
                   {#if entry.showTotals}
                     <div class="summary" aria-label={`${row.year} 人數統計`}>
                       <div class="stat">
-                        <span>當選</span><strong
-                          >{row.elected ?? '-'}</strong
-                        >
+                        <span>當選</span><strong>{row.elected ?? '-'}</strong>
                       </div>
                       <div class="stat">
                         <span>提名</span><strong>{row.total}</strong>
                       </div>
-                      <hr/>
+                      <hr />
                       <div class="stat">
                         <span>整體<br />當選率</span><strong
                           >{row.elected === null || !row.total

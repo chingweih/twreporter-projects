@@ -7,7 +7,7 @@
 
 <script lang="ts">
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
-  import TaipeiMobilization from './TaipeiMobilization.svelte'
+  import TaipeiMobilization from '../lib/components/line-chart/TaipeiMobilization.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
   const { config, city }: Pick<ComponentProps, 'config'> & { city?: string } =

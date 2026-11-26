@@ -4,9 +4,9 @@
   import ElectionBatchPreview from '../lib/ElectionBatchPreview.svelte'
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
   import CityMap from './CityMap.svelte'
-  import CityGrid from './CityGrid.svelte'
-  import PartyCityResult from './PartyCityResult.svelte'
-  import RefResult from './RefResult.svelte'
+  import CityGrid from '../lib/components/city-grid/CityGrid.svelte'
+  import PartyCityResult from '../lib/components/bar-chart/PartyCityResult.svelte'
+  import RefResult from '../lib/components/bar-chart/RefResult.svelte'
 
   const { Story } = defineMeta({
     title: 'Components/ElectionVote',

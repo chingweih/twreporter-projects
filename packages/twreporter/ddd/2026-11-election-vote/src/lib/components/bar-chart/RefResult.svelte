@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { barChartOptions } from './options.ts'
   import BarChart from '@lab-reporter/ddd-shared/components/shared/BarChart.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
-  import { firstBatch } from '../lib/batches/first.ts'
-  import { electionTabs } from '../lib/election-data.ts'
-  import { historicalElectionTabs } from '../lib/election-historical-data.ts'
-  import ElectionGraphic from '../lib/ElectionGraphic.svelte'
+  import { firstBatch } from '../../batches/first.ts'
+  import { electionTabs } from '../../election-data.ts'
+  import { historicalElectionTabs } from '../../election-historical-data.ts'
+  import ElectionGraphic from '../../ElectionGraphic.svelte'
 
   const { config }: Pick<ComponentProps, 'config'> = $props()
   const percentage = (value: number) =>
@@ -72,24 +73,15 @@
 >
   {#snippet children(entry)}
     <BarChart
-      label={entry.title}
-      hoverFocusXAxis={entry.hoverFocusXAxis}
-      hoverFocusYAxis={entry.hoverFocusYAxis}
+      {...barChartOptions(entry)}
       {groups}
       {colors}
       mode={entry.mode ?? 'grouped'}
-      chartBackdrop={entry.chartBackdrop ?? false}
       barGap={entry.barGap ?? 4}
       groupGap={entry.groupGap ?? 10}
       showXAxis={entry.showXAxis ?? true}
       showValues={entry.showValues ?? true}
       showTotals={entry.showTotals ?? false}
-      sortOrder={entry.sortOrder}
-      sortBy={entry.sortBy}
-      valueSeries={entry.valueSeries}
-      valuePosition={entry.valuePosition}
-      xAxisFontSize={entry.xAxisFontSize}
-      yAxisFontSize={entry.yAxisFontSize}
       orientation="horizontal"
       axisLabel="占投票權人比例（%）"
       annotations={[{ value: 25, label: '門檻：投票權人的 25%' }]}

@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { barChartOptions } from './options.ts'
   import BarChart from '@lab-reporter/ddd-shared/components/shared/BarChart.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
-  import { secondBatch } from '../lib/batches/second.ts'
-  import { historicalElectionTabs } from '../lib/election-historical-data.ts'
-  import ElectionGraphic from '../lib/ElectionGraphic.svelte'
+  import { secondBatch } from '../../batches/second.ts'
+  import { historicalElectionTabs } from '../../election-historical-data.ts'
+  import ElectionGraphic from '../../ElectionGraphic.svelte'
 
   const {
     config,
@@ -115,9 +116,7 @@
   {#snippet children(entry)}
     <div class="chart-container">
       <BarChart
-        label={entry.title}
-        hoverFocusXAxis={entry.hoverFocusXAxis}
-        hoverFocusYAxis={entry.hoverFocusYAxis}
+        {...barChartOptions(entry)}
         {groups}
         {colors}
         orientation="horizontal"
@@ -125,18 +124,6 @@
           ? [{ value: 50, label: '' }]
           : []}
         mode={entry.mode ?? 'stacked'}
-        chartBackdrop={entry.chartBackdrop ?? false}
-        barGap={entry.barGap}
-        groupGap={entry.groupGap}
-        showXAxis={entry.showXAxis}
-        showValues={entry.showValues}
-        showTotals={entry.showTotals}
-        sortOrder={entry.sortOrder}
-        sortBy={entry.sortBy}
-        valueSeries={entry.valueSeries}
-        valuePosition={entry.valuePosition}
-        xAxisFontSize={entry.xAxisFontSize}
-        yAxisFontSize={entry.yAxisFontSize}
         valueSuffix={kind === 'party' ? ' 席' : ' 人'}
       />
     </div>

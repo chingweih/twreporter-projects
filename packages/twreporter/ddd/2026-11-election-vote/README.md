@@ -17,9 +17,22 @@ The graphic editor can edit each graphic's title and footnotes, and the batch cr
 
 ## Add a component
 
-- Put the component and its `*.wc.svelte` wrapper in `src/wc`. Add the numbered graphic key, title, and any footnotes to its batch definition. Pass that key to `ElectionGraphic`.
+- Put the chart implementation in the matching `src/lib/components` folder. Keep map wrappers (`CityMap`, `CityResultMap`, `CityComparisonMap`) in `src/wc`, with their existing map helpers in `src/lib/components`. Keep `*.wc.svelte` wrappers, build entries, and Storybook stories in `src/wc`. Add the numbered graphic key, title, and any footnotes to its batch definition. Pass that key to `ElectionGraphic`.
 - Add an entry such as `src/wc/city-map.ts`. The registry uses the numbered key's suffix as the build name unless the graphic definition supplies `name`.
 - To reuse a city component within a batch, give the variants the same `name` and distinct `city` codes. For example, `city="63000"` selects Taipei and `city="65000"` selects New Taipei. `ElectionCityGraphic` selects the corresponding config entry and the preview includes the city in its embed code.
+
+### Chart implementations
+
+| Folder under `src/lib/components` | Graphics                                                     |
+| --------------------------------- | ------------------------------------------------------------ |
+| `line-chart`                      | City/Taipei turnout, Taipei mobilization, Hualien            |
+| `bar-chart`                       | Mayor party seats, referendum results, council party/age/sex |
+| `city-map`, `city-result-map`     | Existing map helpers; map wrappers remain in `src/wc`        |
+| `city-grid`                       | Historical mayor grid                                        |
+| `nomination-units`                | TPP and alliance nomination/election cells                   |
+| `scatter-chart`                   | Taipei vote comparison scatter plots                         |
+
+The line and bar folders each have an `options.ts` that maps batch config to shared chart props. Apply these options before chart-specific overrides. Keep queries, source-column mappings, annotations, colors, and formatters in the chart implementation; keep the general renderers in `ddd/shared`.
 
 ## Add a batch
 
