@@ -55,6 +55,7 @@ export const secondBatch = defineElectionBatch({
     },
     '4-city-council-party': {
       title: '2026各縣市議會席次比較',
+      valueSeries: ['國民黨', '民進黨'],
       mode: 'stacked-percent',
       containerAspectRatio: 0.8,
       chartBackdrop: false,

@@ -16,12 +16,10 @@
       node.style.removeProperty('fill')
       if (color === undefined) return
       frame = requestAnimationFrame(() => {
-        const rect = node.parentElement?.querySelector('rect')
-        if (rect)
-          node.style.fill =
-            lab(getComputedStyle(rect).fill).l < 55
-              ? 'var(--neutral-white, #fff)'
-              : 'var(--text-color, #333)'
+        node.style.fill =
+          lab(getComputedStyle(node).stroke).l < 55
+            ? 'var(--neutral-white, #fff)'
+            : 'var(--text-color, #333)'
       })
     }
     update(color)
@@ -47,6 +45,7 @@
     xAxisPosition = 'bottom',
     valueTicks,
     showValues = true,
+    valueSeries = [],
     showTooltip = true,
     showTotals = true,
     valuePosition,
@@ -218,7 +217,8 @@
   )
   const topGutter = $derived(
     horizontal
-      ? annotations.length * annotationStep +
+      ? annotations.filter((annotation) => annotation.label).length *
+          annotationStep +
           (showXAxis && xAxisPosition === 'top'
             ? Math.max(22, (xAxisFontSize ?? themeFontSize) + 8)
             : 0)
@@ -536,42 +536,6 @@
                       : undefined}
                     rx={stacked ? undefined : 2}
                   />
-                  {#each labelsFor(bar) as valueLabel}
-                    {@const position = valueLabel.position}
-                    {#if showValues && bar.value !== 0 && valueLabel.text && (position === 'outside' || ((horizontal ? visibleLength : band) > estimatedLabelWidth( [valueLabel.text], ) + 8 && (horizontal ? band : visibleLength) > 16))}
-                      <text
-                        class="value"
-                        use:contrastText={position === 'outside'
-                          ? undefined
-                          : seriesColor(bar.series)}
-                        opacity={isDimmed(bar) ? 0.15 : 1}
-                        x={horizontal
-                          ? position === 'outside'
-                            ? bar.end + (bar.value < 0 ? -6 : 6)
-                            : position === 'left'
-                              ? start + inset + 8
-                              : (bar.start + bar.end) / 2
-                          : position === 'left'
-                            ? bar.offset + 4
-                            : center}
-                        y={horizontal
-                          ? center
-                          : position === 'outside'
-                            ? bar.end + (bar.value < 0 ? 16 : -6)
-                            : (bar.start + bar.end) / 2}
-                        text-anchor={position === 'left'
-                          ? 'start'
-                          : horizontal && position === 'outside'
-                            ? bar.value < 0
-                              ? 'end'
-                              : 'start'
-                            : 'middle'}
-                        dominant-baseline={!horizontal && position === 'outside'
-                          ? undefined
-                          : 'middle'}>{valueLabel.text}</text
-                      >
-                    {/if}
-                  {/each}
                   {#if !stacked && horizontal}
                     {#if bar.label}
                       <text
@@ -671,8 +635,13 @@
             {#each annotations as annotation, index}
               {@const position = valueScale(annotation.value)}
               {#if horizontal}
-                {@const lane =
-                  index * annotationStep + themeFontSize - topGutter}
+                {@const lane = annotation.label
+                  ? annotations.slice(0, index).filter((item) => item.label)
+                      .length *
+                      annotationStep +
+                    themeFontSize -
+                    topGutter
+                  : 0}
                 {@const alignEnd = position > plotWidth / 2}
                 <line
                   class="annotation"
@@ -681,19 +650,19 @@
                   y1={lane}
                   y2={plotHeight}
                 />
-                <circle
-                  class="annotation-point"
-                  cx={position}
-                  cy={lane}
-                  r="2"
-                />
-                <text
-                  class="annotation-label"
-                  x={position + (alignEnd ? -8 : 8)}
-                  y={lane}
-                  text-anchor={alignEnd ? 'end' : 'start'}
-                  dominant-baseline="middle">{annotation.label}</text
-                >
+                {#if annotation.label}<circle
+                    class="annotation-point"
+                    cx={position}
+                    cy={lane}
+                    r="2"
+                  />
+                  <text
+                    class="annotation-label"
+                    x={position + (alignEnd ? -8 : 8)}
+                    y={lane}
+                    text-anchor={alignEnd ? 'end' : 'start'}
+                    dominant-baseline="middle">{annotation.label}</text
+                  >{/if}
               {:else}
                 <line class="annotation" {...axisLine(position)} />
                 <text
@@ -704,6 +673,71 @@
                 >
               {/if}
             {/each}
+            <g class="value-layer" pointer-events="none">
+              {#each plottedGroups as group}
+                {#each group.bars as bar, barIndex}
+                  {@const start = Math.min(bar.start, bar.end)}
+                  {@const length = Math.abs(bar.end - bar.start)}
+                  {@const before =
+                    stacked &&
+                    group.bars
+                      .slice(0, barIndex)
+                      .some((other) => other.value * bar.value > 0)
+                      ? 0.5
+                      : 0}
+                  {@const after =
+                    stacked &&
+                    group.bars
+                      .slice(barIndex + 1)
+                      .some((other) => other.value * bar.value > 0)
+                      ? 0.5
+                      : 0}
+                  {@const inset =
+                    horizontal === bar.value >= 0 ? before : after}
+                  {@const visibleLength = Math.max(0, length - before - after)}
+                  {@const center = bar.offset + band / 2}
+                  {#each labelsFor(bar) as valueLabel}
+                    {@const position = valueLabel.position}
+                    {#if showValues && (!valueSeries.length || valueSeries.includes(bar.series) || hovered?.bar === bar || hoveredSeries === bar.series) && bar.value !== 0 && valueLabel.text && (position === 'outside' || ((horizontal ? visibleLength : band) > estimatedLabelWidth( [valueLabel.text], ) + 8 && (horizontal ? band : visibleLength) > 16))}
+                      <text
+                        class="value"
+                        style:stroke={position === 'outside'
+                          ? undefined
+                          : seriesColor(bar.series)}
+                        use:contrastText={position === 'outside'
+                          ? undefined
+                          : seriesColor(bar.series)}
+                        opacity={isDimmed(bar) ? 0.15 : 1}
+                        x={horizontal
+                          ? position === 'outside'
+                            ? bar.end + (bar.value < 0 ? -6 : 6)
+                            : position === 'left'
+                              ? start + inset + 8
+                              : (bar.start + bar.end) / 2
+                          : position === 'left'
+                            ? bar.offset + 4
+                            : center}
+                        y={horizontal
+                          ? center
+                          : position === 'outside'
+                            ? bar.end + (bar.value < 0 ? 16 : -6)
+                            : (bar.start + bar.end) / 2}
+                        text-anchor={position === 'left'
+                          ? 'start'
+                          : horizontal && position === 'outside'
+                            ? bar.value < 0
+                              ? 'end'
+                              : 'start'
+                            : 'middle'}
+                        dominant-baseline={!horizontal && position === 'outside'
+                          ? undefined
+                          : 'middle'}>{valueLabel.text}</text
+                      >
+                    {/if}
+                  {/each}
+                {/each}
+              {/each}
+            </g>
           </g>
         </svg>
       {/if}
@@ -819,7 +853,15 @@
     font-size: 0.9em;
   }
   .value {
+    paint-order: stroke;
+    stroke: var(--neutral-gray-50);
+    stroke-width: 4px;
+    stroke-opacity: 0.8;
+    stroke-linejoin: round;
     font-weight: 400;
+  }
+  .plain .value {
+    stroke: var(--background, var(--neutral-white, #fff));
   }
   .annotation {
     stroke: var(--neutral-gray-800);

@@ -52,6 +52,7 @@
         showXAxis={entry.showXAxis ?? false}
         showValues={entry.showValues ?? true}
         showTotals={entry.showTotals ?? true}
+        valueSeries={entry.valueSeries}
         valuePosition={entry.valuePosition}
         xAxisFontSize={entry.xAxisFontSize}
         yAxisFontSize={entry.yAxisFontSize}

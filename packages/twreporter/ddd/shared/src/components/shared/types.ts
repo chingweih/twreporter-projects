@@ -125,6 +125,7 @@ export type BarChartProps = {
   groupGap?: number
   showXAxis?: boolean
   showValues?: boolean
+  valueSeries?: readonly string[]
   showTotals?: boolean
   valuePosition?: 'left' | 'center' | 'outside'
   xAxisFontSize?: number

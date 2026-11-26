@@ -121,6 +121,7 @@
         {groups}
         {colors}
         orientation="horizontal"
+        annotations={kind === 'party' ? [{ value: 50, label: '' }] : []}
         mode={entry.mode ?? 'stacked'}
         chartBackdrop={entry.chartBackdrop ?? false}
         barGap={entry.barGap}
@@ -128,6 +129,7 @@
         showXAxis={entry.showXAxis}
         showValues={entry.showValues}
         showTotals={entry.showTotals}
+        valueSeries={entry.valueSeries}
         valuePosition={entry.valuePosition}
         xAxisFontSize={entry.xAxisFontSize}
         yAxisFontSize={entry.yAxisFontSize}

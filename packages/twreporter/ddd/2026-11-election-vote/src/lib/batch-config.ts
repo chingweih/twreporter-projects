@@ -42,6 +42,7 @@ type GraphicDefaults = Pick<
   hoverFocusXAxis?: boolean
   hoverFocusYAxis?: boolean
   showValues?: boolean
+  valueSeries?: string[]
   showTotals?: boolean
   valuePosition?: 'left' | 'center' | 'outside'
   xAxisFontSize?: number
@@ -86,6 +87,7 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     hoverFocusXAxis?: boolean
     hoverFocusYAxis?: boolean
     showValues?: boolean
+    valueSeries?: string[]
     showTotals?: boolean
     valuePosition?: 'left' | 'center' | 'outside'
     xAxisFontSize?: number
@@ -148,6 +150,13 @@ function graphicConfig(defaults: GraphicDefaults) {
               .boolean()
               .default(defaults.showXGrid ?? true)
               .meta({ title: '顯示 X 軸網格（垂直線）' }),
+            valueSeries: z
+              .array(z.string().min(1))
+              .default(defaults.valueSeries ?? [])
+              .meta({
+                title: '顯示數值的系列',
+                description: '輸入系列名稱，例如國民黨、民進黨；留空代表全部。',
+              }),
             showValues: barChartShowValuesSchema.default(
               defaults.showValues ?? true,
             ),
@@ -477,6 +486,7 @@ function graphicConfig(defaults: GraphicDefaults) {
               'showXGrid',
               'showTooltip',
               'showTotals',
+              'valueSeries',
               'valuePosition',
               'xAxisFontSize',
               'yAxisFontSize',
@@ -528,6 +538,7 @@ export function defineElectionBatch({
         hoverFocusYAxis = true,
         showValues = true,
         showTotals = true,
+        valueSeries,
         valuePosition,
         xAxisFontSize,
         yAxisFontSize,
@@ -623,6 +634,7 @@ export function defineElectionBatch({
               showXAxis,
               showValues,
               showTotals,
+              valueSeries,
               valuePosition,
               xAxisFontSize,
               yAxisFontSize,
