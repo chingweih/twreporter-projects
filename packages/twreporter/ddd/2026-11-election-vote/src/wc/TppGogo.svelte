@@ -172,8 +172,9 @@
                       <div class="stat">
                         <span>提名</span><strong>{row.total}</strong>
                       </div>
+                      <hr/>
                       <div class="stat">
-                        <span>當選率</span><strong
+                        <span>整體<br />當選率</span><strong
                           >{row.elected === null || !row.total
                             ? '-'
                             : `${Number(((row.elected / row.total) * 100).toFixed(1))}%`}</strong
@@ -339,7 +340,7 @@
   }
   .stat {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 6px;
     line-height: 1.2;
@@ -352,7 +353,7 @@
   .stat strong {
     font-size: 16px;
     font-weight: 600;
-    line-height: 1;
+    line-height: 1.2;
   }
   .year {
     grid-column: 1;
@@ -400,6 +401,11 @@
   .unit:focus-visible {
     outline: 2px solid var(--text-color);
     outline-offset: 1px;
+  }
+  hr {
+    margin: 4px 0;
+    border: none;
+    border-top: 1px solid var(--neutral-gray-300);
   }
   @container (max-width: 580px) {
     .section-heading {
