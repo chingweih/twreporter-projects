@@ -25,16 +25,22 @@
         agree: row.同意票,
         disagree: row.不同意票,
       })),
-      ...(history.data ?? []).map((row) => ({
-        label: row.案次,
-        electorate: row.投票權人,
-        agree: row.同意票,
-        disagree: row.不同意票,
-      })),
+      ...(history.data ?? []).flatMap((row) =>
+        row.投票權人 === null || row.同意票 === null || row.不同意票 === null
+          ? []
+          : [
+              {
+                label: row.案次,
+                electorate: row.投票權人,
+                agree: row.同意票,
+                disagree: row.不同意票,
+              },
+            ],
+      ),
     ]
       .filter((row) => row.electorate > 0)
       .map((row) => ({
-        label: row.label,
+        label: row.label.replace(/^(\d{4})\s+/, '$1年\n'),
         bars: [
           {
             series: '同意票',

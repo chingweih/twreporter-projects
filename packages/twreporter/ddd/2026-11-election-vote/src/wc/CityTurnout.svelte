@@ -68,6 +68,10 @@
         showYGrid={entry.showYGrid}
         xTickCount={8}
         yLabelHorizontalTexts={entry.yLabelHorizontalTexts}
+        connectGaps={entry.connectGaps}
+        gapDasharray={entry.gapDasharray}
+        lineWidth={entry.lineWidth}
+        linePointRadius={entry.linePointRadius}
         yTickCount={entry.yTickCount}
         yDomain={[0, entry.yMax ?? 100]}
         formatX={(value) => rows[value]?.label ?? ''}

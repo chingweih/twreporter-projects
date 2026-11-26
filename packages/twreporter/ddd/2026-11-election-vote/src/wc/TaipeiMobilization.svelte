@@ -13,12 +13,12 @@
   const parties = [
     { name: '國民黨', column: '國民黨催票率（%）', color: 'var(--elec-kmt)' },
     { name: '民進黨', column: '民進黨催票率（%）', color: 'var(--elec-dpp)' },
-    {
-      name: '無黨籍',
-      column: '無黨籍催票率（%）',
-      color: 'var(--elec-gray-3)',
-    },
-    { name: '新黨', column: '新黨催票率（%）', color: 'var(--elec-new)' },
+    // {
+    //   name: '無黨籍',
+    //   column: '無黨籍催票率（%）',
+    //   color: 'var(--elec-gray-3)',
+    // },
+    // { name: '新黨', column: '新黨催票率（%）', color: 'var(--elec-new)' },
   ] as const
   const colors = Object.fromEntries(
     parties.map((party) => [party.name, party.color]),
@@ -68,6 +68,10 @@
         gridHover={entry.gridHover}
         xTickCount={8}
         yLabelHorizontalTexts={entry.yLabelHorizontalTexts}
+        connectGaps={entry.connectGaps}
+        gapDasharray={entry.gapDasharray}
+        lineWidth={entry.lineWidth}
+        linePointRadius={entry.linePointRadius}
         yTickCount={entry.yTickCount}
         yDomain={[0, entry.yMax ?? 100]}
         formatX={(value) => history.data?.[value]?.台北市長屆次 ?? ''}

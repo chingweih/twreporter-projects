@@ -52,6 +52,10 @@ type GraphicDefaults = Pick<
   showTrendLine?: boolean
   xMax?: number
   yLabelHorizontalTexts?: string[]
+  connectGaps?: boolean
+  gapDasharray?: string
+  lineWidth?: number
+  linePointRadius?: number
   yTickCount?: number
   yMax?: number
   showArea?: boolean
@@ -92,6 +96,10 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     showTrendLine?: boolean
     xMax?: number
     yLabelHorizontalTexts?: string[]
+    connectGaps?: boolean
+    gapDasharray?: string
+    lineWidth?: number
+    linePointRadius?: number
     yTickCount?: number
     yMax?: number
     showArea?: boolean
@@ -201,6 +209,29 @@ function graphicConfig(defaults: GraphicDefaults) {
                 description:
                   '逐項輸入完整片段，例如：黃珊珊、（%）。連續數字自動橫排。',
               }),
+            connectGaps: z
+              .boolean()
+              .default(defaults.connectGaps ?? true)
+              .meta({ title: '虛線連接缺資料區段' }),
+            gapDasharray: z
+              .string()
+              .trim()
+              .regex(/^\d+(?:\.\d+)?(?:[ ,]+\d+(?:\.\d+)?)*$/)
+              .default(defaults.gapDasharray ?? '6 4')
+              .meta({
+                title: '缺資料連線虛線樣式',
+                description: '依序輸入線段與間隔長度，例如 6 4，單位 px。',
+              }),
+            lineWidth: z
+              .number()
+              .nonnegative()
+              .default(defaults.lineWidth ?? 4)
+              .meta({ title: '折線寬度（px）' }),
+            linePointRadius: z
+              .number()
+              .nonnegative()
+              .default(defaults.linePointRadius ?? 4.5)
+              .meta({ title: '資料點半徑（px）' }),
             yTickCount: z
               .number()
               .int()
@@ -418,6 +449,10 @@ function graphicConfig(defaults: GraphicDefaults) {
         ...(defaults.yTickCount !== undefined &&
         defaults.pointRadius === undefined
           ? [
+              'connectGaps',
+              'gapDasharray',
+              'lineWidth',
+              'linePointRadius',
               'showArea',
               'showTooltip',
               'showValue',
@@ -502,6 +537,10 @@ export function defineElectionBatch({
         showTrendLine,
         xMax,
         yLabelHorizontalTexts,
+        connectGaps,
+        gapDasharray,
+        lineWidth,
+        linePointRadius,
         yTickCount,
         yMax,
         showArea,
@@ -556,6 +595,10 @@ export function defineElectionBatch({
           : {}),
         ...(yTickCount !== undefined && pointRadius === undefined
           ? {
+              connectGaps,
+              gapDasharray,
+              lineWidth,
+              linePointRadius,
               showArea: showArea ?? false,
               yLabelHorizontalTexts,
               showTooltip,

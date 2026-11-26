@@ -64,6 +64,8 @@
     kind === 'party'
       ? (partyHistory.data ?? []).map((row) => ({
           label: row.議會,
+          emphasized: row.議會 === '全國合計',
+          gapAfter: row.議會 === '全國合計' ? 8 : 0,
           bars: parties.map((party) => ({
             series: party.series,
             value: row[party.column],

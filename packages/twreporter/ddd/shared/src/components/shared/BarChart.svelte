@@ -27,8 +27,8 @@
     update(color)
     return { update, destroy: () => cancelAnimationFrame(frame) }
   }
-  const annotationStep = 24
-  const labelGap = 10
+  const annotationStep = 32
+  const axisLabelOffset = 8
   const estimatedCharacterWidth = 8.5
   const estimatedWideCharacterWidth = 14
 
@@ -137,7 +137,10 @@
   const barLabels = $derived(bars.map((bar) => bar.label ?? ''))
   const hasBarLabels = $derived(!stacked && barLabels.some(Boolean))
   const gapWidth = $derived(
-    stacked ? 0 : groupGap * Math.max(0, nonemptyGroups.length - 1),
+    (stacked ? 0 : groupGap * Math.max(0, nonemptyGroups.length - 1)) +
+      nonemptyGroups
+        .slice(0, -1)
+        .reduce((sum, group) => sum + (group.gapAfter ?? 0), 0),
   )
   const values = $derived([
     ...(stacked
@@ -169,20 +172,20 @@
           values
             .filter((value) => value < 0)
             .map((value) => formatValue(value)),
-        ) + labelGap
+        ) + axisLabelOffset
       : 0,
   )
   const barLabelGutter = $derived(
     horizontal && hasBarLabels
-      ? estimatedLabelWidth(barLabels, yAxisFontSize) + labelGap
+      ? estimatedLabelWidth(barLabels, yAxisFontSize) + axisLabelOffset
       : 0,
   )
   const groupLabelGutter = $derived(
     horizontal && hasGroupLabels
       ? estimatedLabelWidth(
-          nonemptyGroups.map((group) => group.label ?? ''),
+          nonemptyGroups.flatMap((group) => (group.label ?? '').split('\n')),
           yAxisFontSize,
-        ) + labelGap
+        ) + axisLabelOffset
       : 0,
   )
   const leftGutter = $derived(
@@ -192,7 +195,7 @@
           valueTicks?.map((tick) => tick.label) ??
             valueDomainScale.ticks(6).map((tick) => formatValue(tick)),
           yAxisFontSize,
-        ) + labelGap,
+        ) + axisLabelOffset,
   )
   const rightGutter = $derived(
     horizontal &&
@@ -210,7 +213,7 @@
               .filter((label) => label.position === 'outside')
               .map((label) => label.text),
           ),
-        ]) + labelGap
+        ]) + axisLabelOffset
       : 0,
   )
   const topGutter = $derived(
@@ -273,13 +276,14 @@
   const band = $derived(categoryScale.bandwidth())
   const plottedGroups = $derived.by(() => {
     let index = 0
+    let extraGap = 0
     return nonemptyGroups.map((group, groupIndex) => {
       let positive = 0
       let negative = 0
       const plottedBars = group.bars.map((bar) => {
         const offset = stacked
-          ? (categoryScale(groupIndex) ?? 0)
-          : (categoryScale(index++) ?? 0) + groupIndex * groupGap
+          ? (categoryScale(groupIndex) ?? 0) + extraGap
+          : (categoryScale(index++) ?? 0) + groupIndex * groupGap + extraGap
         const start = stacked ? (bar.value < 0 ? negative : positive) : 0
         if (bar.value < 0) negative += bar.value
         else positive += bar.value
@@ -294,8 +298,10 @@
         (plottedBars[0]?.offset ?? 0) +
         (stacked ? 0 : ((plottedBars.length - 1) * categoryScale.step()) / 2) +
         band / 2
+      extraGap += group.gapAfter ?? 0
       return {
         label: group.label,
+        emphasized: group.emphasized,
         center,
         bars: plottedBars,
         positive,
@@ -337,7 +343,7 @@
       0,
       ...labels.map((label) => {
         if (measureContext) {
-          measureContext.font = `${fontSize}px ${fontFamily}`
+          measureContext.font = `700 ${fontSize}px ${fontFamily}`
           return Math.ceil(measureContext.measureText(label).width)
         }
         const wideCharacters = label.match(/[^\x00-\x7f]/g)?.length ?? 0
@@ -455,7 +461,7 @@
                   : yAxisFontSize
                     ? `${yAxisFontSize}px`
                     : undefined}
-                x={horizontal ? position : -8}
+                x={horizontal ? position : -axisLabelOffset}
                 y={horizontal
                   ? xAxisPosition === 'top'
                     ? -8
@@ -577,7 +583,7 @@
                         style:font-size={yAxisFontSize
                           ? `${yAxisFontSize}px`
                           : undefined}
-                        x={-8 - negativeValueGutter}
+                        x={-axisLabelOffset - negativeValueGutter}
                         y={center}
                         text-anchor="end"
                         dominant-baseline="middle">{bar.label}</text
@@ -614,6 +620,7 @@
                 {#if horizontal}
                   <text
                     class="category"
+                    class:emphasized={group.emphasized}
                     class:axis-focus-disabled={!(horizontal
                       ? hoverFocusYAxis
                       : hoverFocusXAxis)}
@@ -621,11 +628,22 @@
                     style:font-size={yAxisFontSize
                       ? `${yAxisFontSize}px`
                       : undefined}
-                    x={-8 - barLabelGutter - negativeValueGutter}
+                    x={-axisLabelOffset - barLabelGutter - negativeValueGutter}
                     y={group.center}
                     text-anchor="end"
-                    dominant-baseline="middle">{group.label}</text
+                    dominant-baseline="middle"
                   >
+                    {#each group.label.split('\n') as line, index}
+                      <tspan
+                        x={-axisLabelOffset -
+                          barLabelGutter -
+                          negativeValueGutter}
+                        dy={index === 0
+                          ? `${-((group.label.split('\n').length - 1) * 1.2) / 2}em`
+                          : '1.2em'}>{line}</tspan
+                      >
+                    {/each}
+                  </text>
                 {:else}
                   <text
                     class="category"
@@ -776,6 +794,9 @@
     font-weight: 700;
     fill: var(--text-color);
   }
+  .category.emphasized {
+    font-weight: 700;
+  }
   .tick,
   .category {
     transition: opacity 150ms ease;
@@ -801,17 +822,18 @@
     font-weight: 400;
   }
   .annotation {
-    stroke: var(--neutral-gray-600);
+    stroke: var(--neutral-gray-800);
     stroke-dasharray: 3 3;
+    stroke-width: 2px;
   }
   .annotation-point {
-    fill: var(--neutral-gray-600);
+    fill: var(--neutral-gray-800);
   }
   .annotation-label {
     paint-order: stroke;
     stroke: var(--neutral-gray-50);
-    stroke-width: 3px;
     stroke-linejoin: round;
-    color: var(--neutral-gray-600);
+    color: var(--neutral-gray-800);
+    font-weight: 500;
   }
 </style>

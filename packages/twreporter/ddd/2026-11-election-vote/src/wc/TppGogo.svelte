@@ -299,13 +299,13 @@
   }
   .year-row {
     display: grid;
-    grid-template-columns: 5ch minmax(0, 1fr);
+    grid-template-columns: 4ch minmax(0, 1fr);
     gap: 15px;
     margin-top: 12px;
     align-items: start;
   }
   .year-row.with-totals {
-    grid-template-columns: 5ch 70px minmax(0, 1fr);
+    grid-template-columns: 4ch 70px minmax(0, 1fr);
   }
   .summary {
     display: flex;
@@ -327,6 +327,7 @@
     writing-mode: vertical-rl;
     text-orientation: upright;
     font-size: 14px;
+    letter-spacing: 0.1em;
   }
   .stat strong {
     font-size: 36px;
@@ -338,8 +339,8 @@
   }
   .year {
     padding-top: 0;
-    font-weight: 600;
-    font-size: 18px;
+    font-weight: 500;
+    font-size: 16px;
     line-height: 1.2;
   }
   .parties {

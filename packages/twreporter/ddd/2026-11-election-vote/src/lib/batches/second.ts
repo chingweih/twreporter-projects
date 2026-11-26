@@ -19,8 +19,8 @@ export const secondBatch = defineElectionBatch({
       showYAxis: true,
       showXGrid: true,
       showYGrid: true,
-      yTickCount: 5,
-      yMax: 100,
+      yTickCount: 10,
+      yMax: 80,
     },
     '2-taipei-turnout': {
       title: '歷屆台北市長投票率',
@@ -34,8 +34,8 @@ export const secondBatch = defineElectionBatch({
       showYAxis: true,
       showXGrid: true,
       showYGrid: true,
-      yTickCount: 5,
-      yMax: 100,
+      yTickCount: 10,
+      yMax: 90,
     },
     '3-taipei-mobilization': {
       name: 'city-mobilization',

@@ -28,6 +28,10 @@
     yDomain,
     xTickCount = 6,
     yTickCount = 5,
+    connectGaps = true,
+    gapDasharray = '6 4',
+    lineWidth = 4,
+    linePointRadius = 4.5,
     formatX = String,
     formatValue = String,
   }: {
@@ -51,6 +55,10 @@
     xDomain?: [number, number]
     yDomain?: [number, number]
     xTickCount?: number
+    connectGaps?: boolean
+    gapDasharray?: string
+    lineWidth?: number
+    linePointRadius?: number
     yTickCount?: number
     formatX?: (value: number) => string
     formatValue?: (value: number) => string
@@ -140,6 +148,24 @@
       .range([Math.max(0, height - (showXAxis ? 26 : 4)), showValue ? 26 : 10]),
   )
   const yTicks = $derived(yScale.ticks(yTickCount))
+  const valueLabelPositions = $derived.by(() => {
+    const positions = new Map<(typeof validData)[number], number>()
+    for (const x of xValues) {
+      const points = validData
+        .filter((point) => point.x === x)
+        .sort((a, b) => yScale(a.value) - yScale(b.value))
+      let previous = -Infinity
+      for (const point of points) {
+        const pointY = yScale(point.value)
+        const above = pointY - 13
+        const y =
+          above - previous < 20 ? Math.max(pointY + 24, previous + 20) : above
+        positions.set(point, y)
+        previous = y
+      }
+    }
+    return positions
+  })
   const left = $derived(
     Math.max(
       4,
@@ -364,6 +390,17 @@
                 ? 0.25
                 : 1}
             >
+              {#each connectGaps ? group.segments.slice(1) : [] as segment, segmentIndex}
+                {@const previous = group.segments[segmentIndex]}
+                <path
+                  d={path([previous[previous.length - 1], segment[0]])}
+                  fill="none"
+                  stroke={group.color}
+                  stroke-width={lineWidth}
+                  stroke-dasharray="1 10"
+                  stroke-linecap="round"
+                />
+              {/each}
               {#if showArea && group.points.length > 1}
                 <defs>
                   <linearGradient
@@ -408,37 +445,14 @@
                   d={path(segment)}
                   fill="none"
                   stroke={group.color}
-                  stroke-width="2"
+                  stroke-width={lineWidth}
                   stroke-linejoin="round"
                   stroke-linecap="round"
                 />
               {/each}
-              {#each group.points as point, pointIndex}
-                {#if showValue || hoveredLine === group.label || (hovered?.pointX === point.x && (hovered.rows !== undefined || hovered.series === group.label))}
-                  <text
-                    class="value"
-                    class:dimmed={hovered
-                      ? !(
-                          hovered.pointX === point.x &&
-                          (hovered.rows !== undefined ||
-                            hovered.series === group.label)
-                        )
-                      : hoveredLine !== undefined &&
-                        hoveredLine !== group.label}
-                    class:highlighted={hovered?.pointX === point.x &&
-                      (hovered.rows !== undefined ||
-                        hovered.series === group.label)}
-                    x={xScale(point.x)}
-                    y={yScale(point.value) - 10}
-                    text-anchor={pointIndex === 0
-                      ? 'start'
-                      : pointIndex === group.points.length - 1
-                        ? 'end'
-                        : 'middle'}
-                    pointer-events="none">{formatValue(point.value)}</text
-                  >
-                {/if}
+              {#each group.points as point}
                 <g
+                  style:--point-hover-radius={`${linePointRadius + 0.5}px`}
                   role="button"
                   tabindex="0"
                   aria-label={`${group.label} ${formatX(point.x)} ${formatValue(point.value)}`}
@@ -477,16 +491,60 @@
                   <circle
                     cx={xScale(point.x)}
                     cy={yScale(point.value)}
-                    r="10"
+                    r={Math.max(10, linePointRadius + 5.5)}
                     fill="transparent"
+                  />
+                  <circle
+                    class="point-ring"
+                    cx={xScale(point.x)}
+                    cy={yScale(point.value)}
+                    r={linePointRadius + 3.5}
+                    stroke={group.color}
                   />
                   <circle
                     cx={xScale(point.x)}
                     cy={yScale(point.value)}
-                    r="3"
+                    r={linePointRadius}
                     fill={group.color}
                   />
                 </g>
+              {/each}
+            </g>
+          {/each}
+          {#each groups as group}
+            <g
+              opacity={(focused !== undefined && focused !== group.label) ||
+              (focused === undefined &&
+                hovered?.rows !== undefined &&
+                !hovered.rows.some((row) => row.series === group.label))
+                ? 0.25
+                : 1}
+            >
+              {#each group.points as point, pointIndex}
+                {#if showValue || hoveredLine === group.label || (hovered?.pointX === point.x && (hovered.rows !== undefined || hovered.series === group.label))}
+                  <text
+                    class="value"
+                    class:dimmed={hovered
+                      ? !(
+                          hovered.pointX === point.x &&
+                          (hovered.rows !== undefined ||
+                            hovered.series === group.label)
+                        )
+                      : hoveredLine !== undefined &&
+                        hoveredLine !== group.label}
+                    class:highlighted={hovered?.pointX === point.x &&
+                      (hovered.rows !== undefined ||
+                        hovered.series === group.label)}
+                    x={xScale(point.x)}
+                    y={valueLabelPositions.get(point)}
+                    text-anchor={pointIndex === 0
+                      ? 'start'
+                      : pointIndex === group.points.length - 1
+                        ? 'end'
+                        : 'middle'}
+                    pointer-events="none">{formatValue(point.value)}</text
+                  >
+                {/if}
               {/each}
             </g>
           {/each}
@@ -600,6 +658,7 @@
     transition: opacity 150ms ease;
     fill: var(--neutral-gray-800);
     paint-order: stroke;
+    stroke-opacity: 0.7;
     stroke: var(--neutral-gray-50);
     stroke-width: 4px;
     stroke-linejoin: round;
@@ -647,9 +706,22 @@
   g[role='button'] {
     cursor: pointer;
   }
+  .point-ring {
+    fill: var(--neutral-gray-50);
+    stroke-width: 2px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .plain .point-ring {
+    fill: var(--background, var(--neutral-white, #fff));
+  }
+  g[role='button']:hover .point-ring,
+  g[role='button']:focus .point-ring {
+    opacity: 1;
+  }
   g[role='button']:hover circle:last-child,
   g[role='button']:focus circle:last-child {
-    r: 5px;
+    r: var(--point-hover-radius);
   }
   @media (prefers-reduced-motion: reduce) {
     .value {
