@@ -43,6 +43,12 @@
   )
   const batchConfig = $derived(graphic.config)
   const entry = $derived(batchConfig?.[graphicKey])
+  let width = $state(0)
+  const responsiveEntry = $derived(
+    entry && width > 0 && width <= 580
+      ? { ...entry, containerAspectRatio: undefined }
+      : entry,
+  )
   const countingValues = createQuery(() => ({
     ...electionTabs.fetchLog.options,
     select: (rows) => {
@@ -84,28 +90,32 @@
   )
 </script>
 
-{#if batchConfig && entry}
-  <Shell
-    bind:title={entry.title}
-    bind:footnotes={entry.footnotes}
-    readOnlyFootnotes={sharedNotes}
-    footnotePrefix={(index) => `註${numberFootnotes ? index + 1 : ''}：`}
-    {wide}
-    {containerMinHeight}
-    containerHeight={autoHeight ? undefined : entry.containerHeight}
-    containerAspectRatio={autoHeight ? undefined : entry.containerAspectRatio}
-    editable={graphic.editable}
-    error={graphic.error ?? error}
-    {loading}
-    empty={empty ?? !children}
-  >
-    {@render children?.(entry)}
-  </Shell>
-{:else}
-  <Shell
-    {wide}
-    error={graphic.error ?? (batchConfig && `找不到圖表設定 ${graphicKey}。`)}
-    loading={graphic.loading}
-    empty
-  />
-{/if}
+<div bind:clientWidth={width}>
+  {#if batchConfig && entry && responsiveEntry}
+    <Shell
+      bind:title={entry.title}
+      bind:footnotes={entry.footnotes}
+      readOnlyFootnotes={sharedNotes}
+      footnotePrefix={(index) => `註${numberFootnotes ? index + 1 : ''}：`}
+      {wide}
+      {containerMinHeight}
+      containerHeight={autoHeight ? undefined : entry.containerHeight}
+      containerAspectRatio={autoHeight
+        ? undefined
+        : responsiveEntry.containerAspectRatio}
+      editable={graphic.editable}
+      error={graphic.error ?? error}
+      {loading}
+      empty={empty ?? !children}
+    >
+      {@render children?.(responsiveEntry)}
+    </Shell>
+  {:else}
+    <Shell
+      {wide}
+      error={graphic.error ?? (batchConfig && `找不到圖表設定 ${graphicKey}。`)}
+      loading={graphic.loading}
+      empty
+    />
+  {/if}
+</div>

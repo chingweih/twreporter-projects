@@ -16,6 +16,8 @@
     function fit() {
       if (!options.sized) {
         node.style.removeProperty('--unit-height')
+        const content = node.querySelector<HTMLElement>('.chart-content')
+        content?.style.removeProperty('zoom')
         return
       }
       const content = node.querySelector<HTMLElement>('.chart-content')!
@@ -25,6 +27,12 @@
         parseFloat(style.paddingTop) -
         parseFloat(style.paddingBottom)
       if (!available) return
+      content.style.removeProperty('zoom')
+      node.style.setProperty('--unit-height', '8px')
+      // Keep the fixed text layout from consuming the entire cell-height budget.
+      const naturalHeight = content.getBoundingClientRect().height
+      if (naturalHeight > available)
+        content.style.zoom = String(available / naturalHeight)
       let low = 0
       let high = available
       // Measure the real layout: each year must also fit its statistics column.
@@ -118,7 +126,6 @@
   batch={secondBatch}
   {config}
   graphicKey="5-tpp-gogo"
-  containerMinHeight={960}
   error={nominations.error?.message}
   loading={nominations.isPending}
   empty={!nominations.data?.length}
@@ -128,7 +135,7 @@
       class="chart"
       use:fitUnits={{
         sized: !!(entry.containerHeight || entry.containerAspectRatio),
-        columns: entry.unitColumns ?? 15,
+        columns: entry.unitColumns ?? 20,
         gap: entry.unitGap ?? 4,
       }}
       class:sized={!!(entry.containerHeight || entry.containerAspectRatio)}
@@ -146,37 +153,39 @@
               <h3>{section.title}</h3>
               <p class="description">
                 {section.title === '民眾黨'
-                  ? '2019 年成立，未參與 2018 選舉。'
-                  : '依 2026 聯盟成員回溯加總；2018、2022 各黨分別參選。'}
+                  ? '2019 年成立，未參與 2018 選舉'
+                  : '依 2026 聯盟成員回溯加總；2018、2022 各黨分別參選'}
               </p>
             </header>
             {#each section.years as row}
               <div class="year-row" class:with-totals={entry.showTotals}>
                 <span class="year">{row.year}</span>
-                {#if entry.showTotals}
-                  <div class="summary" aria-label={`${row.year} 人數統計`}>
-                    {#if row.year === 2026}
+                <div class="year-summary">
+                  {#if entry.showTotals}
+                    <div class="summary" aria-label={`${row.year} 人數統計`}>
                       <div class="stat">
-                        <span>當選</span><strong>-</strong>
+                        <span>當選</span><strong
+                          >{row.year === 2026 ? '-' : row.elected}</strong
+                        >
                       </div>
-                      <div class="stat nominated">
+                      <div class="stat">
                         <span>提名</span><strong>{row.total}</strong>
                       </div>
-                    {:else}
                       <div class="stat">
-                        <span>當選</span><strong>{row.elected}</strong>
+                        <span>當選率</span><strong
+                          >{row.year === 2026 || !row.total
+                            ? '-'
+                            : `${Number(((row.elected / row.total) * 100).toFixed(1))}%`}</strong
+                        >
                       </div>
-                      <div class="stat nominated">
-                        <span>提名</span><strong>{row.total}</strong>
-                      </div>
-                    {/if}
-                  </div>
-                {/if}
+                    </div>
+                  {/if}
+                </div>
                 <div class="year-content">
                   {#if row.available}
                     <div
                       class="parties"
-                      style:--unit-columns={entry.unitColumns ?? 15}
+                      style:--unit-columns={entry.unitColumns ?? 20}
                       style:--unit-gap={`${entry.unitGap ?? 4}px`}
                     >
                       {#each row.bars.filter((bar) => bar.total > 0) as bar}
@@ -299,48 +308,57 @@
   }
   .year-row {
     display: grid;
-    grid-template-columns: 4ch minmax(0, 1fr);
+    grid-template-columns: 4ch minmax(0, 1fr) minmax(4ch, max-content);
     gap: 15px;
     margin-top: 12px;
     align-items: start;
   }
   .year-row.with-totals {
-    grid-template-columns: 4ch 70px minmax(0, 1fr);
+    grid-template-columns: 4ch minmax(0, 1fr) 110px;
+  }
+  .year-summary {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: stretch;
+    border-left: 1px solid var(--neutral-gray-300);
+    padding-left: 12px;
+  }
+  .year-content {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
   }
   .summary {
     display: flex;
     align-self: stretch;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    border-left: 1px solid var(--neutral-gray-300);
-    padding-left: 10px;
+    align-items: stretch;
+    gap: 3px;
     color: var(--neutral-gray-800);
   }
   .stat {
     display: flex;
     align-items: center;
-    gap: 3px;
-    line-height: 1.1;
+    justify-content: space-between;
+    gap: 6px;
+    line-height: 1.2;
   }
   .stat > span {
-    writing-mode: vertical-rl;
-    text-orientation: upright;
+    white-space: nowrap;
     font-size: 14px;
     letter-spacing: 0.1em;
   }
   .stat strong {
-    font-size: 36px;
+    font-size: 16px;
     font-weight: 600;
     line-height: 1;
   }
-  .nominated {
-    opacity: 0.3;
-  }
   .year {
+    grid-column: 1;
+    grid-row: 1;
     padding-top: 0;
     font-weight: 500;
-    font-size: 16px;
+    font-size: var(--text-s);
     line-height: 1.2;
   }
   .parties {
@@ -382,7 +400,7 @@
     outline: 2px solid var(--text-color);
     outline-offset: 1px;
   }
-  @container (max-width: 480px) {
+  @container (max-width: 580px) {
     .section-heading {
       flex-direction: column;
       align-items: flex-start;
@@ -390,7 +408,6 @@
     .sized .note,
     .sized .summary,
     .sized .year {
-      font-size: 11px;
       line-height: 1.2;
     }
     .sized .note {
@@ -411,20 +428,17 @@
       gap: 4px 8px;
       font-size: 11px;
     }
-  }
-  @container (max-width: 480px) {
     .sized .parties {
       gap: 2px;
     }
     .year-row.with-totals {
-      grid-template-columns: 4ch 54px minmax(0, 1fr);
+      grid-template-columns: 4ch minmax(0, 1fr) 90px;
     }
     .summary {
-      gap: 5px;
-      padding-left: 6px;
+      gap: 3px;
     }
     .stat strong {
-      font-size: 26px;
+      font-size: 14px;
     }
   }
   @media (prefers-reduced-motion: reduce) {

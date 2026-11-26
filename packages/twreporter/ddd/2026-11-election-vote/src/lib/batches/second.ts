@@ -66,7 +66,7 @@ export const secondBatch = defineElectionBatch({
     '5-tpp-gogo': {
       title: '2026民眾黨、台灣前進議員提名與當選狀態',
       containerAspectRatio: 0.8,
-      unitColumns: 15,
+      unitColumns: 20,
       unitGap: 2,
       chartBackdrop: false,
       showTotals: true,

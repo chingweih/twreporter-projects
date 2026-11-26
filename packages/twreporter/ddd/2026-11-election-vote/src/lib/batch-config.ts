@@ -326,14 +326,14 @@ function graphicConfig(defaults: GraphicDefaults) {
         : {},
     )
     .extend(
-      defaults.unitColumns !== undefined
+      defaults.unitColumns !== undefined || defaults.unitGap !== undefined
         ? {
             unitColumns: z
               .number()
               .int()
               .min(1)
               .max(50)
-              .default(defaults.unitColumns)
+              .default(defaults.unitColumns ?? 15)
               .meta({
                 title: '每列人數',
                 description: '每格代表 1 人，各政黨使用相同格子尺寸。',
@@ -433,7 +433,7 @@ function graphicConfig(defaults: GraphicDefaults) {
         'title',
         'containerHeight',
         'containerAspectRatio',
-        ...(defaults.unitColumns !== undefined
+        ...(defaults.unitColumns !== undefined || defaults.unitGap !== undefined
           ? ['unitColumns', 'unitGap', 'chartBackdrop', 'showTotals']
           : []),
         ...(defaults.mode ||
@@ -588,8 +588,8 @@ export function defineElectionBatch({
         footnotes,
         ...(containerHeight !== undefined ? { containerHeight } : {}),
         ...(containerAspectRatio !== undefined ? { containerAspectRatio } : {}),
-        ...(unitColumns !== undefined
-          ? { unitColumns, unitGap: unitGap ?? 4, chartBackdrop, showTotals }
+        ...(unitColumns !== undefined || unitGap !== undefined
+          ? { unitColumns: unitColumns ?? 15, unitGap: unitGap ?? 4, chartBackdrop, showTotals }
           : {}),
         ...(mode || yTickCount !== undefined || cellGap !== undefined
           ? { hoverFocusXAxis, hoverFocusYAxis }
