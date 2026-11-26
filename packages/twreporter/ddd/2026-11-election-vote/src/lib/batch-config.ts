@@ -43,6 +43,8 @@ type GraphicDefaults = Pick<
   hoverFocusYAxis?: boolean
   showValues?: boolean
   valueSeries?: string[]
+  sortOrder?: 'original' | 'ascending' | 'descending'
+  sortBy?: string
   showTotals?: boolean
   valuePosition?: 'left' | 'center' | 'outside'
   xAxisFontSize?: number
@@ -88,6 +90,8 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     hoverFocusYAxis?: boolean
     showValues?: boolean
     valueSeries?: string[]
+    sortOrder?: 'original' | 'ascending' | 'descending'
+    sortBy?: string
     showTotals?: boolean
     valuePosition?: 'left' | 'center' | 'outside'
     xAxisFontSize?: number
@@ -150,6 +154,17 @@ function graphicConfig(defaults: GraphicDefaults) {
               .boolean()
               .default(defaults.showXGrid ?? true)
               .meta({ title: '顯示 X 軸網格（垂直線）' }),
+            sortOrder: z
+              .enum(['original', 'ascending', 'descending'])
+              .default(defaults.sortOrder ?? 'original')
+              .meta({ title: '長條排序' }),
+            sortBy: z
+              .string()
+              .default(defaults.sortBy ?? '')
+              .meta({
+                title: '排序依據系列',
+                description: '例如國民黨；留空依各列合計排序。',
+              }),
             valueSeries: z
               .array(z.string().min(1))
               .default(defaults.valueSeries ?? [])
@@ -486,6 +501,8 @@ function graphicConfig(defaults: GraphicDefaults) {
               'showXGrid',
               'showTooltip',
               'showTotals',
+              'sortOrder',
+              'sortBy',
               'valueSeries',
               'valuePosition',
               'xAxisFontSize',
@@ -538,6 +555,8 @@ export function defineElectionBatch({
         hoverFocusYAxis = true,
         showValues = true,
         showTotals = true,
+        sortOrder,
+        sortBy,
         valueSeries,
         valuePosition,
         xAxisFontSize,
@@ -626,6 +645,8 @@ export function defineElectionBatch({
         ...(mode
           ? {
               mode,
+              sortOrder,
+              sortBy,
               showXGrid: showXGrid ?? true,
               showTooltip,
               chartBackdrop,

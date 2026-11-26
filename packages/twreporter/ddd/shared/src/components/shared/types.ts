@@ -110,6 +110,8 @@ export type BarChartGroup = {
 }
 
 export type BarChartProps = {
+  sortOrder?: 'original' | 'ascending' | 'descending'
+  sortBy?: string
   hoverFocusXAxis?: boolean
   hoverFocusYAxis?: boolean
   showXGrid?: boolean

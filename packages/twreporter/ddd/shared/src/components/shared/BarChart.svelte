@@ -32,7 +32,9 @@
 
   const {
     label,
-    groups: sourceGroups,
+    groups: inputGroups,
+    sortOrder = 'original',
+    sortBy,
     orientation = 'vertical',
     mode = 'grouped',
     chartBackdrop = true,
@@ -87,6 +89,21 @@
   })
   let containerHeight = $state(0)
   let hoveredSeries = $state<string>()
+  const sourceGroups = $derived.by(() => {
+    if (sortOrder === 'original') return inputGroups
+    const total = (group: (typeof inputGroups)[number]) => {
+      const value = group.bars.reduce(
+        (sum, bar) => sum + (!sortBy || bar.series === sortBy ? bar.value : 0),
+        0,
+      )
+      if (mode !== 'stacked-percent') return value
+      const sum = group.bars.reduce((sum, bar) => sum + Math.abs(bar.value), 0)
+      return sum ? value / sum : 0
+    }
+    return [...inputGroups].sort(
+      (a, b) => (total(a) - total(b)) * (sortOrder === 'ascending' ? 1 : -1),
+    )
+  })
   const stacked = $derived(mode !== 'grouped')
   const groups = $derived(
     mode === 'stacked-percent'
@@ -701,6 +718,7 @@
                     {#if showValues && (!valueSeries.length || valueSeries.includes(bar.series) || hovered?.bar === bar || hoveredSeries === bar.series) && bar.value !== 0 && valueLabel.text && (position === 'outside' || ((horizontal ? visibleLength : band) > estimatedLabelWidth( [valueLabel.text], ) + 8 && (horizontal ? band : visibleLength) > 16))}
                       <text
                         class="value"
+                        style:stroke-opacity={isDimmed(bar) ? 0 : 0.8}
                         style:stroke={position === 'outside'
                           ? undefined
                           : seriesColor(bar.series)}

@@ -84,6 +84,8 @@
       showXAxis={entry.showXAxis ?? true}
       showValues={entry.showValues ?? true}
       showTotals={entry.showTotals ?? false}
+      sortOrder={entry.sortOrder}
+      sortBy={entry.sortBy}
       valueSeries={entry.valueSeries}
       valuePosition={entry.valuePosition}
       xAxisFontSize={entry.xAxisFontSize}
