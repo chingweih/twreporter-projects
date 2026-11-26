@@ -4,14 +4,24 @@
     active,
     onhover,
   }: {
-    items: readonly { label: string; color: string }[]
+    items: readonly (
+      | { label: string | null; color: string }
+      | null
+      | undefined
+    )[]
     active?: string | readonly string[]
     onhover?: (label: string | undefined) => void
   } = $props()
+  const visibleItems = $derived(
+    items.filter(
+      (item): item is { label: string; color: string } =>
+        item != null && item.label != null && item.label.trim().length > 0,
+    ),
+  )
 </script>
 
 <ul class="legend" aria-label="圖例">
-  {#each items as item (item.label)}
+  {#each visibleItems as item (item.label)}
     <li
       style:opacity={active !== undefined &&
       (typeof active === 'string'
