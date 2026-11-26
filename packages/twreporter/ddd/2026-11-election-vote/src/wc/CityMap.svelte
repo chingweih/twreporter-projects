@@ -340,8 +340,9 @@
     flex-shrink: 0;
   }
   .candidate-name {
-    flex: 0 0 3em;
-    max-width: 3em;
+    flex: 0 0 calc(3em + 1px);
+    max-width: calc(3em + 1px);
+    letter-spacing: 0;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
