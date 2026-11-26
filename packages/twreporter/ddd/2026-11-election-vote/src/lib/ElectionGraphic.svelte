@@ -90,7 +90,14 @@
   )
 </script>
 
-<div bind:clientWidth={width}>
+<div
+  bind:clientWidth={width}
+  style:--legend-align={entry?.legendAlign === 'left'
+    ? 'flex-start'
+    : entry?.legendAlign === 'right'
+      ? 'flex-end'
+      : 'center'}
+>
   {#if batchConfig && entry && responsiveEntry}
     <Shell
       bind:title={entry.title}

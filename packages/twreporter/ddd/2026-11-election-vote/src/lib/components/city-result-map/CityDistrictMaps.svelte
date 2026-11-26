@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Legend from '@lab-reporter/ddd-shared/components/shared/Legend.svelte'
   import { MapDrilldown } from '@lab-reporter/ddd-shared/utils/map-drilldown.svelte.ts'
   import { createQuery, skipToken } from '@tanstack/svelte-query'
   import { electionTabs } from '../../election-data.ts'
@@ -142,19 +143,19 @@
     {@render status(results)}
   {/if}
   {#if results.data || (previous && historicalQuery.data)}
-    <ul class="legend" aria-label="得票最高候選人的政黨">
-      {#each legend as [party, token] (party)}
-        <li>
-          <span class="swatch" style:background="var({token})"></span>{party}
-        </li>
-      {/each}
-      {#if areaColors.has(noLeader)}
-        <li>
-          <span class="swatch" style:background="var({noLeader})"></span>
-          未分出領先者
-        </li>
-      {/if}
-    </ul>
+    <div class="legend-container">
+      <Legend
+        items={[
+          ...legend.map(([label, token]) => ({
+            label,
+            color: `var(${token})`,
+          })),
+          ...(areaColors.has(noLeader)
+            ? [{ label: '未分出領先者', color: `var(${noLeader})` }]
+            : []),
+        ]}
+      />
+    </div>
   {/if}
 </div>
 <div class="maps" class:comparison={Boolean(previous)}>
@@ -241,27 +242,12 @@
     min-height: 0;
   }
 
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 12px;
-    margin: 0;
-    padding: 0;
-    color: var(--neutral-gray-800);
+  .legend-container {
     font-size: var(--text-xs);
-    list-style: none;
+    color: var(--neutral-gray-800);
   }
-
-  .legend li {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .swatch {
-    width: 0.85em;
-    height: 0.85em;
-    border-radius: 2px;
+  .legend-container :global(.legend) {
+    margin: 0;
   }
 
   .status {

@@ -1,6 +1,7 @@
 <script lang="ts">
   const {
     items,
+    align,
     active,
     onhover,
   }: {
@@ -9,6 +10,7 @@
       | null
       | undefined
     )[]
+    align?: 'left' | 'center' | 'right'
     active?: string | readonly string[]
     onhover?: (label: string | undefined) => void
   } = $props()
@@ -20,7 +22,17 @@
   )
 </script>
 
-<ul class="legend" aria-label="圖例">
+<ul
+  class="legend"
+  aria-label="圖例"
+  style:justify-content={align === undefined
+    ? undefined
+    : align === 'left'
+      ? 'flex-start'
+      : align === 'right'
+        ? 'flex-end'
+        : 'center'}
+>
   {#each visibleItems as item (item.label)}
     <li
       style:opacity={active !== undefined &&
@@ -45,7 +57,7 @@
   .legend {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: var(--legend-align, center);
     gap: 6px 20px;
     padding: 0;
     list-style: none;

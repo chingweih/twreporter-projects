@@ -7,6 +7,7 @@ export const firstBatch = defineElectionBatch({
     '1-city-map': {
       title: '2026縣市首長當選人一覽',
       containerAspectRatio: 0.8,
+      legendAlign: 'left',
     },
     '2-city-grid': {
       title: '歷屆縣市長黨籍變化',

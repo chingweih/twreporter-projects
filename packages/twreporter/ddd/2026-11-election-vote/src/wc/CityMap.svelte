@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Legend from '@lab-reporter/ddd-shared/components/shared/Legend.svelte'
   import counties from '@lab-reporter/ddd-atlas/taiwan/counties' with { type: 'json' }
   import { splitTaiwanCounties } from '@lab-reporter/ddd-atlas/taiwan/map'
   import MapCanvas from '@lab-reporter/ddd-shared/components/shared/MapCanvas.svelte'
@@ -64,9 +65,10 @@
     ),
   )
   const legend = $derived(
-    Object.entries(partyColorVars).filter(([party]) =>
-      !['無黨籍', '其他'].includes(party) &&
-      displayedParties.some(({ label }) => label === party),
+    Object.entries(partyColorVars).filter(
+      ([party]) =>
+        !['無黨籍', '其他'].includes(party) &&
+        displayedParties.some(({ label }) => label === party),
     ),
   )
   const tileStyle = $derived<StyleSpecification | undefined>(
@@ -192,17 +194,14 @@
           </div>
         </div>
         {#if legend.length}
-          <ul class="legend" aria-label="圖例">
-            {#each legend as [party, token] (party)}
-              <li>
-                <span
-                  class="swatch"
-                  style:background-color="var({token})"
-                  aria-hidden="true"
-                ></span>{party}
-              </li>
-            {/each}
-          </ul>
+          <div class="legend-container">
+            <Legend
+              items={legend.map(([label, token]) => ({
+                label,
+                color: `var(${token})`,
+              }))}
+            />
+          </div>
         {/if}
         <div class="county-results">{@render results()}</div>
         <div class="insets" aria-hidden="true">
@@ -266,11 +265,11 @@
     grid-area: results;
     justify-self: end;
   }
-  .legend {
+  .legend-container {
     grid-area: legend;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 16px;
+  }
+  .legend-container :global(.legend) {
+    margin: 0;
   }
   .insets {
     grid-area: map;
@@ -292,7 +291,6 @@
     margin-top: auto;
     aspect-ratio: 120 / 176;
   }
-  .legend,
   .results {
     list-style: none;
     padding: 0;
@@ -320,7 +318,6 @@
     display: block;
     border-bottom: 1px solid var(--neutral-gray-300);
   }
-  .legend li,
   .candidate-result {
     display: flex;
     align-items: center;

@@ -31,6 +31,7 @@ type GraphicDefaults = Pick<
 > & {
   containerHeight?: number
   containerAspectRatio?: number
+  legendAlign?: 'left' | 'center' | 'right'
   mode?: BarChartMode
   unitColumns?: number
   unitGap?: number
@@ -73,7 +74,7 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
   Partial<
     Pick<
       GraphicDefaults,
-      'footnotes' | 'containerHeight' | 'containerAspectRatio'
+      'footnotes' | 'containerHeight' | 'containerAspectRatio' | 'legendAlign'
     >
   > & {
     name?: string
@@ -124,6 +125,10 @@ function graphicConfig(defaults: GraphicDefaults) {
   return createShellConfigSchema({ ...defaults, wide: false, backdrop: true })
     .pick({ title: true, footnotes: true })
     .extend({
+      legendAlign: z
+        .enum(['left', 'center', 'right'])
+        .default(defaults.legendAlign ?? 'center')
+        .meta({ title: '圖例對齊', 'ui:enumNames': ['靠左', '置中', '靠右'] }),
       containerHeight: z.number().positive().optional().meta({
         title: '整張圖表高度（px）',
         description: '包含標題、圖例、圖表和頁尾；優先於長寬比。留空則自動。',
@@ -433,6 +438,7 @@ function graphicConfig(defaults: GraphicDefaults) {
         'title',
         'containerHeight',
         'containerAspectRatio',
+        'legendAlign',
         ...(defaults.unitColumns !== undefined || defaults.unitGap !== undefined
           ? ['unitColumns', 'unitGap', 'chartBackdrop', 'showTotals']
           : []),
@@ -541,6 +547,7 @@ export function defineElectionBatch({
         footnotes = [],
         containerHeight,
         containerAspectRatio,
+        legendAlign = 'center',
         name,
         city,
         mode,
@@ -586,10 +593,16 @@ export function defineElectionBatch({
       const fields = {
         title,
         footnotes,
+        legendAlign,
         ...(containerHeight !== undefined ? { containerHeight } : {}),
         ...(containerAspectRatio !== undefined ? { containerAspectRatio } : {}),
         ...(unitColumns !== undefined || unitGap !== undefined
-          ? { unitColumns: unitColumns ?? 15, unitGap: unitGap ?? 4, chartBackdrop, showTotals }
+          ? {
+              unitColumns: unitColumns ?? 15,
+              unitGap: unitGap ?? 4,
+              chartBackdrop,
+              showTotals,
+            }
           : {}),
         ...(mode || yTickCount !== undefined || cellGap !== undefined
           ? { hoverFocusXAxis, hoverFocusYAxis }
