@@ -103,7 +103,7 @@
             xDomain={[entry.xMin ?? xMinimum, entry.xMax ?? 40]}
             yDomain={[0, entry.yMax ?? 40]}
             showTrendLine={entry.showTrendLine}
-            xLabel={`2022 與 2026 ${chart.camp}各地催票率差異（百分點）`}
+            xLabel={`2022與2026${chart.camp}各地催票率差異（百分點）`}
             yLabel="2022黃珊珊各地催票率（%）"
             formatX={(value) => String(Number(value.toFixed(2)))}
             formatY={(value) => `${Number(value.toFixed(2))}%`}
