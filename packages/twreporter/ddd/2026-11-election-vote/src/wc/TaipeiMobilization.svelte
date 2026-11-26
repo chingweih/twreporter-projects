@@ -51,6 +51,7 @@
   {#snippet children(entry)}
     <div class="chart-container">
       <LineChart
+        showAllXTicks
         label={entry.title}
         hoverFocusXAxis={entry.hoverFocusXAxis}
         hoverFocusYAxis={entry.hoverFocusYAxis}

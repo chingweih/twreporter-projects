@@ -150,10 +150,10 @@ export const historicalElectionTabs = {
     z.object({
       縣市: text,
       當選人數: count,
-      '未滿 40 歲（人）': count,
-      '40–49 歲（人）': count,
-      '50–59 歲（人）': count,
-      '60 歲以上（人）': count,
+      '未滿40歲（人）': count,
+      '40–49歲（人）': count,
+      '50–59歲（人）': count,
+      '60歲以上（人）': count,
       '中位數（歲）': number.pipe(z.number().nonnegative()),
     }),
   ),
@@ -166,7 +166,7 @@ export const historicalElectionTabs = {
       當選人: count,
       女性: count,
       男性: count,
-      '2022 女性比例（%）': percentage,
+      '2026 女性比例（%）': percentage,
     }),
   ),
   hualienFuFamilyResults: historicalTab(

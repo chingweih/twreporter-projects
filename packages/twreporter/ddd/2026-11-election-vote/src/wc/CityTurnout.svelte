@@ -66,7 +66,7 @@
         showXGrid={entry.showXGrid}
         gridHover={entry.gridHover}
         showYGrid={entry.showYGrid}
-        xTickCount={8}
+        showAllXTicks
         yLabelHorizontalTexts={entry.yLabelHorizontalTexts}
         connectGaps={entry.connectGaps}
         gapDasharray={entry.gapDasharray}

@@ -21,23 +21,23 @@
   ] as const
   const ages = [
     {
-      series: '未滿 40 歲',
-      column: '未滿 40 歲（人）',
+      series: '未滿40歲',
+      column: '未滿40歲（人）',
       color: 'var(--elec-red-2)',
     },
     {
-      series: '40–49 歲',
-      column: '40–49 歲（人）',
+      series: '40–49歲',
+      column: '40–49歲（人）',
       color: 'var(--elec-red-3)',
     },
     {
-      series: '50–59 歲',
-      column: '50–59 歲（人）',
+      series: '50–59歲',
+      column: '50–59歲（人）',
       color: 'var(--elec-red-4)',
     },
     {
-      series: '60 歲以上',
-      column: '60 歲以上（人）',
+      series: '60歲以上',
+      column: '60歲以上（人）',
       color: 'var(--elec-red-5)',
     },
   ] as const

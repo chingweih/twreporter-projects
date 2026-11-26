@@ -27,6 +27,7 @@
     xDomain,
     yDomain,
     xTickCount = 6,
+    showAllXTicks = false,
     yTickCount = 5,
     connectGaps = true,
     gapDasharray = '6 4',
@@ -55,6 +56,7 @@
     xDomain?: [number, number]
     yDomain?: [number, number]
     xTickCount?: number
+    showAllXTicks?: boolean
     connectGaps?: boolean
     gapDasharray?: string
     lineWidth?: number
@@ -194,21 +196,26 @@
       .range([left, Math.max(left, width - right)]),
   )
   const xTicks = $derived(
-    xValues.filter(
-      (_, index, ticks) =>
-        index %
-          Math.max(
-            1,
-            Math.ceil(
-              ticks.length /
-                Math.max(
-                  1,
-                  Math.min(xTickCount, Math.floor((width - left - right) / 70)),
+    showAllXTicks
+      ? xValues
+      : xValues.filter(
+          (_, index, ticks) =>
+            index %
+              Math.max(
+                1,
+                Math.ceil(
+                  ticks.length /
+                    Math.max(
+                      1,
+                      Math.min(
+                        xTickCount,
+                        Math.floor((width - left - right) / 70),
+                      ),
+                    ),
                 ),
-            ),
-          ) ===
-          0 || index === ticks.length - 1,
-    ),
+              ) ===
+              0 || index === ticks.length - 1,
+        ),
   )
   const focused = $derived(
     active ?? (hovered?.rows ? undefined : (hovered?.series ?? hoveredLine)),
