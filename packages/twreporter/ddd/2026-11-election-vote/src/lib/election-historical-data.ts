@@ -156,6 +156,7 @@ export const historicalElectionTabs = {
       '60歲以上（人）': count,
       '中位數（歲）': number.pipe(z.number().nonnegative()),
     }),
+    (header) => header.replaceAll(' ', ''),
   ),
   // The tab has no headers yet. Retain its CSV fields as text until it has a schema.
   candidateBirthdays: historicalTab('1177261302', z.object({}).catchall(text)),

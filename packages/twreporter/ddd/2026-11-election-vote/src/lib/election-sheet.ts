@@ -35,6 +35,7 @@ export function createElectionSheet({
   return function electionTab<Columns extends z.ZodRawShape>(
     gid: string,
     rowSchema: z.ZodObject<Columns>,
+    normalizeHeader: (header: string) => string = (header) => header,
   ) {
     const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`
     const columns = Object.keys(rowSchema.shape)
@@ -44,6 +45,17 @@ export function createElectionSheet({
       const csvText = await fetchText(url, signal)
       try {
         const csv = parseCsv(csvText)
+        csv.headers = csv.headers.map(normalizeHeader)
+        if (new Set(csv.headers).size !== csv.headers.length)
+          throw new Error('CSV 欄位名稱重複。')
+        csv.rows = csv.rows.map((row) =>
+          Object.fromEntries(
+            Object.entries(row).map(([key, value]) => [
+              normalizeHeader(key),
+              value,
+            ]),
+          ),
+        )
         requireCsvColumns(csv, columns)
         return rowsSchema.parse(csv.rows)
       } catch (cause) {
