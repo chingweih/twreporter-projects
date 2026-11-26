@@ -83,7 +83,6 @@
     <div class="panels">
       {#each charts as chart}
         <section aria-label={chart.name}>
-          <h3>{chart.name}</h3>
           <ScatterChart
             label={`${entry.title}：${chart.name}`}
             data={chart.data}
@@ -99,12 +98,13 @@
             hoverFocusYAxis={entry.hoverFocusYAxis}
             pointRadius={entry.pointRadius}
             xTickCount={entry.xTickCount}
+            yLabelHorizontalTexts={entry.yLabelHorizontalTexts}
             yTickCount={entry.yTickCount}
             xDomain={[entry.xMin ?? xMinimum, entry.xMax ?? 40]}
             yDomain={[0, entry.yMax ?? 40]}
-            showEqualityLine={entry.showEqualityLine}
+            showTrendLine={entry.showTrendLine}
             xLabel={`2022 與 2026 ${chart.camp}各地催票率差異（百分點）`}
-            yLabel="2022 黃珊珊各地催票率（%）"
+            yLabel="2022黃珊珊各地催票率（%）"
             formatX={(value) => String(Number(value.toFixed(2)))}
             formatY={(value) => `${Number(value.toFixed(2))}%`}
           />
@@ -126,10 +126,5 @@
     flex-direction: column;
     min-height: 0;
     flex: 1;
-  }
-  h3 {
-    font-size: var(--text-s);
-    color: var(--text-color);
-    margin: 0 0 8px;
   }
 </style>

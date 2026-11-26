@@ -67,6 +67,7 @@
         showYGrid={entry.showYGrid}
         gridHover={entry.gridHover}
         xTickCount={8}
+        yLabelHorizontalTexts={entry.yLabelHorizontalTexts}
         yTickCount={entry.yTickCount}
         yDomain={[0, entry.yMax ?? 100]}
         formatX={(value) => history.data?.[value]?.台北市長屆次 ?? ''}

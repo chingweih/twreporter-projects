@@ -728,6 +728,7 @@
   .axis-label {
     margin: 0 0 0 4px;
     color: var(--neutral-gray-700);
+    letter-spacing: 0.025em;
   }
   .axis-label.bottom {
     margin: 0;

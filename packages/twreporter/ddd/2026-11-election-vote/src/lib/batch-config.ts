@@ -49,8 +49,9 @@ type GraphicDefaults = Pick<
   pointRadius?: number
   xTickCount?: number
   xMin?: number
-  showEqualityLine?: boolean
+  showTrendLine?: boolean
   xMax?: number
+  yLabelHorizontalTexts?: string[]
   yTickCount?: number
   yMax?: number
   showArea?: boolean
@@ -88,8 +89,9 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     pointRadius?: number
     xTickCount?: number
     xMin?: number
-    showEqualityLine?: boolean
+    showTrendLine?: boolean
     xMax?: number
+    yLabelHorizontalTexts?: string[]
     yTickCount?: number
     yMax?: number
     showArea?: boolean
@@ -191,6 +193,14 @@ function graphicConfig(defaults: GraphicDefaults) {
               .boolean()
               .default(defaults.showValue ?? false)
               .meta({ title: '顯示資料點數值' }),
+            yLabelHorizontalTexts: z
+              .array(z.string().min(1))
+              .default(defaults.yLabelHorizontalTexts ?? [])
+              .meta({
+                title: 'Y 軸標題橫排文字',
+                description:
+                  '逐項輸入完整片段，例如：黃珊珊、（%）。連續數字自動橫排。',
+              }),
             yTickCount: z
               .number()
               .int()
@@ -311,14 +321,21 @@ function graphicConfig(defaults: GraphicDefaults) {
               .max(20)
               .default(defaults.yTickCount ?? 5)
               .meta({ title: 'Y 軸刻度數量' }),
+            yLabelHorizontalTexts: z
+              .array(z.string().min(1))
+              .default(defaults.yLabelHorizontalTexts ?? [])
+              .meta({
+                title: 'Y 軸標題橫排文字',
+                description: '逐項輸入完整片段；連續數字自動橫排。',
+              }),
             xMin: z.number().optional().meta({
               title: 'X 軸最小值',
               description: '留空則依兩張圖的資料自動涵蓋負值。',
             }),
-            showEqualityLine: z
+            showTrendLine: z
               .boolean()
-              .default(defaults.showEqualityLine ?? false)
-              .meta({ title: '顯示 X = Y 參考線' }),
+              .default(defaults.showTrendLine ?? false)
+              .meta({ title: '顯示線性趨勢線' }),
             xMax: z
               .number()
               .positive()
@@ -384,9 +401,10 @@ function graphicConfig(defaults: GraphicDefaults) {
           ? [
               'pointRadius',
               'xTickCount',
+              'yLabelHorizontalTexts',
               'yTickCount',
               'xMin',
-              'showEqualityLine',
+              'showTrendLine',
               'xMax',
               'yMax',
               'chartBackdrop',
@@ -408,6 +426,7 @@ function graphicConfig(defaults: GraphicDefaults) {
               'showXGrid',
               'gridHover',
               'showYGrid',
+              'yLabelHorizontalTexts',
               'yTickCount',
               'yMax',
             ]
@@ -480,8 +499,9 @@ export function defineElectionBatch({
         pointRadius,
         xTickCount,
         xMin,
-        showEqualityLine,
+        showTrendLine,
         xMax,
+        yLabelHorizontalTexts,
         yTickCount,
         yMax,
         showArea,
@@ -521,8 +541,9 @@ export function defineElectionBatch({
               pointRadius,
               xTickCount,
               xMin,
-              showEqualityLine,
+              showTrendLine,
               xMax,
+              yLabelHorizontalTexts,
               yTickCount,
               yMax,
               chartBackdrop,
@@ -536,6 +557,7 @@ export function defineElectionBatch({
         ...(yTickCount !== undefined && pointRadius === undefined
           ? {
               showArea: showArea ?? false,
+              yLabelHorizontalTexts,
               showTooltip,
               showValue,
               showXAxis,

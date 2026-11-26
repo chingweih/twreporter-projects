@@ -1,5 +1,6 @@
 <script lang="ts">
   const gradientId = $props.id()
+  import { verticalLabelParts } from '../../utils/vertical-label.ts'
   import { scaleLinear } from 'd3-scale'
   import Legend from './Legend.svelte'
   import TooltipOverlay from './TooltipOverlay.svelte'
@@ -22,6 +23,7 @@
     chartBackdrop = true,
     xLabel,
     yLabel,
+    yLabelHorizontalTexts = [],
     xDomain,
     yDomain,
     xTickCount = 6,
@@ -45,6 +47,7 @@
     chartBackdrop?: boolean
     xLabel?: string
     yLabel?: string
+    yLabelHorizontalTexts?: readonly string[]
     xDomain?: [number, number]
     yDomain?: [number, number]
     xTickCount?: number
@@ -232,7 +235,17 @@
       onhover={(name) => (active = name)}
     />{/if}
   <div class="chart-body">
-    {#if showYAxis && yLabel}<div class="axis-label y-label">{yLabel}</div>{/if}
+    {#if showYAxis && yLabel}
+      <div class="axis-label y-label">
+        {#each verticalLabelParts(yLabel, yLabelHorizontalTexts) as part}
+          {#if part.horizontal}
+            <span class="horizontal-text">{part.text}</span>
+          {:else}
+            {part.text}
+          {/if}
+        {/each}
+      </div>
+    {/if}
     <div class="plot" bind:clientWidth={width} bind:clientHeight={height}>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label}>
         {#if validData.length && width > left && height > 36}
@@ -534,6 +547,7 @@
     background: var(--neutral-gray-50);
     color: var(--text-color);
     font-size: var(--text-xs);
+    --y-label-horizontal-offset: 1px;
   }
   .chart.plain {
     padding: 0;
@@ -547,10 +561,20 @@
     min-width: 0;
     gap: 4px;
   }
+  .horizontal-text {
+    transform: translateX(1px);
+    display: inline-block;
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+    letter-spacing: 0;
+  }
   .y-label {
+    display: flex;
+    align-items: center;
     flex-shrink: 0;
     writing-mode: vertical-rl;
     text-orientation: upright;
+    letter-spacing: 0.05em;
   }
   .plot {
     position: relative;
@@ -612,6 +636,7 @@
   }
   .axis-label {
     color: var(--neutral-gray-700);
+    letter-spacing: 0.025em;
   }
   .bottom {
     text-align: center;

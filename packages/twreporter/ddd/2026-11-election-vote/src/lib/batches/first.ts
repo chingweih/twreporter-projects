@@ -7,6 +7,7 @@ export const firstBatch = defineElectionBatch({
     '1-city-map': { title: '2026縣市首長當選人一覽' },
     '2-city-grid': {
       title: '歷屆縣市長黨籍變化',
+      containerAspectRatio: 0.8,
       hoverFocusXAxis: true,
       hoverFocusYAxis: true,
       showTooltip: false,
@@ -14,11 +15,11 @@ export const firstBatch = defineElectionBatch({
       showXAxis: true,
       showValues: false,
       cellGap: 4,
-      containerAspectRatio: 0.8,
     },
     '3-party-city-result': {
       title: '歷屆縣市長席次變化',
       mode: 'stacked',
+      containerAspectRatio: 0.8,
       chartBackdrop: false,
       showXAxis: false,
       barGap: 4,
@@ -29,6 +30,7 @@ export const firstBatch = defineElectionBatch({
     '4-ref-result': {
       title: '2026核電公投通過／不通過',
       mode: 'grouped',
+      containerAspectRatio: 0.8,
       groupGap: 10,
       chartBackdrop: false,
       valuePosition: 'left',

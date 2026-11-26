@@ -1,4 +1,7 @@
 <script lang="ts">
+  const clipId = $props.id()
+  import { linearRegression } from '../../utils/linear-regression.ts'
+  import { verticalLabelParts } from '../../utils/vertical-label.ts'
   import { scaleLinear } from 'd3-scale'
   import Legend from './Legend.svelte'
   import TooltipOverlay from './TooltipOverlay.svelte'
@@ -19,9 +22,10 @@
     hoverFocusXAxis = true,
     hoverFocusYAxis = true,
     pointRadius = 4,
-    showEqualityLine = false,
+    showTrendLine = false,
     xLabel,
     yLabel,
+    yLabelHorizontalTexts = [],
     xDomain,
     yDomain,
     xTickCount = 5,
@@ -41,10 +45,11 @@
     showYGrid?: boolean
     hoverFocusXAxis?: boolean
     hoverFocusYAxis?: boolean
-    showEqualityLine?: boolean
+    showTrendLine?: boolean
     pointRadius?: number
     xLabel?: string
     yLabel?: string
+    yLabelHorizontalTexts?: readonly string[]
     xDomain?: [number, number]
     yDomain?: [number, number]
     xTickCount?: number
@@ -109,10 +114,7 @@
       .range([left, Math.max(left, width - 22)]),
   )
   const xTicks = $derived(xScale.ticks(xTickCount))
-  const equalityStart = $derived(
-    Math.max(xScale.domain()[0], yScale.domain()[0]),
-  )
-  const equalityEnd = $derived(Math.min(xScale.domain()[1], yScale.domain()[1]))
+  const trend = $derived(linearRegression(points))
   function nearest(ticks: number[], value: number) {
     return ticks.reduce(
       (a, b) => (Math.abs(b - value) < Math.abs(a - value) ? b : a),
@@ -132,7 +134,12 @@
       onhover={(value) => (active = value)}
     />{/if}
   <div class="chart-body">
-    {#if showYAxis && yLabel}<div class="y-label">{yLabel}</div>{/if}
+    {#if showYAxis && yLabel}<div class="y-label">
+        {#each verticalLabelParts(yLabel, yLabelHorizontalTexts) as part}
+          {#if part.horizontal}<span class="horizontal-text">{part.text}</span
+            >{:else}{part.text}{/if}
+        {/each}
+      </div>{/if}
     <div class="plot" bind:clientWidth={width} bind:clientHeight={height}>
       <svg role="img" aria-label={label}>
         {#each xTicks as tick}
@@ -190,13 +197,24 @@
             y1={10}
             y2={yScale.range()[0]}
           />{/if}
-        {#if showEqualityLine && equalityStart <= equalityEnd}
+        {#if showTrendLine && trend}
+          <defs
+            ><clipPath id={clipId}
+              ><rect
+                x={left}
+                y={10}
+                width={Math.max(0, xScale.range()[1] - left)}
+                height={Math.max(0, yScale.range()[0] - 10)}
+              /></clipPath
+            ></defs
+          >
           <line
-            class="indicator"
-            x1={xScale(equalityStart)}
-            y1={yScale(equalityStart)}
-            x2={xScale(equalityEnd)}
-            y2={yScale(equalityEnd)}
+            class="indicator trend-line"
+            clip-path={`url(#${clipId})`}
+            x1={xScale(xScale.domain()[0])}
+            y1={yScale(trend.slope * xScale.domain()[0] + trend.intercept)}
+            x2={xScale(xScale.domain()[1])}
+            y2={yScale(trend.slope * xScale.domain()[1] + trend.intercept)}
           />
         {/if}
         {#if hovered}
@@ -298,13 +316,24 @@
     gap: 4px;
     align-items: center;
   }
+  .horizontal-text {
+    transform: translateX(1px);
+    display: inline-block;
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+  }
   .y-label {
+    display: flex;
+    align-items: center;
+    gap: 0.075em;
     writing-mode: vertical-rl;
     text-orientation: upright;
     flex-shrink: 0;
+    letter-spacing: 0.075em;
   }
   .x-label {
     text-align: center;
+    letter-spacing: 0.025em;
   }
   .plot {
     position: relative;

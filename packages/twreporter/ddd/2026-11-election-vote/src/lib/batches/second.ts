@@ -9,6 +9,7 @@ export const secondBatch = defineElectionBatch({
   graphics: {
     '1-city-turnout': {
       title: '歷屆縣市長選舉投票率',
+      containerAspectRatio: 0.8,
       hoverFocusYAxis: false,
       showTooltip: false,
       gridHover: true,
@@ -23,6 +24,7 @@ export const secondBatch = defineElectionBatch({
     },
     '2-taipei-turnout': {
       title: '歷屆台北市長投票率',
+      containerAspectRatio: 0.8,
       hoverFocusYAxis: false,
       showTooltip: false,
       gridHover: true,
@@ -54,6 +56,7 @@ export const secondBatch = defineElectionBatch({
     '4-city-council-party': {
       title: '2026各縣市議會席次比較',
       mode: 'stacked-percent',
+      containerAspectRatio: 0.8,
       chartBackdrop: false,
       showXAxis: false,
       showTotals: false,
@@ -61,6 +64,7 @@ export const secondBatch = defineElectionBatch({
     },
     '5-tpp-gogo': {
       title: '2026民眾黨、台灣前進議員提名與當選狀態',
+      containerAspectRatio: 0.8,
       unitColumns: 25,
       unitGap: 2,
       chartBackdrop: false,
@@ -69,6 +73,7 @@ export const secondBatch = defineElectionBatch({
     '6-council-age': {
       title: '2026當選議員年齡分布',
       mode: 'stacked-percent',
+      containerAspectRatio: 0.8,
       chartBackdrop: false,
       showXAxis: false,
       showTotals: false,
@@ -77,6 +82,7 @@ export const secondBatch = defineElectionBatch({
     '7-council-sex': {
       title: '2026當選議員性別分布',
       mode: 'stacked-percent',
+      containerAspectRatio: 0.8,
       chartBackdrop: false,
       showXAxis: false,
       showTotals: false,
@@ -84,6 +90,7 @@ export const secondBatch = defineElectionBatch({
     },
     '8-hualien': {
       title: '傅家王朝歷屆得票率變化',
+      containerAspectRatio: 0.8,
       hoverFocusYAxis: false,
       showArea: true,
       showTooltip: true,
@@ -118,7 +125,8 @@ export const secondBatch = defineElectionBatch({
     },
     '13-taipei-party-scatter': {
       title: '2022黃珊珊的票流向哪？',
-      showEqualityLine: true,
+      containerAspectRatio: 0.8,
+      showTrendLine: true,
       pointRadius: 3,
       xTickCount: 5,
       yTickCount: 5,
@@ -131,7 +139,7 @@ export const secondBatch = defineElectionBatch({
       showYGrid: true,
       showTooltip: true,
       footnotes: [
-        '虛線為 X＝Y；催票率差異以 2026 減 2022 計算，單位為百分點；相關性不等同個別選民的票流向。',
+        '虛線為線性迴歸趨勢線；催票率差異以 2026 減 2022 計算，單位為百分點；相關性不等同個別選民的票流向。',
         '每點代表一個村里，催票率＝得票數 ÷ 選舉人數；綠營以 2022 陳時中與 2026 沈伯洋比較，藍營以兩屆蔣萬安比較。',
       ],
     },

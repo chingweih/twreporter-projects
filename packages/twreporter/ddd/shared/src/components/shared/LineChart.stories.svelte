@@ -27,3 +27,11 @@
 {/snippet}
 <Story name="Line" />
 <Story name="Area" args={{ showArea: true }} />
+
+<Story
+  name="HorizontalLabelParts"
+  args={{
+    yLabel: '2022 黃珊珊催票率（%）',
+    yLabelHorizontalTexts: ['黃珊珊', '（%）'],
+  }}
+/>

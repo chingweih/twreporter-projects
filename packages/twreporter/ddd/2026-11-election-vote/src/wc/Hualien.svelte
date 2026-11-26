@@ -46,6 +46,7 @@
         showYGrid={entry.showYGrid}
         gridHover={entry.gridHover}
         xTickCount={6}
+        yLabelHorizontalTexts={entry.yLabelHorizontalTexts}
         yTickCount={entry.yTickCount}
         yDomain={[0, entry.yMax ?? 100]}
         formatValue={(value) => `${value}%`}

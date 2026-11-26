@@ -67,6 +67,7 @@
         gridHover={entry.gridHover}
         showYGrid={entry.showYGrid}
         xTickCount={8}
+        yLabelHorizontalTexts={entry.yLabelHorizontalTexts}
         yTickCount={entry.yTickCount}
         yDomain={[0, entry.yMax ?? 100]}
         formatX={(value) => rows[value]?.label ?? ''}
