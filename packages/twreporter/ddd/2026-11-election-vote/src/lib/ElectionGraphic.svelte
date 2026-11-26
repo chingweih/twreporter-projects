@@ -22,6 +22,7 @@
     empty,
     wide,
     containerMinHeight,
+    autoHeight = false,
   }: Pick<ComponentProps, 'config'> & {
     batch: ElectionBatch
     graphicKey: ElectionGraphicKey
@@ -31,6 +32,7 @@
     empty?: boolean
     wide?: boolean
     containerMinHeight?: number
+    autoHeight?: boolean
   } = $props()
 
   const graphic = untrack(
@@ -90,8 +92,8 @@
     footnotePrefix={(index) => `註${numberFootnotes ? index + 1 : ''}：`}
     {wide}
     {containerMinHeight}
-    containerHeight={entry.containerHeight}
-    containerAspectRatio={entry.containerAspectRatio}
+    containerHeight={autoHeight ? undefined : entry.containerHeight}
+    containerAspectRatio={autoHeight ? undefined : entry.containerAspectRatio}
     editable={graphic.editable}
     error={graphic.error ?? error}
     {loading}

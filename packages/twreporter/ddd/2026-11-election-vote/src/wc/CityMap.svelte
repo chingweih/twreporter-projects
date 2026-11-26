@@ -65,6 +65,7 @@
   )
   const legend = $derived(
     Object.entries(partyColorVars).filter(([party]) =>
+      !['無黨籍', '其他'].includes(party) &&
       displayedParties.some(({ label }) => label === party),
     ),
   )
@@ -79,6 +80,8 @@
   )
 
   let mapFrame = $state<HTMLDivElement>()
+  let containerWidth = $state(0)
+  const mobile = $derived(containerWidth > 0 && containerWidth <= 580)
   const tilePaint = $derived.by<FillLayerSpecification['paint']>(() => {
     if (!tileStyle || !mapFrame) return
     const theme = getComputedStyle(mapFrame)
@@ -148,76 +151,80 @@
   />
 {/snippet}
 
-<ElectionGraphic
-  batch={firstBatch}
-  {config}
-  graphicKey="1-city-map"
-  // wide
-  error={overview.error?.message}
-  loading={overview.isPending}
-  empty={!overview.data?.size}
->
-  {#snippet children(entry)}
-    <div
-      class="composition"
-      class:sized={!!(entry.containerHeight || entry.containerAspectRatio)}
-    >
-      <div class="main-map" bind:this={mapFrame} aria-hidden="true">
-        <div class="map-content">
-          {#if tileStyle && tilePaint}
-            <svelte:boundary>
-              <MapCanvas
-                {bounds}
-                style={tileStyle}
-                height="100%"
-                canvasContextAttributes={{ preserveDrawingBuffer }}
-              >
-                <GeoJSONSource id="city-counties" data={taiwan} maxzoom={8}>
-                  <FillLayer id="city-counties-fill" paint={tilePaint} />
-                </GeoJSONSource>
-              </MapCanvas>
-              {#snippet failed()}
-                {@render taiwanShapes()}
-              {/snippet}
-            </svelte:boundary>
-          {:else}
-            {@render taiwanShapes()}
-          {/if}
+<div class="city-map-wrapper" bind:clientWidth={containerWidth}>
+  <ElectionGraphic
+    batch={firstBatch}
+    {config}
+    graphicKey="1-city-map"
+    autoHeight={mobile}
+    // wide
+    error={overview.error?.message}
+    loading={overview.isPending}
+    empty={!overview.data?.size}
+  >
+    {#snippet children(entry)}
+      <div
+        class="composition"
+        class:sized={!mobile &&
+          !!(entry.containerHeight || entry.containerAspectRatio)}
+      >
+        <div class="main-map" bind:this={mapFrame} aria-hidden="true">
+          <div class="map-content">
+            {#if tileStyle && tilePaint}
+              <svelte:boundary>
+                <MapCanvas
+                  {bounds}
+                  style={tileStyle}
+                  height="100%"
+                  canvasContextAttributes={{ preserveDrawingBuffer }}
+                >
+                  <GeoJSONSource id="city-counties" data={taiwan} maxzoom={8}>
+                    <FillLayer id="city-counties-fill" paint={tilePaint} />
+                  </GeoJSONSource>
+                </MapCanvas>
+                {#snippet failed()}
+                  {@render taiwanShapes()}
+                {/snippet}
+              </svelte:boundary>
+            {:else}
+              {@render taiwanShapes()}
+            {/if}
+          </div>
+        </div>
+        {#if legend.length}
+          <ul class="legend" aria-label="圖例">
+            {#each legend as [party, token] (party)}
+              <li>
+                <span
+                  class="swatch"
+                  style:background-color="var({token})"
+                  aria-hidden="true"
+                ></span>{party}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+        <div class="county-results">{@render results()}</div>
+        <div class="insets" aria-hidden="true">
+          {#each orderedInsets as { countyCode, geometry } (countyCode)}
+            <div class="inset" class:penghu={countyCode === '10016'}>
+              <CountyShapes
+                {geometry}
+                {partyTokens}
+                width={120}
+                height={countyCode === '10016' ? 176 : 84}
+                showStroke={false}
+              />
+            </div>
+          {/each}
         </div>
       </div>
-      {#if legend.length}
-        <ul class="legend" aria-label="圖例">
-          {#each legend as [party, token] (party)}
-            <li>
-              <span
-                class="swatch"
-                style:background-color="var({token})"
-                aria-hidden="true"
-              ></span>{party}
-            </li>
-          {/each}
-        </ul>
+      {#if tiles}
+        <p class="attribution">{tiles.attribution}</p>
       {/if}
-      <div class="county-results">{@render results()}</div>
-      <div class="insets" aria-hidden="true">
-        {#each orderedInsets as { countyCode, geometry } (countyCode)}
-          <div class="inset" class:penghu={countyCode === '10016'}>
-            <CountyShapes
-              {geometry}
-              {partyTokens}
-              width={120}
-              height={countyCode === '10016' ? 176 : 84}
-              showStroke={false}
-            />
-          </div>
-        {/each}
-      </div>
-    </div>
-    {#if tiles}
-      <p class="attribution">{tiles.attribution}</p>
-    {/if}
-  {/snippet}
-</ElectionGraphic>
+    {/snippet}
+  </ElectionGraphic>
+</div>
 
 <style>
   .composition {
@@ -317,7 +324,7 @@
   .candidate-result {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     white-space: nowrap;
   }
   .runner-up {
@@ -361,24 +368,39 @@
   }
   @container (max-width: 580px) {
     .composition {
-      grid-template-columns: minmax(0, 1fr) max-content;
-      grid-template-rows: auto 1fr;
-      grid-template-areas: 'legend legend' 'map results';
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto auto;
+      grid-template-areas: 'legend' 'results' 'map';
       gap: 12px 6px;
     }
-    .main-map {
+    .main-map,
+    .sized .main-map {
       min-height: 0;
+      height: auto;
+      aspect-ratio: 360 / 620;
     }
     .results li {
       grid-template-columns: 3em max-content;
       gap: 4px;
-      font-size: 11px;
+      font-size: 14px;
     }
     .results {
-      gap: 2px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px 12px;
+    }
+    .sized .results {
+      height: auto;
+      grid-template-rows: none;
+      gap: 4px 12px;
+    }
+    .results li.separator {
+      grid-column: 1 / -1;
     }
     .county-results {
-      justify-self: end;
+      justify-self: stretch;
+    }
+    .sized .county-results {
+      height: auto;
     }
     .runner-up {
       display: none;
