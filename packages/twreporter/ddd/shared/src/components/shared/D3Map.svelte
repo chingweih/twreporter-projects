@@ -26,6 +26,7 @@
     style,
     children,
     tooltip,
+    tooltipTitle,
     tooltipId,
     tooltipTarget = $bindable(),
     containTooltip = false,
@@ -41,6 +42,7 @@
     style?: string
     children: Snippet<[GeoPath]>
     tooltip?: Snippet<[string]>
+    tooltipTitle?: (key: string) => string
     tooltipId?: string
     tooltipTarget?: MapTooltipTarget
     containTooltip?: boolean
@@ -203,6 +205,7 @@
 {#if tooltip && tooltipKey && tooltipAnchor && !zooming}
   <TooltipOverlay
     id={tooltipId}
+    title={tooltipTitle?.(tooltipKey)}
     x={tooltipAnchor.x}
     y={tooltipAnchor.y}
     bounds={tooltipBounds}

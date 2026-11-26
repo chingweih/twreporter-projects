@@ -119,45 +119,25 @@
   </header>
 {/snippet}
 
-<div class="toolbar">
-  {#if focus}
-    <button
-      type="button"
-      bind:this={drilldown.backButton}
-      onclick={() => drilldown.reset()}
-    >
-      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M21 12H3m0 0 8-8m-8 8 8 8"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-      返回全市
-    </button>
-  {/if}
-  {#if !previous}
-    {@render status(results)}
-  {/if}
-  {#if results.data || (previous && historicalQuery.data)}
-    <div class="legend-container">
-      <Legend
-        items={[
-          ...legend.map(([label, token]) => ({
-            label,
-            color: `var(${token})`,
-          })),
-          ...(areaColors.has(noLeader)
-            ? [{ label: '未分出領先者', color: `var(${noLeader})` }]
-            : []),
-        ]}
-      />
-    </div>
-  {/if}
-</div>
+{#if results.data || (previous && historicalQuery.data)}
+  <div class="legend-container">
+    <Legend
+      align="center"
+      items={[
+        ...legend.map(([label, token]) => ({
+          label,
+          color: `var(${token})`,
+        })),
+        ...(areaColors.has(noLeader)
+          ? [{ label: '未分出領先者', color: `var(${noLeader})` }]
+          : []),
+      ]}
+    />
+  </div>
+{/if}
+{#if !previous}
+  {@render status(results)}
+{/if}
 <div class="maps" class:comparison={Boolean(previous)}>
   {#if previous}
     <section class="map-panel" aria-label="2022">
@@ -185,40 +165,62 @@
   </section>
 </div>
 
+{#if focus}
+  <div class="map-actions">
+    <button
+      type="button"
+      bind:this={drilldown.backButton}
+      onclick={() => drilldown.reset()}
+    >
+      <!-- <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M21 12H3m0 0 8-8m-8 8 8 8"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg> -->
+      返回全市
+    </button>
+  </div>
+{/if}
+
 <style>
-  .toolbar {
+  .map-actions {
     display: flex;
     flex-shrink: 0;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px 16px;
-    min-height: 40px;
-    margin-bottom: 6px;
-    color: var(--neutral-gray-800);
-    font-size: var(--text-s);
+    justify-content: center;
+    margin-top: 8px;
   }
 
   button {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: 40px;
-    padding: 0;
-    border: 0;
-    border-radius: 3px;
+    padding: 5px 14px;
+    border: 1px solid var(--chart-earth-3);
+    border-radius: 20px;
     background: transparent;
-    color: var(--neutral-black);
+    color: var(--chart-earth-3);
     font: inherit;
     font-size: var(--text-s);
     cursor: pointer;
+    transition: background 0.15s ease-in-out;
   }
 
   button:focus {
     outline: none;
   }
-
   button:focus-visible {
-    background: var(--neutral-gray-300);
+    background: var(--chart-earth-3);
+  }
+  button:hover {
+    outline: none;
+    background: var(--chart-earth-3);
+    color: var(--neutral-gray-100);
+    font-weight: 400;
   }
 
   .maps {
@@ -243,6 +245,9 @@
   }
 
   .legend-container {
+    flex-shrink: 0;
+    width: 100%;
+    min-width: 0;
     font-size: var(--text-xs);
     color: var(--neutral-gray-800);
   }
@@ -260,13 +265,17 @@
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 0 8px;
+    padding: 0 0 5px 0;
     flex-shrink: 0;
-    margin-bottom: 6px;
+    min-height: 40px;
+    border-radius: 2px;
+    border-bottom: 1px solid var(--neutral-gray-300);
   }
 
   h2 {
+    width: 100%;
     margin: 0;
+    text-align: center;
     font-size: var(--text-m);
     font-weight: 700;
   }

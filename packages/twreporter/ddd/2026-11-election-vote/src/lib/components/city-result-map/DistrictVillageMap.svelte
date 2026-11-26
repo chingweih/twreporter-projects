@@ -1,9 +1,11 @@
 <script lang="ts">
   import type { TaiwanDistrictCollection } from '@lab-reporter/ddd-atlas/taiwan/map'
   import D3DrilldownMap from '@lab-reporter/ddd-shared/components/shared/D3DrilldownMap.svelte'
+  import TooltipRows from '@lab-reporter/ddd-shared/components/shared/TooltipRows.svelte'
   import { formatNumber } from '@lab-reporter/ddd-shared/utils/format.ts'
   import type { MapDrilldown } from '@lab-reporter/ddd-shared/utils/map-drilldown.svelte.ts'
   import type { CreateQueryResult } from '@tanstack/svelte-query'
+  import { resolvePartyColor } from '../../party-colors.ts'
   import { areaColor, type AreaResult } from './data.ts'
   import { assignedVillagesInDistrict, type CityGeometry } from './geometry.ts'
 
@@ -40,6 +42,19 @@
           name: properties.name,
         })),
   )
+  function areaName(code: string) {
+    const name =
+      areas.find((area) => area.code === code)?.name ??
+      (focus
+        ? counterpart?.villages.features.find(
+            ({ properties }) => properties.villageCode === code,
+          )?.properties.name
+        : counterpart?.districts.features.find(
+            ({ properties }) => properties.districtCode === code,
+          )?.properties.name) ??
+      code
+    return (focus?.properties.name ?? '') + name
+  }
 </script>
 
 <D3DrilldownMap
@@ -65,6 +80,7 @@
     }),
   )}
   containTooltip={counterpart !== undefined}
+  tooltipTitle={areaName}
   label={focus ? `${focus.properties.name}村里地圖` : '行政區地圖'}
   style="background: var(--neutral-gray-100); min-height: 0; flex: 1 1 auto;
     --drilldown-context-fill: var(--elec-gray-1);
@@ -72,20 +88,7 @@
 >
   {#snippet tooltip(code)}
     {@const area = areas.find((area) => area.code === code)}
-    {@const counterpartName = area
-      ? undefined
-      : focus
-        ? counterpart?.villages.features.find(
-            ({ properties }) => properties.villageCode === code,
-          )?.properties.name
-        : counterpart?.districts.features.find(
-            ({ properties }) => properties.districtCode === code,
-          )?.properties.name}
     {@const result = results.data?.get(code)}
-    <strong
-      >{(focus?.properties.name ?? '') +
-        (area?.name ?? counterpartName ?? code)}</strong
-    >
     {#if !area}
       <div>此年度無對應{focus ? '村里' : '行政區'}</div>
     {:else if result}
@@ -96,17 +99,13 @@
         <div>{leader.姓名}（{leader.政黨.trim() || '未提供政黨'}）領先</div>
       {/if}
       {#if result.majorPartyCandidates.length}
-        <hr />
-        <ul class="candidate-votes">
-          {#each result.majorPartyCandidates as candidate (candidate.號次)}
-            <li>
-              {candidate.姓名}
-              {formatNumber(candidate.得票數)}票（{formatNumber(
-                candidate['得票率(%)'],
-              )}%）
-            </li>
-          {/each}
-        </ul>
+        <TooltipRows
+          rows={result.majorPartyCandidates.map((candidate) => ({
+            label: candidate.姓名,
+            color: `var(${resolvePartyColor(candidate.政黨.trim()).colorVar})`,
+            value: `${formatNumber(candidate.得票數)}票（${formatNumber(candidate['得票率(%)'])}%）`,
+          }))}
+        />
       {/if}
     {:else if results.isError}
       <div>無法載入開票資料。</div>
@@ -115,18 +114,3 @@
     {/if}
   {/snippet}
 </D3DrilldownMap>
-
-<style>
-  hr {
-    margin: 4px 0;
-    border: 0;
-    border-top: 1px solid var(--neutral-gray-600);
-  }
-
-  .candidate-votes {
-    margin: 0;
-    padding: 0;
-    font-size: 0.85em;
-    list-style: none;
-  }
-</style>

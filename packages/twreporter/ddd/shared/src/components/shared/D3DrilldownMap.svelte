@@ -29,6 +29,7 @@
     | 'label'
     | 'style'
     | 'tooltip'
+    | 'tooltipTitle'
     | 'containTooltip'
   > & {
     drilldown: MapDrilldown<GeoPermissibleObjects>
