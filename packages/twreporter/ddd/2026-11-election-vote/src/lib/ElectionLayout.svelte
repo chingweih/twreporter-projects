@@ -43,11 +43,11 @@
     --elec-gogo-5: #614766;
     --elec-gogo: var(--elec-gogo-3);
 
-    --elec-new-1: #f2ebcf;
-    --elec-new-2: #e5d69d;
-    --elec-new-3: #c8b45f;
-    --elec-new-4: #91803f;
-    --elec-new-5: #62572f;
+    --elec-new-1: #f3eabd;
+    --elec-new-2: #e5e39d;
+    --elec-new-3: #cec656;
+    --elec-new-4: #8e8838;
+    --elec-new-5: #6d6525;
     --elec-new: var(--elec-new-3);
 
     --elec-pfp-1: #f2e2d3;

@@ -17,7 +17,7 @@ const blank = text
   .trim()
   .length(0)
   .transform(() => null)
-const nullableCount = count.or(blank)
+const nullableCount = count.or(blank).or(z.literal('—').transform(() => null))
 const nullablePercentage = percentage.or(blank)
 const signedCount = number.pipe(z.int())
 
@@ -127,14 +127,9 @@ export const historicalElectionTabs = {
       國民黨席次: count,
       民進黨席次: count,
       民眾黨席次: count,
-      親民黨席次: count,
-      新黨席次: count,
-      台聯席次: count,
-      時代力量席次: count,
+      台灣前進席次: count,
       其他席次: count,
       無黨籍席次: count,
-      '國民黨席次占比（%）': percentage,
-      '民進黨席次占比（%）': percentage,
     }),
   ),
   councilNominations: historicalTab(
@@ -145,9 +140,9 @@ export const historicalElectionTabs = {
       '2026 所屬聯盟': text,
       '2018 提名': nullableCount,
       '2018 當選': nullableCount,
-      '2022 提名': count,
-      '2022 當選': count,
-      '2026 登記': count,
+      '2022 提名': nullableCount,
+      '2022 當選': nullableCount,
+      '2026 候選人': count,
     }),
   ),
   councilorAgeDistribution: historicalTab(

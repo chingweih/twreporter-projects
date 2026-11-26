@@ -8,17 +8,64 @@
   import { historicalElectionTabs } from '../lib/election-historical-data.ts'
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
 
+  function fitUnits(
+    node: HTMLDivElement,
+    options: { sized: boolean; columns: number; gap: number },
+  ) {
+    let frame = 0
+    function fit() {
+      if (!options.sized) {
+        node.style.removeProperty('--unit-height')
+        return
+      }
+      const content = node.querySelector<HTMLElement>('.chart-content')!
+      const style = getComputedStyle(node)
+      const available =
+        node.clientHeight -
+        parseFloat(style.paddingTop) -
+        parseFloat(style.paddingBottom)
+      if (!available) return
+      let low = 0
+      let high = available
+      // Measure the real layout: each year must also fit its statistics column.
+      for (let i = 0; i < 12; i++) {
+        const height = (low + high) / 2
+        node.style.setProperty('--unit-height', height + 'px')
+        if (content.getBoundingClientRect().height <= available) low = height
+        else high = height
+      }
+      node.style.setProperty('--unit-height', Math.floor(low * 64) / 64 + 'px')
+    }
+    function schedule() {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(fit)
+    }
+    const observer = new ResizeObserver(schedule)
+    observer.observe(node)
+    schedule()
+    return {
+      update(value: typeof options) {
+        options = value
+        schedule()
+      },
+      destroy() {
+        observer.disconnect()
+        cancelAnimationFrame(frame)
+      },
+    }
+  }
   const { config }: Pick<ComponentProps, 'config'> = $props()
   const nominations = createQuery(
     () => historicalElectionTabs.councilNominations.options,
   )
   const parties = [
     { label: '民眾黨', color: 'var(--elec-tpp)' },
-    { label: '時代力量', color: 'var(--chart-olive-3)' },
-    { label: '小民參政歐巴桑聯盟', color: 'var(--elec-gogo)' },
+    { label: '時代力量', color: 'var(--elec-new)' },
+    { label: '小民參政歐巴桑聯盟', color: 'var(--chart-earth-3)' },
     { label: '台灣基進', color: 'var(--elec-red)' },
     { label: '台灣綠黨', color: 'var(--elec-dpp)' },
   ]
+  const alliance = { label: '台灣前進', color: 'var(--elec-gogo)' }
   let active = $state<string>()
   const sections = $derived(
     ['民眾黨', '台灣前進成員合計'].map((title, sectionIndex) => ({
@@ -26,36 +73,35 @@
       years: ([2018, 2022, 2026] as const)
         .filter((year) => sectionIndex !== 0 || year !== 2018)
         .map((year) => {
-          const bars = parties
-            .filter((_, index) =>
-              sectionIndex === 0 ? index === 0 : index > 0,
+          const bars = (
+            sectionIndex === 1 && year === 2026
+              ? [alliance]
+              : parties.filter((_, index) =>
+                  sectionIndex === 0 ? index === 0 : index > 0,
+                )
+          ).map((party) => {
+            const rows = (nominations.data ?? []).filter(
+              (row) =>
+                (party === alliance || row.政黨 === party.label) &&
+                (sectionIndex === 0 || row['2026 所屬聯盟'] === '台灣前進'),
             )
-            .map((party) => {
-              const rows = (nominations.data ?? []).filter(
-                (row) =>
-                  row.政黨 === party.label &&
-                  (sectionIndex === 0 || row['2026 所屬聯盟'] === '台灣前進'),
-              )
-              const available = rows.some(
-                (row) => year === 2026 || row[`${year} 提名`] !== null,
-              )
-              const total = rows.reduce(
-                (sum, row) =>
-                  sum +
-                  (year === 2026
-                    ? row['2026 登記']
-                    : (row[`${year} 提名`] ?? 0)),
-                0,
-              )
-              const elected =
-                year === 2026
-                  ? null
-                  : rows.reduce(
-                      (sum, row) => sum + (row[`${year} 當選`] ?? 0),
-                      0,
-                    )
-              return { ...party, total, elected, available }
-            })
+            const available = rows.some(
+              (row) => year === 2026 || row[`${year} 提名`] !== null,
+            )
+            const total = rows.reduce(
+              (sum, row) =>
+                sum +
+                (year === 2026
+                  ? row['2026 候選人']
+                  : (row[`${year} 提名`] ?? 0)),
+              0,
+            )
+            const elected =
+              year === 2026
+                ? null
+                : rows.reduce((sum, row) => sum + (row[`${year} 當選`] ?? 0), 0)
+            return { ...party, total, elected, available }
+          })
           return {
             year,
             bars,
@@ -72,109 +118,134 @@
   batch={secondBatch}
   {config}
   graphicKey="5-tpp-gogo"
+  containerMinHeight={960}
   error={nominations.error?.message}
   loading={nominations.isPending}
   empty={!nominations.data?.length}
 >
   {#snippet children(entry)}
-    <div class="chart" class:backdrop={entry.chartBackdrop}>
-      <Legend items={parties} {active} onhover={(label) => (active = label)} />
-      {#each sections as section}
-        <section aria-label={section.title}>
-          <h3>{section.title}</h3>
-          <p class="note">
-            {section.title === '民眾黨'
-              ? '2019 年成立，未參與 2018 選舉。'
-              : '依 2026 聯盟成員回溯加總；2018、2022 各黨分別參選。'}
-          </p>
-          {#each section.years as row}
-            <div class="year-row">
-              <span class="year">{row.year}</span>
-              <div>
-                {#if row.available}
-                  <div
-                    class="parties"
-                    style:--unit-columns={entry.unitColumns ?? 15}
-                    style:--unit-gap={`${entry.unitGap ?? 4}px`}
-                  >
-                    {#each row.bars.filter((bar) => bar.total > 0) as bar}
-                      <div
-                        class="party"
-                        style:--party-color={bar.color}
-                        class:dimmed={active !== undefined &&
-                          active !== bar.label}
-                      >
-                        <Tooltip
-                          title={`${row.year} · ${bar.label}`}
-                          onvisibilitychange={(visible) => {
-                            if (visible) active = bar.label
-                            else if (active === bar.label) active = undefined
-                          }}
-                        >
-                          {#snippet children()}
-                            <div
-                              class="units"
-                              role="group"
-                              aria-label={bar.label}
-                            >
-                              {#each Array.from({ length: bar.total }, (_, index) => index) as index}
-                                <button
-                                  type="button"
-                                  class="unit"
-                                  class:unelected={bar.elected !== null &&
-                                    index >= bar.elected}
-                                  class:pending={bar.elected === null}
-                                  aria-label={`${row.year} ${bar.label} 第 ${index + 1} 人：${bar.elected === null ? '待開票' : index < bar.elected ? '當選' : '未當選'}`}
-                                ></button>
-                              {/each}
-                            </div>
-                          {/snippet}
-                          {#snippet content()}
-                            <TooltipRows
-                              rows={bar.elected === null
-                                ? [
-                                    {
-                                      label: '登記（待開票）',
-                                      value: `${bar.total} 人`,
-                                      color: bar.color,
-                                    },
-                                  ]
-                                : [
-                                    {
-                                      label: '提名',
-                                      value: `${bar.total} 人`,
-                                      color: bar.color,
-                                    },
-                                    {
-                                      label: '當選',
-                                      value: `${bar.elected} 人`,
-                                      color: bar.color,
-                                    },
-                                    {
-                                      label: '未當選',
-                                      value: `${bar.total - bar.elected} 人`,
-                                      color: `color-mix(in srgb, ${bar.color} 20%, transparent)`,
-                                    },
-                                  ]}
-                            />
-                          {/snippet}
-                        </Tooltip>
+    <div
+      class="chart"
+      use:fitUnits={{
+        sized: !!(entry.containerHeight || entry.containerAspectRatio),
+        columns: entry.unitColumns ?? 15,
+        gap: entry.unitGap ?? 4,
+      }}
+      class:sized={!!(entry.containerHeight || entry.containerAspectRatio)}
+      class:backdrop={entry.chartBackdrop}
+    >
+      <div class="chart-content">
+        <Legend
+          items={[...parties, alliance]}
+          {active}
+          onhover={(label) => (active = label)}
+        />
+        {#each sections as section}
+          <section aria-label={section.title}>
+            <header class="section-heading">
+              <h3>{section.title}</h3>
+              <p class="description">
+                {section.title === '民眾黨'
+                  ? '2019 年成立，未參與 2018 選舉。'
+                  : '依 2026 聯盟成員回溯加總；2018、2022 各黨分別參選。'}
+              </p>
+            </header>
+            {#each section.years as row}
+              <div class="year-row" class:with-totals={entry.showTotals}>
+                <span class="year">{row.year}</span>
+                {#if entry.showTotals}
+                  <div class="summary" aria-label={`${row.year} 人數統計`}>
+                    {#if row.year === 2026}
+                      <div class="stat">
+                        <span>當選</span><strong>-</strong>
                       </div>
-                    {/each}
+                      <div class="stat nominated">
+                        <span>提名</span><strong>{row.total}</strong>
+                      </div>
+                    {:else}
+                      <div class="stat">
+                        <span>當選</span><strong>{row.elected}</strong>
+                      </div>
+                      <div class="stat nominated">
+                        <span>提名</span><strong>{row.total}</strong>
+                      </div>
+                    {/if}
                   </div>
-                  {#if entry.showTotals}<p class="summary">
-                      {row.year === 2026
-                        ? `登記 ${row.total} 人，尚無當選資料`
-                        : `提名 ${row.total} 人 · 當選 ${row.elected} 人`}
-                    </p>{/if}
-                {:else}
-                  <p class="note">2019 年成立，未參與 2018 選舉。</p>
                 {/if}
+                <div class="year-content">
+                  {#if row.available}
+                    <div
+                      class="parties"
+                      style:--unit-columns={entry.unitColumns ?? 15}
+                      style:--unit-gap={`${entry.unitGap ?? 4}px`}
+                    >
+                      {#each row.bars.filter((bar) => bar.total > 0) as bar}
+                        <div
+                          class="party"
+                          style:--party-color={bar.color}
+                          class:dimmed={active !== undefined &&
+                            active !== bar.label}
+                        >
+                          <Tooltip
+                            title={`${row.year} · ${bar.label}`}
+                            onvisibilitychange={(visible) => {
+                              if (visible) active = bar.label
+                              else if (active === bar.label) active = undefined
+                            }}
+                          >
+                            {#snippet children()}
+                              <div
+                                class="units"
+                                role="group"
+                                aria-label={bar.label}
+                              >
+                                {#each Array.from({ length: bar.total }, (_, index) => index) as index}
+                                  <button
+                                    type="button"
+                                    class="unit"
+                                    class:unelected={bar.elected !== null &&
+                                      index >= bar.elected}
+                                    class:pending={bar.elected === null}
+                                    aria-label={`${row.year} ${bar.label} 第 ${index + 1} 人：${bar.elected === null ? '待開票' : index < bar.elected ? '當選' : '未當選'}`}
+                                  ></button>
+                                {/each}
+                              </div>
+                            {/snippet}
+                            {#snippet content()}
+                              <TooltipRows
+                                rows={[
+                                  {
+                                    label: '當選',
+                                    value:
+                                      bar.elected === null
+                                        ? '-'
+                                        : `${bar.elected} 人`,
+                                    color: bar.color,
+                                  },
+                                  {
+                                    label: '未當選',
+                                    value:
+                                      bar.elected === null
+                                        ? '-'
+                                        : `${bar.total - bar.elected} 人`,
+                                    color: `color-mix(in srgb, ${bar.color} 20%, transparent)`,
+                                  },
+                                ]}
+                              />
+                            {/snippet}
+                          </Tooltip>
+                        </div>
+                      {/each}
+                    </div>
+                  {:else}
+                    <p class="note">2019 年成立，未參與 2018 選舉。</p>
+                  {/if}
+                </div>
               </div>
-            </div>
-          {/each}
-        </section>
-      {/each}
+            {/each}
+          </section>
+        {/each}
+      </div>
     </div>
   {/snippet}
 </ElectionGraphic>
@@ -184,6 +255,12 @@
     color: var(--text-color);
     font-size: var(--text-xs);
   }
+  .sized {
+    min-height: 0;
+  }
+  .chart-content {
+    display: flow-root;
+  }
   .backdrop {
     padding: 12px 8px 8px;
     background: var(--neutral-gray-50);
@@ -191,15 +268,29 @@
   section + section {
     margin-top: 24px;
   }
-  h3 {
-    font-size: var(--text-s);
-    margin: 16px 0 8px;
-    padding: 6px 8px;
-    border-radius: 2px;
-    text-align: center;
-    font-weight: 500;
+  .section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px 15px;
+    margin-top: 16px;
+    padding: 13px 0 5px 0;
     border-top: 1px solid var(--neutral-gray-300);
-    border-bottom: 1px solid var(--neutral-gray-300);
+    /* background: var(--neutral-gray-0, #fff); */
+  }
+  h3 {
+    flex-shrink: 0;
+    margin: 0;
+    color: var(--neutral-gray-800);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .description {
+    margin: 0;
+    color: var(--neutral-gray-600);
+    font-size: 14px;
+    line-height: 1.2;
   }
   .note {
     color: var(--neutral-gray-500);
@@ -208,18 +299,52 @@
   }
   .year-row {
     display: grid;
-    grid-template-columns: 4ch minmax(0, 1fr);
-    gap: 12px;
-    margin-top: 14px;
+    grid-template-columns: 5ch minmax(0, 1fr);
+    gap: 15px;
+    margin-top: 12px;
     align-items: start;
   }
+  .year-row.with-totals {
+    grid-template-columns: 5ch 70px minmax(0, 1fr);
+  }
+  .summary {
+    display: flex;
+    align-self: stretch;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    border-left: 1px solid var(--neutral-gray-300);
+    padding-left: 10px;
+    color: var(--neutral-gray-800);
+  }
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    line-height: 1.1;
+  }
+  .stat > span {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font-size: 14px;
+  }
+  .stat strong {
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .nominated {
+    opacity: 0.3;
+  }
   .year {
-    padding-top: 6px;
-    font-weight: 500;
+    padding-top: 0;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.2;
   }
   .parties {
     display: grid;
-    gap: 6px;
+    gap: 4px;
   }
   .party {
     min-width: 0;
@@ -232,11 +357,13 @@
     display: grid;
     grid-template-columns: repeat(var(--unit-columns), minmax(0, 1fr));
     gap: var(--unit-gap);
+    row-gap: min(var(--unit-gap), calc(var(--unit-height, 100px) * 0.2));
   }
   .unit {
     display: block;
     width: 100%;
     aspect-ratio: 1;
+    height: var(--unit-height, auto);
     min-width: 0;
     padding: 0;
     border: 0;
@@ -247,16 +374,57 @@
     background: color-mix(in srgb, var(--party-color) 20%, transparent);
   }
   .pending {
-    background: repeating-linear-gradient(
-      135deg,
-      transparent 0 4px,
-      color-mix(in srgb, var(--party-color) 35%, transparent) 4px 6px
-    );
+    background: transparent;
     border: 1px solid color-mix(in srgb, var(--party-color) 50%, transparent);
   }
   .unit:focus-visible {
     outline: 2px solid var(--text-color);
     outline-offset: 1px;
+  }
+  @container (max-width: 480px) {
+    .section-heading {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .sized .note,
+    .sized .summary,
+    .sized .year {
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .sized .note {
+      margin-bottom: 2px;
+    }
+    .sized .year {
+      padding-top: 0;
+    }
+    .sized .year-row {
+      margin-top: 2px;
+      gap: 6px;
+    }
+    .sized section + section {
+      margin-top: 4px;
+    }
+    .sized :global(.legend) {
+      margin: 0 0 4px;
+      gap: 4px 8px;
+      font-size: 11px;
+    }
+  }
+  @container (max-width: 480px) {
+    .sized .parties {
+      gap: 2px;
+    }
+    .year-row.with-totals {
+      grid-template-columns: 4ch 54px minmax(0, 1fr);
+    }
+    .summary {
+      gap: 5px;
+      padding-left: 6px;
+    }
+    .stat strong {
+      font-size: 26px;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .party {

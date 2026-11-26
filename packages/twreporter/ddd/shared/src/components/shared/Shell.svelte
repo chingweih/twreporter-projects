@@ -22,6 +22,7 @@
     footnotePrefix,
     wide = false,
     backdrop = true,
+    containerMinHeight,
     containerHeight,
     containerAspectRatio,
     editable = false,
@@ -41,6 +42,7 @@
     topRight?: Snippet
     wide?: boolean
     backdrop?: boolean
+    containerMinHeight?: number
     containerHeight?: number
     containerAspectRatio?: number
     editable?: boolean
@@ -63,6 +65,9 @@
 <div class={['outer', { wide }]}>
   <div
     class={['container', { backdrop }]}
+    style:min-height={containerMinHeight
+      ? `${containerMinHeight}px`
+      : undefined}
     style:height={containerHeight ? `${containerHeight}px` : undefined}
     style:aspect-ratio={containerHeight ? undefined : containerAspectRatio}
     bind:this={container}

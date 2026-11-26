@@ -13,13 +13,10 @@
     $props()
   const parties = [
     { series: '國民黨', column: '國民黨席次', color: 'var(--elec-kmt)' },
-    { series: '新黨', column: '新黨席次', color: 'var(--elec-new)' },
-    { series: '台聯', column: '台聯席次', color: 'var(--chart-earth-3)' },
-    { series: '親民黨', column: '親民黨席次', color: 'var(--elec-pfp)' },
     { series: '民眾黨', column: '民眾黨席次', color: 'var(--elec-tpp)' },
     { series: '無黨籍', column: '無黨籍席次', color: 'var(--elec-gray-2)' },
     { series: '其他', column: '其他席次', color: 'var(--elec-gray-3)' },
-    { series: '時代力量', column: '時代力量席次', color: 'var(--elec-new-2)' },
+    { series: '台灣前進', column: '台灣前進席次', color: 'var(--elec-gogo)' },
     { series: '民進黨', column: '民進黨席次', color: 'var(--elec-dpp)' },
   ] as const
   const ages = [
