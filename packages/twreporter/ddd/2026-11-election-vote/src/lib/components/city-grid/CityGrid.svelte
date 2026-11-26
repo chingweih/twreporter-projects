@@ -66,6 +66,7 @@
     name: string
   }
   let hovered = $state.raw<Cell>()
+  let touchInput = $state(false)
   let activeParty = $state<string>()
   let pointer = $state({ x: 0, y: 0 })
   const cornerScale = 0.35
@@ -78,6 +79,7 @@
     event: PointerEvent & { currentTarget: HTMLDivElement },
   ) {
     if (event.pointerType === 'touch') return
+    touchInput = false
     let target = parts[0]
     if (parts.length === 2) {
       const bounds = event.currentTarget.getBoundingClientRect()
@@ -130,12 +132,17 @@
         aria-label={entry.title}
         style:grid-template-columns={`max-content repeat(${years.length}, minmax(0, 1fr))`}
         style:grid-template-rows={`${entry.showXAxis ? 'auto ' : ''}repeat(${rows.length}, ${entry.containerHeight || entry.containerAspectRatio ? 'minmax(0, 1fr)' : 'minmax(14px, 1fr)'})`}
-        style:gap={`${entry.cellGap ?? 4}px`}
+        style:--cell-gap={`${entry.cellGap ?? 4}px`}
       >
         {#if entry.showXAxis}
           <span aria-hidden="true"></span>
           {#each years as year}<span
               class="axis year"
+              class:last-year={year === years.at(-1)}
+              class:mobile-hidden={!(touchInput && hovered?.year === year) &&
+                !['1993–94', '2001–02', '2009–10', '2018', '2026'].includes(
+                  year,
+                )}
               class:focused={entry.hoverFocusXAxis !== false &&
                 hovered?.year === year}
               class:dimmed={entry.hoverFocusXAxis !== false &&
@@ -165,7 +172,12 @@
               style:--corner-scale={cornerScale}
               onpointerenter={(event) => hoverCell(cell.parts, event)}
               onpointermove={(event) => hoverCell(cell.parts, event)}
-              onpointerleave={() => (hovered = undefined)}
+              onpointerdown={(event) => {
+                touchInput = event.pointerType === 'touch'
+              }}
+              onpointerleave={(event) => {
+                if (event.pointerType !== 'touch') hovered = undefined
+              }}
               onpointercancel={() => (hovered = undefined)}
               class:split-hovered={cell.parts.length === 2 &&
                 cell.parts.some((part) => part === hovered)}
@@ -185,7 +197,15 @@
                     ? activeParty !== part.party
                     : hovered !== undefined && hovered.city !== part.city}
                   aria-label={`${part.area} ${part.year} ${part.name} ${part.party}`}
+                  onpointerup={(event) => {
+                    if (event.pointerType === 'touch') {
+                      focusCell(part, event.clientX, event.clientY)
+                    }
+                  }}
                   onfocus={(event) => {
+                    if (event.currentTarget.matches(':focus-visible')) {
+                      touchInput = false
+                    }
                     const bounds = event.currentTarget.getBoundingClientRect()
                     focusCell(part, bounds.x + bounds.width / 2, bounds.bottom)
                   }}
@@ -194,7 +214,7 @@
                     if (event.key === 'Escape') hovered = undefined
                   }}
                 >
-                  {#if entry.showValues || hovered === part}
+                  {#if !touchInput && (entry.showValues || hovered === part)}
                     <span>{part.name}</span>
                   {/if}
                   {#if cell.parts.length === 2}
@@ -258,6 +278,7 @@
   }
   .grid {
     display: grid;
+    gap: var(--cell-gap);
     flex: 1 1 auto;
     min-height: 0;
     aspect-ratio: var(--city-grid-aspect-ratio, 3 / 4);
@@ -379,6 +400,30 @@
   }
   .dimmed {
     opacity: 0.25;
+  }
+  .year.dimmed {
+    opacity: 0.1;
+  }
+  @container (max-width: 580px) {
+    .year {
+      font-size: clamp(11px, 3.6cqi, 14px);
+      white-space: nowrap;
+      overflow-wrap: normal;
+    }
+    .year.mobile-hidden {
+      visibility: hidden;
+    }
+    .year.last-year {
+      justify-content: flex-end;
+      text-align: right;
+    }
+    .grid {
+      gap: min(var(--cell-gap), 2px);
+      aspect-ratio: auto;
+    }
+    .chart:not(.sized) .city {
+      min-height: 24px;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .axis,

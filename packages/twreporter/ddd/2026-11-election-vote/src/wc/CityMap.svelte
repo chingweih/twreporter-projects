@@ -391,6 +391,9 @@
       grid-template-rows: none;
       gap: 4px 12px;
     }
+    .share {
+      font-size: 11px;
+    }
     .results li.separator {
       grid-column: 1 / -1;
     }
