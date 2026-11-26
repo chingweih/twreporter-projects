@@ -43,7 +43,7 @@
   ] as const
   const sexes = [
     { series: '女性', color: 'var(--chart-earth-3)' },
-    { series: '男性', color: 'var(--elec-gogo-3)' },
+    { series: '男性', color: 'var(--chart-patina-3)' },
   ] as const
   const partyHistory = createQuery(() => ({
     ...historicalElectionTabs.councilPartySeats.options,
@@ -121,7 +121,9 @@
         {groups}
         {colors}
         orientation="horizontal"
-        annotations={kind === 'party' ? [{ value: 50, label: '' }] : []}
+        annotations={kind === 'party' || kind === 'sex'
+          ? [{ value: 50, label: '' }]
+          : []}
         mode={entry.mode ?? 'stacked'}
         chartBackdrop={entry.chartBackdrop ?? false}
         barGap={entry.barGap}

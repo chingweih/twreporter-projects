@@ -35,7 +35,7 @@
         hoverFocusYAxis={entry.hoverFocusYAxis}
         yLabel="得票率（%）"
         {data}
-        colors={{ 傅家得票率: 'var(--elec-kmt)' }}
+        colors={{ 傅家得票率: 'var(--elec-red)' }}
         chartBackdrop={false}
         showArea={entry.showArea}
         showTooltip={entry.showTooltip}
