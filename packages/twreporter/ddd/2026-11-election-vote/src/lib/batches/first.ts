@@ -4,7 +4,10 @@ export const firstBatch = defineElectionBatch({
   configUrl: './election-vote.json',
   previewStoryId: 'components-electionvote--default',
   graphics: {
-    '1-city-map': { title: '2026縣市首長當選人一覽' },
+    '1-city-map': {
+      title: '2026縣市首長當選人一覽',
+      containerAspectRatio: 0.8,
+    },
     '2-city-grid': {
       title: '歷屆縣市長黨籍變化',
       containerAspectRatio: 0.8,

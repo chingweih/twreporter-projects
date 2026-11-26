@@ -20,6 +20,7 @@
     width,
     height,
     padding = 0,
+    preserveAspectRatio = 'xMidYMid meet',
     focus,
     label,
     style,
@@ -34,6 +35,7 @@
     width: number
     height: number
     padding?: number
+    preserveAspectRatio?: string
     focus?: GeoPermissibleObjects
     label?: string
     style?: string
@@ -173,6 +175,7 @@
 <svg
   bind:this={svg}
   viewBox="0 0 {width} {height}"
+  {preserveAspectRatio}
   role={label ? 'group' : undefined}
   aria-label={label}
   aria-hidden={label ? undefined : true}

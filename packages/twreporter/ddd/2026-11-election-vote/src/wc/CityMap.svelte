@@ -19,6 +19,19 @@
   import { partyColorVars, resolvePartyColor } from '../lib/party-colors.ts'
 
   const { mainIsland: taiwan, insets } = splitTaiwanCounties(counties)
+  const insetOrder = ['09007', '09020', '10016']
+  const municipalities = ['63000', '65000', '68000', '66000', '67000', '64000']
+  const resultCounties = [...countiesByGroup.values()].flat().sort((a, b) => {
+    const rank = (code: string) => {
+      const index = municipalities.indexOf(code)
+      return index === -1 ? municipalities.length : index
+    }
+    return rank(a.properties.countyCode) - rank(b.properties.countyCode)
+  })
+  const orderedInsets = [...insets].sort(
+    (a, b) =>
+      insetOrder.indexOf(a.countyCode) - insetOrder.indexOf(b.countyCode),
+  )
   const bounds = geoPath().bounds(taiwan)
   const preserveDrawingBuffer = new URLSearchParams(window.location.search).has(
     'download',
@@ -91,222 +104,284 @@
   })
 </script>
 
-{#snippet results(side: 'west' | 'east')}
-  {#each countiesByGroup as [region, counties] (region)}
-    {#if (region === '東' || region === '離島') === (side === 'east')}
-      <ul class="results" aria-label={region}>
-        {#each counties as { properties: { countyCode, name } } (countyCode)}
-          {@const result = overview.data?.get(countyCode)}
-          {@const candidate = result?.領先者.trim()}
-          <li>
-            <strong>{name}</strong>
-            <span
-              class="swatch"
-              style:background-color="var({partyTokens.get(countyCode) ??
-                '--elec-gray-1'})"
-              role="img"
-              aria-label={candidate
-                ? result?.領先者政黨.trim() || '未提供政黨'
-                : '尚無結果'}
-            ></span>
-            <span class="candidate">{candidate || '—'}</span>
-            {#if result && candidate}
-              <span class="share"
-                >({formatNumber(result['領先得票率(%)'])}%)</span
+{#snippet results()}
+  <ul class="results" aria-label="各縣市領先候選人">
+    {#each resultCounties as { properties: { countyCode, name } } (countyCode)}
+      {@const result = overview.data?.get(countyCode)}
+      <li>
+        <strong>{name}</strong>
+        {#each [{ name: result?.領先者.trim(), party: result?.領先者政黨.trim(), share: result?.['領先得票率(%)'] }] as candidate, index}
+          <!-- 暫停顯示第二名：{ name: result?.第二名.trim(), party: result?.第二名政黨.trim(), share: result?.['第二名得票率(%)'] } -->
+          <div class="candidate-result" class:runner-up={index === 1}>
+            <div class="candidate-identity">
+              <span
+                class="swatch"
+                style:background-color="var({resolvePartyColor(
+                  candidate.party ?? '',
+                ).colorVar})"
+                aria-hidden="true"
+              ></span>
+              <span class="candidate-name" title={candidate.name}
+                >{candidate.name || '—'}</span
               >
-            {/if}
-          </li>
+            </div>
+            {#if candidate.name && candidate.share !== undefined}<span
+                class="share">({formatNumber(candidate.share)}%)</span
+              >{/if}
+          </div>
         {/each}
-      </ul>
-    {/if}
-  {/each}
+      </li>
+      {#if countyCode === municipalities.at(-1)}
+        <li class="separator" aria-hidden="true"><span></span></li>
+      {/if}
+    {/each}
+  </ul>
 {/snippet}
 
 {#snippet taiwanShapes()}
-  <CountyShapes geometry={taiwan} {partyTokens} width={360} height={620} />
+  <CountyShapes
+    geometry={taiwan}
+    {partyTokens}
+    width={360}
+    height={620}
+    preserveAspectRatio="xMaxYMid meet"
+  />
 {/snippet}
 
 <ElectionGraphic
   batch={firstBatch}
   {config}
   graphicKey="1-city-map"
-  wide
+  // wide
   error={overview.error?.message}
   loading={overview.isPending}
   empty={!overview.data?.size}
 >
-  <div class="composition">
-    <div class="main-map" bind:this={mapFrame} aria-hidden="true">
-      <div class="map-content">
-        {#if tileStyle && tilePaint}
-          <svelte:boundary>
-            <MapCanvas
-              {bounds}
-              style={tileStyle}
-              height="100%"
-              canvasContextAttributes={{ preserveDrawingBuffer }}
-            >
-              <GeoJSONSource id="city-counties" data={taiwan} maxzoom={8}>
-                <FillLayer id="city-counties-fill" paint={tilePaint} />
-              </GeoJSONSource>
-            </MapCanvas>
-            {#snippet failed()}
-              {@render taiwanShapes()}
-            {/snippet}
-          </svelte:boundary>
-        {:else}
-          {@render taiwanShapes()}
-        {/if}
+  {#snippet children(entry)}
+    <div
+      class="composition"
+      class:sized={!!(entry.containerHeight || entry.containerAspectRatio)}
+    >
+      <div class="main-map" bind:this={mapFrame} aria-hidden="true">
+        <div class="map-content">
+          {#if tileStyle && tilePaint}
+            <svelte:boundary>
+              <MapCanvas
+                {bounds}
+                style={tileStyle}
+                height="100%"
+                canvasContextAttributes={{ preserveDrawingBuffer }}
+              >
+                <GeoJSONSource id="city-counties" data={taiwan} maxzoom={8}>
+                  <FillLayer id="city-counties-fill" paint={tilePaint} />
+                </GeoJSONSource>
+              </MapCanvas>
+              {#snippet failed()}
+                {@render taiwanShapes()}
+              {/snippet}
+            </svelte:boundary>
+          {:else}
+            {@render taiwanShapes()}
+          {/if}
+        </div>
+      </div>
+      {#if legend.length}
+        <ul class="legend" aria-label="圖例">
+          {#each legend as [party, token] (party)}
+            <li>
+              <span
+                class="swatch"
+                style:background-color="var({token})"
+                aria-hidden="true"
+              ></span>{party}
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      <div class="county-results">{@render results()}</div>
+      <div class="insets" aria-hidden="true">
+        {#each orderedInsets as { countyCode, geometry } (countyCode)}
+          <div class="inset" class:penghu={countyCode === '10016'}>
+            <CountyShapes
+              {geometry}
+              {partyTokens}
+              width={120}
+              height={countyCode === '10016' ? 176 : 84}
+              showStroke={false}
+            />
+          </div>
+        {/each}
       </div>
     </div>
-    {#if legend.length}
-      <ul class="legend" aria-label="圖例">
-        {#each legend as [party, token] (party)}
-          <li>
-            <span
-              class="swatch"
-              style:background-color="var({token})"
-              aria-hidden="true"
-            ></span>{party}
-          </li>
-        {/each}
-      </ul>
+    {#if tiles}
+      <p class="attribution">{tiles.attribution}</p>
     {/if}
-    <div class="west">{@render results('west')}</div>
-    <div class="east">{@render results('east')}</div>
-    <div class="insets" aria-hidden="true">
-      {#each insets as { countyCode, geometry } (countyCode)}
-        <div class="inset" class:penghu={countyCode === '10016'}>
-          <CountyShapes
-            {geometry}
-            {partyTokens}
-            width={120}
-            height={countyCode === '10016' ? 176 : 84}
-          />
-        </div>
-      {/each}
-    </div>
-  </div>
-  {#if tiles}
-    <p class="attribution">{tiles.attribution}</p>
-  {/if}
+  {/snippet}
 </ElectionGraphic>
 
 <style>
   .composition {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr;
-    grid-template-areas: 'west map legend' 'west map east' 'west map insets';
-    column-gap: 12px;
-    row-gap: 16px;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 'legend legend' 'map results';
+    gap: 12px 0;
     align-items: start;
-    font-size: var(--text-xs);
+    font-size: var(--text-s);
   }
   .main-map {
     grid-area: map;
     position: relative;
     width: 100%;
-    aspect-ratio: 360 / 620;
+    height: 100%;
+    min-height: 600px;
+  }
+  .sized .main-map {
+    min-height: 0;
+  }
+  .sized .county-results,
+  .sized .results {
+    /* height: 100%; */
+    min-height: 0;
+  }
+  .sized .results {
+    grid-template-rows: repeat(6, minmax(0, 1fr)) auto repeat(
+        16,
+        minmax(0, 1fr)
+      );
   }
   .map-content {
     position: absolute;
     inset: 0;
+    transform: translateX(-10px);
   }
-  .west {
-    grid-area: west;
-  }
-  .east {
-    grid-area: east;
+  .county-results {
+    grid-area: results;
+    justify-self: end;
   }
   .legend {
     grid-area: legend;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
   }
   .insets {
-    grid-area: insets;
-    align-self: end;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    grid-area: map;
+    z-index: 1;
+    width: 20%;
+    max-width: 96px;
+    pointer-events: none;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
   .inset {
-    min-width: 0;
-    aspect-ratio: 120 / 84;
+    width: 100%;
+    aspect-ratio: 120 / 100;
     border: 1px solid var(--neutral-gray-300);
   }
   .inset.penghu {
-    grid-row: span 2;
-    aspect-ratio: auto;
+    margin-top: auto;
+    aspect-ratio: 120 / 176;
   }
   .legend,
   .results {
-    display: grid;
-    gap: 5px;
     list-style: none;
     padding: 0;
     margin: 0;
   }
-  .results + .results {
-    margin-top: 18px;
+  .results {
+    display: grid;
+    gap: 4px;
+  }
+  .results li {
+    display: grid;
+    grid-template-columns: 3em max-content;
+    gap: 10px;
+    align-items: center;
+  }
+  .results strong {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .results li.separator {
+    display: block;
+    padding-block: 8px;
+  }
+  .separator span {
+    display: block;
+    border-bottom: 1px solid var(--neutral-gray-300);
   }
   .legend li,
-  .results li {
+  .candidate-result {
     display: flex;
     align-items: center;
-    gap: 5px;
-  }
-  .results li {
-    background: var(--neutral-gray-200);
-    padding: 3px 5px;
-    flex-wrap: wrap;
-  }
-  .results strong,
-  .candidate,
-  .share {
+    gap: 6px;
     white-space: nowrap;
+  }
+  .runner-up {
+    opacity: 0.25;
+  }
+  .candidate-result {
+    min-width: 0;
+  }
+  .candidate-identity {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .candidate-name {
+    flex: 0 0 3em;
+    max-width: 3em;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 400;
+  }
+  .share {
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
   }
   .share,
   .attribution {
-    color: var(--neutral-gray-700);
+    color: var(--neutral-gray-400);
+    font-weight: 300;
   }
   .swatch {
     width: 0.9em;
     height: 0.9em;
     flex: none;
-    border-radius: 3px;
+    border-radius: 2px;
   }
   .attribution {
     margin: 0;
     font-size: var(--text-xs);
   }
-  @container (max-width: 670px) {
+  @container (max-width: 580px) {
     .composition {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-rows: auto;
-      grid-template-areas: 'legend legend' 'map map' 'insets insets' 'west east';
-      gap: 12px;
+      grid-template-columns: minmax(0, 1fr) max-content;
+      grid-template-rows: auto 1fr;
+      grid-template-areas: 'legend legend' 'map results';
+      gap: 12px 6px;
     }
     .main-map {
-      width: min(100%, 280px);
-      margin-inline: auto;
+      min-height: 0;
     }
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 12px;
+    .results li {
+      grid-template-columns: 3em max-content;
+      gap: 4px;
+      font-size: 11px;
     }
-    .insets {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .results {
+      gap: 2px;
     }
-    .inset.penghu {
-      grid-row: auto;
-      aspect-ratio: 120 / 84;
+    .county-results {
+      justify-self: end;
     }
-  }
-  @container (max-width: 360px) {
-    .composition {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: 'legend' 'map' 'insets' 'west' 'east';
+    .runner-up {
+      display: none;
     }
   }
 </style>

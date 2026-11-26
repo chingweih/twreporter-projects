@@ -7,22 +7,33 @@
     partyTokens,
     width,
     height,
+    showStroke = true,
+    preserveAspectRatio,
   }: {
     geometry: TaiwanCountySplit['mainIsland']
     partyTokens: ReadonlyMap<string, string>
     width: number
     height: number
+    showStroke?: boolean
+    preserveAspectRatio?: string
   } = $props()
 </script>
 
-<D3Map {geometry} {width} {height} padding={4} style="height: 100%">
+<D3Map
+  {geometry}
+  {width}
+  {height}
+  {preserveAspectRatio}
+  padding={4}
+  style="height: 100%"
+>
   {#snippet children(path)}
     {#each geometry.features as county (county.properties.countyCode)}
       <path
         d={path(county)}
         fill="var({partyTokens.get(county.properties.countyCode) ??
           '--elec-gray-1'})"
-        stroke="var(--neutral-white)"
+        stroke={showStroke ? 'var(--neutral-white)' : 'none'}
         stroke-width="1"
         vector-effect="non-scaling-stroke"
       />
