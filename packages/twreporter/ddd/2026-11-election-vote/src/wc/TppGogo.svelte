@@ -104,17 +104,18 @@
                   : (row[`${year} 提名`] ?? 0)),
               0,
             )
-            const elected =
-              year === 2026
-                ? null
-                : rows.reduce((sum, row) => sum + (row[`${year} 當選`] ?? 0), 0)
+            const elected = rows.some((row) => row[`${year} 當選`] !== null)
+              ? rows.reduce((sum, row) => sum + (row[`${year} 當選`] ?? 0), 0)
+              : null
             return { ...party, total, elected, available }
           })
           return {
             year,
             bars,
             total: bars.reduce((sum, bar) => sum + bar.total, 0),
-            elected: bars.reduce((sum, bar) => sum + (bar.elected ?? 0), 0),
+            elected: bars.some((bar) => bar.elected !== null)
+              ? bars.reduce((sum, bar) => sum + (bar.elected ?? 0), 0)
+              : null,
             available: bars.some((bar) => bar.available),
           }
         }),
@@ -165,7 +166,7 @@
                     <div class="summary" aria-label={`${row.year} 人數統計`}>
                       <div class="stat">
                         <span>當選</span><strong
-                          >{row.year === 2026 ? '-' : row.elected}</strong
+                          >{row.elected ?? '-'}</strong
                         >
                       </div>
                       <div class="stat">
@@ -173,7 +174,7 @@
                       </div>
                       <div class="stat">
                         <span>當選率</span><strong
-                          >{row.year === 2026 || !row.total
+                          >{row.elected === null || !row.total
                             ? '-'
                             : `${Number(((row.elected / row.total) * 100).toFixed(1))}%`}</strong
                         >

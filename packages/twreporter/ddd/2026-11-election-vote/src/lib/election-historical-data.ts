@@ -143,6 +143,7 @@ export const historicalElectionTabs = {
       '2022 提名': nullableCount,
       '2022 當選': nullableCount,
       '2026 候選人': count,
+      '2026 當選': nullableCount,
     }),
   ),
   councilorAgeDistribution: historicalTab(

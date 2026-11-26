@@ -92,7 +92,7 @@ export const secondBatch = defineElectionBatch({
       valuePosition: 'center',
     },
     '8-hualien': {
-      title: '傅家王朝歷屆得票率變化',
+      title: '花蓮傅家歷屆催票率變化',
       containerAspectRatio: 0.8,
       hoverFocusYAxis: false,
       showArea: true,
