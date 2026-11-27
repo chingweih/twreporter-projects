@@ -2,37 +2,35 @@
 
 <script lang="ts">
   import { Zip, ZipPassThrough } from 'fflate'
-  import {
-    collectGraphicsEvent,
-    downloadBlob,
-    type GraphicExport,
-  } from '../../utils/graphic-download.ts'
+  import { downloadBlob } from '../../utils/graphic-download.ts'
+  import { collectPageGraphics } from './collect-page-graphics.ts'
 
-  let downloading = $state(false)
+  let progress = $state<{ completed: number; total: number }>()
   let message = $state('')
 
   async function download(
     event: MouseEvent & { currentTarget: HTMLButtonElement },
   ) {
+    if (progress) return
     const document = event.currentTarget.ownerDocument
-    const graphics: GraphicExport[] = []
-    document.dispatchEvent(
-      new CustomEvent(collectGraphicsEvent, { detail: graphics }),
-    )
     message = ''
-    if (!graphics.length) {
-      message = '這個頁面沒有可下載的圖表。'
-      return
-    }
-
-    downloading = true
-    const parts: Blob[] = []
-    const zip = new Zip((error, bytes) => {
-      if (error) throw error
-      parts.push(new Blob([bytes]))
-    })
-    let exported = 0
+    progress = { completed: 0, total: 0 }
     try {
+      const { graphics, pending } = await collectPageGraphics(document)
+      if (!graphics.length) {
+        message = pending
+          ? '圖表尚未載入，請再試一次。'
+          : '這個頁面沒有可下載的圖表。'
+        return
+      }
+
+      progress.total = graphics.length
+      const parts: Blob[] = []
+      const zip = new Zip((error, bytes) => {
+        if (error) throw error
+        parts.push(new Blob([bytes]))
+      })
+      let exported = 0
       for (const [index, { title, capture }] of graphics.entries()) {
         let png: ArrayBuffer
         try {
@@ -41,6 +39,8 @@
         } catch (cause) {
           console.error('Unable to export graphic', title, cause)
           continue
+        } finally {
+          progress.completed = index + 1
         }
         const name =
           title
@@ -66,22 +66,41 @@
         new Blob(parts, { type: 'application/zip' }),
         '報導者圖表.zip',
       )
-      if (exported < graphics.length) {
-        message = `已匯出 ${exported} 張圖表，${graphics.length - exported} 張匯出失敗。`
+      const skipped = graphics.length - exported + pending
+      if (skipped) {
+        message = `已匯出 ${exported} 張圖表，${skipped} 張未能匯出。`
       }
     } catch (cause) {
       console.error('Unable to create graphics ZIP', cause)
       message = '無法匯出 ZIP，請再試一次。'
     } finally {
-      downloading = false
+      progress = undefined
     }
   }
 </script>
 
 <div class="download-control">
-  <button type="button" onclick={download} disabled={downloading}>
-    {downloading ? '正在匯出圖表…' : '下載全部圖表（ZIP）'}
+  <button type="button" onclick={download} disabled={progress !== undefined}>
+    {progress
+      ? progress.total
+        ? '正在匯出圖表…'
+        : '正在載入圖表…'
+      : '下載全部圖表（ZIP）'}
   </button>
+  {#if progress}
+    <div class="download-progress">
+      {#if progress.total}
+        <progress
+          aria-label="圖表匯出進度"
+          max={progress.total}
+          value={progress.completed}
+        ></progress>
+        <span aria-hidden="true">{progress.completed} / {progress.total}</span>
+      {:else}
+        <progress aria-label="正在載入圖表"></progress>
+      {/if}
+    </div>
+  {/if}
   <p role="status">{message}</p>
 </div>
 
@@ -104,6 +123,16 @@
 
   button:disabled {
     cursor: wait;
+  }
+
+  .download-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
   }
 
   p {

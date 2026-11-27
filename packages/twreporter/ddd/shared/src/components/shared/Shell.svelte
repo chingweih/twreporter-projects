@@ -106,6 +106,7 @@
     return on(target.ownerDocument, collectGraphicsEvent, ({ detail }) => {
       detail.push({
         title,
+        loading: loading && !error,
         capture: async () => {
           if (!target.isConnected || loading || error || empty) {
             throw new Error('Graphic is unavailable')

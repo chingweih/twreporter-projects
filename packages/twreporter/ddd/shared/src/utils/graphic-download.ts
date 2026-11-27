@@ -2,6 +2,7 @@ export const collectGraphicsEvent = 'twreporter:collect-graphics'
 
 export type GraphicExport = {
   title: string
+  loading?: boolean
   capture: () => Promise<Blob>
 }
 
