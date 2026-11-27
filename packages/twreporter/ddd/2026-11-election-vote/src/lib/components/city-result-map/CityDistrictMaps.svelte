@@ -105,8 +105,9 @@
           ...result.majorPartyCandidates,
           result.leader,
         ]) {
-          const label = candidate.姓名.trim()
-          const { colorVar } = resolvePartyColor(candidate.政黨.trim())
+          const party = resolvePartyColor(candidate.政黨.trim())
+          const label = previous ? party.label : candidate.姓名.trim()
+          const { colorVar } = party
           const color = `var(${colorVar})`
           candidates.set(`${label}:${colorVar}`, { label, color })
         }
