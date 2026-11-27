@@ -73,7 +73,7 @@
       showTotals={entry.showTotals ?? false}
       orientation="horizontal"
       axisLabel="占投票權人比例（%）"
-      annotations={[{ value: 25, label: '門檻：投票權人的 25%' }]}
+      annotations={[{ value: 25, label: '投票權人的 25%' }]}
       formatValue={(value) =>
         `${value.toLocaleString('zh-TW', { maximumFractionDigits: 1 })}%`}
     />
