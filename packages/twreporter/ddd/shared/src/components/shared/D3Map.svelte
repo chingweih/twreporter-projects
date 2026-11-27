@@ -3,7 +3,7 @@
 
   export type MapTooltipTarget = {
     key: string
-    pointer?: { x: number; y: number }
+    pointer?: { x: number; y: number; coordinates?: [number, number] }
     source: SVGSVGElement
     focus: GeoPermissibleObjects | undefined
   }
@@ -50,6 +50,7 @@
   } = $props()
 
   let svg = $state<SVGSVGElement>()
+  let mapLayer = $state<SVGGElement>()
   let zooming = $state(false)
   let viewportRevision = $state(0)
   const tooltipKey = $derived(
@@ -63,16 +64,24 @@
   )
   const areaAnchor = $derived.by(() => {
     if (!tooltipKey || !svg || zooming) return
-    // Focus and linked anchors follow the rendered path after zoom or scroll.
+    // Keyboard and touch anchors follow the rendered path after zoom or scroll.
     void viewportRevision
     const { left, width, top, bottom } = (
       areaElement ?? svg
     ).getBoundingClientRect()
     return { x: left + width / 2, y: areaElement ? bottom : top }
   })
-  const tooltipAnchor = $derived(
-    (isTooltipSource && tooltipTarget?.pointer) || areaAnchor,
-  )
+  const tooltipAnchor = $derived.by(() => {
+    if (!tooltipKey || zooming) return
+    const pointer = tooltipTarget?.pointer
+    if (isTooltipSource && pointer) return pointer
+    if (pointer?.coordinates) {
+      const point = projection(pointer.coordinates)
+      const matrix = mapLayer?.getScreenCTM()
+      if (point && matrix) return new DOMPoint(...point).matrixTransform(matrix)
+    }
+    return areaAnchor
+  })
   const tooltipBounds = $derived.by(() => {
     if (!containTooltip || !tooltipKey || zooming) return
     void viewportRevision
@@ -92,9 +101,18 @@
             ?.getAttribute('data-map-tooltip')
         : undefined
     if (key) {
+      const pointer = { x: event.clientX, y: event.clientY }
+      const matrix = mapLayer?.getScreenCTM()
+      const point = matrix
+        ? new DOMPoint(pointer.x, pointer.y).matrixTransform(matrix.inverse())
+        : undefined
+      const coordinates =
+        point && Number.isFinite(point.x) && Number.isFinite(point.y)
+          ? (projection.invert([point.x, point.y]) ?? undefined)
+          : undefined
       tooltipTarget = {
         key,
-        pointer: { x: event.clientX, y: event.clientY },
+        pointer: { ...pointer, coordinates },
         focus,
         source: svg,
       }
@@ -147,19 +165,18 @@
     })
   })
 
-  const path = $derived(
-    geoPath(
-      geoIdentity()
-        .reflectY(true)
-        .fitExtent(
-          [
-            [padding, padding],
-            [width - padding, height - padding],
-          ],
-          geometry,
-        ),
-    ).digits(2),
+  const projection = $derived(
+    geoIdentity()
+      .reflectY(true)
+      .fitExtent(
+        [
+          [padding, padding],
+          [width - padding, height - padding],
+        ],
+        geometry,
+      ),
   )
+  const path = $derived(geoPath(projection).digits(2))
   const transform = $derived.by(() => {
     if (!focus) return
     const [[left, top], [right, bottom]] = path.bounds(focus)
@@ -193,6 +210,7 @@
   onfocusout={tooltip ? dismissTooltip : undefined}
 >
   <g
+    bind:this={mapLayer}
     style:transform
     ontransitionrun={updateZoom}
     ontransitionend={updateZoom}
