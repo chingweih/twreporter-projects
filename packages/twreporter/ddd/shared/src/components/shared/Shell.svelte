@@ -1,7 +1,12 @@
 <script lang="ts">
   import Frame from './Frame.svelte'
-  import { domToPng } from 'modern-screenshot'
+  import { domToBlob } from 'modern-screenshot'
   import type { Snippet } from 'svelte'
+  import { on } from 'svelte/events'
+  import {
+    collectGraphicsEvent,
+    downloadBlob,
+  } from '../../utils/graphic-download.ts'
   import Logo from './Logo.svelte'
   import EditableText from './EditableText.svelte'
 
@@ -69,23 +74,39 @@
     return () => observer.disconnect()
   }
 
+  async function capturePng(target: HTMLDivElement) {
+    await target.ownerDocument.fonts.ready
+    return domToBlob(target, {
+      type: 'image/png',
+      scale: 3,
+      width: fixedRatio ? ratioWidth : undefined,
+      height: fixedRatio ? target.offsetHeight : undefined,
+      style: fixedRatio ? { transform: 'none' } : undefined,
+    })
+  }
+
+  function offerExport(target: HTMLDivElement) {
+    return on(target.ownerDocument, collectGraphicsEvent, ({ detail }) => {
+      detail.push({
+        title,
+        capture: async () => {
+          if (!target.isConnected || loading || error || empty) {
+            throw new Error('Graphic is unavailable')
+          }
+          return capturePng(target)
+        },
+      })
+    })
+  }
+
   async function download() {
     const target = container
     if (!target || downloading) return
     downloading = true
     downloadError = false
     try {
-      await target.ownerDocument.fonts.ready
-      const dataUrl = await domToPng(target, {
-        scale: 3,
-        width: fixedRatio ? ratioWidth : undefined,
-        height: fixedRatio ? target.offsetHeight : undefined,
-        style: fixedRatio ? { transform: 'none' } : undefined,
-      })
-      const anchor = document.createElement('a')
-      anchor.href = dataUrl
-      anchor.download = `${title || '圖表'}／報導者.png`
-      anchor.click()
+      const png = await capturePng(target)
+      downloadBlob(target.ownerDocument, png, `${title || '圖表'}／報導者.png`)
     } catch (cause) {
       console.error('Unable to export the graphic', cause)
       downloadError = true
@@ -113,6 +134,7 @@
     style:aspect-ratio={ratio ??
       (containerHeight ? undefined : containerAspectRatio)}
     bind:this={container}
+    {@attach offerExport}
   >
     <Frame {beforeHeader} {topRight}>
       {#snippet topLeft()}

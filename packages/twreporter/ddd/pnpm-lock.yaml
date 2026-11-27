@@ -397,6 +397,9 @@ importers:
       diff:
         specifier: ^9.0.0
         version: 9.0.0
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       maplibre-gl:
         specifier: 5.24.0
         version: 5.24.0
