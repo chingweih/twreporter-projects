@@ -306,7 +306,7 @@
   }
   .results {
     display: grid;
-    gap: 4px;
+    gap: 1.5px;
   }
   .results li {
     display: grid;
