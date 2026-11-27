@@ -65,11 +65,16 @@
       ]),
     ),
   )
-  const legend = $derived(
-    Object.entries(partyColorVars).filter(([party]) =>
+  const legend = $derived([
+    ...Object.entries(partyColorVars).filter(([party]) =>
       displayedParties.some(({ label }) => label === party),
     ),
-  )
+    ...(resultCounties.some(
+      ({ properties }) => !partyTokens.has(properties.countyCode),
+    )
+      ? [['尚無資料', '--neutral-gray-200']]
+      : []),
+  ])
   const tileStyle = $derived<StyleSpecification | undefined>(
     tiles && {
       version: 8,
@@ -87,7 +92,7 @@
     if (!tileStyle || !mapFrame) return
     const theme = getComputedStyle(mapFrame)
     const neutralFill =
-      theme.getPropertyValue('--elec-gray-1').trim() || theme.color
+      theme.getPropertyValue('--neutral-gray-200').trim() || theme.color
     // The MapLibre style parser needs a resolved color for the canvas.
     const colors = Object.fromEntries(
       [...partyTokens].map(([countyCode, token]) => [
@@ -120,9 +125,9 @@
             <div class="candidate-identity">
               <span
                 class="swatch"
-                style:background-color="var({resolvePartyColor(
-                  candidate.party ?? '',
-                ).colorVar})"
+                style:background-color="var({candidate.name
+                  ? resolvePartyColor(candidate.party ?? '').colorVar
+                  : '--neutral-gray-200'})"
                 aria-hidden="true"
               ></span>
               <span class="candidate-name" title={candidate.name}
@@ -134,8 +139,8 @@
                 ? '*'
                 : ''}</span
             >
-            {#if candidate.name && candidate.share !== undefined}<span
-                class="share">({formatNumber(candidate.share)}%)</span
+            {#if candidate.name && candidate.share != null}<span class="share"
+                >({formatNumber(candidate.share)}%)</span
               >{/if}
           </div>
         {/each}
@@ -167,7 +172,6 @@
     // wide
     error={overview.error?.message}
     loading={overview.isPending}
-    empty={!overview.data?.size}
   >
     {#snippet children(entry)}
       <div

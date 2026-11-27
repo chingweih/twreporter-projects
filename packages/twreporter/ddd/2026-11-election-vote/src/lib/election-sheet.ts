@@ -38,7 +38,9 @@ export function createElectionSheet({
     normalizeHeader: (header: string) => string = (header) => header,
   ) {
     const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`
-    const columns = Object.keys(rowSchema.shape)
+    const columns = Object.keys(rowSchema.shape).filter(
+      (column) => !z.safeParse(rowSchema.shape[column], undefined).success,
+    )
     const rowsSchema = rowSchema.array()
 
     async function fetchRows(signal?: AbortSignal) {

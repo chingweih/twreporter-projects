@@ -32,7 +32,7 @@
       <path
         d={path(county)}
         fill="var({partyTokens.get(county.properties.countyCode) ??
-          '--elec-gray-1'})"
+          '--neutral-gray-200'})"
         stroke={showStroke ? 'var(--neutral-white)' : 'none'}
         stroke-width="1"
         vector-effect="non-scaling-stroke"
