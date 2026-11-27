@@ -85,6 +85,9 @@ export const secondBatch = defineElectionBatch({
     },
     '7-council-sex': {
       title: '2026當選議員性別分布',
+      footnotes: [
+        '使用中選會公告的候選人性別資訊計算，本屆共{{women}}人因婦女保障名額當選',
+      ],
       mode: 'stacked-percent',
       containerAspectRatio: 0.8,
       chartBackdrop: false,

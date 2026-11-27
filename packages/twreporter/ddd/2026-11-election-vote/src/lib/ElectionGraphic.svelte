@@ -25,6 +25,7 @@
     wide,
     containerMinHeight,
     autoHeight = false,
+    footnoteValues,
   }: Pick<ComponentProps, 'config' | 'ratio'> & {
     batch: ElectionBatch
     graphicKey: ElectionGraphicKey
@@ -35,6 +36,7 @@
     wide?: boolean
     containerMinHeight?: number
     autoHeight?: boolean
+    footnoteValues?: Readonly<Record<string, string>>
   } = $props()
 
   const graphic = untrack(
@@ -78,20 +80,34 @@
       }
     },
   }))
-  const sharedTemplates = $derived(
-    batchConfig?.sharedFootnote.filter(
-      (note) =>
-        note.trim() &&
-        (countingValues.data ||
-          !/\{\{v(?:Month|Day|Hour|Min|Progress)\}\}/.test(note)),
-    ) ?? [],
+  const noteValues = $derived({ ...countingValues.data, ...footnoteValues })
+
+  function resolveFootnotes(notes: string[]) {
+    return notes
+      .map((note) => textReplace(note, noteValues))
+      .filter(
+        (note) =>
+          !/\{\{(?:v(?:Month|Day|Hour|Min|Progress)|selfKMT|selfDPP|women)\}\}/.test(
+            note,
+          ),
+      )
+  }
+
+  const localNotes = $derived(
+    graphic.editable
+      ? (entry?.footnotes ?? [])
+      : resolveFootnotes(entry?.footnotes ?? []),
   )
-  const localNoteCount = $derived(entry?.footnotes.length ?? 0)
+  const sharedTemplates = $derived(
+    resolveFootnotes(batchConfig?.sharedFootnote ?? []).filter((note) =>
+      note.trim(),
+    ),
+  )
+  const localNoteCount = $derived(localNotes.length)
   const numberFootnotes = $derived(localNoteCount + sharedTemplates.length > 2)
   const sharedNotes = $derived(
     sharedTemplates.map((note, index) =>
       textReplace(note, {
-        ...countingValues.data,
         vIndex: numberFootnotes ? String(localNoteCount + index + 1) : '',
       }),
     ),
@@ -109,7 +125,12 @@
   {#if batchConfig && entry && responsiveEntry}
     <Shell
       bind:title={entry.title}
-      bind:footnotes={entry.footnotes}
+      bind:footnotes={
+        () => localNotes,
+        (notes) => {
+          entry.footnotes = notes
+        }
+      }
       readOnlyFootnotes={sharedNotes}
       footnotePrefix={(index) => `註${numberFootnotes ? index + 1 : ''}：`}
       {wide}

@@ -119,6 +119,8 @@ export const electionTabs = {
       ...county,
       選舉區: text,
       ...candidateResults,
+      婦女保障當選: text,
+      其他註記: text,
     }),
   ),
   townshipMayors: electionTab(

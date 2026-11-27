@@ -6,6 +6,7 @@ export const firstBatch = defineElectionBatch({
   graphics: {
     '1-city-map': {
       title: '2026縣市首長當選人一覽',
+      footnotes: ['2026年國民黨{{selfKMT}}位、民進黨{{selfDPP}}位自行宣布當選'],
       containerAspectRatio: 0.8,
       legendAlign: 'left',
     },
