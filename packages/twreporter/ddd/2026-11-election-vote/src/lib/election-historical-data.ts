@@ -193,4 +193,14 @@ export const historicalElectionTabs = {
   taipeiMayorByTownship: historicalTab('427942331', districtResult),
   newTaipeiMayorByVillage: historicalTab('864705621', villageResult),
   newTaipeiMayorByTownship: historicalTab('72983163', districtResult),
+  taoyuanMayorByVillage: historicalTab('411769863', villageResult, (header) =>
+    header === 'z' ? '選舉' : header,
+  ),
+  taoyuanMayorByTownship: historicalTab('1594161816', districtResult),
+  taichungMayorByVillage: historicalTab('150983414', villageResult),
+  taichungMayorByTownship: historicalTab('1338606081', districtResult),
+  tainanMayorByVillage: historicalTab('1954568209', villageResult),
+  tainanMayorByTownship: historicalTab('1755566432', districtResult),
+  kaohsiungMayorByVillage: historicalTab('2027180573', villageResult),
+  kaohsiungMayorByTownship: historicalTab('937439622', districtResult),
 }

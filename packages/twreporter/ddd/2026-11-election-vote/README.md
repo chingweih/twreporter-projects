@@ -11,7 +11,7 @@ pnpm dev
 
 Storybook runs on port 5173. The batch definitions in `src/lib/batches` set the graphic order, default titles, and footnotes. Each batch has a Storybook story and one shared `config` JSON URL. Its graphics read result data from the election spreadsheet.
 
-Development and Storybook builds generate the two config JSON files in `generated/` and serve them at the root of Storybook. Run `pnpm generate:configs` to regenerate the files on their own.
+Development and Storybook builds generate one config JSON file per batch in `generated/` and serve them at the root of Storybook. Run `pnpm generate:configs` to regenerate the files on their own.
 
 The graphic editor can edit each graphic's title and footnotes, and the batch credit in `sharedFootnote`. Add `edit` to the iframe URL to enable editing.
 
