@@ -179,7 +179,6 @@ export const historicalElectionTabs = {
       候選人: text,
       推薦政黨: text,
       得票: nullableCount,
-      '得票率（%）': nullablePercentage,
       '催票率（%）': nullablePercentage,
       結果: text,
       名次: positiveCount.or(blank).or(z.literal('—').transform(() => null)),
