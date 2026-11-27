@@ -3,7 +3,7 @@
   import { MapDrilldown } from '@lab-reporter/ddd-shared/utils/map-drilldown.svelte.ts'
   import { createQuery, skipToken } from '@tanstack/svelte-query'
   import { electionTabs } from '../../election-data.ts'
-  import { resolvePartyColor } from '../../party-colors.ts'
+  import { partyColorVars, resolvePartyColor } from '../../party-colors.ts'
   import {
     areaColor,
     indexAreaResults,
@@ -115,6 +115,26 @@
     }
     return [...candidates.values()]
   })
+  const comparisonRows = $derived.by(() => {
+    if (!previous) return []
+    const oldColors = previous.districts.features.map(({ properties }) =>
+      areaColor(historicalTownships.data?.get(properties.districtCode)),
+    )
+    const newColors = current.districts.features.map(({ properties }) =>
+      areaColor(townshipQuery.data?.get(properties.districtCode)),
+    )
+    return Object.entries(partyColorVars)
+      .filter(([party]) => party === '中國國民黨' || party === '民主進步黨')
+      .map(([party, token]) => ({
+        party,
+        previous: historicalTownships.data
+          ? oldColors.filter((color) => color === token).length
+          : null,
+        current: townshipQuery.data
+          ? newColors.filter((color) => color === token).length
+          : null,
+      }))
+  })
 </script>
 
 {#snippet status(query: typeof results)}
@@ -130,6 +150,30 @@
     <h2>{year}</h2>
     {@render status(query)}
   </header>
+  <table class="party-summary" aria-label={`${year} 各黨票數最高行政區數`}>
+    <thead>
+      <tr
+        ><th scope="col"><span class="sr-only">政黨</span></th><th scope="col"
+          >票數最高</th
+        >{#if year === 2026}<th scope="col">翻轉</th>{/if}</tr
+      >
+    </thead>
+    <tbody>
+      {#each comparisonRows as row}
+        {@const count = year === 2022 ? row.previous : row.current}
+        {@const change =
+          row.current !== null && row.previous !== null
+            ? Math.max(row.current - row.previous, 0)
+            : null}
+        <tr>
+          <th scope="row">{row.party}</th>
+          <td>{count === null ? '—' : `${count} 區`}</td>
+          {#if year === 2026}<td>{change === null ? '—' : `${change} 區`}</td
+            >{/if}
+        </tr>
+      {/each}
+    </tbody>
+  </table>
 {/snippet}
 
 <div class="city-maps">
@@ -205,6 +249,7 @@
     flex: 1 1 auto;
     flex-direction: column;
     min-height: 0;
+    gap: 10px;
   }
 
   .map-actions {
@@ -288,8 +333,35 @@
     padding: 0 0 5px 0;
     flex-shrink: 0;
     min-height: 40px;
-    border-radius: 2px;
+    border-bottom: 1px solid var(--neutral-gray-600);
+  }
+  .party-summary {
+    width: 100%;
+    margin-bottom: 12px;
+    border-collapse: collapse;
+    border-bottom: 1px solid var(--neutral-gray-600);
+    font-size: var(--text-s);
+    font-variant-numeric: tabular-nums;
+  }
+  .party-summary th,
+  .party-summary td {
+    padding: 6px;
+    font-weight: 400;
+    white-space: nowrap;
+    text-align: right;
+  }
+  .party-summary tbody th {
+    text-align: left;
+  }
+  .party-summary tr {
     border-bottom: 1px solid var(--neutral-gray-300);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 
   h2 {
