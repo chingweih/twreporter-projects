@@ -119,7 +119,7 @@
   empty={!groups.length}
 >
   {#snippet children(entry)}
-    <div class="chart-container">
+    <div class="chart-container" class:party={kind === 'party'}>
       <BarChart
         {...barChartOptions(entry)}
         valueTopN={kind === 'party' ? 3 : undefined}
@@ -137,6 +137,9 @@
 </ElectionGraphic>
 
 <style>
+  .party :global(.value) {
+    font-size: 12px;
+  }
   .chart-container {
     height: var(--council-chart-height, auto);
     --bar-chart-aspect-ratio: var(--council-chart-aspect-ratio, 3 / 4);
