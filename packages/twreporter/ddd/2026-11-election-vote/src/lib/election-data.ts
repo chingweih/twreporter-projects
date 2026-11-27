@@ -10,7 +10,7 @@ import {
 } from './election-sheet.ts'
 
 const electionTab = createElectionSheet({
-  spreadsheetId: '1rrRgaTyIIhHFCUaGZ1BB4tdmx-WcoPJuKhf1w5YqKeY',
+  sheetId: '1rrRgaTyIIhHFCUaGZ1BB4tdmx-WcoPJuKhf1w5YqKeY',
   queryNamespace: '2026-11-election-vote',
 })
 const text = z.string()

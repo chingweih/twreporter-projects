@@ -29,18 +29,18 @@ export const sheetPercentageWithText = percentageText
   .pipe(z.object({ text: z.string(), value: percentageNumber }))
 
 export function createElectionSheet({
-  spreadsheetId,
+  sheetId,
   queryNamespace,
 }: {
-  spreadsheetId: string
+  sheetId: string
   queryNamespace: string
 }) {
   return function electionTab<Columns extends z.ZodRawShape>(
-    gid: string,
+    tabId: string,
     rowSchema: z.ZodObject<Columns>,
     normalizeHeader: (header: string) => string = (header) => header,
   ) {
-    const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`
+    const url = `https://projects.twreporter.org/twreporter/ddd/2026-11-election-vote/sheets/${sheetId}/${tabId}.csv`
     const columns = Object.keys(rowSchema.shape).filter(
       (column) => !z.safeParse(rowSchema.shape[column], undefined).success,
     )
@@ -65,7 +65,7 @@ export function createElectionSheet({
         return rowsSchema.parse(csv.rows)
       } catch (cause) {
         throw new Error(
-          `Invalid election CSV in ${queryNamespace} tab ${gid}`,
+          `Invalid election CSV in ${queryNamespace} tab ${tabId}`,
           {
             cause,
           },
@@ -76,7 +76,7 @@ export function createElectionSheet({
     return {
       fetchRows,
       options: queryOptions({
-        queryKey: [queryNamespace, gid] as const,
+        queryKey: [queryNamespace, tabId] as const,
         queryFn: ({ signal }) => fetchRows(signal),
       }),
     }

@@ -10,7 +10,7 @@ import {
 } from './election-sheet.ts'
 
 const historicalTab = createElectionSheet({
-  spreadsheetId: '1cbvf1PuITskiXlqfQrt3n9RjLVFzE3Wf_tZRgj9iuDM',
+  sheetId: '1cbvf1PuITskiXlqfQrt3n9RjLVFzE3Wf_tZRgj9iuDM',
   queryNamespace: '2026-11-election-vote-historical',
 })
 const text = z.string()
