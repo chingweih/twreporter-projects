@@ -126,11 +126,10 @@ export const historicalElectionTabs = {
       總席次: count,
       過半門檻: nullableCount,
       國民黨席次: count,
-      民進黨席次: count,
       民眾黨席次: count,
-      台灣前進席次: count,
-      其他席次: count,
       無黨籍席次: count,
+      其他席次: count,
+      民進黨席次: count,
     }),
   ),
   councilNominations: historicalTab(
