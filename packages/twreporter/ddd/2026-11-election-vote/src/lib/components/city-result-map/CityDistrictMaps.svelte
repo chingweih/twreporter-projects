@@ -330,10 +330,10 @@
     align-items: center;
     gap: 6px;
     padding: 5px 14px;
-    border: 1px solid var(--chart-earth-3);
+    border: 1px solid var(--chart-earth-4);
     border-radius: 20px;
     background: transparent;
-    color: var(--chart-earth-3);
+    color: var(--chart-earth-4);
     font: inherit;
     font-size: var(--text-s);
     cursor: pointer;
@@ -344,11 +344,11 @@
     outline: none;
   }
   button:focus-visible {
-    background: var(--chart-earth-3);
+    background: var(--chart-earth-4);
   }
   button:hover {
     outline: none;
-    background: var(--chart-earth-3);
+    background: var(--chart-earth-4);
     color: var(--neutral-gray-100);
     font-weight: 400;
   }
