@@ -17,5 +17,6 @@
   {config}
   {ratio}
   {city}
+  wide={false}
   geometries={secondCityGeometries}
 />

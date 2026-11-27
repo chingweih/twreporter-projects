@@ -10,6 +10,7 @@
     batch,
     name,
     config,
+    wide,
     ratio,
     city,
     geometries,
@@ -18,12 +19,13 @@
     batch: ElectionBatch
     name: string
     city?: string
+    wide?: boolean
     geometries: ReadonlyMap<string, CityGeometry>
     historicalGeometries?: ReadonlyMap<string, HistoricalCityGeometry>
   } = $props()
 </script>
 
-<ElectionCityGraphic {batch} {name} {config} {ratio} {city} wide fitViewport>
+<ElectionCityGraphic {batch} {name} {config} {ratio} {city} {wide} fitViewport>
   {#snippet children(cityCode)}
     {@const current = geometries.get(cityCode)}
     {@const previous = historicalGeometries?.get(cityCode)}

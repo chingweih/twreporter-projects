@@ -43,6 +43,7 @@
   {config}
   {ratio}
   {city}
+  wide={true}
   geometries={secondCityGeometries}
   historicalGeometries={previousGeometries}
 />
