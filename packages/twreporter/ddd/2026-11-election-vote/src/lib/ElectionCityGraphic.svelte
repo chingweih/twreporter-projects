@@ -58,7 +58,7 @@
   .fit-viewport :global(.outer:not(.fixed-ratio) > .container) {
     display: grid;
     grid-template-rows: minmax(0, 1fr);
-    max-height: 100dvh;
+    max-height: 100svh;
   }
 
   .fit-viewport :global(.outer:not(.fixed-ratio) .frame) {
