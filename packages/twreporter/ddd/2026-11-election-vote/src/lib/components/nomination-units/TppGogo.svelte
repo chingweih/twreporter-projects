@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Legend from '@lab-reporter/ddd-shared/components/shared/Legend.svelte'
   import Tooltip from '@lab-reporter/ddd-shared/components/shared/Tooltip.svelte'
   import TooltipRows from '@lab-reporter/ddd-shared/components/shared/TooltipRows.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
@@ -69,59 +68,40 @@
   const nominations = createQuery(
     () => historicalElectionTabs.councilNominations.options,
   )
-  const parties = [
-    { label: '民眾黨', color: 'var(--elec-tpp)' },
-    { label: '時代力量', color: 'var(--elec-new)' },
-    { label: '小民參政歐巴桑聯盟', color: 'var(--chart-earth-3)' },
-    { label: '台灣基進', color: 'var(--elec-red)' },
-    { label: '台灣綠黨', color: 'var(--elec-dpp)' },
-  ]
-  const alliance = { label: '台灣前進', color: 'var(--elec-gogo)' }
+  const parties = [{ label: '民眾黨', color: 'var(--elec-tpp)' }]
   let active = $state<string>()
   const sections = $derived(
-    ['民眾黨', '台灣前進成員合計'].map((title, sectionIndex) => ({
+    ['民眾黨'].map((title) => ({
       title,
-      years: ([2018, 2022, 2026] as const)
-        .filter((year) => sectionIndex !== 0 || year !== 2018)
-        .map((year) => {
-          const bars = (
-            sectionIndex === 1 && year === 2026
-              ? [alliance]
-              : parties.filter((_, index) =>
-                  sectionIndex === 0 ? index === 0 : index > 0,
-                )
-          ).map((party) => {
-            const rows = (nominations.data ?? []).filter(
-              (row) =>
-                (party === alliance || row.政黨 === party.label) &&
-                (sectionIndex === 0 || row['2026 所屬聯盟'] === '台灣前進'),
-            )
-            const available = rows.some(
-              (row) => year === 2026 || row[`${year} 提名`] !== null,
-            )
-            const total = rows.reduce(
-              (sum, row) =>
-                sum +
-                (year === 2026
-                  ? row['2026 候選人']
-                  : (row[`${year} 提名`] ?? 0)),
-              0,
-            )
-            const elected = rows.some((row) => row[`${year} 當選`] !== null)
-              ? rows.reduce((sum, row) => sum + (row[`${year} 當選`] ?? 0), 0)
-              : null
-            return { ...party, total, elected, available }
-          })
-          return {
-            year,
-            bars,
-            total: bars.reduce((sum, bar) => sum + bar.total, 0),
-            elected: bars.some((bar) => bar.elected !== null)
-              ? bars.reduce((sum, bar) => sum + (bar.elected ?? 0), 0)
-              : null,
-            available: bars.some((bar) => bar.available),
-          }
-        }),
+      years: ([2022, 2026] as const).map((year) => {
+        const bars = parties.map((party) => {
+          const rows = (nominations.data ?? []).filter(
+            (row) => row.政黨 === party.label,
+          )
+          const available = rows.some(
+            (row) => year === 2026 || row[`${year} 提名`] !== null,
+          )
+          const total = rows.reduce(
+            (sum, row) =>
+              sum +
+              (year === 2026 ? row['2026 候選人'] : (row[`${year} 提名`] ?? 0)),
+            0,
+          )
+          const elected = rows.some((row) => row[`${year} 當選`] !== null)
+            ? rows.reduce((sum, row) => sum + (row[`${year} 當選`] ?? 0), 0)
+            : null
+          return { ...party, total, elected, available }
+        })
+        return {
+          year,
+          bars,
+          total: bars.reduce((sum, bar) => sum + bar.total, 0),
+          elected: bars.some((bar) => bar.elected !== null)
+            ? bars.reduce((sum, bar) => sum + (bar.elected ?? 0), 0)
+            : null,
+          available: bars.some((bar) => bar.available),
+        }
+      }),
     })),
   )
 </script>
@@ -143,32 +123,19 @@
       class="chart"
       use:fitUnits={{
         sized,
-        columns: entry.unitColumns ?? 20,
+        columns: entry.unitColumns ?? 10,
         gap: entry.unitGap ?? 4,
       }}
       class:sized
       class:backdrop={entry.chartBackdrop}
     >
       <div class="chart-content">
-        <Legend
-          items={[...parties, alliance]}
-          {active}
-          onhover={(label) => (active = label)}
-        />
         {#each sections as section}
           <section aria-label={section.title}>
-            <header class="section-heading">
-              <h3>{section.title}</h3>
-              <p class="description">
-                {section.title === '民眾黨'
-                  ? '2019年成立，未參與2018選舉'
-                  : '依2026聯盟成員回溯加總；2018、2022各黨分別參選'}
-              </p>
-            </header>
             {#each section.years as row}
               <div class="year-row" class:with-totals={entry.showTotals}>
-                <span class="year">{row.year}</span>
                 <div class="year-summary">
+                  <span class="year">{row.year}</span>
                   {#if entry.showTotals}
                     <div class="summary" aria-label={`${row.year} 人數統計`}>
                       <div class="stat">
@@ -177,9 +144,8 @@
                       <div class="stat">
                         <span>提名</span><strong>{row.total}</strong>
                       </div>
-                      <hr />
                       <div class="stat">
-                        <span>整體<br />當選率</span><strong
+                        <span>當選率</span><strong
                           >{row.elected === null || !row.total
                             ? '-'
                             : `${Number(((row.elected / row.total) * 100).toFixed(1))}%`}</strong
@@ -192,7 +158,7 @@
                   {#if row.available}
                     <div
                       class="parties"
-                      style:--unit-columns={entry.unitColumns ?? 20}
+                      style:--unit-columns={entry.unitColumns ?? 10}
                       style:--unit-gap={`${entry.unitGap ?? 4}px`}
                     >
                       {#each row.bars.filter((bar) => bar.total > 0) as bar}
@@ -284,30 +250,6 @@
   section + section {
     margin-top: 24px;
   }
-  .section-heading {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 8px 15px;
-    margin-top: 16px;
-    padding: 13px 0 5px 0;
-    border-top: 1px solid var(--neutral-gray-300);
-    /* background: var(--neutral-gray-0, #fff); */
-  }
-  h3 {
-    flex-shrink: 0;
-    margin: 0;
-    color: var(--neutral-gray-800);
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.2;
-  }
-  .description {
-    margin: 0;
-    color: var(--neutral-gray-600);
-    font-size: 14px;
-    line-height: 1.2;
-  }
   .note {
     color: var(--neutral-gray-500);
     margin: 0 0 8px;
@@ -315,20 +257,20 @@
   }
   .year-row {
     display: grid;
-    grid-template-columns: 4ch minmax(0, 1fr) minmax(4ch, max-content);
+    grid-template-columns: 110px minmax(0, 1fr);
     gap: 15px;
     margin-top: 12px;
     align-items: start;
   }
   .year-row.with-totals {
-    grid-template-columns: 4ch minmax(0, 1fr) 110px;
+    grid-template-columns: 110px minmax(0, 1fr);
   }
   .year-summary {
-    grid-column: 3;
+    grid-column: 1;
     grid-row: 1;
     align-self: stretch;
-    border-left: 1px solid var(--neutral-gray-300);
-    padding-left: 12px;
+    border-right: 1px solid var(--neutral-gray-300);
+    padding-right: 15px;
   }
   .year-content {
     grid-column: 2;
@@ -361,11 +303,13 @@
     line-height: 1.2;
   }
   .year {
-    grid-column: 1;
-    grid-row: 1;
+    display: block;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--neutral-gray-300);
     padding-top: 0;
     font-weight: 500;
-    font-size: var(--text-s);
+    font-size: 24px;
     line-height: 1.2;
   }
   .parties {
@@ -407,16 +351,7 @@
     outline: 2px solid var(--text-color);
     outline-offset: 1px;
   }
-  hr {
-    margin: 4px 0;
-    border: none;
-    border-top: 1px solid var(--neutral-gray-300);
-  }
   @container (max-width: 580px) {
-    .section-heading {
-      flex-direction: column;
-      align-items: flex-start;
-    }
     .sized .note,
     .sized .summary,
     .sized .year {
@@ -435,16 +370,11 @@
     .sized section + section {
       margin-top: 4px;
     }
-    .sized :global(.legend) {
-      margin: 0 0 4px;
-      gap: 4px 8px;
-      font-size: 11px;
-    }
     .sized .parties {
       gap: 2px;
     }
     .year-row.with-totals {
-      grid-template-columns: 4ch minmax(0, 1fr) 90px;
+      grid-template-columns: 90px minmax(0, 1fr);
     }
     .summary {
       gap: 3px;
