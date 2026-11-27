@@ -2,7 +2,14 @@
   import { QueryCache, QueryClient } from '@tanstack/svelte-query'
 
   export function createLayoutQueryClient() {
+    const refresh =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).has('refresh')
+
     return new QueryClient({
+      defaultOptions: {
+        queries: { refetchInterval: refresh ? 10_000 : false },
+      },
       queryCache: new QueryCache({
         onError: (error) => console.error(error),
       }),

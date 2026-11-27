@@ -56,31 +56,35 @@ export function createGraphic<Config>(
     },
   })
 
-  const query = createQuery(() => ({
-    ...queryOptions,
-    queryKey: [name, props()] as const,
-    enabled: !editorMode && !sync.connected && Boolean(props().config),
-    queryFn: async ({ signal }) => {
-      const urls = props()
-      const sourceUrls = urls.sources ?? (urls.src ? { source: urls.src } : {})
-      const [sources, config] = await Promise.all([
-        Promise.all(
-          Object.entries(sourceUrls).map(async ([id, url]) => ({
-            id,
-            ...parseCsv(
-              await fetchText(new URL(url, document.baseURI).href, signal),
-            ),
-          })),
-        ),
-        fetchJson(
-          new URL(urls.config, document.baseURI).href,
-          configSchema,
-          signal,
-        ),
-      ])
-      return { sources, config }
-    },
-  }))
+  const query = createQuery(() => {
+    const { config, src, sources } = props()
+    const urls = { config, src, sources }
+    return {
+      ...queryOptions,
+      queryKey: [name, urls] as const,
+      enabled: !editorMode && !sync.connected && Boolean(config),
+      queryFn: async ({ signal }) => {
+        const sourceUrls =
+          urls.sources ?? (urls.src ? { source: urls.src } : {})
+        const [sources, config] = await Promise.all([
+          Promise.all(
+            Object.entries(sourceUrls).map(async ([id, url]) => ({
+              id,
+              ...parseCsv(
+                await fetchText(new URL(url, document.baseURI).href, signal),
+              ),
+            })),
+          ),
+          fetchJson(
+            new URL(urls.config, document.baseURI).href,
+            configSchema,
+            signal,
+          ),
+        ])
+        return { sources, config }
+      },
+    }
+  })
 
   $effect(() => {
     if (sync.connected) return
@@ -104,10 +108,12 @@ export function createGraphic<Config>(
       return sync.editable
     },
     get loading() {
-      return query.isFetching || (editorMode && !sync.connected)
+      return query.isLoading || (editorMode && !sync.connected)
     },
     get error() {
-      return sourceError ?? query.error?.message
+      return (
+        sourceError ?? (query.isLoadingError ? query.error.message : undefined)
+      )
     },
   }
 }
