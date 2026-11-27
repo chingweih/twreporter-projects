@@ -594,12 +594,13 @@
                     pointer-events="none"
                   >
                     {#if valueTitle?.(group.label, point.x)}
-                      <tspan x={xScale(point.x)} dy="-1.2em"
-                        >{valueTitle(group.label, point.x)}</tspan
-                      >
-                      <tspan x={xScale(point.x)} dy="1.2em"
-                        >{labelFor(point)}</tspan
-                      >
+                      {#each [valueTitle(group.label, point.x), labelFor(point)] as line, lineIndex}
+                        <tspan
+                          x={xScale(point.x)}
+                          dy={lineIndex === 0 ? '-1.2em' : '1.2em'}
+                          >{line}</tspan
+                        >
+                      {/each}
                     {:else}
                       {labelFor(point)}
                     {/if}
