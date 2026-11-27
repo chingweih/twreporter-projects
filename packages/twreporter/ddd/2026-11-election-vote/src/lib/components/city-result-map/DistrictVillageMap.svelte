@@ -5,6 +5,7 @@
   import { formatNumber } from '@lab-reporter/ddd-shared/utils/format.ts'
   import type { MapDrilldown } from '@lab-reporter/ddd-shared/utils/map-drilldown.svelte.ts'
   import type { CreateQueryResult } from '@tanstack/svelte-query'
+  import { formatPercentage } from '../../format.ts'
   import { resolvePartyColor } from '../../party-colors.ts'
   import { areaColor, type AreaResult } from './data.ts'
   import { assignedVillagesInDistrict, type CityGeometry } from './geometry.ts'
@@ -104,7 +105,7 @@
             rows={result.majorPartyCandidates.map((candidate) => ({
               label: candidate.姓名,
               color: `var(${resolvePartyColor(candidate.政黨.trim()).colorVar})`,
-              value: `${formatNumber(candidate.得票數)}票（${formatNumber(candidate['得票率(%)'])}%）`,
+              value: `${formatNumber(candidate.得票數)}票（${formatPercentage(candidate['得票率(%)'])}）`,
             }))}
           />
         {/if}

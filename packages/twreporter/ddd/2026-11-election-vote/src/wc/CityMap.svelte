@@ -4,7 +4,6 @@
   import { splitTaiwanCounties } from '@lab-reporter/ddd-atlas/taiwan/map'
   import MapCanvas from '@lab-reporter/ddd-shared/components/shared/MapCanvas.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
-  import { formatNumber } from '@lab-reporter/ddd-shared/utils/format.ts'
   import { createQuery } from '@tanstack/svelte-query'
   import { geoPath } from 'd3-geo'
   import type { FillLayerSpecification, StyleSpecification } from 'maplibre-gl'
@@ -17,6 +16,7 @@
   } from '../lib/components/city-map/data.ts'
   import { historicalElectionTabs } from '../lib/election-historical-data.ts'
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
+  import { formatPercentage } from '../lib/format.ts'
   import { partyColorVars, resolvePartyColor } from '../lib/party-colors.ts'
 
   const { mainIsland: taiwan, insets } = splitTaiwanCounties(counties)
@@ -140,7 +140,7 @@
                 : ''}</span
             >
             {#if candidate.name && candidate.share != null}<span class="share"
-                >({formatNumber(candidate.share)}%)</span
+                >({formatPercentage(candidate.share)})</span
               >{/if}
           </div>
         {/each}

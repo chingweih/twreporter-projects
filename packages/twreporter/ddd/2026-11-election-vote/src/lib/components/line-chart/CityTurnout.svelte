@@ -6,6 +6,7 @@
   import { secondBatch } from '../../batches/second.ts'
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
+  import { formatPercentage } from '../../format.ts'
 
   const {
     config,
@@ -60,7 +61,7 @@
         colors={{ [series]: 'var(--elec-red)' }}
         showAllXTicks
         formatX={(value) => rows[value]?.label ?? ''}
-        formatValue={(value) => `${value}%`}
+        formatValue={formatPercentage}
         tooltipLabel={taipei
           ? (_series, x) => taipeiHistory.data?.[x]?.該屆當選人 || undefined
           : undefined}

@@ -6,6 +6,7 @@
   import { secondBatch } from '../../batches/second.ts'
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
+  import { formatPercentage } from '../../format.ts'
 
   const {
     config,
@@ -101,7 +102,7 @@
             : undefined}
         xTickCount={8}
         formatX={(value) => history.data?.[value]?.台北市長屆次 ?? ''}
-        formatValue={(value) => `${value}%`}
+        formatValue={formatPercentage}
       />
     </div>
   {/snippet}
