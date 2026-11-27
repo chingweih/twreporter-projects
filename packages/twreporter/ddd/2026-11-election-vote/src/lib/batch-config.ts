@@ -52,6 +52,8 @@ type GraphicDefaults = Pick<
   yAxisFontSize?: number
   pointRadius?: number
   xTickCount?: number
+  mobileXTickCount?: number
+  mobileYTickCount?: number
   xMin?: number
   showTrendLine?: boolean
   xMax?: number
@@ -103,6 +105,8 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
     yAxisFontSize?: number
     pointRadius?: number
     xTickCount?: number
+    mobileXTickCount?: number
+    mobileYTickCount?: number
     xMin?: number
     showTrendLine?: boolean
     xMax?: number
@@ -148,6 +152,16 @@ function graphicConfig(defaults: GraphicDefaults) {
             mode: barChartModeSchema.default(defaults.mode).meta({
               title: '呈現方式',
               'ui:enumNames': ['一般／分組', '堆疊', '百分比堆疊'],
+            }),
+            mobileXTickCount: z.number().int().min(2).max(30).optional().meta({
+              title: '手機 X 軸刻度數量',
+              viewport: 'mobile',
+              description: '圖表寬度不超過 580px 時使用；留空沿用原設定。',
+            }),
+            mobileYTickCount: z.number().int().min(2).max(30).optional().meta({
+              title: '手機 Y 軸刻度數量',
+              viewport: 'mobile',
+              description: '圖表寬度不超過 580px 時使用；留空沿用原設定。',
             }),
             showTooltip: z
               .boolean()
@@ -265,6 +279,22 @@ function graphicConfig(defaults: GraphicDefaults) {
               .nonnegative()
               .default(defaults.linePointRadius ?? 4.5)
               .meta({ title: '資料點半徑（px）' }),
+            mobileXTickCount: z
+              .number()
+              .int()
+              .default(defaults.mobileXTickCount ?? 4)
+              .meta({
+                title: '手機 X 軸刻度數量',
+                viewport: 'mobile',
+                description:
+                  '圖表寬度不超過 580px 時使用，包含啟用全部刻度的圖表；實際數量會依可用空間調整。',
+              }),
+            mobileYTickCount: z.number().int().min(2).max(30).optional().meta({
+              title: '手機 Y 軸刻度數量',
+              viewport: 'mobile',
+              description:
+                '圖表寬度不超過 580px 時使用；留空沿用 Y 軸刻度數量。',
+            }),
             yTickCount: z
               .number()
               .int()
@@ -488,6 +518,8 @@ function graphicConfig(defaults: GraphicDefaults) {
               'gapDasharray',
               'lineWidth',
               'linePointRadius',
+              'mobileXTickCount',
+              'mobileYTickCount',
               'showArea',
               'showTooltip',
               'showValue',
@@ -504,6 +536,8 @@ function graphicConfig(defaults: GraphicDefaults) {
         ...(defaults.mode
           ? [
               'mode',
+              'mobileXTickCount',
+              'mobileYTickCount',
               'chartBackdrop',
               'barGap',
               'groupGap',
@@ -576,6 +610,8 @@ export function defineElectionBatch({
         yAxisFontSize,
         pointRadius,
         xTickCount,
+        mobileXTickCount,
+        mobileYTickCount,
         xMin,
         showTrendLine,
         xMax,
@@ -645,6 +681,8 @@ export function defineElectionBatch({
           : {}),
         ...(yTickCount !== undefined && pointRadius === undefined
           ? {
+              mobileXTickCount: mobileXTickCount ?? 4,
+              mobileYTickCount,
               connectGaps,
               gapDasharray,
               lineWidth,
@@ -665,6 +703,8 @@ export function defineElectionBatch({
         ...(mode
           ? {
               mode,
+              mobileXTickCount,
+              mobileYTickCount,
               sortOrder,
               sortBy,
               showXGrid: showXGrid ?? true,

@@ -26,6 +26,8 @@ export function lineChartOptions(entry: Entry) {
     lineWidth: entry.lineWidth,
     linePointRadius: entry.linePointRadius,
     yTickCount: entry.yTickCount,
+    mobileXTickCount: entry.mobileXTickCount,
+    mobileYTickCount: entry.mobileYTickCount,
     chartBackdrop: false,
     yDomain: [0, entry.yMax ?? 100],
   } satisfies Partial<ComponentProps<typeof LineChart>>

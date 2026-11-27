@@ -23,6 +23,8 @@ export function barChartOptions(entry: Entry) {
     valuePosition: entry.valuePosition,
     xAxisFontSize: entry.xAxisFontSize,
     yAxisFontSize: entry.yAxisFontSize,
+    mobileXTickCount: entry.mobileXTickCount,
+    mobileYTickCount: entry.mobileYTickCount,
     chartBackdrop: entry.chartBackdrop ?? false,
   } satisfies Partial<ComponentProps<typeof BarChart>>
 }

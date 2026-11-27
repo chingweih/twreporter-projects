@@ -37,6 +37,8 @@
     xDomain,
     yDomain,
     xTickCount = 6,
+    mobileXTickCount,
+    mobileYTickCount,
     showAllXTicks = false,
     yTickCount = 5,
     connectGaps = true,
@@ -75,6 +77,8 @@
     xDomain?: [number, number]
     yDomain?: [number, number]
     xTickCount?: number
+    mobileXTickCount?: number
+    mobileYTickCount?: number
     showAllXTicks?: boolean
     connectGaps?: boolean
     gapDasharray?: string
@@ -178,7 +182,11 @@
         valueTitle ? 46 : showValue ? 26 : 10,
       ]),
   )
-  const yTicks = $derived(yScale.ticks(yTickCount))
+  const yTicks = $derived(
+    yScale.ticks(
+      width > 0 && width <= 580 ? (mobileYTickCount ?? yTickCount) : yTickCount,
+    ),
+  )
   const valueLabelPositions = $derived.by(() => {
     const positions = new Map<(typeof validData)[number], number>()
     for (const x of xValues) {
@@ -224,8 +232,11 @@
       )
       .range([left, Math.max(left, width - right)]),
   )
+  const mobileTickCount = $derived(
+    width > 0 && width <= 580 ? mobileXTickCount : undefined,
+  )
   const xTicks = $derived(
-    showAllXTicks
+    showAllXTicks && mobileTickCount === undefined
       ? xValues
       : xValues.filter(
           (_, index, ticks) =>
@@ -237,7 +248,7 @@
                     Math.max(
                       1,
                       Math.min(
-                        xTickCount,
+                        mobileTickCount ?? xTickCount,
                         Math.floor((width - left - right) / 70),
                       ),
                     ),

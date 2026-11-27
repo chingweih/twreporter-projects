@@ -142,6 +142,8 @@ export type BarChartProps = {
   valuePosition?: 'left' | 'center' | 'outside'
   xAxisFontSize?: number
   yAxisFontSize?: number
+  mobileXTickCount?: number
+  mobileYTickCount?: number
   showLegend?: boolean
   axisLabel?: string
   colors?: Readonly<Record<string, string>>

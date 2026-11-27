@@ -54,6 +54,8 @@
     valuePosition,
     xAxisFontSize,
     yAxisFontSize,
+    mobileXTickCount,
+    mobileYTickCount,
     colors = {},
     showLegend = true,
     annotations = [],
@@ -261,7 +263,24 @@
     plotHeight + Math.max(minValue < 0 ? 38 : 18, (xAxisFontSize ?? 14) + 4),
   )
   const height = $derived(containerHeight)
-  const tickCount = $derived(horizontal && plotWidth < 260 ? 3 : 6)
+  const mobile = $derived(width > 0 && width <= 580)
+  const tickCount = $derived(
+    (mobile ? (horizontal ? mobileXTickCount : mobileYTickCount) : undefined) ??
+      (horizontal && plotWidth < 260 ? 3 : 6),
+  )
+  function categoryTickVisible(index: number, total: number) {
+    const count = mobile
+      ? horizontal
+        ? mobileYTickCount
+        : mobileXTickCount
+      : undefined
+    return (
+      count === undefined ||
+      index % Math.max(1, Math.ceil((total - 1) / Math.max(1, count - 1))) ===
+        0 ||
+      index === total - 1
+    )
+  }
   const valueScale = $derived(
     valueDomainScale
       .copy()
@@ -571,7 +590,7 @@
                     rx={stacked ? undefined : 2}
                   />
                   {#if !stacked && horizontal}
-                    {#if bar.label}
+                    {#if bar.label && categoryTickVisible(groupIndex, plottedGroups.length) && categoryTickVisible(barIndex, group.bars.length)}
                       <text
                         class="category"
                         class:axis-focus-disabled={!(horizontal
@@ -588,7 +607,7 @@
                       >
                     {/if}
                   {:else if !stacked}
-                    {#if bar.label && showXAxis}
+                    {#if bar.label && showXAxis && categoryTickVisible(groupIndex, plottedGroups.length) && categoryTickVisible(barIndex, group.bars.length)}
                       <text
                         class="category bar-label"
                         class:axis-focus-disabled={!hoverFocusXAxis}
@@ -614,7 +633,7 @@
                   >{formatValue(group.positive)}</text
                 >
               {/if}
-              {#if group.label && (horizontal || showXAxis)}
+              {#if group.label && (horizontal || showXAxis) && categoryTickVisible(groupIndex, plottedGroups.length)}
                 {#if horizontal}
                   <text
                     class="category"
@@ -883,12 +902,6 @@
   .axis-hovered .category:not(.axis-focused):not(.axis-focus-disabled) {
     opacity: 0.25;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .tick,
-    .category {
-      transition: none;
-    }
-  }
   .tick,
   .category {
     fill: var(--neutral-gray-700);
@@ -921,5 +934,10 @@
     stroke-linejoin: round;
     color: var(--neutral-gray-800);
     font-weight: 500;
+  }
+  @media (max-width: 580px) {
+    .container {
+      height: 100%;
+    }
   }
 </style>
