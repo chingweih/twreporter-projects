@@ -53,6 +53,18 @@
       }),
   }))
   const results = $derived(focus ? villageQuery : townshipQuery)
+  const cityCandidates = createQuery(() => ({
+    ...electionTabs.mayorCandidates.options,
+    enabled: !previous,
+    select: (rows) =>
+      rows
+        .filter(
+          (row) =>
+            row.縣市代碼.trim().padStart(5, '0') === cityCode &&
+            row.姓名.trim(),
+        )
+        .sort((a, b) => b.得票數 - a.得票數 || a.號次 - b.號次),
+  }))
   const historicalTownships = createQuery(() => ({
     ...(previous?.townshipResults.options ?? {
       queryKey: ['historical-city-results', 'township'] as const,
@@ -94,7 +106,36 @@
           areaColor(data.get(properties.districtCode)),
         )
   }
+  const rankedCandidates = $derived(
+    (cityCandidates.data ?? [])
+      .filter((candidate) =>
+        ['民主進步黨', '中國國民黨'].includes(
+          resolvePartyColor(candidate.政黨).label,
+        ),
+      )
+      .map((candidate) => ({
+        candidate,
+        count: current.districts.features.filter(({ properties }) => {
+          const result = townshipQuery.data?.get(properties.districtCode)
+          return (
+            result &&
+            !result.tied &&
+            result.leader.姓名.trim() === candidate.姓名.trim()
+          )
+        }).length,
+      }))
+      .sort(
+        (a, b) => b.count - a.count || b.candidate.得票數 - a.candidate.得票數,
+      )
+      .map(({ candidate, count }) => ({
+        label: candidate.姓名.trim(),
+        share: candidate['得票率(%)'],
+        count: townshipQuery.data ? count : null,
+        color: `var(${resolvePartyColor(candidate.政黨).colorVar})`,
+      })),
+  )
   const legend = $derived.by(() => {
+    if (!previous) return rankedCandidates
     const candidates = new Map<string, { label: string; color: string }>()
     for (const data of [
       results.data,
@@ -178,7 +219,7 @@
 
 <div class="city-maps">
   {#if results.data || (previous && historicalQuery.data)}
-    <div class="legend-container">
+    <div class="legend-container" class:ranked={!previous}>
       <Legend
         align="center"
         items={[
@@ -187,7 +228,28 @@
             ? [{ label: '未分出領先者', color: `var(${noLeader})` }]
             : []),
         ]}
-      />
+      >
+        {#snippet children(label)}
+          {@const candidate = !previous
+            ? rankedCandidates.find((item) => item.label === label)
+            : undefined}
+          {#if candidate}
+            <div class="candidate-legend-row">
+              <span class="candidate-name">{label}</span>
+              <span class="candidate-share"
+                >{candidate.share.toLocaleString('zh-TW', {
+                  maximumFractionDigits: 1,
+                })}%</span
+              >
+              <span class="candidate-count"
+                >{candidate.count === null ? '—' : `${candidate.count}區`}</span
+              >
+            </div>
+          {:else}
+            {label}
+          {/if}
+        {/snippet}
+      </Legend>
     </div>
   {/if}
   {#if !previous}
@@ -217,6 +279,13 @@
         {drilldown}
         {results}
       />
+      {#if !previous}
+        <p class="turnout">
+          投票率｜{cityCandidates.data?.[0]
+            ? `${cityCandidates.data[0]['投票率(%)'].toLocaleString('zh-TW', { maximumFractionDigits: 1 })}%`
+            : '—'}
+        </p>
+      {/if}
     </section>
   </div>
 
@@ -245,6 +314,7 @@
 
 <style>
   .city-maps {
+    position: relative;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -303,6 +373,7 @@
   }
 
   .map-panel {
+    position: relative;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -318,6 +389,45 @@
   }
   .legend-container :global(.legend) {
     margin: 0;
+  }
+  .ranked :global(.legend) {
+    flex-direction: column;
+    align-items: flex-start;
+    width: fit-content;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .legend-container.ranked {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+    width: max-content;
+    max-width: calc(100% - 16px);
+  }
+  .candidate-legend-row {
+    display: grid;
+    grid-template-columns: 3em 6ch max-content;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .candidate-share {
+    text-align: right;
+  }
+  .candidate-count {
+    padding-left: 6px;
+    border-left: 1px solid var(--neutral-gray-300);
+  }
+  .turnout {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    margin: 0;
+    font-size: var(--text-s);
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+    color: var(--neutral-gray-600);
   }
 
   .status {

@@ -1,9 +1,11 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
   const {
     items,
     align,
     active,
     onhover,
+    children,
   }: {
     items: readonly (
       | { label: string | null; color: string }
@@ -13,6 +15,7 @@
     align?: 'left' | 'center' | 'right'
     active?: string | readonly string[]
     onhover?: (label: string | undefined) => void
+    children?: Snippet<[string]>
   } = $props()
   const visibleItems = $derived(
     items.filter(
@@ -48,7 +51,11 @@
       onpointercancel={() => onhover?.(undefined)}
     >
       <span style:background-color={item.color}></span>
-      {item.label}
+      {#if children}
+        {@render children(item.label)}
+      {:else}
+        {item.label}
+      {/if}
     </li>
   {/each}
 </ul>
