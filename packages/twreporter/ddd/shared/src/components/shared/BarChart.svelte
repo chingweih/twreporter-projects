@@ -363,7 +363,7 @@
         if (measureContext) {
           measureContext.font = `700 ${fontSize}px ${fontFamily}`
           // Leave room for glyph edges beyond the measured advance width.
-          return Math.ceil(measureContext.measureText(label).width) + 2
+          return Math.ceil(measureContext.measureText(label).width) + 4
         }
         const wideCharacters = label.match(/[^\x00-\x7f]/g)?.length ?? 0
         const narrowCharacters = label.length - wideCharacters
