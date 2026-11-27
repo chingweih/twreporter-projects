@@ -104,7 +104,7 @@ export const secondBatch = defineElectionBatch({
       showYGrid: true,
       gridHover: true,
       yTickCount: 5,
-      yMax: 100,
+      yMax: 50,
     },
     '9-taipei-result-map': {
       name: 'city-result-map',

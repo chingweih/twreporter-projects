@@ -37,6 +37,8 @@
     linePointRadius = 4.5,
     formatX = String,
     formatValue = String,
+    valueTitle,
+    valueColor,
   }: {
     label: string
     data: readonly { series: string; x: number; value: number | null }[]
@@ -72,6 +74,8 @@
     yTickCount?: number
     formatX?: (value: number) => string
     formatValue?: (value: number) => string
+    valueTitle?: (series: string, x: number) => string | undefined
+    valueColor?: (series: string, x: number) => string | undefined
   } = $props()
 
   let width = $state(0)
@@ -155,7 +159,10 @@
       .domain(
         yExtent[0] === yExtent[1] ? [yExtent[0], yExtent[0] + 1] : yExtent,
       )
-      .range([Math.max(0, height - (showXAxis ? 26 : 4)), showValue ? 26 : 10]),
+      .range([
+        Math.max(0, height - (showXAxis ? 26 : 4)),
+        valueTitle ? 46 : showValue ? 26 : 10,
+      ]),
   )
   const yTicks = $derived(yScale.ticks(yTickCount))
   const valueLabelPositions = $derived.by(() => {
@@ -549,8 +556,7 @@
                 {#if (typeof showValue === 'function' ? showValue(group.label, point.x) : showValue) || hoveredLine === group.label || (hovered?.pointX === point.x && (hovered.rows !== undefined || hovered.series === group.label))}
                   <text
                     class="value"
-                    style:fill={pointColor?.(group.label, point.x) ??
-                      group.color}
+                    style:fill={valueColor?.(group.label, point.x)}
                     class:dimmed={hovered
                       ? !(
                           hovered.pointX === point.x &&
@@ -569,8 +575,19 @@
                       : pointIndex === group.points.length - 1
                         ? 'end'
                         : 'middle'}
-                    pointer-events="none">{formatValue(point.value)}</text
+                    pointer-events="none"
                   >
+                    {#if valueTitle?.(group.label, point.x)}
+                      <tspan x={xScale(point.x)} dy="-1.2em"
+                        >{valueTitle(group.label, point.x)}</tspan
+                      >
+                      <tspan x={xScale(point.x)} dy="1.2em"
+                        >{formatValue(point.value)}</tspan
+                      >
+                    {:else}
+                      {formatValue(point.value)}
+                    {/if}
+                  </text>
                 {/if}
               {/each}
             </g>
@@ -682,6 +699,7 @@
     fill: var(--neutral-gray-700);
   }
   .value {
+    fill: var(--neutral-gray-700);
     transition: opacity 150ms ease;
     paint-order: stroke;
     stroke-opacity: 0.7;

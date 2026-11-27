@@ -13,9 +13,9 @@
   const rows = $derived([...(history.data ?? [])].sort((a, b) => a.年 - b.年))
   const data = $derived(
     rows.map((row) => ({
-      series: '傅家得票率',
+      series: '傅家催票率',
       x: row.年,
-      value: row['得票率（%）'],
+      value: row['催票率（%）'],
     })),
   )
 </script>
@@ -32,11 +32,13 @@
     <div class="chart-container">
       <LineChart
         {...lineChartOptions(entry)}
-        yLabel="得票率（%）"
+        yLabel="催票率（%）"
         {data}
-        colors={{ 傅家得票率: 'var(--elec-red)' }}
+        colors={{ 傅家催票率: 'var(--elec-red)' }}
         xTickCount={6}
         formatValue={(value) => `${value}%`}
+        valueTitle={(_series, year) =>
+          rows.find((row) => row.年 === year)?.候選人}
       />
     </div>
   {/snippet}

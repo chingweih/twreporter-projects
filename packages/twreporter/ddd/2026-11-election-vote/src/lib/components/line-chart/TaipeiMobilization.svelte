@@ -80,6 +80,14 @@
         yLabel="催票率（%）"
         {data}
         {colors}
+        valueColor={(series, x) =>
+          series === '民進黨' && history.data?.[x]?.台北市長屆次 === '2014'
+            ? 'var(--elec-gray-4)'
+            : series === '民進黨'
+              ? 'var(--elec-dpp-4)'
+              : series === '國民黨'
+                ? 'var(--elec-kmt-4)'
+                : colors[series]}
         pointColor={(series, x) =>
           series === '民進黨' && history.data?.[x]?.台北市長屆次 === '2014'
             ? 'var(--elec-gray)'
