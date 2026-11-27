@@ -385,6 +385,11 @@
   }
   .legend-container :global(.legend) {
     margin: 0;
+    -webkit-text-stroke: 3px var(--neutral-gray-100);
+    paint-order: stroke fill;
+  }
+  .legend-container :global(.legend > li > span) {
+    outline: 1px solid var(--neutral-gray-100);
   }
   .ranked :global(.legend) {
     flex-direction: column;
@@ -426,7 +431,6 @@
     pointer-events: none;
     color: var(--neutral-gray-600);
   }
-
   .status {
     margin: 0;
     color: var(--neutral-gray-700);
