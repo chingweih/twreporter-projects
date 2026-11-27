@@ -53,8 +53,9 @@ export const historicalElectionTabs = {
     '0',
     z.object({
       縣市: text,
-      '2022 投票日': z.iso.date(),
+      '2026 投票日': z.iso.date(),
       當選人: text,
+      自行宣布當選: text,
       政黨: text,
       得票數: count,
       '得票率（%）': percentage,

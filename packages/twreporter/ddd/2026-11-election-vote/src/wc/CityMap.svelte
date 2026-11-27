@@ -15,7 +15,7 @@
     countiesByGroup,
     indexMayorResults,
   } from '../lib/components/city-map/data.ts'
-  import { electionTabs } from '../lib/election-data.ts'
+  import { historicalElectionTabs } from '../lib/election-historical-data.ts'
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
   import { partyColorVars, resolvePartyColor } from '../lib/party-colors.ts'
 
@@ -46,15 +46,15 @@
     tiles?: { url: string; attribution: string }
   } = $props()
   const overview = createQuery(() => ({
-    ...electionTabs.mayorOverview.options,
+    ...historicalElectionTabs.mayorWinners.options,
     select: indexMayorResults,
   }))
   const displayedParties = $derived(
     [...(overview.data ?? [])]
-      .filter(([, result]) => result.領先者.trim())
+      .filter(([, result]) => result.當選人.trim())
       .map(([countyCode, result]) => ({
         countyCode,
-        ...resolvePartyColor(result.領先者政黨.trim()),
+        ...resolvePartyColor(result.政黨.trim()),
       })),
   )
   const partyTokens = $derived(
@@ -66,10 +66,8 @@
     ),
   )
   const legend = $derived(
-    Object.entries(partyColorVars).filter(
-      ([party]) =>
-        !['無黨籍', '其他'].includes(party) &&
-        displayedParties.some(({ label }) => label === party),
+    Object.entries(partyColorVars).filter(([party]) =>
+      displayedParties.some(({ label }) => label === party),
     ),
   )
   const tileStyle = $derived<StyleSpecification | undefined>(
@@ -116,7 +114,7 @@
       {@const result = overview.data?.get(countyCode)}
       <li>
         <strong>{name}</strong>
-        {#each [{ name: result?.領先者.trim(), party: result?.領先者政黨.trim(), share: result?.['領先得票率(%)'] }] as candidate, index}
+        {#each [{ name: result?.當選人.trim(), party: result?.政黨.trim(), share: result?.['得票率（%）'] }] as candidate, index}
           <!-- 暫停顯示第二名：{ name: result?.第二名.trim(), party: result?.第二名政黨.trim(), share: result?.['第二名得票率(%)'] } -->
           <div class="candidate-result" class:runner-up={index === 1}>
             <div class="candidate-identity">
@@ -131,6 +129,11 @@
                 >{candidate.name || '—'}</span
               >
             </div>
+            <span class="declared"
+              >{index === 0 && result?.自行宣布當選.trim() === '*'
+                ? '*'
+                : ''}</span
+            >
             {#if candidate.name && candidate.share !== undefined}<span
                 class="share">({formatNumber(candidate.share)}%)</span
               >{/if}
@@ -321,7 +324,8 @@
     border-bottom: 1px solid var(--neutral-gray-300);
   }
   .candidate-result {
-    display: flex;
+    display: grid;
+    grid-template-columns: max-content 0.5em max-content;
     align-items: center;
     gap: 4px;
     white-space: nowrap;
@@ -343,9 +347,10 @@
     max-width: calc(3em + 1px);
     letter-spacing: 0;
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
     font-weight: 400;
+  }
+  .declared {
+    text-align: center;
   }
   .share {
     flex-shrink: 0;
