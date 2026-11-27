@@ -10,10 +10,13 @@
   import ElectionLayout from '../lib/ElectionLayout.svelte'
   import CityComparisonMap from './CityComparisonMap.svelte'
 
-  const { config, city }: Pick<ComponentProps, 'config'> & { city?: string } =
-    $props()
+  const {
+    config,
+    ratio,
+    city,
+  }: Pick<ComponentProps, 'config' | 'ratio'> & { city?: string } = $props()
 </script>
 
 <ElectionLayout>
-  <CityComparisonMap {config} {city} />
+  <CityComparisonMap {config} {ratio} {city} />
 </ElectionLayout>

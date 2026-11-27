@@ -9,8 +9,9 @@
 
   const {
     config,
+    ratio,
     taipei = false,
-  }: Pick<ComponentProps, 'config'> & { taipei?: boolean } = $props()
+  }: Pick<ComponentProps, 'config' | 'ratio'> & { taipei?: boolean } = $props()
   const cityHistory = createQuery(() => ({
     ...historicalElectionTabs.mayorTurnoutHistory.options,
     enabled: !taipei,
@@ -44,6 +45,7 @@
 <ElectionGraphic
   batch={secondBatch}
   {config}
+  {ratio}
   graphicKey={taipei ? '2-taipei-turnout' : '1-city-turnout'}
   error={history.error?.message}
   loading={history.isPending}

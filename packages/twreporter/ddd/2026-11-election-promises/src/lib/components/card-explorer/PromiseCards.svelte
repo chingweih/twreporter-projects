@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolveShellRatio } from '@lab-reporter/ddd-shared/utils/shell-ratio.ts'
   import { getContext } from 'svelte'
   import { innerHeight } from 'svelte/reactivity/window'
   import { citySelection } from '../../city-selection.svelte.ts'
@@ -21,6 +22,7 @@
   let {
     sources,
     config: configUrl = '',
+    ratio,
     categoryId = $bindable(),
     topicId = $bindable(''),
     city = $bindable(''),
@@ -155,6 +157,7 @@
       bind:subtitle={config.subtitle}
       wide={config.wide}
       backdrop={config.backdrop}
+      ratio={resolveShellRatio(ratio, config.ratio)}
       editable={graphic.editable}
       {error}
       loading={graphic.loading}

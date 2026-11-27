@@ -171,6 +171,7 @@ export const cardExplorerConfigSchema = z
       'footnotes',
       'wide',
       'backdrop',
+      'ratio',
     ],
   })
 
@@ -186,7 +187,7 @@ export type Policy = AnswerRow & {
   csvRow: CSVData['rows'][number]
   reviews: Review[]
 }
-export type ExplorerProps = Pick<ComponentProps, 'config'> & {
+export type ExplorerProps = Pick<ComponentProps, 'config' | 'ratio'> & {
   sources: { answers: string; reviews: string }
   categoryId?: Category['id']
   topicId?: Topic['id']

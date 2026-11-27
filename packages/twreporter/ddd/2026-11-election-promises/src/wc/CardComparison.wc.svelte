@@ -17,11 +17,19 @@
   let {
     sources,
     config = '',
+    ratio,
     categoryId,
     topicId = '',
   }: Partial<Omit<ExplorerProps, 'city'>> = $props()
 </script>
 
 <Layout hideInEditor>
-  <PromiseCards comparison {sources} {config} {categoryId} bind:topicId />
+  <PromiseCards
+    comparison
+    {sources}
+    {config}
+    {ratio}
+    {categoryId}
+    bind:topicId
+  />
 </Layout>

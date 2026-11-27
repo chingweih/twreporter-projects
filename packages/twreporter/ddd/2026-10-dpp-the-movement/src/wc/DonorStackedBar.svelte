@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolveShellRatio } from '@lab-reporter/ddd-shared/utils/shell-ratio.ts'
   import { flip } from 'svelte/animate'
   import { MediaQuery } from 'svelte/reactivity'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
@@ -122,6 +123,7 @@
     bind:footnotes={config.footnotes}
     wide={config.wide}
     backdrop={config.backdrop}
+    ratio={resolveShellRatio(props.ratio, config.ratio)}
     editable={graphic.editable}
     empty={!chart.data.rows.length}
     emptyMessage="資料中沒有政治獻金。"

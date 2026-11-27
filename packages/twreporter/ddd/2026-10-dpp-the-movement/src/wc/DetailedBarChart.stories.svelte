@@ -9,7 +9,11 @@
       src: './detailed-bar-chart.csv',
       config: './detailed-bar-chart.json',
     },
-    argTypes: { src: { control: 'text' }, config: { control: 'text' } },
+    argTypes: {
+      src: { control: 'text' },
+      config: { control: 'text' },
+      ratio: { control: 'number' },
+    },
   })
 </script>
 

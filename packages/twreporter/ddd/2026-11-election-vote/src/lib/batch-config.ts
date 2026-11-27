@@ -27,7 +27,7 @@ export type ElectionGraphicKey = z.infer<typeof graphicKeySchema>
 
 type GraphicDefaults = Pick<
   Parameters<typeof createShellConfigSchema>[0],
-  'title' | 'footnotes'
+  'title' | 'footnotes' | 'ratio'
 > & {
   containerHeight?: number
   containerAspectRatio?: number
@@ -74,7 +74,11 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
   Partial<
     Pick<
       GraphicDefaults,
-      'footnotes' | 'containerHeight' | 'containerAspectRatio' | 'legendAlign'
+      | 'footnotes'
+      | 'containerHeight'
+      | 'containerAspectRatio'
+      | 'legendAlign'
+      | 'ratio'
     >
   > & {
     name?: string
@@ -123,7 +127,7 @@ export type ElectionBatchConfig = {
 
 function graphicConfig(defaults: GraphicDefaults) {
   return createShellConfigSchema({ ...defaults, wide: false, backdrop: true })
-    .pick({ title: true, footnotes: true })
+    .pick({ title: true, footnotes: true, ratio: true })
     .extend({
       legendAlign: z
         .enum(['left', 'center', 'right'])
@@ -438,6 +442,7 @@ function graphicConfig(defaults: GraphicDefaults) {
         'title',
         'containerHeight',
         'containerAspectRatio',
+        'ratio',
         'legendAlign',
         ...(defaults.unitColumns !== undefined || defaults.unitGap !== undefined
           ? ['unitColumns', 'unitGap', 'chartBackdrop', 'showTotals']
@@ -547,6 +552,7 @@ export function defineElectionBatch({
         footnotes = [],
         containerHeight,
         containerAspectRatio,
+        ratio,
         legendAlign = 'center',
         name,
         city,
@@ -594,6 +600,7 @@ export function defineElectionBatch({
         title,
         footnotes,
         legendAlign,
+        ratio,
         ...(containerHeight !== undefined ? { containerHeight } : {}),
         ...(containerAspectRatio !== undefined ? { containerAspectRatio } : {}),
         ...(unitColumns !== undefined || unitGap !== undefined

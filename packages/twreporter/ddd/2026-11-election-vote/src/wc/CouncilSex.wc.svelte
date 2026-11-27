@@ -4,7 +4,7 @@
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import CouncilChart from '../lib/components/bar-chart/CouncilChart.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
 </script>
 
-<ElectionLayout><CouncilChart {config} kind="sex" /></ElectionLayout>
+<ElectionLayout><CouncilChart {config} {ratio} kind="sex" /></ElectionLayout>

@@ -5,14 +5,18 @@
   import { cityGeometries } from '../lib/components/city-result-map/geometry.ts'
   import ElectionCityGraphic from '../lib/ElectionCityGraphic.svelte'
 
-  const { config, city }: Pick<ComponentProps, 'config'> & { city?: string } =
-    $props()
+  const {
+    config,
+    ratio,
+    city,
+  }: Pick<ComponentProps, 'config' | 'ratio'> & { city?: string } = $props()
 </script>
 
 <ElectionCityGraphic
   batch={secondBatch}
   name="city-result-map"
   {config}
+  {ratio}
   {city}
   wide
   fitViewport

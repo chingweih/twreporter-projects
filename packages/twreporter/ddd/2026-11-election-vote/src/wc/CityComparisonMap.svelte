@@ -11,8 +11,11 @@
   import { historicalElectionTabs } from '../lib/election-historical-data.ts'
   import ElectionCityGraphic from '../lib/ElectionCityGraphic.svelte'
 
-  const { config, city }: Pick<ComponentProps, 'config'> & { city?: string } =
-    $props()
+  const {
+    config,
+    ratio,
+    city,
+  }: Pick<ComponentProps, 'config' | 'ratio'> & { city?: string } = $props()
   const previousGeometries = new Map<string, HistoricalCityGeometry>([
     [
       '63000',
@@ -39,6 +42,7 @@
   batch={secondBatch}
   name="city-comparison-map"
   {config}
+  {ratio}
   {city}
   wide
   fitViewport

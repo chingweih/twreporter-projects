@@ -7,9 +7,9 @@
   import TaipeiPartyScatter from '../lib/components/scatter-chart/TaipeiPartyScatter.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
 </script>
 
 <ElectionLayout>
-  <TaipeiPartyScatter {config} />
+  <TaipeiPartyScatter {config} {ratio} />
 </ElectionLayout>

@@ -14,9 +14,10 @@
     previewStoryId,
     src,
     config,
+    ratio,
     sources,
     extraProps = {},
-  }: Pick<ComponentProps, 'config'> &
+  }: Pick<ComponentProps, 'config' | 'ratio'> &
     Partial<Pick<ComponentProps, 'src'>> & {
       componentName: string
       version?: number
@@ -27,6 +28,7 @@
     } = $props()
   const attributes = $derived.by(() => {
     const props: ComponentAttributes = { ...extraProps, config }
+    if (ratio !== undefined) props.ratio = ratio
     if (sources) {
       props.sources = JSON.stringify(
         Object.fromEntries(

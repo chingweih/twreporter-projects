@@ -7,9 +7,9 @@
   import CityTurnout from '../lib/components/line-chart/CityTurnout.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
 </script>
 
 <ElectionLayout>
-  <CityTurnout {config} taipei />
+  <CityTurnout {config} {ratio} taipei />
 </ElectionLayout>

@@ -14,6 +14,7 @@
     argTypes: {
       src: { control: 'text' },
       config: { control: 'text' },
+      ratio: { control: 'number' },
     },
   })
 </script>

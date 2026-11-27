@@ -41,7 +41,7 @@ export function createStorybookConfig(
     previewHead: (head) => `${head}
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-      <link rel="stylesheet" href="${fontStylesheetUrl}">
+      <link rel="stylesheet" href="${fontStylesheetUrl}" crossorigin="anonymous">
       <style>body { font-family: 'Roboto Slab', 'Noto Sans TC', sans-serif; }</style>`,
     viteFinal(config) {
       config.publicDir = false

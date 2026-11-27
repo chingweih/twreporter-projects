@@ -24,6 +24,7 @@
     argTypes: {
       sources: { control: 'object' },
       config: { control: 'text' },
+      ratio: { control: 'number' },
       categoryId: { control: false },
       topicId: { control: false },
       city: { control: 'text' },
@@ -33,7 +34,7 @@
 </script>
 
 <Story name="Default">
-  {#snippet template({ sources, config = '', city = '台北市' })}
+  {#snippet template({ sources, config = '', ratio, city = '台北市' })}
     <Layout>
       <CitySelector />
       <EmbedCode
@@ -57,6 +58,7 @@
                 {@const props = {
                   sources,
                   config,
+                  ratio,
                   categoryId: category.id,
                   topicId,
                 }}
@@ -71,6 +73,7 @@
                   {previewStoryId}
                   {sources}
                   {config}
+                  {ratio}
                   extraProps={{
                     'category-id': category.id,
                     'topic-id': topicId,
@@ -79,13 +82,14 @@
                 />
               {/each}
             {/snippet}
-            <CardExplorer {sources} {config} {city} full="true" />
+            <CardExplorer {sources} {config} {ratio} {city} full="true" />
             <EmbedCode
               componentName="card-explorer"
               tagName="twreporter-card-explorer"
               {previewStoryId}
               {sources}
               {config}
+              {ratio}
               extraProps={{ city, full: 'true' }}
             />
             {@render categoryCards(false)}

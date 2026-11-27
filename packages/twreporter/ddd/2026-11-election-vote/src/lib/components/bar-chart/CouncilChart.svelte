@@ -9,9 +9,11 @@
 
   const {
     config,
+    ratio,
     kind,
-  }: Pick<ComponentProps, 'config'> & { kind: 'party' | 'age' | 'sex' } =
-    $props()
+  }: Pick<ComponentProps, 'config' | 'ratio'> & {
+    kind: 'party' | 'age' | 'sex'
+  } = $props()
   const parties = [
     { series: '國民黨', column: '國民黨席次', color: 'var(--elec-kmt)' },
     { series: '民眾黨', column: '民眾黨席次', color: 'var(--elec-tpp)' },
@@ -108,6 +110,7 @@
 <ElectionGraphic
   batch={secondBatch}
   {config}
+  {ratio}
   {graphicKey}
   error={history.error?.message}
   loading={history.isPending}

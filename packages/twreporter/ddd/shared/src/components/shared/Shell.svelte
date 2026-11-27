@@ -5,7 +5,11 @@
   import Logo from './Logo.svelte'
   import EditableText from './EditableText.svelte'
 
+  const ratioWidth = 700
   let container: HTMLDivElement | undefined = $state()
+  let availableWidth = $state(ratioWidth)
+  let downloading = $state(false)
+  let downloadError = $state(false)
   const showDownload = new URLSearchParams(window.location.search).has(
     'download',
   )
@@ -25,6 +29,7 @@
     containerMinHeight,
     containerHeight,
     containerAspectRatio,
+    ratio,
     editable = false,
     error,
     loading = false,
@@ -45,6 +50,7 @@
     containerMinHeight?: number
     containerHeight?: number
     containerAspectRatio?: number
+    ratio?: number
     editable?: boolean
     error?: string
     loading?: boolean
@@ -52,24 +58,60 @@
     emptyMessage?: string
   } = $props()
 
+  const fixedRatio = $derived(ratio !== undefined)
+
+  function observeWidth(element: HTMLDivElement) {
+    availableWidth = element.clientWidth
+    const observer = new ResizeObserver(([entry]) => {
+      availableWidth = entry.contentRect.width
+    })
+    observer.observe(element)
+    return () => observer.disconnect()
+  }
+
   async function download() {
-    if (!container) return
-    const dataUrl = await domToPng(container, { quality: 1, scale: 3 })
-    const anchor = document.createElement('a')
-    anchor.href = dataUrl
-    anchor.download = `${title || '圖表'}／報導者.png`
-    anchor.click()
+    const target = container
+    if (!target || downloading) return
+    downloading = true
+    downloadError = false
+    try {
+      await target.ownerDocument.fonts.ready
+      const dataUrl = await domToPng(target, {
+        scale: 3,
+        width: fixedRatio ? ratioWidth : undefined,
+        height: fixedRatio ? target.offsetHeight : undefined,
+        style: fixedRatio ? { transform: 'none' } : undefined,
+      })
+      const anchor = document.createElement('a')
+      anchor.href = dataUrl
+      anchor.download = `${title || '圖表'}／報導者.png`
+      anchor.click()
+    } catch (cause) {
+      console.error('Unable to export the graphic', cause)
+      downloadError = true
+    } finally {
+      downloading = false
+    }
   }
 </script>
 
-<div class={['outer', { wide }]}>
+<div
+  class={['outer', { wide, 'fixed-ratio': fixedRatio }]}
+  style:--shell-ratio={ratio}
+  style:--shell-width={fixedRatio ? `${ratioWidth}px` : undefined}
+  style:--shell-scale={fixedRatio ? availableWidth / ratioWidth : undefined}
+  {@attach fixedRatio ? observeWidth : undefined}
+>
   <div
     class={['container', { backdrop }]}
-    style:min-height={containerMinHeight
+    style:min-height={!fixedRatio && containerMinHeight
       ? `${containerMinHeight}px`
       : undefined}
-    style:height={containerHeight ? `${containerHeight}px` : undefined}
-    style:aspect-ratio={containerHeight ? undefined : containerAspectRatio}
+    style:height={!fixedRatio && containerHeight
+      ? `${containerHeight}px`
+      : undefined}
+    style:aspect-ratio={ratio ??
+      (containerHeight ? undefined : containerAspectRatio)}
     bind:this={container}
   >
     <Frame {beforeHeader} {topRight}>
@@ -94,7 +136,7 @@
         <p class="status" role="status">資料載入中……</p>
       {:else if empty}
         <p class="status" role="status">{emptyMessage}</p>
-      {:else if containerHeight || containerAspectRatio}
+      {:else if fixedRatio || containerHeight || containerAspectRatio}
         <div class="sized-content">{@render children?.()}</div>
       {:else}
         {@render children?.()}
@@ -122,7 +164,12 @@
 
   {#if showDownload}
     <div class="download-control">
-      <button class="dl-button" onclick={download}>下載 PNG</button>
+      <button class="dl-button" onclick={download} disabled={downloading}
+        >{downloading ? '正在匯出 PNG…' : '下載 PNG'}</button
+      >
+      {#if downloadError}
+        <p class="status error" role="alert">無法匯出 PNG，請再試一次。</p>
+      {/if}
     </div>
   {/if}
 </div>
@@ -161,6 +208,33 @@
 
   .outer.wide {
     max-width: 1024px;
+  }
+
+  .outer.fixed-ratio {
+    --text-s: var(--compact-text-s);
+    --text-m: var(--compact-text-m);
+    --text-l: var(--compact-text-l);
+    --text-xl: var(--compact-text-xl);
+
+    position: relative;
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Reserve the scaled height while the chart lays out at its base width. */
+  .fixed-ratio::before {
+    content: '';
+    display: block;
+    aspect-ratio: var(--shell-ratio);
+  }
+
+  .fixed-ratio > .container {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: var(--shell-width);
+    transform: scale(var(--shell-scale));
+    transform-origin: top left;
   }
 
   .container {
@@ -230,22 +304,22 @@
   }
 
   @media (min-width: 768px) {
-    .header h1 {
+    :where(.outer:not(.fixed-ratio)) .header h1 {
       font-size: 26px;
     }
 
-    .subtitle {
+    :where(.outer:not(.fixed-ratio)) .subtitle {
       font-size: 22px;
     }
 
-    .container :global(.frame) {
+    :where(.outer:not(.fixed-ratio)) .container :global(.frame) {
       --top: 25px;
       --left: 34px;
       --right: 34px;
       --bottom: 34px;
     }
 
-    .container :global(.logo) {
+    :where(.outer:not(.fixed-ratio)) .container :global(.logo) {
       width: 31px;
       height: 32px;
     }

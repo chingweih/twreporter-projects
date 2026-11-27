@@ -41,7 +41,7 @@
     href="https://fonts.gstatic.com"
     crossorigin="anonymous"
   />
-  <link rel="stylesheet" href={fontStylesheetUrl} />
+  <link rel="stylesheet" href={fontStylesheetUrl} crossorigin="anonymous" />
 </svelte:head>
 
 <link
@@ -150,17 +150,20 @@
     --text-m: 18px;
     --text-l: 24px;
     --text-xl: 28px;
+    --compact-text-s: 14px;
+    --compact-text-m: 16px;
+    --compact-text-l: 18px;
+    --compact-text-xl: 24px;
     --text-xl-leading: 1.3;
     --text-color: var(--neutral-gray-800);
   }
 
   @media (max-width: 767px) {
     .theme {
-      --text-xs: 14px;
-      --text-s: 14px;
-      --text-m: 16px;
-      --text-l: 18px;
-      --text-xl: 24px;
+      --text-s: var(--compact-text-s);
+      --text-m: var(--compact-text-m);
+      --text-l: var(--compact-text-l);
+      --text-xl: var(--compact-text-xl);
     }
   }
 

@@ -119,75 +119,84 @@
   </header>
 {/snippet}
 
-{#if results.data || (previous && historicalQuery.data)}
-  <div class="legend-container">
-    <Legend
-      align="center"
-      items={[
-        ...legend.map(([label, token]) => ({
-          label,
-          color: `var(${token})`,
-        })),
-        ...(areaColors.has(noLeader)
-          ? [{ label: '未分出領先者', color: `var(${noLeader})` }]
-          : []),
-      ]}
-    />
-  </div>
-{/if}
-{#if !previous}
-  {@render status(results)}
-{/if}
-<div class="maps" class:comparison={Boolean(previous)}>
-  {#if previous}
-    <section class="map-panel" aria-label="2022">
-      {@render panelHeading(2022, historicalQuery)}
+<div class="city-maps">
+  {#if results.data || (previous && historicalQuery.data)}
+    <div class="legend-container">
+      <Legend
+        align="center"
+        items={[
+          ...legend.map(([label, token]) => ({
+            label,
+            color: `var(${token})`,
+          })),
+          ...(areaColors.has(noLeader)
+            ? [{ label: '未分出領先者', color: `var(${noLeader})` }]
+            : []),
+        ]}
+      />
+    </div>
+  {/if}
+  {#if !previous}
+    {@render status(results)}
+  {/if}
+  <div class="maps" class:comparison={Boolean(previous)}>
+    {#if previous}
+      <section class="map-panel" aria-label="2022">
+        {@render panelHeading(2022, historicalQuery)}
+        <DistrictVillageMap
+          geometry={previous}
+          counterpart={current}
+          frame={current.districts}
+          {drilldown}
+          results={historicalQuery}
+        />
+      </section>
+    {/if}
+    <section class="map-panel" aria-label={previous ? '2026' : undefined}>
+      {#if previous}
+        {@render panelHeading(2026, results)}
+      {/if}
       <DistrictVillageMap
-        geometry={previous}
-        counterpart={current}
+        geometry={current}
+        counterpart={previous}
         frame={current.districts}
         {drilldown}
-        results={historicalQuery}
+        {results}
       />
     </section>
+  </div>
+
+  {#if focus}
+    <div class="map-actions">
+      <button
+        type="button"
+        bind:this={drilldown.backButton}
+        onclick={() => drilldown.reset()}
+      >
+        <!-- <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M21 12H3m0 0 8-8m-8 8 8 8"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg> -->
+        返回全市
+      </button>
+    </div>
   {/if}
-  <section class="map-panel" aria-label={previous ? '2026' : undefined}>
-    {#if previous}
-      {@render panelHeading(2026, results)}
-    {/if}
-    <DistrictVillageMap
-      geometry={current}
-      counterpart={previous}
-      frame={current.districts}
-      {drilldown}
-      {results}
-    />
-  </section>
 </div>
 
-{#if focus}
-  <div class="map-actions">
-    <button
-      type="button"
-      bind:this={drilldown.backButton}
-      onclick={() => drilldown.reset()}
-    >
-      <!-- <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M21 12H3m0 0 8-8m-8 8 8 8"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg> -->
-      返回全市
-    </button>
-  </div>
-{/if}
-
 <style>
+  .city-maps {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+
   .map-actions {
     display: flex;
     flex-shrink: 0;
@@ -228,6 +237,7 @@
     --map-gap: 16px;
 
     display: grid;
+    flex: 1 1 auto;
     grid-auto-rows: minmax(var(--map-min-height), 1fr);
     gap: var(--map-gap);
     min-height: var(--map-min-height);

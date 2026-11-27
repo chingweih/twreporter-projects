@@ -8,7 +8,7 @@
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
   const history = createQuery(
     () => historicalElectionTabs.mayorPartyHistory.options,
   )
@@ -109,17 +109,17 @@
 <ElectionGraphic
   batch={firstBatch}
   {config}
+  {ratio}
   graphicKey="2-city-grid"
   error={history.error?.message}
   loading={history.isPending}
   empty={!rows.length}
 >
   {#snippet children(entry)}
-    <div
-      class="chart"
-      class:sized={!!(entry.containerHeight || entry.containerAspectRatio)}
-      class:backdrop={entry.chartBackdrop}
-    >
+    {@const sized = Boolean(
+      entry.ratio || entry.containerHeight || entry.containerAspectRatio,
+    )}
+    <div class="chart" class:sized class:backdrop={entry.chartBackdrop}>
       <Legend
         {items}
         active={activeParty ??
@@ -131,7 +131,7 @@
         role="group"
         aria-label={entry.title}
         style:grid-template-columns={`max-content repeat(${years.length}, minmax(0, 1fr))`}
-        style:grid-template-rows={`${entry.showXAxis ? 'auto ' : ''}repeat(${rows.length}, ${entry.containerHeight || entry.containerAspectRatio ? 'minmax(0, 1fr)' : 'minmax(14px, 1fr)'})`}
+        style:grid-template-rows={`${entry.showXAxis ? 'auto ' : ''}repeat(${rows.length}, ${sized ? 'minmax(0, 1fr)' : 'minmax(14px, 1fr)'})`}
         style:--cell-gap={`${entry.cellGap ?? 4}px`}
       >
         {#if entry.showXAxis}

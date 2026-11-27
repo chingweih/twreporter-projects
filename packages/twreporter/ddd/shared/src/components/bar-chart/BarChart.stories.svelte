@@ -15,6 +15,7 @@
     argTypes: {
       src: { control: 'text' },
       config: { control: 'text' },
+      ratio: { control: 'number' },
     },
   })
 </script>
@@ -26,6 +27,7 @@
     tagName="twreporter-bar-chart"
     src={args.src && new URL(args.src, document.baseURI).href}
     config={args.config && new URL(args.config, document.baseURI).href}
+    ratio={args.ratio}
   />
 {/snippet}
 

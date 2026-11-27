@@ -15,41 +15,52 @@
 
   const { Story } = defineMeta({
     title: 'Components/ElectionVoteSecondBatch',
-    args: { config: secondBatch.configUrl },
-    argTypes: { config: { control: 'text' } },
+    args: { ratio: undefined, config: secondBatch.configUrl },
+    argTypes: { ratio: { control: 'number' }, config: { control: 'text' } },
   })
 </script>
 
 <Story name="Default">
-  {#snippet template({ config })}
-    <ElectionBatchPreview batch={secondBatch} {config}>
+  {#snippet template({ config, ratio })}
+    <ElectionBatchPreview batch={secondBatch} {config} {ratio}>
       {#snippet children({ key, name, city })}
         {#if name === 'city-turnout'}
-          <CityTurnout {config} />
+          <CityTurnout {config} {ratio} />
         {:else if name === 'taipei-turnout'}
-          <CityTurnout {config} taipei />
+          <CityTurnout {config} {ratio} taipei />
         {:else if name === 'city-mobilization'}
-          <TaipeiMobilization {config} {city} />
+          <TaipeiMobilization {config} {ratio} {city} />
         {:else if name === 'city-council-party'}
-          <CouncilChart {config} kind="party" />
+          <CouncilChart {config} {ratio} kind="party" />
         {:else if name === 'council-age'}
-          <CouncilChart {config} kind="age" />
+          <CouncilChart {config} {ratio} kind="age" />
         {:else if name === 'council-sex'}
-          <CouncilChart {config} kind="sex" />
+          <CouncilChart {config} {ratio} kind="sex" />
         {:else if name === 'hualien'}
-          <Hualien {config} />
+          <Hualien {config} {ratio} />
         {:else if name === 'taipei-party-scatter'}
-          <TaipeiPartyScatter {config} />
+          <TaipeiPartyScatter {config} {ratio} />
         {:else if name === 'tpp-gogo'}
-          <TppGogo {config} />
+          <TppGogo {config} {ratio} />
         {:else if name === 'city-result-map'}
-          <CityResultMap {config} {city} />
+          <CityResultMap {config} {ratio} {city} />
         {:else if name === 'city-comparison-map'}
-          <CityComparisonMap {config} {city} />
+          <CityComparisonMap {config} {ratio} {city} />
         {:else if city !== undefined}
-          <ElectionCityGraphic batch={secondBatch} {config} {name} {city} />
+          <ElectionCityGraphic
+            batch={secondBatch}
+            {config}
+            {ratio}
+            {name}
+            {city}
+          />
         {:else}
-          <ElectionGraphic batch={secondBatch} {config} graphicKey={key} />
+          <ElectionGraphic
+            batch={secondBatch}
+            {config}
+            {ratio}
+            graphicKey={key}
+          />
         {/if}
       {/snippet}
     </ElectionBatchPreview>

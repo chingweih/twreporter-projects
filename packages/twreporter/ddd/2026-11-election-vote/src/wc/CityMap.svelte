@@ -40,8 +40,9 @@
 
   const {
     config,
+    ratio,
     tiles,
-  }: Pick<ComponentProps, 'config'> & {
+  }: Pick<ComponentProps, 'config' | 'ratio'> & {
     tiles?: { url: string; attribution: string }
   } = $props()
   const overview = createQuery(() => ({
@@ -157,6 +158,7 @@
   <ElectionGraphic
     batch={firstBatch}
     {config}
+    {ratio}
     graphicKey="1-city-map"
     autoHeight={mobile}
     // wide
@@ -167,8 +169,8 @@
     {#snippet children(entry)}
       <div
         class="composition"
-        class:sized={!mobile &&
-          !!(entry.containerHeight || entry.containerAspectRatio)}
+        class:sized={entry.ratio !== undefined ||
+          (!mobile && !!(entry.containerHeight || entry.containerAspectRatio))}
       >
         <div class="main-map" bind:this={mapFrame} aria-hidden="true">
           <div class="map-content">

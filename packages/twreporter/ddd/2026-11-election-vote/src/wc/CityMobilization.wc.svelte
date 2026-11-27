@@ -10,10 +10,13 @@
   import TaipeiMobilization from '../lib/components/line-chart/TaipeiMobilization.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
-  const { config, city }: Pick<ComponentProps, 'config'> & { city?: string } =
-    $props()
+  const {
+    config,
+    ratio,
+    city,
+  }: Pick<ComponentProps, 'config' | 'ratio'> & { city?: string } = $props()
 </script>
 
 <ElectionLayout>
-  <TaipeiMobilization {config} {city} />
+  <TaipeiMobilization {config} {ratio} {city} />
 </ElectionLayout>

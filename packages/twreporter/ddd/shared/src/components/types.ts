@@ -3,6 +3,7 @@ import type { Snippet } from 'svelte'
 export type ComponentProps = {
   src: string
   config: string
+  ratio?: number | string
 }
 
 export type ComponentExtraProps = Record<string, string | number | boolean>

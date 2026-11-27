@@ -11,6 +11,10 @@ export const shellConfigFields = {
     .meta({ title: '註解與資料來源' }),
   wide: z.boolean().meta({ title: '使用寬版版面' }),
   backdrop: z.boolean().meta({ title: '顯示底色' }),
+  ratio: z.number().positive().optional().meta({
+    title: '固定長寬比（寬 ÷ 高）',
+    description: '以 700px 寬排版，再縮放至可用寬度。留空則使用響應式版面。',
+  }),
 }
 
 export const shellConfigSchema = z.object({
@@ -34,6 +38,10 @@ export function createShellConfigSchema(
     footnotes: shellConfigFields.footnotes.default(defaults.footnotes),
     wide: shellConfigFields.wide.default(defaults.wide),
     backdrop: shellConfigFields.backdrop.default(defaults.backdrop),
+    ratio:
+      defaults.ratio === undefined
+        ? shellConfigFields.ratio
+        : shellConfigFields.ratio.default(defaults.ratio),
   })
 }
 

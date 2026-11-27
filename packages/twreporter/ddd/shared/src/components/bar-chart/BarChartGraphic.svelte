@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolveShellRatio } from '../../utils/shell-ratio.ts'
   import { createGraphic } from '../../utils/graphic-data.svelte.ts'
   import BarChart from '../shared/BarChart.svelte'
   import Shell from '../shared/Shell.svelte'
@@ -39,6 +40,7 @@
     bind:footnotes={config.footnotes}
     wide={config.wide}
     backdrop={config.backdrop}
+    ratio={resolveShellRatio(props.ratio, config.ratio)}
     editable={graphic.editable}
     error={graphic.error ?? data.error}
     loading={graphic.loading && !csv}

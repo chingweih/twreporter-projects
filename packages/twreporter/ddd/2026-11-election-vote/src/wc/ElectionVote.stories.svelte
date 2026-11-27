@@ -11,8 +11,9 @@
   const { Story } = defineMeta({
     title: 'Components/ElectionVote',
     component: CityMap,
-    args: { config: firstBatch.configUrl },
+    args: { ratio: undefined, config: firstBatch.configUrl },
     argTypes: {
+      ratio: { control: 'number' },
       config: { control: 'text' },
       tiles: { control: false },
     },
@@ -20,19 +21,24 @@
 </script>
 
 <Story name="Default">
-  {#snippet template({ config })}
-    <ElectionBatchPreview batch={firstBatch} {config}>
+  {#snippet template({ config, ratio })}
+    <ElectionBatchPreview batch={firstBatch} {config} {ratio}>
       {#snippet children({ key })}
         {#if key === '1-city-map'}
-          <CityMap {config} />
+          <CityMap {config} {ratio} />
         {:else if key === '2-city-grid'}
-          <CityGrid {config} />
+          <CityGrid {config} {ratio} />
         {:else if key === '3-party-city-result'}
-          <PartyCityResult {config} />
+          <PartyCityResult {config} {ratio} />
         {:else if key === '4-ref-result'}
-          <RefResult {config} />
+          <RefResult {config} {ratio} />
         {:else}
-          <ElectionGraphic batch={firstBatch} {config} graphicKey={key} />
+          <ElectionGraphic
+            batch={firstBatch}
+            {config}
+            {ratio}
+            graphicKey={key}
+          />
         {/if}
       {/snippet}
     </ElectionBatchPreview>

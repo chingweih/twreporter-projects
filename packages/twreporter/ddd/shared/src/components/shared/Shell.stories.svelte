@@ -16,6 +16,7 @@
           'editable',
           'wide',
           'backdrop',
+          'ratio',
           'loading',
           'error',
           'empty',
@@ -42,6 +43,7 @@
 {/snippet}
 
 <Story name="Default" />
+<Story name="FixedRatio" args={{ ratio: 0.8 }} />
 <Story name="Editable" args={{ editable: true }} />
 <Story name="Loading" args={{ loading: true }} />
 <Story name="Error" args={{ error: 'Unable to load attendance records.' }} />

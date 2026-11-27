@@ -91,6 +91,7 @@ export const donorStackedBarConfigSchema = createShellConfigSchema(
       'footnotes',
       'wide',
       'backdrop',
+      'ratio',
     ],
   })
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolveShellRatio } from '@lab-reporter/ddd-shared/utils/shell-ratio.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createGraphic } from '@lab-reporter/ddd-shared/utils/graphic-data.svelte.ts'
@@ -14,6 +15,7 @@
 
   const {
     config,
+    ratio,
     batch,
     graphicKey,
     children,
@@ -23,7 +25,7 @@
     wide,
     containerMinHeight,
     autoHeight = false,
-  }: Pick<ComponentProps, 'config'> & {
+  }: Pick<ComponentProps, 'config' | 'ratio'> & {
     batch: ElectionBatch
     graphicKey: ElectionGraphicKey
     children?: Snippet<[NonNullable<ElectionBatchConfig[ElectionGraphicKey]>]>
@@ -44,11 +46,17 @@
   const batchConfig = $derived(graphic.config)
   const entry = $derived(batchConfig?.[graphicKey])
   let width = $state(0)
-  const responsiveEntry = $derived(
-    entry && width > 0 && width <= 580
-      ? { ...entry, containerAspectRatio: undefined }
-      : entry,
-  )
+  const responsiveEntry = $derived.by(() => {
+    if (!entry) return
+
+    const effectiveRatio = resolveShellRatio(ratio, entry.ratio)
+    if (effectiveRatio !== entry.ratio)
+      return { ...entry, ratio: effectiveRatio }
+    if (effectiveRatio === undefined && width > 0 && width <= 580) {
+      return { ...entry, containerAspectRatio: undefined }
+    }
+    return entry
+  })
   const countingValues = createQuery(() => ({
     ...electionTabs.fetchLog.options,
     select: (rows) => {
@@ -106,6 +114,7 @@
       footnotePrefix={(index) => `註${numberFootnotes ? index + 1 : ''}：`}
       {wide}
       {containerMinHeight}
+      ratio={responsiveEntry.ratio}
       containerHeight={autoHeight ? undefined : entry.containerHeight}
       containerAspectRatio={autoHeight
         ? undefined

@@ -7,9 +7,9 @@
   import PartyCityResult from '../lib/components/bar-chart/PartyCityResult.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
 </script>
 
 <ElectionLayout>
-  <PartyCityResult {config} />
+  <PartyCityResult {config} {ratio} />
 </ElectionLayout>

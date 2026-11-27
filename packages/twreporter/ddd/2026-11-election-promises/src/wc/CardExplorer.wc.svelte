@@ -26,6 +26,7 @@
   let {
     sources,
     config = '',
+    ratio,
     categoryId,
     topicId = '',
     city = '',
@@ -37,6 +38,7 @@
   <PromiseCards
     {sources}
     {config}
+    {ratio}
     bind:categoryId
     bind:topicId
     bind:city

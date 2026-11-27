@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolveShellRatio } from '@lab-reporter/ddd-shared/utils/shell-ratio.ts'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import Tooltip from '@lab-reporter/ddd-shared/components/shared/Tooltip.svelte'
@@ -113,6 +114,7 @@
     bind:footnotes={config.footnotes}
     wide={config.wide}
     backdrop={config.backdrop}
+    ratio={resolveShellRatio(props.ratio, config.ratio)}
     editable={graphic.editable}
     empty={!filter.groups.length}
     emptyMessage="此範圍沒有捐款資料。"

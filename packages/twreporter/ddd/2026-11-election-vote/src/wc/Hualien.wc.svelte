@@ -5,9 +5,9 @@
   import Hualien from '../lib/components/line-chart/Hualien.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
 </script>
 
 <ElectionLayout>
-  <Hualien {config} />
+  <Hualien {config} {ratio} />
 </ElectionLayout>

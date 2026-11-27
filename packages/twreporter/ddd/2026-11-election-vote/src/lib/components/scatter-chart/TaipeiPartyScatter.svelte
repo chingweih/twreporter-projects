@@ -7,7 +7,7 @@
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
   const historical = createQuery(
     () => historicalElectionTabs.taipeiMayorByVillage.options,
   )
@@ -74,6 +74,7 @@
 <ElectionGraphic
   batch={secondBatch}
   {config}
+  {ratio}
   graphicKey="13-taipei-party-scatter"
   error={historical.error?.message ?? current.error?.message}
   loading={historical.isPending || current.isPending}

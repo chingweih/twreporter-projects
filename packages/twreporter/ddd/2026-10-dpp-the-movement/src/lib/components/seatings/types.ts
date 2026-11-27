@@ -93,6 +93,7 @@ export const seatingsConfigSchema = createShellConfigSchema(defaultConfig)
       'footnotes',
       'wide',
       'backdrop',
+      'ratio',
     ],
   })
 

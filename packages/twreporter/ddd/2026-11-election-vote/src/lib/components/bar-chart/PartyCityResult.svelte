@@ -7,7 +7,7 @@
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
   const parties = [
     { name: '國民黨', color: '--elec-kmt' },
     { name: '民進黨', color: '--elec-dpp' },
@@ -33,6 +33,7 @@
 <ElectionGraphic
   batch={firstBatch}
   {config}
+  {ratio}
   graphicKey="3-party-city-result"
   error={history.error?.message}
   loading={history.isPending}

@@ -5,9 +5,9 @@
   import CityGrid from '../lib/components/city-grid/CityGrid.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
 </script>
 
 <ElectionLayout>
-  <CityGrid {config} />
+  <CityGrid {config} {ratio} />
 </ElectionLayout>

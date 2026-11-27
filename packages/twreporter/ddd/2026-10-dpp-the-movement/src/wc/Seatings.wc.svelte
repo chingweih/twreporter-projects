@@ -4,9 +4,9 @@
   import Layout from '@lab-reporter/ddd-shared/components/shared/Layout.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import Seatings from './Seatings.svelte'
-  const { src, config }: ComponentProps = $props()
+  const { src, config, ratio }: ComponentProps = $props()
 </script>
 
 <Layout>
-  <Seatings {src} {config} />
+  <Seatings {src} {config} {ratio} />
 </Layout>

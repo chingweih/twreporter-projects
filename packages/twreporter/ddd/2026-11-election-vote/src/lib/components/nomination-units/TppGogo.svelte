@@ -26,11 +26,13 @@
         node.clientHeight -
         parseFloat(style.paddingTop) -
         parseFloat(style.paddingBottom)
-      if (!available) return
+      if (available <= 0) return
+      const scale = node.getBoundingClientRect().height / node.offsetHeight
+      if (scale <= 0) return
       content.style.removeProperty('zoom')
       node.style.setProperty('--unit-height', '8px')
       // Keep the fixed text layout from consuming the entire cell-height budget.
-      const naturalHeight = content.getBoundingClientRect().height
+      const naturalHeight = content.getBoundingClientRect().height / scale
       if (naturalHeight > available)
         content.style.zoom = String(available / naturalHeight)
       let low = 0
@@ -39,7 +41,8 @@
       for (let i = 0; i < 12; i++) {
         const height = (low + high) / 2
         node.style.setProperty('--unit-height', height + 'px')
-        if (content.getBoundingClientRect().height <= available) low = height
+        if (content.getBoundingClientRect().height / scale <= available)
+          low = height
         else high = height
       }
       node.style.setProperty('--unit-height', Math.floor(low * 64) / 64 + 'px')
@@ -62,7 +65,7 @@
       },
     }
   }
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
   const nominations = createQuery(
     () => historicalElectionTabs.councilNominations.options,
   )
@@ -126,20 +129,24 @@
 <ElectionGraphic
   batch={secondBatch}
   {config}
+  {ratio}
   graphicKey="5-tpp-gogo"
   error={nominations.error?.message}
   loading={nominations.isPending}
   empty={!nominations.data?.length}
 >
   {#snippet children(entry)}
+    {@const sized = Boolean(
+      entry.ratio || entry.containerHeight || entry.containerAspectRatio,
+    )}
     <div
       class="chart"
       use:fitUnits={{
-        sized: !!(entry.containerHeight || entry.containerAspectRatio),
+        sized,
         columns: entry.unitColumns ?? 20,
         gap: entry.unitGap ?? 4,
       }}
-      class:sized={!!(entry.containerHeight || entry.containerAspectRatio)}
+      class:sized
       class:backdrop={entry.chartBackdrop}
     >
       <div class="chart-content">

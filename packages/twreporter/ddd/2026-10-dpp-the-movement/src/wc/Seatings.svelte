@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolveShellRatio } from '@lab-reporter/ddd-shared/utils/shell-ratio.ts'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import Shell from '@lab-reporter/ddd-shared/components/shared/Shell.svelte'
   import ScrollFade from '@lab-reporter/ddd-shared/components/shared/ScrollFade.svelte'
@@ -41,6 +42,7 @@
     bind:footnotes={config.footnotes}
     wide={config.wide}
     backdrop={config.backdrop}
+    ratio={resolveShellRatio(props.ratio, config.ratio)}
     editable={graphic.editable}
     empty={!chart.data.rows.length}
     emptyMessage="資料中沒有席次。"

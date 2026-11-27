@@ -9,8 +9,9 @@
 
   const {
     config,
+    ratio,
     city = '63000',
-  }: Pick<ComponentProps, 'config'> & { city?: string } = $props()
+  }: Pick<ComponentProps, 'config' | 'ratio'> & { city?: string } = $props()
   const parties = [
     { name: '國民黨', column: '國民黨催票率（%）', color: 'var(--elec-kmt)' },
     { name: '民進黨', column: '民進黨催票率（%）', color: 'var(--elec-dpp)' },
@@ -60,6 +61,7 @@
 <ElectionGraphic
   batch={secondBatch}
   {config}
+  {ratio}
   graphicKey="3-taipei-mobilization"
   error={city !== '63000'
     ? '此圖表僅提供台北市歷史資料。'

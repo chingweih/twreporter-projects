@@ -7,7 +7,7 @@
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
   const percentage = (value: number) =>
     `${value.toLocaleString('zh-TW', { maximumFractionDigits: 1 })}%`
   const history = createQuery(
@@ -54,6 +54,7 @@
 <ElectionGraphic
   batch={firstBatch}
   {config}
+  {ratio}
   graphicKey="4-ref-result"
   error={history.error?.message}
   loading={history.isPending}

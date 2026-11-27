@@ -1,6 +1,7 @@
 <script lang="ts">
   import EmbedCode from '@lab-reporter/ddd-shared/components/shared/EmbedCode.svelte'
   import GraphicData from '@lab-reporter/ddd-shared/components/shared/GraphicData.svelte'
+  import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import type { Snippet } from 'svelte'
   import { components } from '../../components.config.ts'
   import {
@@ -13,10 +14,10 @@
   const {
     batch,
     config,
+    ratio,
     children,
-  }: {
+  }: Pick<ComponentProps, 'config' | 'ratio'> & {
     batch: ElectionBatch
-    config: string
     children: Snippet<[ElectionBatchGraphic]>
   } = $props()
 </script>
@@ -36,6 +37,7 @@
         tagName={`${electionComponentPrefix}-${graphic.name}`}
         previewStoryId={batch.previewStoryId}
         {config}
+        {ratio}
         extraProps={graphic.city === undefined
           ? undefined
           : { city: graphic.city }}

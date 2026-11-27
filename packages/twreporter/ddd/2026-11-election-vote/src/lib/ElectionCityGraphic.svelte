@@ -9,11 +9,12 @@
     batch,
     name,
     config,
+    ratio,
     city,
     wide,
     fitViewport = false,
     children,
-  }: Pick<ComponentProps, 'config'> & {
+  }: Pick<ComponentProps, 'config' | 'ratio'> & {
     batch: ElectionBatch
     name: string
     city?: string
@@ -34,6 +35,7 @@
     <ElectionGraphic
       {batch}
       {config}
+      {ratio}
       {wide}
       graphicKey={entry.key}
       empty={!children}
@@ -53,13 +55,13 @@
     display: contents;
   }
 
-  .fit-viewport :global(.outer > .container) {
+  .fit-viewport :global(.outer:not(.fixed-ratio) > .container) {
     display: grid;
     grid-template-rows: minmax(0, 1fr);
     max-height: 100dvh;
   }
 
-  .fit-viewport :global(.frame) {
+  .fit-viewport :global(.outer:not(.fixed-ratio) .frame) {
     overflow: auto;
   }
 </style>

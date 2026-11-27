@@ -5,9 +5,9 @@
   import type { ComponentProps } from '../types.ts'
   import BarChartGraphic from './BarChartGraphic.svelte'
 
-  const { src, config }: ComponentProps = $props()
+  const { src, config, ratio }: ComponentProps = $props()
 </script>
 
 <Layout>
-  <BarChartGraphic {src} {config} />
+  <BarChartGraphic {src} {config} {ratio} />
 </Layout>

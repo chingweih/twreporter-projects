@@ -143,6 +143,7 @@ export const barChartConfigSchema = createShellConfigSchema(defaults)
       'footnotes',
       'wide',
       'backdrop',
+      'ratio',
     ],
   })
 

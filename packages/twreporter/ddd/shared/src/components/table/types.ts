@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { shellConfigFields } from '../shared/types.ts'
 
 export const columnAlignmentSchema = z.enum(['left', 'right', 'center'])
 
@@ -34,6 +35,7 @@ export const tableConfigSchema = z.object({
     description: 'Show the shell backdrop.',
     default: true,
   }),
+  ratio: shellConfigFields.ratio,
   label: z
     .string()
     .optional()

@@ -5,9 +5,9 @@
   import RefResult from '../lib/components/bar-chart/RefResult.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
 </script>
 
 <ElectionLayout>
-  <RefResult {config} />
+  <RefResult {config} {ratio} />
 </ElectionLayout>

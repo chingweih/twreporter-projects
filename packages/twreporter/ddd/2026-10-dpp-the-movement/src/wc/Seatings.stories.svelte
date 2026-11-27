@@ -6,7 +6,11 @@
     title: 'Components/Seatings',
     component: Seatings,
     args: { src: './seatings.csv', config: './seatings.json' },
-    argTypes: { src: { control: 'text' }, config: { control: 'text' } },
+    argTypes: {
+      src: { control: 'text' },
+      config: { control: 'text' },
+      ratio: { control: 'number' },
+    },
   })
 </script>
 

@@ -5,9 +5,9 @@
   import TppGogo from '../lib/components/nomination-units/TppGogo.svelte'
   import ElectionLayout from '../lib/ElectionLayout.svelte'
 
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
 </script>
 
 <ElectionLayout>
-  <TppGogo {config} />
+  <TppGogo {config} {ratio} />
 </ElectionLayout>

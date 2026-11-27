@@ -5,9 +5,9 @@
   import Table from './Table.svelte'
   import type { ComponentProps } from '../types'
 
-  let { src, config }: ComponentProps = $props()
+  let { src, config, ratio }: ComponentProps = $props()
 </script>
 
 <Layout>
-  <Table {src} {config} />
+  <Table {src} {config} {ratio} />
 </Layout>

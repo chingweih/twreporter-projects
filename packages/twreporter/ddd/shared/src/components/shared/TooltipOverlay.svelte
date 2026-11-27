@@ -21,6 +21,14 @@
   } = $props()
   let width = $state(0)
   let height = $state(0)
+
+  function showAboveScaledGraphic(element: HTMLDivElement) {
+    if (!element.closest('.fixed-ratio')) return
+    // A transformed ancestor would otherwise trap the viewport coordinates.
+    element.popover = 'manual'
+    element.showPopover()
+  }
+
   const position = $derived.by(() => {
     const left = Math.max(0, bounds?.left ?? 0) + 8
     const right = Math.min(window.innerWidth, bounds?.right ?? Infinity) - 8
@@ -40,6 +48,7 @@
     {id}
     class="tooltip"
     role="tooltip"
+    {@attach showAboveScaledGraphic}
     bind:clientWidth={width}
     bind:clientHeight={height}
     style:left={`${position.left}px`}
@@ -57,5 +66,14 @@
     width: max-content;
     max-width: min(320px, calc(100vw - 32px));
     pointer-events: none;
+  }
+
+  .tooltip:global([popover]) {
+    inset: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    background: transparent;
   }
 </style>

@@ -6,7 +6,7 @@
   import { secondBatch } from '../../batches/second.ts'
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
-  const { config }: Pick<ComponentProps, 'config'> = $props()
+  const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
   const history = createQuery(
     () => historicalElectionTabs.hualienFuFamilyResults.options,
   )
@@ -23,6 +23,7 @@
 <ElectionGraphic
   batch={secondBatch}
   {config}
+  {ratio}
   graphicKey="8-hualien"
   error={history.error?.message}
   loading={history.isPending}

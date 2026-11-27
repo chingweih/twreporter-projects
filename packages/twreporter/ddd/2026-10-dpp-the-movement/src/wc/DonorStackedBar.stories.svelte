@@ -10,7 +10,11 @@
       src: './donor-stacked-bar.csv',
       config: './donor-stacked-bar.json',
     },
-    argTypes: { src: { control: 'text' }, config: { control: 'text' } },
+    argTypes: {
+      src: { control: 'text' },
+      config: { control: 'text' },
+      ratio: { control: 'number' },
+    },
   })
 </script>
 

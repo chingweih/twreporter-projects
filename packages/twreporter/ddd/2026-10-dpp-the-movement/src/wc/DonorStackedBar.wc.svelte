@@ -5,9 +5,9 @@
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import DonorStackedBar from './DonorStackedBar.svelte'
 
-  const { src, config }: ComponentProps = $props()
+  const { src, config, ratio }: ComponentProps = $props()
 </script>
 
 <Layout>
-  <DonorStackedBar {src} {config} />
+  <DonorStackedBar {src} {config} {ratio} />
 </Layout>
