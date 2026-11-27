@@ -96,7 +96,7 @@
         <div>最高票同票</div>
       {:else}
         {@const { leader } = result}
-        <div>{leader.姓名}（{leader.政黨.trim() || '未提供政黨'}）領先</div>
+        <!-- <div>{leader.姓名}（{leader.政黨.trim() || '未提供政黨'}）領先</div> -->
       {/if}
       {#if result.majorPartyCandidates.length}
         <TooltipRows

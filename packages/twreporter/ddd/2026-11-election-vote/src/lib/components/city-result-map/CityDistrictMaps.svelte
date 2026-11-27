@@ -3,7 +3,7 @@
   import { MapDrilldown } from '@lab-reporter/ddd-shared/utils/map-drilldown.svelte.ts'
   import { createQuery, skipToken } from '@tanstack/svelte-query'
   import { electionTabs } from '../../election-data.ts'
-  import { partyColorVars } from '../../party-colors.ts'
+  import { resolvePartyColor } from '../../party-colors.ts'
   import {
     areaColor,
     indexAreaResults,
@@ -94,14 +94,26 @@
           areaColor(data.get(properties.districtCode)),
         )
   }
-  const legend = $derived(
-    Object.entries(partyColorVars).filter(
-      ([party, token]) =>
-        party === '中國國民黨' ||
-        party === '民主進步黨' ||
-        areaColors.has(token),
-    ),
-  )
+  const legend = $derived.by(() => {
+    const candidates = new Map<string, { label: string; color: string }>()
+    for (const data of [
+      results.data,
+      previous ? historicalQuery.data : undefined,
+    ]) {
+      for (const result of data?.values() ?? []) {
+        for (const candidate of [
+          ...result.majorPartyCandidates,
+          result.leader,
+        ]) {
+          const label = candidate.姓名.trim()
+          const { colorVar } = resolvePartyColor(candidate.政黨.trim())
+          const color = `var(${colorVar})`
+          candidates.set(`${label}:${colorVar}`, { label, color })
+        }
+      }
+    }
+    return [...candidates.values()]
+  })
 </script>
 
 {#snippet status(query: typeof results)}
@@ -125,10 +137,7 @@
       <Legend
         align="center"
         items={[
-          ...legend.map(([label, token]) => ({
-            label,
-            color: `var(${token})`,
-          })),
+          ...legend,
           ...(areaColors.has(noLeader)
             ? [{ label: '未分出領先者', color: `var(${noLeader})` }]
             : []),
