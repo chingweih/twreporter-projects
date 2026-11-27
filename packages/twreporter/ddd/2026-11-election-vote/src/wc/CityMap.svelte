@@ -333,7 +333,7 @@
   .candidate-identity {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     flex-shrink: 0;
   }
   .candidate-name {

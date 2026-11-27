@@ -4,29 +4,18 @@
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
   import { firstBatch } from '../../batches/first.ts'
-  import { electionTabs } from '../../election-data.ts'
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
 
   const { config }: Pick<ComponentProps, 'config'> = $props()
   const percentage = (value: number) =>
     `${value.toLocaleString('zh-TW', { maximumFractionDigits: 1 })}%`
-  const results = createQuery(() => ({
-    ...electionTabs.referendum.options,
-    select: (rows) => rows.filter((row) => row.層級.trim() === '全國'),
-  }))
   const history = createQuery(
     () => historicalElectionTabs.referendumResults.options,
   )
   const groups = $derived(
-    [
-      ...(results.data ?? []).map((row) => ({
-        label: '2026 廢除非核家園',
-        electorate: row.投票權人數,
-        agree: row.同意票,
-        disagree: row.不同意票,
-      })),
-      ...(history.data ?? []).flatMap((row) =>
+    (history.data ?? [])
+      .flatMap((row) =>
         row.投票權人 === null || row.同意票 === null || row.不同意票 === null
           ? []
           : [
@@ -37,8 +26,7 @@
                 disagree: row.不同意票,
               },
             ],
-      ),
-    ]
+      )
       .filter((row) => row.electorate > 0)
       .map((row) => ({
         label: row.label.replace(/^(\d{4})\s+/, '$1年\n'),
@@ -67,8 +55,8 @@
   batch={firstBatch}
   {config}
   graphicKey="4-ref-result"
-  error={results.error?.message ?? history.error?.message}
-  loading={results.isPending || history.isPending}
+  error={history.error?.message}
+  loading={history.isPending}
   empty={!groups.length}
 >
   {#snippet children(entry)}
