@@ -48,6 +48,7 @@
     valueTicks,
     showValues = true,
     valueSeries = [],
+    valueTopN,
     showTooltip = true,
     showTotals = true,
     valuePosition,
@@ -716,7 +717,10 @@
                   {@const center = bar.offset + band / 2}
                   {#each labelsFor(bar) as valueLabel}
                     {@const position = valueLabel.position}
-                    {#if showValues && (!valueSeries.length || valueSeries.includes(bar.series) || hovered?.bar === bar || hoveredSeries === bar.series) && bar.value !== 0 && valueLabel.text && (position === 'outside' || ((horizontal ? visibleLength : band) > estimatedLabelWidth( [valueLabel.text], ) + 8 && (horizontal ? band : visibleLength) > 16))}
+                    {#if showValues && ((valueTopN !== undefined ? [...group.bars]
+                            .sort((a, b) => b.value - a.value)
+                            .slice(0, valueTopN)
+                            .includes(bar) : !valueSeries.length || valueSeries.includes(bar.series)) || hovered?.bar === bar || hoveredSeries === bar.series) && bar.value !== 0 && valueLabel.text && (position === 'outside' || ((horizontal ? visibleLength : band) > estimatedLabelWidth( [valueLabel.text], ) + 8 && (horizontal ? band : visibleLength) > 16))}
                       <text
                         class="value"
                         style:stroke-opacity={isDimmed(bar) ? 0 : 0.8}

@@ -161,8 +161,8 @@
               <h3>{section.title}</h3>
               <p class="description">
                 {section.title === '民眾黨'
-                  ? '2019 年成立，未參與 2018 選舉'
-                  : '依 2026 聯盟成員回溯加總；2018、2022 各黨分別參選'}
+                  ? '2019年成立，未參與2018選舉'
+                  : '依2026聯盟成員回溯加總；2018、2022各黨分別參選'}
               </p>
             </header>
             {#each section.years as row}

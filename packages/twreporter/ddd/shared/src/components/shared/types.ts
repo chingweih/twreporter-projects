@@ -136,6 +136,7 @@ export type BarChartProps = {
   showXAxis?: boolean
   showValues?: boolean
   valueSeries?: readonly string[]
+  valueTopN?: number
   showTotals?: boolean
   valuePosition?: 'left' | 'center' | 'outside'
   xAxisFontSize?: number

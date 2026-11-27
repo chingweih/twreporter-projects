@@ -69,11 +69,13 @@
           label: row.議會,
           emphasized: row.議會 === '全國合計',
           gapAfter: row.議會 === '全國合計' ? 8 : 0,
-          bars: parties.map((party) => ({
-            series: party.series,
-            value: row[party.column],
-            valueLabel: `${row[party.column]}`,
-          })),
+          bars: parties
+            .map((party) => ({
+              series: party.series,
+              value: row[party.column],
+              valueLabel: `${row[party.column]}`,
+            }))
+            .sort((a, b) => b.value - a.value),
         }))
       : kind === 'age'
         ? (ageHistory.data ?? []).map((row) => ({
@@ -120,6 +122,7 @@
     <div class="chart-container">
       <BarChart
         {...barChartOptions(entry)}
+        valueTopN={kind === 'party' ? 3 : undefined}
         {groups}
         {colors}
         orientation="horizontal"
