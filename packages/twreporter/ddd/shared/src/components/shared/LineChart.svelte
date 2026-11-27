@@ -6,6 +6,14 @@
   import TooltipOverlay from './TooltipOverlay.svelte'
   import TooltipRows from './TooltipRows.svelte'
 
+  type LinePoint = {
+    series: string
+    x: number
+    value: number | null
+    valueLabel?: string
+  }
+  type PlottedPoint = LinePoint & { value: number }
+
   const {
     label,
     data,
@@ -42,7 +50,7 @@
     tooltipLabel,
   }: {
     label: string
-    data: readonly { series: string; x: number; value: number | null }[]
+    data: readonly LinePoint[]
     colors?: Record<string, string>
     pointColor?: (series: string, x: number) => string | undefined
     lineSegmentStyle?: (
@@ -90,7 +98,8 @@
     series: string
     pointX: number
     value: number
-    rows?: readonly { series: string; value: number }[]
+    valueLabel?: string
+    rows?: readonly PlottedPoint[]
   }>()
   const palette = [
     'var(--chart-olive-3)',
@@ -100,12 +109,15 @@
   ]
   const validData = $derived(
     data.filter(
-      (point): point is { series: string; x: number; value: number } =>
+      (point): point is PlottedPoint =>
         point.value !== null &&
         Number.isFinite(point.x) &&
         Number.isFinite(point.value),
     ),
   )
+  function labelFor(point: Pick<PlottedPoint, 'value' | 'valueLabel'>) {
+    return point.valueLabel ?? formatValue(point.value)
+  }
   const series = $derived([...new Set(validData.map((point) => point.series))])
   const items = $derived(
     series.map((name, index) => ({
@@ -189,7 +201,7 @@
     Math.max(
       4,
       ...(showValue
-        ? validData.map((point) => formatValue(point.value).length * 4)
+        ? validData.map((point) => labelFor(point).length * 4)
         : []),
       showXAxis ? formatX(xExtent[0]).length * 4 : 0,
       ...(showYAxis
@@ -201,7 +213,7 @@
     Math.max(
       showXAxis ? Math.max(8, formatX(xExtent[1] ?? 0).length * 4) : 4,
       ...(showValue
-        ? validData.map((point) => formatValue(point.value).length * 4)
+        ? validData.map((point) => labelFor(point).length * 4)
         : []),
     ),
   )
@@ -489,7 +501,7 @@
                   style:--point-hover-radius={`${linePointRadius + 0.5}px`}
                   role="button"
                   tabindex="0"
-                  aria-label={`${group.label} ${formatX(point.x)} ${formatValue(point.value)}`}
+                  aria-label={`${group.label} ${formatX(point.x)} ${labelFor(point)}`}
                   onpointerenter={(event) =>
                     (hovered = {
                       x: event.clientX,
@@ -497,6 +509,7 @@
                       series: group.label,
                       pointX: point.x,
                       value: point.value,
+                      valueLabel: point.valueLabel,
                     })}
                   onpointermove={(event) => {
                     if (hovered)
@@ -515,6 +528,7 @@
                       series: group.label,
                       pointX: point.x,
                       value: point.value,
+                      valueLabel: point.valueLabel,
                     }
                   }}
                   onblur={() => (hovered = undefined)}
@@ -584,10 +598,10 @@
                         >{valueTitle(group.label, point.x)}</tspan
                       >
                       <tspan x={xScale(point.x)} dy="1.2em"
-                        >{formatValue(point.value)}</tspan
+                        >{labelFor(point)}</tspan
                       >
                     {:else}
-                      {formatValue(point.value)}
+                      {labelFor(point)}
                     {/if}
                   </text>
                 {/if}
@@ -607,7 +621,7 @@
     ><TooltipRows
       rows={(hovered.rows ?? [hovered]).map((row) => ({
         label: tooltipLabel?.(row.series, hovered!.pointX) ?? row.series,
-        value: formatValue(row.value),
+        value: labelFor(row),
         color: items.find((item) => item.label === row.series)?.color,
       }))}
     /></TooltipOverlay

@@ -4,6 +4,7 @@ import {
   sheetCount as count,
   sheetNumber as number,
   sheetPercentage as percentage,
+  sheetPercentageWithText,
   sheetPositiveCount as positiveCount,
   sheetTownshipCode as townshipCode,
 } from './election-sheet.ts'
@@ -30,7 +31,7 @@ const areaResult = z.object({
   姓名: text,
   政黨: text,
   得票數: count,
-  得票率: percentage,
+  得票率: sheetPercentageWithText,
   選舉人數: count,
   投票數: count,
   有效票: count,
@@ -58,7 +59,7 @@ export const historicalElectionTabs = {
       自行宣布當選: text.default(''),
       政黨: text,
       得票數: nullableCount,
-      '得票率（%）': nullablePercentage,
+      '得票率（%）': sheetPercentageWithText.or(blank),
     }),
   ),
   mayorPartyHistory: historicalTab(
@@ -103,13 +104,13 @@ export const historicalElectionTabs = {
   ),
   mayorTurnoutHistory: historicalTab(
     '1981346507',
-    z.object({ 屆次: text, '縣市長投票率（%）': percentage }),
+    z.object({ 屆次: text, '縣市長投票率（%）': sheetPercentageWithText }),
   ),
   taipeiMayorTurnoutHistory: historicalTab(
     '1206203173',
     z.object({
       屆次: text,
-      '台北市長投票率（%）': percentage,
+      '台北市長投票率（%）': sheetPercentageWithText,
       該屆當選人: text.default(''),
     }),
   ),
@@ -117,8 +118,8 @@ export const historicalElectionTabs = {
     '1855037673',
     z.object({
       台北市長屆次: text,
-      '國民黨催票率（%）': percentage,
-      '民進黨催票率（%）': nullablePercentage,
+      '國民黨催票率（%）': sheetPercentageWithText,
+      '民進黨催票率（%）': sheetPercentageWithText.or(blank),
       '無黨籍催票率（%）': nullablePercentage,
       '新黨催票率（%）': nullablePercentage,
     }),
@@ -182,7 +183,7 @@ export const historicalElectionTabs = {
       候選人: text,
       推薦政黨: text,
       得票: nullableCount,
-      '催票率（%）': nullablePercentage,
+      '催票率（%）': sheetPercentageWithText.or(blank),
       結果: text,
       名次: positiveCount.or(blank).or(z.literal('—').transform(() => null)),
       參選人數: nullableCount,

@@ -13,7 +13,6 @@
   } from './batch-config.ts'
   import { electionTabs } from './election-data.ts'
   import { historicalElectionTabs } from './election-historical-data.ts'
-  import { formatRate } from './format.ts'
   import { resolvePartyColor } from './party-colors.ts'
 
   const {
@@ -77,7 +76,7 @@
         vDay: String(Number(day)),
         vHour: hour.padStart(2, '0'),
         vMin: minute,
-        vProgress: formatRate(latest['開票完成率(%)']),
+        vProgress: latest['開票完成率(%)'].text,
       }
     },
   }))

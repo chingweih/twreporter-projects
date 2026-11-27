@@ -4,6 +4,7 @@ import {
   sheetCount as count,
   sheetNumber as number,
   sheetPercentage as percentage,
+  sheetPercentageWithText,
   sheetPositiveCount as positiveCount,
   sheetTownshipCode as townshipCode,
 } from './election-sheet.ts'
@@ -94,11 +95,20 @@ export const electionTabs = {
   ),
   mayorCandidates: electionTab(
     '1156841378',
-    z.object({ ...county, ...candidateResults }),
+    z.object({
+      ...county,
+      ...candidateResults,
+      '得票率(%)': sheetPercentageWithText,
+    }),
   ),
   mayorByTownship: electionTab(
     '614079164',
-    z.object({ ...county, ...township, ...candidateResults }),
+    z.object({
+      ...county,
+      ...township,
+      ...candidateResults,
+      '得票率(%)': sheetPercentageWithText,
+    }),
   ),
   mayorByVillage: electionTab(
     '1702445830',
@@ -107,6 +117,7 @@ export const electionTabs = {
       ...township,
       ...village,
       ...candidate,
+      '得票率(%)': sheetPercentageWithText,
       投開票所數: count,
       ...ballotTotals,
       選舉人數: count,
@@ -190,7 +201,7 @@ export const electionTabs = {
       資料狀態: text,
       已開所數: count,
       應開所數: count,
-      '開票完成率(%)': percentage,
+      '開票完成率(%)': sheetPercentageWithText,
       GCS: text,
       試算表: text,
       備註: text,

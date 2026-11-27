@@ -16,7 +16,6 @@
   } from '../lib/components/city-map/data.ts'
   import { historicalElectionTabs } from '../lib/election-historical-data.ts'
   import ElectionGraphic from '../lib/ElectionGraphic.svelte'
-  import { formatPercentage } from '../lib/format.ts'
   import { partyColorVars, resolvePartyColor } from '../lib/party-colors.ts'
 
   const { mainIsland: taiwan, insets } = splitTaiwanCounties(counties)
@@ -140,7 +139,7 @@
                 : ''}</span
             >
             {#if candidate.name && candidate.share != null}<span class="share"
-                >({formatPercentage(candidate.share)})</span
+                >({candidate.share.text}%)</span
               >{/if}
           </div>
         {/each}

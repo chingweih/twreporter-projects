@@ -236,11 +236,7 @@
           {#if candidate}
             <div class="candidate-legend-row">
               <span class="candidate-name">{label}</span>
-              <span class="candidate-share"
-                >{candidate.share.toLocaleString('zh-TW', {
-                  maximumFractionDigits: 1,
-                })}%</span
-              >
+              <span class="candidate-share">{candidate.share.text}%</span>
               <span class="candidate-count"
                 >{candidate.count === null ? '—' : `${candidate.count}區`}</span
               >

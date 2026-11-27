@@ -6,7 +6,6 @@
   import { secondBatch } from '../../batches/second.ts'
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
-  import { formatPercentage } from '../../format.ts'
 
   const {
     config,
@@ -32,11 +31,15 @@
   }))
   const data = $derived(
     (history.data ?? []).flatMap((row, index) =>
-      parties.map((party) => ({
-        series: party.name,
-        x: index,
-        value: row[party.column],
-      })),
+      parties.map((party) => {
+        const rate = row[party.column]
+        return {
+          series: party.name,
+          x: index,
+          value: rate?.value ?? null,
+          valueLabel: rate ? `${rate.text}%` : undefined,
+        }
+      }),
     ),
   )
   const labeledPoints = $derived.by(() => {
@@ -102,7 +105,7 @@
             : undefined}
         xTickCount={8}
         formatX={(value) => history.data?.[value]?.台北市長屆次 ?? ''}
-        formatValue={formatPercentage}
+        formatValue={(value) => `${value}%`}
       />
     </div>
   {/snippet}

@@ -18,12 +18,15 @@ export const sheetTownshipCode = z
   .string()
   .trim()
   .regex(/^\d{1,8}$/)
-export const sheetPercentage = z
+const percentageText = z
   .string()
   .trim()
-  .transform((value) => value.replace(/%$/, ''))
-  .pipe(sheetNumber)
-  .pipe(z.number().min(0).max(100))
+  .transform((value) => value.replace(/%$/, '').trim())
+const percentageNumber = sheetNumber.pipe(z.number().min(0).max(100))
+export const sheetPercentage = percentageText.pipe(percentageNumber)
+export const sheetPercentageWithText = percentageText
+  .transform((text) => ({ text, value: text }))
+  .pipe(z.object({ text: z.string(), value: percentageNumber }))
 
 export function createElectionSheet({
   spreadsheetId,

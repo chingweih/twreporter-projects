@@ -6,18 +6,21 @@
   import { secondBatch } from '../../batches/second.ts'
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
-  import { formatPercentage } from '../../format.ts'
   const { config, ratio }: Pick<ComponentProps, 'config' | 'ratio'> = $props()
   const history = createQuery(
     () => historicalElectionTabs.hualienFuFamilyResults.options,
   )
   const rows = $derived([...(history.data ?? [])].sort((a, b) => a.年 - b.年))
   const data = $derived(
-    rows.map((row) => ({
-      series: '催票率',
-      x: row.年,
-      value: row['催票率（%）'],
-    })),
+    rows.map((row) => {
+      const rate = row['催票率（%）']
+      return {
+        series: '催票率',
+        x: row.年,
+        value: rate?.value ?? null,
+        valueLabel: rate ? `${rate.text}%` : undefined,
+      }
+    }),
   )
 </script>
 
@@ -38,7 +41,7 @@
         {data}
         colors={{ 催票率: 'var(--elec-red)' }}
         xTickCount={6}
-        formatValue={formatPercentage}
+        formatValue={(value) => `${value}%`}
         valueTitle={(_series, year) =>
           rows.find((row) => row.年 === year)?.候選人}
       />
