@@ -9,7 +9,7 @@ pnpm install
 pnpm dev
 ```
 
-Storybook runs on port 5173. The batch definitions in `src/lib/batches` set the graphic order, default titles, and footnotes. Each batch has a Storybook story and one shared `config` JSON URL. The graphics load election CSVs from the `projects.twreporter.org` bucket.
+Storybook runs on port 5173. The batch definitions in `src/lib/batches` set the graphic order, default titles, and footnotes. Each batch has a Storybook story and one shared `config` JSON URL. The graphics load election CSVs from the `projects.twreporter.org` bucket. Add `?refresh` to the page or iframe URL to fetch directly from Google Sheets and poll every 10 seconds.
 
 Development and Storybook builds generate one config JSON file per batch in `generated/` and serve them at the root of Storybook. Run `pnpm generate:configs` to regenerate the files on their own.
 

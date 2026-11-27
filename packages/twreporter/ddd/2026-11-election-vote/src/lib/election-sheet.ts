@@ -40,13 +40,18 @@ export function createElectionSheet({
     rowSchema: z.ZodObject<Columns>,
     normalizeHeader: (header: string) => string = (header) => header,
   ) {
-    const url = `https://projects.twreporter.org/twreporter/ddd/2026-11-election-vote/sheets/${sheetId}/${tabId}.csv`
     const columns = Object.keys(rowSchema.shape).filter(
       (column) => !z.safeParse(rowSchema.shape[column], undefined).success,
     )
     const rowsSchema = rowSchema.array()
 
     async function fetchRows(signal?: AbortSignal) {
+      const refresh =
+        typeof window !== 'undefined' &&
+        new URLSearchParams(window.location.search).has('refresh')
+      const url = refresh
+        ? `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${tabId}`
+        : `https://projects.twreporter.org/twreporter/ddd/2026-11-election-vote/sheets/${sheetId}/${tabId}.csv`
       const csvText = await fetchText(url, signal)
       try {
         const csv = parseCsv(csvText)
