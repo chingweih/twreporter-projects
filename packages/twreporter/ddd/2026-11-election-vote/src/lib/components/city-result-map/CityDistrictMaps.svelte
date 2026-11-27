@@ -388,6 +388,7 @@
   }
   .ranked :global(.legend) {
     flex-direction: column;
+    flex-wrap: nowrap;
     align-items: flex-start;
     width: fit-content;
     margin: 0;
