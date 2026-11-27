@@ -320,6 +320,7 @@
       return {
         label: group.label,
         emphasized: group.emphasized,
+        separatorAfter: group.separatorAfter,
         center,
         bars: plottedBars,
         positive,
@@ -493,6 +494,20 @@
               >
             {/each}
             {#each plottedGroups as group, groupIndex}
+              {#if group.separatorAfter && plottedGroups[groupIndex + 1]}
+                {@const separator =
+                  ((group.bars.at(-1)?.offset ?? 0) +
+                    band +
+                    (plottedGroups[groupIndex + 1].bars[0]?.offset ?? 0)) /
+                  2}
+                <line
+                  class="group-separator"
+                  x1={horizontal ? -leftGutter : separator}
+                  x2={horizontal ? plotWidth : separator}
+                  y1={horizontal ? separator : 0}
+                  y2={horizontal ? separator : plotHeight}
+                />
+              {/if}
               {#if stacked}
                 <defs>
                   <clipPath id="{descriptionId}-stack-{groupIndex}">
@@ -783,6 +798,12 @@
 {/if}
 
 <style>
+  .group-separator {
+    stroke: var(--neutral-gray-300);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
   .chart {
     display: flex;
     flex-direction: column;

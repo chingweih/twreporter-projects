@@ -68,6 +68,7 @@
           label: row.議會,
           emphasized: row.議會 === '全國合計',
           gapAfter: row.議會 === '全國合計' ? 8 : 0,
+          separatorAfter: row.議會 === '全國合計',
           bars: parties
             .map((party) => ({
               series: party.series,

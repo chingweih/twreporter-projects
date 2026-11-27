@@ -114,6 +114,7 @@ export type BarChartGroup = {
   label?: string
   emphasized?: boolean
   gapAfter?: number
+  separatorAfter?: boolean
   bars: readonly BarChartBar[]
 }
 
