@@ -37,6 +37,24 @@
       })),
     ),
   )
+  const labeledPoints = $derived.by(() => {
+    const latest = new Map<string, (typeof data)[number]>()
+    const peaks = new Map<string, (typeof data)[number]>()
+    for (const point of data) {
+      if (point.value === null || !Number.isFinite(point.value)) continue
+      latest.set(point.series, point)
+      const color =
+        point.series === '民進黨' &&
+        history.data?.[point.x]?.台北市長屆次 === '2014'
+          ? '灰色'
+          : point.series
+      const peak = peaks.get(color)
+      if (!peak || point.value > (peak.value ?? -Infinity)) {
+        peaks.set(color, point)
+      }
+    }
+    return [...latest.values(), ...peaks.values()]
+  })
 </script>
 
 <ElectionGraphic
@@ -54,6 +72,11 @@
       <LineChart
         showAllXTicks
         {...lineChartOptions(entry)}
+        showValue={(series, x) =>
+          entry.showValue === true ||
+          labeledPoints.some(
+            (point) => point.series === series && point.x === x,
+          )}
         yLabel="催票率（%）"
         {data}
         {colors}

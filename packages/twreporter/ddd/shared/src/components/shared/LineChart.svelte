@@ -49,7 +49,7 @@
     ) => { color?: string; dasharray?: string } | undefined
     showArea?: boolean
     showTooltip?: boolean
-    showValue?: boolean
+    showValue?: boolean | ((series: string, x: number) => boolean)
     showXAxis?: boolean
     hoverFocusXAxis?: boolean
     hoverFocusYAxis?: boolean
@@ -546,9 +546,11 @@
                 : 1}
             >
               {#each group.points as point, pointIndex}
-                {#if showValue || hoveredLine === group.label || (hovered?.pointX === point.x && (hovered.rows !== undefined || hovered.series === group.label))}
+                {#if (typeof showValue === 'function' ? showValue(group.label, point.x) : showValue) || hoveredLine === group.label || (hovered?.pointX === point.x && (hovered.rows !== undefined || hovered.series === group.label))}
                   <text
                     class="value"
+                    style:fill={pointColor?.(group.label, point.x) ??
+                      group.color}
                     class:dimmed={hovered
                       ? !(
                           hovered.pointX === point.x &&
@@ -681,7 +683,6 @@
   }
   .value {
     transition: opacity 150ms ease;
-    fill: var(--neutral-gray-800);
     paint-order: stroke;
     stroke-opacity: 0.7;
     stroke: var(--neutral-gray-50);
