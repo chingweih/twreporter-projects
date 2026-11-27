@@ -92,12 +92,6 @@
     {#if !area}
       <div>此年度無對應{focus ? '村里' : '行政區'}</div>
     {:else if result}
-      {#if result.tied}
-        <div>最高票同票</div>
-      {:else}
-        {@const { leader } = result}
-        <!-- <div>{leader.姓名}（{leader.政黨.trim() || '未提供政黨'}）領先</div> -->
-      {/if}
       {#if result.majorPartyCandidates.length}
         <TooltipRows
           rows={result.majorPartyCandidates.map((candidate) => ({
