@@ -73,6 +73,7 @@ export const secondBatch = defineElectionBatch({
     },
     '6-council-age': {
       title: '2026當選議員年齡分布',
+      valueSeries: ['未滿40歲', '60歲以上'],
       sortOrder: 'descending',
       sortBy: '未滿40歲',
       mode: 'stacked-percent',

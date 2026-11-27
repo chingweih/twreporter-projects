@@ -332,7 +332,6 @@
     align-items: baseline;
     padding: 0 0 5px 0;
     flex-shrink: 0;
-    min-height: 40px;
     border-bottom: 1px solid var(--neutral-gray-600);
   }
   .party-summary {
