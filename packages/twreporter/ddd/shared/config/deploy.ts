@@ -9,6 +9,7 @@ const noCache = 'no-cache'
 
 export async function deployProject(
   components: Record<string, ComponentConfig>,
+  { stylesDirectory }: { stylesDirectory?: string } = {},
 ) {
   const { BUCKET, RELEASE } = process.env
   if (
@@ -32,6 +33,24 @@ export async function deployProject(
       destination,
       metadata: { cacheControl: immutable },
     })
+  }
+
+  async function uploadDirectory(source: string, directory: string) {
+    const destination = posix.join(...prefix, directory)
+    const files = readdirSync(source, {
+      recursive: true,
+      withFileTypes: true,
+    }).filter((entry) => entry.isFile())
+    await Promise.all(
+      files.map((entry) => {
+        const path = join(entry.parentPath, entry.name)
+        const objectName = relative(source, path).split(sep).join('/')
+        return bucket.upload(path, {
+          destination: `${destination}/${objectName}`,
+          metadata: { cacheControl: noCache },
+        })
+      }),
+    )
   }
 
   const releases = Object.entries(components).map(
@@ -93,21 +112,7 @@ export async function deployProject(
     }
   }
 
-  const storybookDirectory = 'storybook-static'
-  const storybookPrefix = posix.join(...prefix, 'storybook')
-  const storybookFiles = readdirSync(storybookDirectory, {
-    recursive: true,
-    withFileTypes: true,
-  }).filter((entry) => entry.isFile())
-  await Promise.all(
-    storybookFiles.map((entry) => {
-      const path = join(entry.parentPath, entry.name)
-      const objectName = relative(storybookDirectory, path).split(sep).join('/')
-      return bucket.upload(path, {
-        destination: `${storybookPrefix}/${objectName}`,
-        metadata: { cacheControl: noCache },
-      })
-    }),
-  )
+  if (stylesDirectory) await uploadDirectory(stylesDirectory, 'styles')
+  await uploadDirectory('storybook-static', 'storybook')
   console.log(`Storybook: ${publicRoot}/storybook/index.html`)
 }
