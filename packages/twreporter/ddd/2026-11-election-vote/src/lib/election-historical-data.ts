@@ -107,7 +107,11 @@ export const historicalElectionTabs = {
   ),
   taipeiMayorTurnoutHistory: historicalTab(
     '1206203173',
-    z.object({ 屆次: text, '台北市長投票率（%）': percentage }),
+    z.object({
+      屆次: text,
+      '台北市長投票率（%）': percentage,
+      該屆當選人: text.default(''),
+    }),
   ),
   taipeiMayorMobilizationHistory: historicalTab(
     '1855037673',

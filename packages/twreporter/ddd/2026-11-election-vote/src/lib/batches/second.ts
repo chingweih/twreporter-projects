@@ -26,7 +26,7 @@ export const secondBatch = defineElectionBatch({
       title: '歷屆台北市長投票率',
       containerAspectRatio: 0.8,
       hoverFocusYAxis: false,
-      showTooltip: false,
+      showTooltip: true,
       gridHover: true,
       showArea: true,
       showValue: true,

@@ -39,6 +39,7 @@
     formatValue = String,
     valueTitle,
     valueColor,
+    tooltipLabel,
   }: {
     label: string
     data: readonly { series: string; x: number; value: number | null }[]
@@ -76,6 +77,7 @@
     formatValue?: (value: number) => string
     valueTitle?: (series: string, x: number) => string | undefined
     valueColor?: (series: string, x: number) => string | undefined
+    tooltipLabel?: (series: string, x: number) => string | undefined
   } = $props()
 
   let width = $state(0)
@@ -604,7 +606,7 @@
     title={formatX(hovered.pointX)}
     ><TooltipRows
       rows={(hovered.rows ?? [hovered]).map((row) => ({
-        label: row.series,
+        label: tooltipLabel?.(row.series, hovered!.pointX) ?? row.series,
         value: formatValue(row.value),
         color: items.find((item) => item.label === row.series)?.color,
       }))}

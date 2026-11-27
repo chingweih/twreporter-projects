@@ -319,7 +319,7 @@
     flex: 1 1 auto;
     flex-direction: column;
     min-height: 0;
-    gap: 10px;
+    gap: 5px;
   }
 
   .map-actions {
