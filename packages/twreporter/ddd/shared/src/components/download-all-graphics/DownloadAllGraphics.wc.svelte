@@ -1,7 +1,7 @@
 <svelte:options customElement="twreporter-download-all-graphics" />
 
 <script lang="ts">
-  import { zipSync, type Zippable } from 'fflate'
+  import { Zip, ZipPassThrough } from 'fflate'
   import {
     collectGraphicsEvent,
     downloadBlob,
@@ -26,23 +26,33 @@
     }
 
     downloading = true
-    const files: Zippable = {}
+    const parts: Blob[] = []
+    const zip = new Zip((error, bytes) => {
+      if (error) throw error
+      parts.push(new Blob([bytes]))
+    })
     let exported = 0
     try {
       for (const [index, { title, capture }] of graphics.entries()) {
+        let png: ArrayBuffer
         try {
-          const png = await capture()
-          const name =
-            title
-              .replace(/[\\/:*?"<>|\p{Cc}]/gu, ' ')
-              .trim()
-              .slice(0, 80) || '圖表'
-          files[`${String(index + 1).padStart(2, '0')}-${name}.png`] =
-            new Uint8Array(await png.arrayBuffer())
-          exported += 1
+          const image = await capture()
+          png = await image.arrayBuffer()
         } catch (cause) {
           console.error('Unable to export graphic', title, cause)
+          continue
         }
+        const name =
+          title
+            .replace(/[\\/:*?"<>|\p{Cc}]/gu, ' ')
+            .trim()
+            .slice(0, 80) || '圖表'
+        const entry = new ZipPassThrough(
+          `${String(index + 1).padStart(2, '0')}-${name}.png`,
+        )
+        zip.add(entry)
+        entry.push(new Uint8Array(png), true)
+        exported += 1
       }
 
       if (!exported) {
@@ -50,10 +60,10 @@
         return
       }
 
-      const zip = zipSync(files, { level: 0 })
+      zip.end()
       downloadBlob(
         document,
-        new Blob([zip], { type: 'application/zip' }),
+        new Blob(parts, { type: 'application/zip' }),
         '報導者圖表.zip',
       )
       if (exported < graphics.length) {

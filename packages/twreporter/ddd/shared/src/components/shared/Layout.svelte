@@ -32,17 +32,24 @@
     hideInEditor?: boolean
     queryClient?: QueryClient
   } = $props()
-</script>
 
-<svelte:head>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin="anonymous"
-  />
-  <link rel="stylesheet" href={fontStylesheetUrl} crossorigin="anonymous" />
-</svelte:head>
+  // Share the font links across bundles before child charts measure text.
+  if (typeof document !== 'undefined') {
+    for (const [rel, href, crossOrigin] of [
+      ['preconnect', 'https://fonts.googleapis.com', ''],
+      ['preconnect', 'https://fonts.gstatic.com', 'anonymous'],
+      ['stylesheet', fontStylesheetUrl, 'anonymous'],
+    ]) {
+      if (document.head.querySelector(`link[rel="${rel}"][href="${href}"]`))
+        continue
+      const link = document.createElement('link')
+      link.rel = rel
+      link.href = href
+      if (crossOrigin) link.crossOrigin = crossOrigin
+      document.head.append(link)
+    }
+  }
+</script>
 
 <link
   rel="stylesheet"

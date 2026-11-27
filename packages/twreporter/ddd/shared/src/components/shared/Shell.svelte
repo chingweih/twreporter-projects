@@ -1,6 +1,6 @@
 <script lang="ts">
   import Frame from './Frame.svelte'
-  import { domToBlob } from 'modern-screenshot'
+  import { domToBlob, domToCanvas } from 'modern-screenshot'
   import type { Snippet } from 'svelte'
   import { on } from 'svelte/events'
   import {
@@ -11,6 +11,7 @@
   import EditableText from './EditableText.svelte'
 
   const ratioWidth = 700
+  const bulkCanvasLimit = 2048
   let container: HTMLDivElement | undefined = $state()
   let availableWidth = $state(ratioWidth)
   let downloading = $state(false)
@@ -74,15 +75,31 @@
     return () => observer.disconnect()
   }
 
-  async function capturePng(target: HTMLDivElement) {
+  async function capturePng(target: HTMLDivElement, mode: 'single' | 'bulk') {
     await target.ownerDocument.fonts.ready
-    return domToBlob(target, {
-      type: 'image/png',
+    const options = {
       scale: 3,
       width: fixedRatio ? ratioWidth : undefined,
       height: fixedRatio ? target.offsetHeight : undefined,
       style: fixedRatio ? { transform: 'none' } : undefined,
+    }
+    if (mode === 'single') return domToBlob(target, options)
+
+    const canvas = await domToCanvas(target, {
+      ...options,
+      maximumCanvasSize: bulkCanvasLimit,
     })
+    try {
+      return await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((png) => {
+          if (png) resolve(png)
+          else reject(new Error('Canvas could not be encoded as PNG'))
+        }, 'image/png')
+      })
+    } finally {
+      canvas.width = 1
+      canvas.height = 1
+    }
   }
 
   function offerExport(target: HTMLDivElement) {
@@ -93,7 +110,7 @@
           if (!target.isConnected || loading || error || empty) {
             throw new Error('Graphic is unavailable')
           }
-          return capturePng(target)
+          return capturePng(target, 'bulk')
         },
       })
     })
@@ -105,7 +122,7 @@
     downloading = true
     downloadError = false
     try {
-      const png = await capturePng(target)
+      const png = await capturePng(target, 'single')
       downloadBlob(target.ownerDocument, png, `${title || '圖表'}／報導者.png`)
     } catch (cause) {
       console.error('Unable to export the graphic', cause)
