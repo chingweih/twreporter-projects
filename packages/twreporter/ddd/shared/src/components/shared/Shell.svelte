@@ -106,6 +106,7 @@
     return on(target.ownerDocument, collectGraphicsEvent, ({ detail }) => {
       detail.push({
         title,
+        element: target,
         loading: loading && !error,
         capture: async () => {
           if (!target.isConnected || loading || error || empty) {
