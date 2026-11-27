@@ -705,7 +705,7 @@ export function defineElectionBatch({
         .meta({
           title: '共用註解與資料來源',
           description:
-            '可用 {{vIndex}}、{{vMonth}}、{{vDay}}、{{vHour}}、{{vMin}}、{{vProgress}} 帶入資料。',
+            '可用 {{vIndex}}、{{vMonth}}、{{vDay}}、{{vHour}}、{{vMin}}、{{vProgress}}、{{selfKMT}}、{{selfDPP}}、{{women}} 帶入資料。',
         }),
       ...graphicConfigs,
     })

@@ -12,6 +12,8 @@
     ElectionGraphicKey,
   } from './batch-config.ts'
   import { electionTabs } from './election-data.ts'
+  import { historicalElectionTabs } from './election-historical-data.ts'
+  import { resolvePartyColor } from './party-colors.ts'
 
   const {
     config,
@@ -25,7 +27,6 @@
     wide,
     containerMinHeight,
     autoHeight = false,
-    footnoteValues,
   }: Pick<ComponentProps, 'config' | 'ratio'> & {
     batch: ElectionBatch
     graphicKey: ElectionGraphicKey
@@ -36,7 +37,6 @@
     wide?: boolean
     containerMinHeight?: number
     autoHeight?: boolean
-    footnoteValues?: Readonly<Record<string, string>>
   } = $props()
 
   const graphic = untrack(
@@ -80,7 +80,46 @@
       }
     },
   }))
-  const noteValues = $derived({ ...countingValues.data, ...footnoteValues })
+  const footnoteTemplates = $derived(
+    [...(entry?.footnotes ?? []), ...(batchConfig?.sharedFootnote ?? [])].join(
+      '\n',
+    ),
+  )
+  const mayorNoteValues = createQuery(() => ({
+    ...historicalElectionTabs.mayorWinners.options,
+    enabled: /\{\{self(?:KMT|DPP)\}\}/.test(footnoteTemplates),
+    select: (rows) => {
+      const declaredParties = rows
+        .filter((row) => row.自行宣布當選.trim() === '*' && row.當選人.trim())
+        .map((row) => resolvePartyColor(row.政黨).label)
+      return {
+        selfKMT: String(
+          declaredParties.filter((party) => party === '中國國民黨').length,
+        ),
+        selfDPP: String(
+          declaredParties.filter((party) => party === '民主進步黨').length,
+        ),
+      }
+    },
+  }))
+  const councilNoteValues = createQuery(() => ({
+    ...electionTabs.councilors.options,
+    enabled: footnoteTemplates.includes('{{women}}'),
+    select: (rows) => ({
+      women: String(
+        rows.filter(
+          (row) =>
+            row.性別.trim() === '女' &&
+            row.婦女保障當選.trim() === '婦女保障當選',
+        ).length,
+      ),
+    }),
+  }))
+  const noteValues = $derived({
+    ...countingValues.data,
+    ...mayorNoteValues.data,
+    ...councilNoteValues.data,
+  })
 
   function resolveFootnotes(notes: string[]) {
     return notes

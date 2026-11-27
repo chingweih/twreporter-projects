@@ -49,20 +49,6 @@
     ...historicalElectionTabs.mayorWinners.options,
     select: indexMayorResults,
   }))
-  const footnoteValues = $derived.by(() => {
-    if (!overview.data) return
-    const declaredParties = [...overview.data.values()]
-      .filter((row) => row.自行宣布當選.trim() === '*' && row.當選人.trim())
-      .map((row) => resolvePartyColor(row.政黨).label)
-    return {
-      selfKMT: String(
-        declaredParties.filter((party) => party === '中國國民黨').length,
-      ),
-      selfDPP: String(
-        declaredParties.filter((party) => party === '民主進步黨').length,
-      ),
-    }
-  })
   const displayedParties = $derived(
     [...(overview.data ?? [])]
       .filter(([, result]) => result.當選人.trim())
@@ -182,7 +168,6 @@
     {config}
     {ratio}
     graphicKey="1-city-map"
-    {footnoteValues}
     autoHeight={mobile}
     // wide
     error={overview.error?.message}

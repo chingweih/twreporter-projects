@@ -4,7 +4,6 @@
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
   import { secondBatch } from '../../batches/second.ts'
-  import { electionTabs } from '../../election-data.ts'
   import { historicalElectionTabs } from '../../election-historical-data.ts'
   import ElectionGraphic from '../../ElectionGraphic.svelte'
 
@@ -60,21 +59,6 @@
     ...historicalElectionTabs.councilorGenderDistribution.options,
     enabled: kind === 'sex',
   }))
-  const reservedSeatWinners = createQuery(() => ({
-    ...electionTabs.councilors.options,
-    enabled: kind === 'sex',
-    select: (rows) =>
-      rows.filter(
-        (row) =>
-          row.性別.trim() === '女' &&
-          row.婦女保障當選.trim() === '婦女保障當選',
-      ).length,
-  }))
-  const footnoteValues = $derived(
-    reservedSeatWinners.data === undefined
-      ? undefined
-      : { women: String(reservedSeatWinners.data) },
-  )
   const history = $derived(
     kind === 'party' ? partyHistory : kind === 'age' ? ageHistory : sexHistory,
   )
@@ -129,7 +113,6 @@
   {config}
   {ratio}
   {graphicKey}
-  {footnoteValues}
   error={history.error?.message}
   loading={history.isPending}
   empty={!groups.length}
