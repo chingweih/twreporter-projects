@@ -328,17 +328,15 @@
     border-bottom: 1px solid var(--neutral-gray-300);
   }
   .candidate-result {
+    min-width: 0;
     display: grid;
     grid-template-columns: max-content 0.5em max-content;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     white-space: nowrap;
   }
   .runner-up {
     opacity: 0.25;
-  }
-  .candidate-result {
-    min-width: 0;
   }
   .candidate-identity {
     display: flex;

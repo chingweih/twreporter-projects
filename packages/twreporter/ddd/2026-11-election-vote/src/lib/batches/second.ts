@@ -143,10 +143,6 @@ export const secondBatch = defineElectionBatch({
       showTooltip: true,
       hoverFocusYAxis: false,
       hoverFocusXAxis: false,
-      footnotes: [
-        '虛線為線性迴歸趨勢線；催票率差異以 2026 減 2022 計算，單位為百分點；相關性不等同個別選民的票流向。',
-        '每點代表一個村里，催票率＝得票數 ÷ 選舉人數；綠營以 2022 陳時中與 2026 沈伯洋比較，藍營以兩屆蔣萬安比較。',
-      ],
     },
   },
 })
