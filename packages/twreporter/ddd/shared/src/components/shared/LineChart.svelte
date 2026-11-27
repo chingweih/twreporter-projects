@@ -704,6 +704,7 @@
     flex-shrink: 0;
     writing-mode: vertical-rl;
     text-orientation: upright;
+    white-space: nowrap;
     letter-spacing: 0.05em;
   }
   .plot {

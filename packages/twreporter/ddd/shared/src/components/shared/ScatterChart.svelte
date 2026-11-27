@@ -328,6 +328,7 @@
     gap: 0.075em;
     writing-mode: vertical-rl;
     text-orientation: upright;
+    white-space: nowrap;
     flex-shrink: 0;
     letter-spacing: 0.075em;
   }
