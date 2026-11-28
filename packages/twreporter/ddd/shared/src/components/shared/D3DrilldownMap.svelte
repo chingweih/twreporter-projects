@@ -31,6 +31,7 @@
     | 'tooltip'
     | 'tooltipTitle'
     | 'containTooltip'
+    | 'showTooltip'
   > & {
     drilldown: MapDrilldown<GeoPermissibleObjects>
     parentKey?: string

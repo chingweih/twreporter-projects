@@ -15,9 +15,11 @@
     frame,
     drilldown,
     results,
+    showTooltip = true,
     showBackButton = false,
   }: {
     geometry: CityGeometry
+    showTooltip?: boolean
     counterpart?: CityGeometry
     frame: TaiwanDistrictCollection
     drilldown: MapDrilldown<TaiwanDistrictCollection['features'][number]>
@@ -109,6 +111,7 @@
       }),
     )}
     containTooltip={counterpart !== undefined}
+    {showTooltip}
     tooltipTitle={areaName}
     label={focus ? `${focus.properties.name}村里地圖` : '行政區地圖'}
     style="background: var(--neutral-gray-100); position: absolute; inset: 0; width: 100%; height: 100%;
@@ -122,13 +125,18 @@
         <div>此年度無對應{focus ? '村里' : '行政區'}</div>
       {:else if result?.leader}
         {#if result.majorPartyCandidates.length}
-          <TooltipRows
-            rows={result.majorPartyCandidates.map((candidate) => ({
-              label: candidate.姓名,
-              color: `var(${resolvePartyColor(candidate.政黨.trim()).colorVar})`,
-              value: `${formatNumber(candidate.得票數)}票（${candidate['得票率(%)'].text}%）`,
-            }))}
-          />
+          <div
+            class="map-tooltip"
+            class:comparison-tooltip={counterpart !== undefined}
+          >
+            <TooltipRows
+              rows={result.majorPartyCandidates.map((candidate) => ({
+                label: candidate.姓名,
+                color: `var(${resolvePartyColor(candidate.政黨.trim()).colorVar})`,
+                value: `${formatNumber(candidate.得票數)}票\n（${candidate['得票率(%)'].text}%）`,
+              }))}
+            />
+          </div>
         {/if}
       {:else if results.isError}
         <div>無法載入開票資料。</div>
@@ -178,6 +186,25 @@
     .map-frame {
       flex: none;
       width: 100%;
+    }
+    .comparison-tooltip :global(.tooltip-rows) {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 2px;
+      font-size: 12px;
+    }
+    .comparison-tooltip :global(.legend) {
+      padding-inline-end: 0;
+      white-space: nowrap;
+    }
+    .comparison-tooltip :global(.value) {
+      margin: 0 0 6px 16px;
+      padding: 0;
+      border: 0;
+      text-align: left;
+      white-space: pre-line;
+    }
+    .comparison-tooltip :global(.value:last-child) {
+      margin-bottom: 0;
     }
   }
   @container (width < 480px) {

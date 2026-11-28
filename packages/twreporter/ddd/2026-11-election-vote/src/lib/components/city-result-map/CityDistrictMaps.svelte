@@ -30,7 +30,43 @@
     ),
   )
   const focus = $derived(drilldown.focus)
+  let containerWidth = $state(0)
+  const showMapTooltip = $derived(!previous || containerWidth > 580)
   const majorParties = ['中國國民黨', '民主進步黨'] as const
+  let summaryTab = $state<'district' | 'village'>('district')
+  let summaryDistrict = $state<string>()
+  let selectedVillage = $state<string>()
+  let lastSummaryTarget = $state.raw<typeof drilldown.tooltipTarget>()
+  $effect(() => {
+    const district = drilldown.selectedKey
+    if (summaryDistrict !== district) {
+      summaryDistrict = district
+      selectedVillage = undefined
+      summaryTab = 'district'
+    }
+    const target = drilldown.tooltipTarget
+    if (target === lastSummaryTarget) return
+    lastSummaryTarget = target
+    if (!previous || containerWidth > 580 || !focus || target?.focus !== focus)
+      return
+    if (
+      target &&
+      [current, previous].some((geometry) =>
+        geometry.villages.features.some(
+          ({ properties }) => properties.villageCode === target.key,
+        ),
+      )
+    ) {
+      selectedVillage = target.key
+      summaryTab = 'village'
+    }
+  })
+  const villageName = $derived(
+    [current, ...(previous ? [previous] : [])]
+      .flatMap((geometry) => geometry.villages.features)
+      .find(({ properties }) => properties.villageCode === selectedVillage)
+      ?.properties.name,
+  )
   const cityCode = $derived(
     current.districts.features[0]?.properties.countyCode,
   )
@@ -195,9 +231,20 @@
 {/snippet}
 
 {#snippet panelHeading(year: number, query: typeof results)}
+  {@const mobileTabs = Boolean(
+    focus && containerWidth > 0 && containerWidth <= 580,
+  )}
+  {@const villageSelected =
+    mobileTabs && summaryTab === 'village' && selectedVillage !== undefined}
+  {@const tableQuery =
+    focus && !villageSelected
+      ? year === 2022
+        ? historicalTownships
+        : townshipQuery
+      : query}
   {@const districtResult = focus
-    ? (year === 2022 ? historicalTownships : townshipQuery).data?.get(
-        focus.properties.districtCode,
+    ? tableQuery.data?.get(
+        villageSelected ? selectedVillage! : focus.properties.districtCode,
       )
     : undefined}
   <header class="panel-heading">
@@ -207,14 +254,44 @@
     <table
       class="party-summary"
       class:district-summary={Boolean(focus)}
-      aria-label={`${year} ${focus ? `${focus.properties.name}各黨得票` : '各黨票數最高行政區數'}`}
+      aria-label={`${year} ${focus ? `${villageSelected ? (villageName ?? selectedVillage) : focus.properties.name}各黨得票` : '各黨票數最高行政區數'}`}
     >
       <thead>
-        <tr
-          ><th scope="col"><span class="sr-only">政黨</span></th><th scope="col"
-            >{focus?.properties.name ?? '票數最高'}</th
-          >{#if !focus && year === 2026}<th scope="col">翻轉</th>{/if}</tr
-        >
+        {#if mobileTabs}
+          <tr
+            ><th colspan="2">
+              <div
+                class="summary-tabs"
+                role="tablist"
+                aria-label={`${year} 統計範圍`}
+              >
+                <button
+                  class="summary-tab"
+                  type="button"
+                  role="tab"
+                  aria-selected={!villageSelected}
+                  onclick={() => (summaryTab = 'district')}
+                  >{focus?.properties.name}</button
+                >
+                <button
+                  class="summary-tab"
+                  type="button"
+                  role="tab"
+                  aria-selected={Boolean(villageSelected)}
+                  disabled={!selectedVillage}
+                  onclick={() => (summaryTab = 'village')}
+                  >{villageName ?? '點選村里'}</button
+                >
+              </div>
+            </th></tr
+          >
+        {:else}
+          <tr
+            ><th scope="col"><span class="sr-only">政黨</span></th><th
+              scope="col">{focus?.properties.name ?? '票數最高'}</th
+            >{#if !focus && year === 2026}<th scope="col">翻轉</th>{/if}</tr
+          >
+        {/if}
       </thead>
       <tbody>
         {#if focus}
@@ -254,11 +331,11 @@
         {/if}
       </tbody>
     </table>
-    {@render status(query)}
+    {@render status(tableQuery)}
   </div>
 {/snippet}
 
-<div class="city-maps">
+<div class="city-maps" bind:clientWidth={containerWidth}>
   {#if !previous || results.data || historicalQuery.data}
     <div class="legend-container" class:ranked={!previous}>
       {#if !previous && focus}
@@ -309,6 +386,7 @@
           frame={current.districts}
           {drilldown}
           results={historicalQuery}
+          showTooltip={showMapTooltip}
           showBackButton
         />
       </section>
@@ -323,6 +401,7 @@
         frame={current.districts}
         {drilldown}
         {results}
+        showTooltip={showMapTooltip}
         showBackButton={!previous}
       />
       {#if !previous}
@@ -486,6 +565,32 @@
   }
   .party-summary tr {
     border-bottom: 1px solid var(--neutral-gray-300);
+  }
+  .summary-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0px;
+  }
+  .summary-tab {
+    display: block;
+    min-width: 0;
+    padding: 0.5px 0px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--neutral-gray-600);
+    font-size: 12px;
+    white-space: normal;
+  }
+  .summary-tab[aria-selected='true'] {
+    border-bottom-color: var(--neutral-gray-800);
+    color: var(--neutral-gray-800);
+    font-weight: 600;
+  }
+  .summary-tab:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
   .sr-only {
     position: absolute;

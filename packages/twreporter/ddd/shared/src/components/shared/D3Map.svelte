@@ -30,6 +30,7 @@
     tooltipId,
     tooltipTarget = $bindable(),
     containTooltip = false,
+    showTooltip = true,
     onbackgroundclick,
   }: {
     geometry: GeoPermissibleObjects
@@ -46,6 +47,7 @@
     tooltipId?: string
     tooltipTarget?: MapTooltipTarget
     containTooltip?: boolean
+    showTooltip?: boolean
     onbackgroundclick?: () => void
   } = $props()
 
@@ -224,7 +226,7 @@
   </g>
 </svg>
 
-{#if tooltip && tooltipKey && (selectedAnchor || tooltipAnchor) && !zooming}
+{#if showTooltip && tooltip && tooltipKey && (selectedAnchor || tooltipAnchor) && !zooming}
   <TooltipOverlay
     id={tooltipId}
     title={tooltipTitle?.(tooltipKey)}
