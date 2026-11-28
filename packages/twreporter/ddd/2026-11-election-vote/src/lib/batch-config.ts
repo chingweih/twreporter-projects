@@ -32,6 +32,7 @@ type GraphicDefaults = Pick<
   'title' | 'footnotes' | 'ratio'
 > & {
   containerHeight?: number
+  mobileContainerHeight?: number
   containerAspectRatio?: number
   legendAlign?: 'left' | 'center' | 'right'
   mode?: BarChartMode
@@ -82,6 +83,7 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
       GraphicDefaults,
       | 'footnotes'
       | 'containerHeight'
+      | 'mobileContainerHeight'
       | 'containerAspectRatio'
       | 'legendAlign'
       | 'ratio'
@@ -146,6 +148,12 @@ function graphicConfig(defaults: GraphicDefaults) {
       containerHeight: z.number().positive().optional().meta({
         title: '整張圖表高度（px）',
         description: '包含標題、圖例、圖表和頁尾；優先於長寬比。留空則自動。',
+      }),
+      mobileContainerHeight: z.number().positive().optional().meta({
+        title: '手機整張圖表高度（px）',
+        viewport: 'mobile',
+        description:
+          '容器寬度不超過 580px 時使用，包含標題、圖例、圖表與頁尾；優先於長寬比，留空沿用原設定。',
       }),
       containerAspectRatio: z.number().positive().optional().meta({
         title: '整張圖表長寬比（寬 ÷ 高）',
@@ -486,6 +494,7 @@ function graphicConfig(defaults: GraphicDefaults) {
       'ui:order': [
         'title',
         'containerHeight',
+        'mobileContainerHeight',
         'containerAspectRatio',
         'ratio',
         'legendAlign',
@@ -602,6 +611,7 @@ export function defineElectionBatch({
         title,
         footnotes = [],
         containerHeight,
+        mobileContainerHeight,
         containerAspectRatio,
         ratio,
         legendAlign = 'center',
@@ -657,6 +667,9 @@ export function defineElectionBatch({
         legendAlign,
         ratio,
         ...(containerHeight !== undefined ? { containerHeight } : {}),
+        ...(mobileContainerHeight !== undefined
+          ? { mobileContainerHeight }
+          : {}),
         ...(containerAspectRatio !== undefined ? { containerAspectRatio } : {}),
         ...(unitColumns !== undefined || unitGap !== undefined
           ? {

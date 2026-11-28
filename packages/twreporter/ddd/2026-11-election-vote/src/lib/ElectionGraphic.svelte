@@ -48,8 +48,19 @@
   const batchConfig = $derived(graphic.config)
   const entry = $derived(batchConfig?.[graphicKey])
   let width = $state(0)
+  const mobileHeight = $derived(
+    width > 0 && width <= 580 ? entry?.mobileContainerHeight : undefined,
+  )
   const responsiveEntry = $derived.by(() => {
     if (!entry) return
+    if (mobileHeight !== undefined) {
+      return {
+        ...entry,
+        ratio: undefined,
+        containerHeight: mobileHeight,
+        containerAspectRatio: undefined,
+      }
+    }
 
     const effectiveRatio = resolveShellRatio(ratio, entry.ratio)
     if (effectiveRatio !== entry.ratio)
@@ -175,7 +186,9 @@
       {wide}
       {containerMinHeight}
       ratio={responsiveEntry.ratio}
-      containerHeight={autoHeight ? undefined : entry.containerHeight}
+      containerHeight={autoHeight && mobileHeight === undefined
+        ? undefined
+        : responsiveEntry.containerHeight}
       containerAspectRatio={autoHeight
         ? undefined
         : responsiveEntry.containerAspectRatio}
