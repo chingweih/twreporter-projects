@@ -65,6 +65,12 @@
   } = $props()
 
   const fixedRatio = $derived(ratio !== undefined)
+  const titleParts = $derived(
+    title
+      .split(/\r?\n/)
+      .map((part) => part.trim())
+      .filter(Boolean),
+  )
 
   function observeWidth(element: HTMLDivElement) {
     availableWidth = element.clientWidth
@@ -162,7 +168,15 @@
             <h1 class="visually-hidden">{title}</h1>
             {@render heading()}
           {:else}
-            <h1><EditableText bind:value={title} {editable} /></h1>
+            <h1>
+              {#if editable}
+                <EditableText bind:value={title} {editable} />
+              {:else}
+                {#each titleParts as part, index}
+                  {#if index > 0}{' '}{/if}<span>{part}</span>
+                {/each}
+              {/if}
+            </h1>
           {/if}
           {#if subtitle !== undefined && (editable || subtitle)}
             <p class="subtitle">
@@ -310,7 +324,12 @@
     line-height: 1.5;
     letter-spacing: 0.01em;
     overflow-wrap: anywhere;
-    white-space: pre-wrap;
+  }
+
+  .header h1 > span {
+    display: inline-block;
+    max-width: 100%;
+    white-space: normal;
   }
 
   .subtitle {
