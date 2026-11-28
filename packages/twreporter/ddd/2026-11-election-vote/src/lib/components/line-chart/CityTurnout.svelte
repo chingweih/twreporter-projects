@@ -63,7 +63,8 @@
         formatX={(value) => rows[value]?.label ?? ''}
         formatValue={(value) => `${value}%`}
         tooltipLabel={taipei
-          ? (_series, x) => taipeiHistory.data?.[x]?.該屆當選人 || undefined
+          ? (_series, x) =>
+              taipeiHistory.data?.[x]?.該屆當選人.trim() || undefined
           : undefined}
       />
     </div>

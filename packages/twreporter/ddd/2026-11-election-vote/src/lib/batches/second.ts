@@ -27,6 +27,8 @@ export const secondBatch = defineElectionBatch({
       containerAspectRatio: 0.8,
       hoverFocusYAxis: false,
       showTooltip: true,
+      showTooltipValue: false,
+      tooltipLabelTemplate: '當選者｜{{name}}',
       gridHover: true,
       showArea: true,
       showValue: true,

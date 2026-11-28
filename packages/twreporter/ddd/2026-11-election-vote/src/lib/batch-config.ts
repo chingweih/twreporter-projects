@@ -10,6 +10,8 @@ import {
   barChartAxisFontSizeSchema,
   type BarChartMode,
   createShellConfigSchema,
+  lineChartShowTooltipValueSchema,
+  lineChartTooltipLabelTemplateSchema,
 } from '@lab-reporter/ddd-shared/components/shared/types.ts'
 import { z } from 'zod'
 
@@ -66,6 +68,8 @@ type GraphicDefaults = Pick<
   yMax?: number
   showArea?: boolean
   showTooltip?: boolean
+  showTooltipValue?: boolean
+  tooltipLabelTemplate?: string
   showValue?: boolean
   showYAxis?: boolean
   showXGrid?: boolean
@@ -81,6 +85,8 @@ type GraphicDefinition = Pick<GraphicDefaults, 'title'> &
       | 'containerAspectRatio'
       | 'legendAlign'
       | 'ratio'
+      | 'showTooltipValue'
+      | 'tooltipLabelTemplate'
     >
   > & {
     name?: string
@@ -244,6 +250,15 @@ function graphicConfig(defaults: GraphicDefaults) {
               .boolean()
               .default(defaults.showTooltip ?? true)
               .meta({ title: '顯示 Tooltip' }),
+            showTooltipValue: lineChartShowTooltipValueSchema.default(
+              defaults.showTooltipValue ?? true,
+            ),
+            tooltipLabelTemplate:
+              defaults.tooltipLabelTemplate === undefined
+                ? lineChartTooltipLabelTemplateSchema.optional()
+                : lineChartTooltipLabelTemplateSchema.default(
+                    defaults.tooltipLabelTemplate,
+                  ),
             showValue: z
               .boolean()
               .default(defaults.showValue ?? false)
@@ -522,6 +537,8 @@ function graphicConfig(defaults: GraphicDefaults) {
               'mobileYTickCount',
               'showArea',
               'showTooltip',
+              'showTooltipValue',
+              'tooltipLabelTemplate',
               'showValue',
               'showXAxis',
               'showYAxis',
@@ -624,6 +641,8 @@ export function defineElectionBatch({
         yMax,
         showArea,
         showTooltip = true,
+        showTooltipValue = true,
+        tooltipLabelTemplate,
         showValue = false,
         showYAxis = true,
         showXGrid,
@@ -690,6 +709,8 @@ export function defineElectionBatch({
               showArea: showArea ?? false,
               yLabelHorizontalTexts,
               showTooltip,
+              showTooltipValue,
+              tooltipLabelTemplate,
               showValue,
               showXAxis,
               showYAxis,

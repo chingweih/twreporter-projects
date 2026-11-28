@@ -14,6 +14,8 @@ export function lineChartOptions(entry: Entry) {
     hoverFocusYAxis: entry.hoverFocusYAxis,
     showArea: entry.showArea,
     showTooltip: entry.showTooltip,
+    showTooltipValue: entry.showTooltipValue,
+    tooltipLabelTemplate: entry.tooltipLabelTemplate,
     showValue: entry.showValue,
     showXAxis: entry.showXAxis,
     showYAxis: entry.showYAxis,

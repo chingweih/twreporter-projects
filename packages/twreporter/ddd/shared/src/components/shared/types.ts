@@ -52,6 +52,19 @@ export const colorSchema = z
 
 export type Color = z.infer<typeof colorSchema>
 
+export const lineChartTooltipLabelTemplateSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .meta({
+    title: 'Tooltip 標籤格式',
+    description: '輸入 {{name}} 帶入原本的標籤。',
+  })
+
+export const lineChartShowTooltipValueSchema = z
+  .boolean()
+  .meta({ title: '顯示 Tooltip 數值' })
+
 export const barChartModeSchema = z.enum([
   'grouped',
   'stacked',

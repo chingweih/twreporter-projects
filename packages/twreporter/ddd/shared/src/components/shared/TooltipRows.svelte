@@ -1,34 +1,44 @@
 <script lang="ts">
   const {
     rows,
-  }: { rows: readonly { label: string; value: string; color?: string }[] } =
+  }: { rows: readonly { label: string; value?: string; color?: string }[] } =
     $props()
+  const hasValues = $derived(rows.some((row) => row.value !== undefined))
 </script>
 
-<div class="tooltip-rows">
+<div class="tooltip-rows" class:with-values={hasValues}>
   {#each rows as row}
     <div class="legend">
       <span class="swatch" style:background-color={row.color} aria-hidden="true"
       ></span>
       <span>{row.label}</span>
     </div>
-    <span class="value">{row.value}</span>
+    {#if row.value !== undefined}
+      <span class="value">{row.value}</span>
+    {:else if hasValues}
+      <span aria-hidden="true"></span>
+    {/if}
   {/each}
 </div>
 
 <style>
   .tooltip-rows {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     gap: 2px 4px;
+  }
+  .with-values {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
   .legend {
     display: flex;
     align-items: center;
     min-width: 0;
     gap: 4px;
-    padding: 0 8px 0 0;
+  }
+  .with-values .legend {
+    padding-inline-end: 8px;
   }
   .swatch {
     flex-shrink: 0;

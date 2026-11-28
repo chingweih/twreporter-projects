@@ -1,5 +1,6 @@
 <script lang="ts">
   const gradientId = $props.id()
+  import { textReplace } from '../../utils/text-replace.ts'
   import { verticalLabelParts } from '../../utils/vertical-label.ts'
   import { scaleLinear } from 'd3-scale'
   import Legend from './Legend.svelte'
@@ -22,6 +23,7 @@
     lineSegmentStyle,
     showArea = false,
     showTooltip = true,
+    showTooltipValue = true,
     showValue = false,
     showXAxis = true,
     hoverFocusXAxis = true,
@@ -50,6 +52,7 @@
     valueTitle,
     valueColor,
     tooltipLabel,
+    tooltipLabelTemplate,
   }: {
     label: string
     data: readonly LinePoint[]
@@ -62,6 +65,7 @@
     ) => { color?: string; dasharray?: string } | undefined
     showArea?: boolean
     showTooltip?: boolean
+    showTooltipValue?: boolean
     showValue?: boolean | ((series: string, x: number) => boolean)
     showXAxis?: boolean
     hoverFocusXAxis?: boolean
@@ -90,6 +94,7 @@
     valueTitle?: (series: string, x: number) => string | undefined
     valueColor?: (series: string, x: number) => string | undefined
     tooltipLabel?: (series: string, x: number) => string | undefined
+    tooltipLabelTemplate?: string
   } = $props()
 
   let width = $state(0)
@@ -626,16 +631,23 @@
   </div>
   {#if showXAxis && xLabel}<div class="axis-label bottom">{xLabel}</div>{/if}
 </div>
-{#if showTooltip && hovered}<TooltipOverlay
-    x={hovered.x}
-    y={hovered.y}
-    title={formatX(hovered.pointX)}
+{#if showTooltip && hovered}
+  {@const pointX = hovered.pointX}
+  <TooltipOverlay x={hovered.x} y={hovered.y} title={formatX(pointX)}
     ><TooltipRows
-      rows={(hovered.rows ?? [hovered]).map((row) => ({
-        label: tooltipLabel?.(row.series, hovered!.pointX) ?? row.series,
-        value: labelFor(row),
-        color: items.find((item) => item.label === row.series)?.color,
-      }))}
+      rows={(hovered.rows ?? [hovered]).map((row) => {
+        const name = tooltipLabel
+          ? tooltipLabel(row.series, pointX)
+          : row.series
+        return {
+          label:
+            tooltipLabelTemplate && name
+              ? textReplace(tooltipLabelTemplate, { name })
+              : (name ?? row.series),
+          value: showTooltipValue ? labelFor(row) : undefined,
+          color: items.find((item) => item.label === row.series)?.color,
+        }
+      })}
     /></TooltipOverlay
   >{/if}
 
