@@ -240,27 +240,38 @@
   const mobileTickCount = $derived(
     width > 0 && width <= 580 ? mobileXTickCount : undefined,
   )
+  const mobileTickIndices = $derived.by(() => {
+    if (mobileTickCount === undefined) return undefined
+    const count = Math.min(xValues.length, Math.max(2, mobileTickCount))
+    return new Set(
+      Array.from({ length: count }, (_, index) =>
+        Math.round((index * (xValues.length - 1)) / Math.max(1, count - 1)),
+      ),
+    )
+  })
   const xTicks = $derived(
-    showAllXTicks && mobileTickCount === undefined
-      ? xValues
-      : xValues.filter(
-          (_, index, ticks) =>
-            index %
-              Math.max(
-                1,
-                Math.ceil(
-                  ticks.length /
-                    Math.max(
-                      1,
-                      Math.min(
-                        mobileTickCount ?? xTickCount,
-                        Math.floor((width - left - right) / 70),
+    mobileTickIndices
+      ? xValues.filter((_, index) => mobileTickIndices.has(index))
+      : showAllXTicks
+        ? xValues
+        : xValues.filter(
+            (_, index, ticks) =>
+              index %
+                Math.max(
+                  1,
+                  Math.ceil(
+                    ticks.length /
+                      Math.max(
+                        1,
+                        Math.min(
+                          xTickCount,
+                          Math.floor((width - left - right) / 70),
+                        ),
                       ),
-                    ),
-                ),
-              ) ===
-              0 || index === ticks.length - 1,
-        ),
+                  ),
+                ) ===
+                0 || index === ticks.length - 1,
+          ),
   )
   const focused = $derived(
     active ?? (hovered?.rows ? undefined : (hovered?.series ?? hoveredLine)),

@@ -310,7 +310,7 @@ function graphicConfig(defaults: GraphicDefaults) {
                 title: '手機 X 軸刻度數量',
                 viewport: 'mobile',
                 description:
-                  '圖表寬度不超過 580px 時使用，包含啟用全部刻度的圖表；實際數量會依可用空間調整。',
+                  '圖表寬度不超過 580px 時依指定數量平均取樣，保留首尾；不超過資料點數量，最少顯示首尾兩個刻度。',
               }),
             mobileYTickCount: z.number().int().min(2).max(30).optional().meta({
               title: '手機 Y 軸刻度數量',
