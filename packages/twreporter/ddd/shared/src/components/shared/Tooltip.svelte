@@ -16,6 +16,7 @@
     onvisibilitychange?: (visible: boolean) => void
   } = $props()
   let visible = $state(false)
+  let anchor = $state<HTMLDivElement>()
   let x = $state(0)
   let y = $state(0)
   let touchStart: { x: number; y: number } | undefined
@@ -29,6 +30,7 @@
   })
 
   onMount(() => {
+    const root = anchor?.getRootNode()
     const dismiss = () => {
       visible = false
       if (touchStart) touchMoved = true
@@ -38,11 +40,16 @@
     }
     // Capture also catches scrolling inside a chart's horizontal viewport.
     window.addEventListener('scroll', dismiss, true)
+    if (root instanceof ShadowRoot)
+      root.addEventListener('scroll', dismiss, true)
     window.addEventListener('resize', dismiss)
     window.addEventListener('pointerdown', dismiss, true)
     window.addEventListener('keydown', keyboardInteraction, true)
     return () => {
       window.removeEventListener('scroll', dismiss, true)
+      if (root instanceof ShadowRoot) {
+        root.removeEventListener('scroll', dismiss, true)
+      }
       window.removeEventListener('resize', dismiss)
       window.removeEventListener('pointerdown', dismiss, true)
       window.removeEventListener('keydown', keyboardInteraction, true)
@@ -53,6 +60,7 @@
 <div
   role="group"
   class="anchor"
+  bind:this={anchor}
   onpointerenter={(event) => {
     if (event.pointerType === 'touch') return
     touchInteraction = false

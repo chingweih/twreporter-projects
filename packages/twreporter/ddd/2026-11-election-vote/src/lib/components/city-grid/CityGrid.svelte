@@ -1,6 +1,8 @@
 <script lang="ts">
   import Legend from '@lab-reporter/ddd-shared/components/shared/Legend.svelte'
-  import TooltipOverlay from '@lab-reporter/ddd-shared/components/shared/TooltipOverlay.svelte'
+  import TooltipOverlay, {
+    type TooltipPosition,
+  } from '@lab-reporter/ddd-shared/components/shared/TooltipOverlay.svelte'
   import TooltipRows from '@lab-reporter/ddd-shared/components/shared/TooltipRows.svelte'
   import type { ComponentProps } from '@lab-reporter/ddd-shared/components/types.ts'
   import { createQuery } from '@tanstack/svelte-query'
@@ -68,11 +70,12 @@
   let hovered = $state.raw<Cell>()
   let touchInput = $state(false)
   let activeParty = $state<string>()
-  let pointer = $state({ x: 0, y: 0 })
+  let chart = $state<HTMLDivElement>()
+  let tooltipPosition = $state<TooltipPosition>()
   const cornerScale = 0.35
-  function focusCell(cell: Cell, x: number, y: number) {
+  function focusCell(cell: Cell, position: TooltipPosition) {
     hovered = cell
-    pointer = { x, y }
+    tooltipPosition = position
   }
   function hoverCell(
     parts: Cell[],
@@ -102,7 +105,7 @@
               ? city
               : county
     }
-    focusCell(target, event.clientX, event.clientY)
+    focusCell(target, { x: event.clientX, y: event.clientY })
   }
 </script>
 
@@ -119,7 +122,12 @@
     {@const sized = Boolean(
       entry.ratio || entry.containerHeight || entry.containerAspectRatio,
     )}
-    <div class="chart" class:sized class:backdrop={entry.chartBackdrop}>
+    <div
+      class="chart"
+      class:sized
+      class:backdrop={entry.chartBackdrop}
+      bind:this={chart}
+    >
       <Legend
         {items}
         active={activeParty ??
@@ -199,15 +207,22 @@
                   aria-label={`${part.area} ${part.year} ${part.name} ${part.party}`}
                   onpointerup={(event) => {
                     if (event.pointerType === 'touch') {
-                      focusCell(part, event.clientX, event.clientY)
+                      focusCell(part, {
+                        anchor:
+                          event.currentTarget.parentElement ??
+                          event.currentTarget,
+                      })
                     }
                   }}
                   onfocus={(event) => {
                     if (event.currentTarget.matches(':focus-visible')) {
                       touchInput = false
                     }
-                    const bounds = event.currentTarget.getBoundingClientRect()
-                    focusCell(part, bounds.x + bounds.width / 2, bounds.bottom)
+                    focusCell(part, {
+                      anchor:
+                        event.currentTarget.parentElement ??
+                        event.currentTarget,
+                    })
                   }}
                   onblur={() => (hovered = undefined)}
                   onkeydown={(event) => {
@@ -246,8 +261,8 @@
     </div>
     {#if entry.showTooltip && hovered}<TooltipOverlay
         title={`${hovered.area} · ${hovered.year}`}
-        x={pointer.x}
-        y={pointer.y}
+        {...tooltipPosition}
+        boundary={chart}
       >
         <TooltipRows
           rows={[

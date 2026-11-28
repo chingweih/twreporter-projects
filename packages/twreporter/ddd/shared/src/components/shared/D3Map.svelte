@@ -62,6 +62,9 @@
       ? svg.querySelector(`[data-map-tooltip="${CSS.escape(tooltipKey)}"]`)
       : undefined,
   )
+  const selectedAnchor = $derived(
+    tooltipTarget?.pointer ? undefined : (areaElement ?? undefined),
+  )
   const areaAnchor = $derived.by(() => {
     if (!tooltipKey || !svg || zooming) return
     // Keyboard and touch anchors follow the rendered path after zoom or scroll.
@@ -73,6 +76,7 @@
   })
   const tooltipAnchor = $derived.by(() => {
     if (!tooltipKey || zooming) return
+    if (selectedAnchor) return
     const pointer = tooltipTarget?.pointer
     if (isTooltipSource && pointer) return pointer
     if (pointer?.coordinates) {
@@ -83,7 +87,7 @@
     return areaAnchor
   })
   const tooltipBounds = $derived.by(() => {
-    if (!containTooltip || !tooltipKey || zooming) return
+    if (!containTooltip || !tooltipKey || zooming || selectedAnchor) return
     void viewportRevision
     return svg?.getBoundingClientRect()
   })
@@ -145,7 +149,7 @@
 
   function updateViewport() {
     if (tooltipTarget?.pointer) dismissTooltip()
-    else if (tooltipKey) viewportRevision += 1
+    else if (tooltipKey && !selectedAnchor) viewportRevision += 1
   }
 
   $effect(() => {
@@ -220,12 +224,14 @@
   </g>
 </svg>
 
-{#if tooltip && tooltipKey && tooltipAnchor && !zooming}
+{#if tooltip && tooltipKey && (selectedAnchor || tooltipAnchor) && !zooming}
   <TooltipOverlay
     id={tooltipId}
     title={tooltipTitle?.(tooltipKey)}
-    x={tooltipAnchor.x}
-    y={tooltipAnchor.y}
+    x={tooltipAnchor?.x}
+    y={tooltipAnchor?.y}
+    anchor={selectedAnchor}
+    boundary={svg}
     bounds={tooltipBounds}
   >
     {@render tooltip(tooltipKey)}

@@ -4,7 +4,7 @@
   import { verticalLabelParts } from '../../utils/vertical-label.ts'
   import { scaleLinear } from 'd3-scale'
   import Legend from './Legend.svelte'
-  import TooltipOverlay from './TooltipOverlay.svelte'
+  import TooltipOverlay, { type TooltipPosition } from './TooltipOverlay.svelte'
   import TooltipRows from './TooltipRows.svelte'
 
   type Point = { series: string; x: number; y: number; label?: string }
@@ -59,9 +59,10 @@
   } = $props()
   let width = $state(0)
   let height = $state(0)
+  let chart = $state<HTMLDivElement>()
   let active = $state<string>()
   let hovered = $state.raw<Point>()
-  let pointer = $state({ x: 0, y: 0 })
+  let tooltipPosition = $state<TooltipPosition>()
   const points = $derived(
     data.filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y)),
   )
@@ -121,13 +122,13 @@
       ticks[0],
     )
   }
-  function focus(point: Point, x: number, y: number) {
+  function focus(point: Point, position: TooltipPosition) {
     hovered = point
-    pointer = { x, y }
+    tooltipPosition = position
   }
 </script>
 
-<div class="chart" class:plain={!chartBackdrop}>
+<div class="chart" class:plain={!chartBackdrop} bind:this={chart}>
   {#if showLegend && items.length > 1}<Legend
       {items}
       active={active ?? hovered?.series}
@@ -233,24 +234,26 @@
               ? point.series !== active
               : !!hovered && hovered !== point}
             onpointerenter={(e) => {
-              if (e.pointerType !== 'touch') focus(point, e.clientX, e.clientY)
+              if (e.pointerType !== 'touch') {
+                focus(point, { x: e.clientX, y: e.clientY })
+              }
             }}
             onpointermove={(e) => {
-              if (hovered === point) pointer = { x: e.clientX, y: e.clientY }
+              if (hovered === point && e.pointerType !== 'touch') {
+                tooltipPosition = { x: e.clientX, y: e.clientY }
+              }
             }}
-            onpointerleave={() => (hovered = undefined)}
-            onclick={(e) => focus(point, e.clientX, e.clientY)}
-            onfocus={(e) => {
-              const r = e.currentTarget.getBoundingClientRect()
-              focus(point, r.x + r.width / 2, r.bottom)
+            onpointerleave={(e) => {
+              if (e.pointerType !== 'touch') hovered = undefined
             }}
+            onclick={(e) => focus(point, { anchor: e.currentTarget })}
+            onfocus={(e) => focus(point, { anchor: e.currentTarget })}
             onblur={() => (hovered = undefined)}
             onkeydown={(e) => {
               if (e.key === 'Escape') hovered = undefined
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
-                const r = e.currentTarget.getBoundingClientRect()
-                focus(point, r.x + r.width / 2, r.bottom)
+                focus(point, { anchor: e.currentTarget })
               }
             }}
           >
@@ -275,8 +278,8 @@
 </div>
 {#if showTooltip && hovered}<TooltipOverlay
     title={hovered.label ?? hovered.series}
-    x={pointer.x}
-    y={pointer.y}
+    {...tooltipPosition}
+    boundary={chart}
   >
     <TooltipRows
       rows={[

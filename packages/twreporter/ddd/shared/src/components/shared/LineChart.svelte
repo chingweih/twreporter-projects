@@ -4,7 +4,7 @@
   import { verticalLabelParts } from '../../utils/vertical-label.ts'
   import { scaleLinear } from 'd3-scale'
   import Legend from './Legend.svelte'
-  import TooltipOverlay from './TooltipOverlay.svelte'
+  import TooltipOverlay, { type TooltipPosition } from './TooltipOverlay.svelte'
   import TooltipRows from './TooltipRows.svelte'
 
   type LinePoint = {
@@ -99,11 +99,11 @@
 
   let width = $state(0)
   let height = $state(0)
+  let chart = $state<HTMLDivElement>()
   let active = $state<string>()
   let hoveredLine = $state<string>()
   let hovered = $state<{
-    x: number
-    y: number
+    position: TooltipPosition
     series: string
     pointX: number
     value: number
@@ -277,19 +277,35 @@
         ) === tick,
     )
   }
-  function hoverTick(tick: number, x: number, y: number) {
+  function hoverTick(tick: number, position: TooltipPosition) {
     const rows = validData.filter((point) => point.x === tick)
     if (!rows.length) {
       hovered = undefined
       return
     }
     hovered = {
-      x,
-      y,
+      position,
       pointX: tick,
       series: rows[0].series,
       value: rows[0].value,
       rows,
+    }
+  }
+  function trackTick(tick: number, event: PointerEvent) {
+    if (event.pointerType !== 'touch') {
+      hoverTick(tick, { x: event.clientX, y: event.clientY })
+    }
+  }
+  function leavePointer(event: PointerEvent) {
+    if (event.pointerType !== 'touch') hovered = undefined
+  }
+  function hoverPoint(point: PlottedPoint, position: TooltipPosition) {
+    hovered = {
+      position,
+      series: point.series,
+      pointX: point.x,
+      value: point.value,
+      valueLabel: point.valueLabel,
     }
   }
   function path(points: readonly { x: number; value: number }[]) {
@@ -304,6 +320,7 @@
 
 <div
   class="chart"
+  bind:this={chart}
   class:plain={!chartBackdrop}
   class:axis-hovered={hovered !== undefined}
 >
@@ -332,11 +349,9 @@
               <g
                 role="group"
                 aria-label={formatX(tick)}
-                onpointerenter={(event) =>
-                  hoverTick(tick, event.clientX, event.clientY)}
-                onpointermove={(event) =>
-                  hoverTick(tick, event.clientX, event.clientY)}
-                onpointerleave={() => (hovered = undefined)}
+                onpointerenter={(event) => trackTick(tick, event)}
+                onpointermove={(event) => trackTick(tick, event)}
+                onpointerleave={leavePointer}
               >
                 <line
                   class="grid x-grid"
@@ -399,15 +414,13 @@
                 role="button"
                 tabindex="0"
                 aria-label={`查看 ${formatX(tick)}`}
-                onpointerenter={(event) =>
-                  hoverTick(tick, event.clientX, event.clientY)}
-                onpointermove={(event) =>
-                  hoverTick(tick, event.clientX, event.clientY)}
-                onpointerleave={() => (hovered = undefined)}
-                onfocus={(event) => {
-                  const bounds = event.currentTarget.getBoundingClientRect()
-                  hoverTick(tick, bounds.x + bounds.width / 2, bounds.bottom)
-                }}
+                onpointerenter={(event) => trackTick(tick, event)}
+                onpointermove={(event) => trackTick(tick, event)}
+                onpointerleave={leavePointer}
+                onclick={(event) =>
+                  hoverTick(tick, { anchor: event.currentTarget })}
+                onfocus={(event) =>
+                  hoverTick(tick, { anchor: event.currentTarget })}
                 onblur={() => (hovered = undefined)}
                 onkeydown={(event) => {
                   if (event.key === 'Escape') hovered = undefined
@@ -518,35 +531,21 @@
                   role="button"
                   tabindex="0"
                   aria-label={`${group.label} ${formatX(point.x)} ${labelFor(point)}`}
-                  onpointerenter={(event) =>
-                    (hovered = {
-                      x: event.clientX,
-                      y: event.clientY,
-                      series: group.label,
-                      pointX: point.x,
-                      value: point.value,
-                      valueLabel: point.valueLabel,
-                    })}
-                  onpointermove={(event) => {
-                    if (hovered)
-                      hovered = {
-                        ...hovered,
-                        x: event.clientX,
-                        y: event.clientY,
-                      }
-                  }}
-                  onpointerleave={() => (hovered = undefined)}
-                  onfocus={(event) => {
-                    const bounds = event.currentTarget.getBoundingClientRect()
-                    hovered = {
-                      x: bounds.x,
-                      y: bounds.bottom,
-                      series: group.label,
-                      pointX: point.x,
-                      value: point.value,
-                      valueLabel: point.valueLabel,
+                  onpointerenter={(event) => {
+                    if (event.pointerType !== 'touch') {
+                      hoverPoint(point, { x: event.clientX, y: event.clientY })
                     }
                   }}
+                  onpointermove={(event) => {
+                    if (hovered && event.pointerType !== 'touch') {
+                      hovered.position = { x: event.clientX, y: event.clientY }
+                    }
+                  }}
+                  onpointerleave={leavePointer}
+                  onclick={(event) =>
+                    hoverPoint(point, { anchor: event.currentTarget })}
+                  onfocus={(event) =>
+                    hoverPoint(point, { anchor: event.currentTarget })}
                   onblur={() => (hovered = undefined)}
                   onkeydown={(event) => {
                     if (event.key === 'Escape') hovered = undefined
@@ -633,7 +632,7 @@
 </div>
 {#if showTooltip && hovered}
   {@const pointX = hovered.pointX}
-  <TooltipOverlay x={hovered.x} y={hovered.y} title={formatX(pointX)}
+  <TooltipOverlay {...hovered.position} boundary={chart} title={formatX(pointX)}
     ><TooltipRows
       rows={(hovered.rows ?? [hovered]).map((row) => {
         const name = tooltipLabel
