@@ -900,6 +900,9 @@
     font-weight: 700;
     fill: var(--text-color);
   }
+  .category {
+    line-height: 100%;
+  }
   .category.emphasized {
     font-weight: 700;
   }
