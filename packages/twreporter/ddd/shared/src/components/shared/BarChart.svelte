@@ -239,8 +239,8 @@
   const categoryEdgeGutter = $derived(
     horizontal && (hasGroupLabels || hasBarLabels || showValues)
       ? Math.ceil(
-          Math.max(yAxisFontSize ?? themeFontSize, themeFontSize) * 0.6,
-        ) + 2
+          Math.max(yAxisFontSize ?? themeFontSize, themeFontSize) * 0.5,
+        )
       : 0,
   )
   const topGutter = $derived(

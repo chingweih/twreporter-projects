@@ -17,6 +17,22 @@
         node.style.removeProperty('--unit-height')
         const content = node.querySelector<HTMLElement>('.chart-content')
         content?.style.removeProperty('zoom')
+        if (node.clientWidth <= 580) {
+          let cellHeight = 0
+          for (const row of node.querySelectorAll<HTMLElement>('.year-row')) {
+            const units = row.querySelector<HTMLElement>('.units')
+            const summary = row.querySelector<HTMLElement>('.year-summary')
+            if (!units || !summary || !units.childElementCount) continue
+            const rows = Math.ceil(units.childElementCount / options.columns)
+            cellHeight = Math.max(
+              cellHeight,
+              (units.clientWidth - (options.columns - 1) * options.gap) /
+                options.columns,
+              (summary.offsetHeight - (rows - 1) * options.gap) / rows,
+            )
+          }
+          node.style.setProperty('--unit-height', `${Math.ceil(cellHeight)}px`)
+        }
         return
       }
       const content = node.querySelector<HTMLElement>('.chart-content')!
@@ -352,6 +368,28 @@
     outline-offset: 1px;
   }
   @container (max-width: 580px) {
+    .year-row,
+    .year-row.with-totals {
+      grid-template-columns: 100px minmax(0, 1fr);
+      gap: 10px;
+    }
+    .year-summary {
+      padding-right: 8px;
+    }
+    .year {
+      font-size: 18px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+    }
+    .stat {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) max-content;
+      gap: 4px;
+    }
+    .stat > span {
+      font-size: 12px;
+      letter-spacing: 0;
+    }
     .sized .note,
     .sized .summary,
     .sized .year {
@@ -373,14 +411,11 @@
     .sized .parties {
       gap: 2px;
     }
-    .year-row.with-totals {
-      grid-template-columns: 90px minmax(0, 1fr);
-    }
     .summary {
       gap: 3px;
     }
     .stat strong {
-      font-size: 14px;
+      font-size: 13px;
     }
   }
   @media (prefers-reduced-motion: reduce) {
