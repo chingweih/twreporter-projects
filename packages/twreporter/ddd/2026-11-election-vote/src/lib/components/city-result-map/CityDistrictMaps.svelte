@@ -110,32 +110,26 @@
   }
   const rankedCandidates = $derived.by(() => {
     if (previous) return []
+    const districtResults = townshipQuery.data
     const candidates = focus
-      ? townshipQuery.data?.get(focus.properties.districtCode)
+      ? districtResults?.get(focus.properties.districtCode)
           ?.majorPartyCandidates
       : cityCandidates.data?.filter(({ 政黨 }) =>
           majorParties.some((party) => party === resolvePartyColor(政黨).label),
         )
-    const areaCodes = focus
-      ? assignedVillagesInDistrict(
-          current.villages,
-          focus.properties.districtCode,
-        ).map(({ properties }) => properties.villageCode)
-      : current.districts.features.map(
-          ({ properties }) => properties.districtCode,
-        )
-    const areaResults = results.data
     return (candidates ?? [])
       .map((candidate) => ({
         candidate,
-        count: areaCodes.filter((code) => {
-          const result = areaResults?.get(code)
-          return (
-            result?.leader &&
-            !result.tied &&
-            result.leader.姓名.trim() === candidate.姓名.trim()
-          )
-        }).length,
+        count: focus
+          ? candidate.得票數
+          : current.districts.features.filter(({ properties }) => {
+              const result = districtResults?.get(properties.districtCode)
+              return (
+                result?.leader &&
+                !result.tied &&
+                result.leader.姓名.trim() === candidate.姓名.trim()
+              )
+            }).length,
       }))
       .sort(
         (a, b) => b.count - a.count || b.candidate.得票數 - a.candidate.得票數,
@@ -143,7 +137,7 @@
       .map(({ candidate, count }) => ({
         label: candidate.姓名.trim(),
         share: candidate['得票率(%)'],
-        count: areaResults ? count : null,
+        count: districtResults ? count : null,
         color: `var(${resolvePartyColor(candidate.政黨).colorVar})`,
       }))
   })
@@ -290,7 +284,9 @@
               <span class="candidate-count"
                 >{candidate.count === null
                   ? '—'
-                  : `${candidate.count}${focus ? '里' : '區'}`}</span
+                  : focus
+                    ? `${formatNumber(candidate.count)}票`
+                    : `${candidate.count}區`}</span
               >
             </div>
           {:else}
