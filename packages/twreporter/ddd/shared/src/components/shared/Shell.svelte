@@ -172,8 +172,8 @@
               {#if editable}
                 <EditableText bind:value={title} {editable} />
               {:else}
-                {#each titleParts as part, index}
-                  {#if index > 0}{' '}{/if}<span>{part}</span>
+                {#each titleParts as part}
+                  <span>{part}</span>
                 {/each}
               {/if}
             </h1>
