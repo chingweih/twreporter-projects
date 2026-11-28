@@ -15,11 +15,13 @@
     frame,
     drilldown,
     results,
+    showBackButton = false,
   }: {
     geometry: CityGeometry
     counterpart?: CityGeometry
     frame: TaiwanDistrictCollection
     drilldown: MapDrilldown<TaiwanDistrictCollection['features'][number]>
+    showBackButton?: boolean
     results: Pick<
       CreateQueryResult<Map<string, AreaResult>>,
       'data' | 'isPending' | 'isError'
@@ -64,6 +66,26 @@
   bind:clientWidth={mapWidth}
   bind:clientHeight={mapHeight}
 >
+  {#if showBackButton && focus}
+    <button
+      class="map-back"
+      type="button"
+      bind:this={drilldown.backButton}
+      onclick={() => drilldown.reset()}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M20 12H4m0 0 7-7m-7 7 7 7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <span>返回全市</span>
+    </button>
+  {/if}
   <D3DrilldownMap
     geometry={frame}
     width={mapWidth || 640}
@@ -98,7 +120,7 @@
       {@const result = results.data?.get(code)}
       {#if !area}
         <div>此年度無對應{focus ? '村里' : '行政區'}</div>
-      {:else if result}
+      {:else if result?.leader}
         {#if result.majorPartyCandidates.length}
           <TooltipRows
             rows={result.majorPartyCandidates.map((candidate) => ({
@@ -125,10 +147,42 @@
     min-height: 144px;
     min-width: 0;
   }
+  .map-back {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-color);
+    font: inherit;
+    font-size: var(--text-s);
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-text-stroke: 3px var(--neutral-gray-100);
+    paint-order: stroke fill;
+  }
+  .map-back svg {
+    flex: none;
+    width: 1em;
+    height: 1em;
+  }
+  .map-back:hover span {
+    text-decoration: underline;
+  }
   @container (width < 600px) {
     .map-frame {
       flex: none;
       width: 100%;
+    }
+  }
+  @container (width < 480px) {
+    .map-back {
+      font-size: var(--text-xs);
     }
   }
 </style>

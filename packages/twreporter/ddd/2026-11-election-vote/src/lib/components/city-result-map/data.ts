@@ -22,7 +22,7 @@ type VoteRow = Pick<
   '縣市代碼' | '號次' | '姓名' | '政黨' | '得票數' | '得票率(%)'
 >
 export type AreaResult = {
-  leader: VoteRow
+  leader: VoteRow | undefined
   tied: boolean
   majorPartyCandidates: VoteRow[]
 }
@@ -54,7 +54,7 @@ export function indexHistoricalAreaResults({
 }
 
 export function areaColor(result?: AreaResult) {
-  return result && !result.tied
+  return result?.leader && !result.tied
     ? resolvePartyColor(result.leader.政黨.trim()).colorVar
     : noLeader
 }
@@ -95,12 +95,12 @@ export function indexAreaResults<Row extends VoteRow>({
     const ranked = Array.from(candidates.values()).sort(
       (a, b) => b.得票數 - a.得票數 || a.號次 - b.號次,
     )
-    const [leader, runnerUp] = ranked
-    if (!leader || leader.得票數 === 0) continue
+    const [first, runnerUp] = ranked
+    const leader = first?.得票數 ? first : undefined
 
     results.set(code, {
       leader,
-      tied: runnerUp?.得票數 === leader.得票數,
+      tied: leader !== undefined && runnerUp?.得票數 === leader.得票數,
       majorPartyCandidates: ranked.filter(({ 政黨 }) => {
         const party = 政黨.trim()
         return party === '民主進步黨' || party === '中國國民黨'

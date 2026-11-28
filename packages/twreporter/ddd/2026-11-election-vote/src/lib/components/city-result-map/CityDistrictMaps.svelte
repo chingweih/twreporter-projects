@@ -1,5 +1,6 @@
 <script lang="ts">
   import Legend from '@lab-reporter/ddd-shared/components/shared/Legend.svelte'
+  import { formatNumber } from '@lab-reporter/ddd-shared/utils/format.ts'
   import { MapDrilldown } from '@lab-reporter/ddd-shared/utils/map-drilldown.svelte.ts'
   import { createQuery, skipToken } from '@tanstack/svelte-query'
   import { electionTabs } from '../../election-data.ts'
@@ -29,6 +30,7 @@
     ),
   )
   const focus = $derived(drilldown.focus)
+  const majorParties = ['中國國民黨', '民主進步黨'] as const
   const cityCode = $derived(
     current.districts.features[0]?.properties.countyCode,
   )
@@ -106,19 +108,30 @@
           areaColor(data.get(properties.districtCode)),
         )
   }
-  const rankedCandidates = $derived(
-    (cityCandidates.data ?? [])
-      .filter((candidate) =>
-        ['民主進步黨', '中國國民黨'].includes(
-          resolvePartyColor(candidate.政黨).label,
-        ),
-      )
+  const rankedCandidates = $derived.by(() => {
+    if (previous) return []
+    const candidates = focus
+      ? townshipQuery.data?.get(focus.properties.districtCode)
+          ?.majorPartyCandidates
+      : cityCandidates.data?.filter(({ 政黨 }) =>
+          majorParties.some((party) => party === resolvePartyColor(政黨).label),
+        )
+    const areaCodes = focus
+      ? assignedVillagesInDistrict(
+          current.villages,
+          focus.properties.districtCode,
+        ).map(({ properties }) => properties.villageCode)
+      : current.districts.features.map(
+          ({ properties }) => properties.districtCode,
+        )
+    const areaResults = results.data
+    return (candidates ?? [])
       .map((candidate) => ({
         candidate,
-        count: current.districts.features.filter(({ properties }) => {
-          const result = townshipQuery.data?.get(properties.districtCode)
+        count: areaCodes.filter((code) => {
+          const result = areaResults?.get(code)
           return (
-            result &&
+            result?.leader &&
             !result.tied &&
             result.leader.姓名.trim() === candidate.姓名.trim()
           )
@@ -130,25 +143,21 @@
       .map(({ candidate, count }) => ({
         label: candidate.姓名.trim(),
         share: candidate['得票率(%)'],
-        count: townshipQuery.data ? count : null,
+        count: areaResults ? count : null,
         color: `var(${resolvePartyColor(candidate.政黨).colorVar})`,
-      })),
-  )
+      }))
+  })
   const legend = $derived.by(() => {
     if (!previous) return rankedCandidates
     const candidates = new Map<string, { label: string; color: string }>()
-    for (const data of [
-      results.data,
-      previous ? historicalQuery.data : undefined,
-    ]) {
+    for (const data of [results.data, historicalQuery.data]) {
       for (const result of data?.values() ?? []) {
+        if (!result.leader) continue
         for (const candidate of [
           ...result.majorPartyCandidates,
           result.leader,
         ]) {
-          const party = resolvePartyColor(candidate.政黨.trim())
-          const label = previous ? party.label : candidate.姓名.trim()
-          const { colorVar } = party
+          const { label, colorVar } = resolvePartyColor(candidate.政黨)
           const color = `var(${colorVar})`
           candidates.set(`${label}:${colorVar}`, { label, color })
         }
@@ -157,16 +166,16 @@
     return [...candidates.values()]
   })
   const comparisonRows = $derived.by(() => {
-    if (!previous) return []
+    if (!previous || focus) return []
     const oldColors = previous.districts.features.map(({ properties }) =>
       areaColor(historicalTownships.data?.get(properties.districtCode)),
     )
     const newColors = current.districts.features.map(({ properties }) =>
       areaColor(townshipQuery.data?.get(properties.districtCode)),
     )
-    return Object.entries(partyColorVars)
-      .filter(([party]) => party === '中國國民黨' || party === '民主進步黨')
-      .map(([party, token]) => ({
+    return majorParties.map((party) => {
+      const token = partyColorVars[party]
+      return {
         party,
         previous: historicalTownships.data
           ? oldColors.filter((color) => color === token).length
@@ -174,7 +183,8 @@
         current: townshipQuery.data
           ? newColors.filter((color) => color === token).length
           : null,
-      }))
+      }
+    })
   })
 </script>
 
@@ -187,39 +197,75 @@
 {/snippet}
 
 {#snippet panelHeading(year: number, query: typeof results)}
+  {@const districtResult = focus
+    ? (year === 2022 ? historicalTownships : townshipQuery).data?.get(
+        focus.properties.districtCode,
+      )
+    : undefined}
   <header class="panel-heading">
     <h2>{year}</h2>
-    {@render status(query)}
   </header>
-  <table class="party-summary" aria-label={`${year} 各黨票數最高行政區數`}>
-    <thead>
-      <tr
-        ><th scope="col"><span class="sr-only">政黨</span></th><th scope="col"
-          >票數最高</th
-        >{#if year === 2026}<th scope="col">翻轉</th>{/if}</tr
-      >
-    </thead>
-    <tbody>
-      {#each comparisonRows as row}
-        {@const count = year === 2022 ? row.previous : row.current}
-        {@const change =
-          row.current !== null && row.previous !== null
-            ? Math.max(row.current - row.previous, 0)
-            : null}
-        <tr>
-          <th scope="row">{row.party}</th>
-          <td>{count === null ? '—' : `${count} 區`}</td>
-          {#if year === 2026}<td>{change === null ? '—' : `${change} 區`}</td
-            >{/if}
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+  <div class="comparison-summary">
+    <table
+      class="party-summary"
+      class:district-summary={Boolean(focus)}
+      aria-label={`${year} ${focus ? `${focus.properties.name}各黨得票` : '各黨票數最高行政區數'}`}
+    >
+      <thead>
+        <tr
+          ><th scope="col"><span class="sr-only">政黨</span></th><th scope="col"
+            >{focus?.properties.name ?? '票數最高'}</th
+          >{#if !focus && year === 2026}<th scope="col">翻轉</th>{/if}</tr
+        >
+      </thead>
+      <tbody>
+        {#if focus}
+          {#each majorParties as party (party)}
+            {@const candidate = districtResult?.majorPartyCandidates.find(
+              ({ 政黨 }) => 政黨.trim() === party,
+            )}
+            <tr>
+              <th scope="row">{party}</th>
+              <td>
+                {#if candidate}
+                  <span>{formatNumber(candidate.得票數)}票</span>
+                  <span class="district-share"
+                    >（{candidate['得票率(%)'].text}%）</span
+                  >
+                {:else}
+                  —
+                {/if}
+              </td>
+            </tr>
+          {/each}
+        {:else}
+          {#each comparisonRows as row (row.party)}
+            {@const count = year === 2022 ? row.previous : row.current}
+            {@const change =
+              row.current !== null && row.previous !== null
+                ? Math.max(row.current - row.previous, 0)
+                : null}
+            <tr>
+              <th scope="row">{row.party}</th>
+              <td>{count === null ? '—' : `${count} 區`}</td>
+              {#if year === 2026}<td
+                  >{change === null ? '—' : `${change} 區`}</td
+                >{/if}
+            </tr>
+          {/each}
+        {/if}
+      </tbody>
+    </table>
+    {@render status(query)}
+  </div>
 {/snippet}
 
 <div class="city-maps">
-  {#if results.data || (previous && historicalQuery.data)}
+  {#if !previous || results.data || historicalQuery.data}
     <div class="legend-container" class:ranked={!previous}>
+      {#if !previous && focus}
+        <p class="district-name">{focus.properties.name}</p>
+      {/if}
       <Legend
         align="center"
         items={[
@@ -238,7 +284,9 @@
               <span class="candidate-name">{label}</span>
               <span class="candidate-share">{candidate.share.text}%</span>
               <span class="candidate-count"
-                >{candidate.count === null ? '—' : `${candidate.count}區`}</span
+                >{candidate.count === null
+                  ? '—'
+                  : `${candidate.count}${focus ? '里' : '區'}`}</span
               >
             </div>
           {:else}
@@ -246,10 +294,10 @@
           {/if}
         {/snippet}
       </Legend>
+      {#if !previous}
+        {@render status(results)}
+      {/if}
     </div>
-  {/if}
-  {#if !previous}
-    {@render status(results)}
   {/if}
   <div class="maps" class:comparison={Boolean(previous)}>
     {#if previous}
@@ -261,6 +309,7 @@
           frame={current.districts}
           {drilldown}
           results={historicalQuery}
+          showBackButton
         />
       </section>
     {/if}
@@ -274,6 +323,7 @@
         frame={current.districts}
         {drilldown}
         {results}
+        showBackButton={!previous}
       />
       {#if !previous}
         <p class="turnout">
@@ -284,28 +334,6 @@
       {/if}
     </section>
   </div>
-
-  {#if focus}
-    <div class="map-actions">
-      <button
-        type="button"
-        bind:this={drilldown.backButton}
-        onclick={() => drilldown.reset()}
-      >
-        <!-- <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M21 12H3m0 0 8-8m-8 8 8 8"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg> -->
-        返回全市
-      </button>
-    </div>
-  {/if}
 </div>
 
 <style>
@@ -316,41 +344,6 @@
     flex-direction: column;
     min-height: 0;
     gap: 5px;
-  }
-
-  .map-actions {
-    display: flex;
-    flex-shrink: 0;
-    justify-content: center;
-    margin-top: 8px;
-  }
-
-  button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 14px;
-    border: 1px solid var(--chart-earth-4);
-    border-radius: 20px;
-    background: transparent;
-    color: var(--chart-earth-4);
-    font: inherit;
-    font-size: var(--text-s);
-    cursor: pointer;
-    transition: background 0.15s ease-in-out;
-  }
-
-  button:focus {
-    outline: none;
-  }
-  button:focus-visible {
-    background: var(--chart-earth-4);
-  }
-  button:hover {
-    outline: none;
-    background: var(--chart-earth-4);
-    color: var(--neutral-gray-100);
-    font-weight: 400;
   }
 
   .maps {
@@ -422,6 +415,14 @@
     padding-left: 6px;
     border-left: 1px solid var(--neutral-gray-300);
   }
+  .district-name {
+    margin: 0 0 4px;
+    text-align: right;
+    font-size: var(--text-s);
+    font-weight: 700;
+    -webkit-text-stroke: 3px var(--neutral-gray-100);
+    paint-order: stroke fill;
+  }
   .turnout {
     position: absolute;
     bottom: 8px;
@@ -437,6 +438,12 @@
     color: var(--neutral-gray-700);
     font-size: var(--text-xs);
   }
+  .ranked .status,
+  .comparison-summary .status {
+    text-align: right;
+    -webkit-text-stroke: 3px var(--neutral-gray-100);
+    paint-order: stroke fill;
+  }
 
   .panel-heading {
     display: flex;
@@ -446,9 +453,19 @@
     flex-shrink: 0;
     border-bottom: 1px solid var(--neutral-gray-600);
   }
+  .comparison-summary {
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .comparison-summary .status {
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline: 6px;
+    z-index: 1;
+    pointer-events: none;
+  }
   .party-summary {
     width: 100%;
-    margin-bottom: 12px;
     border-collapse: collapse;
     border-bottom: 1px solid var(--neutral-gray-600);
     font-size: var(--text-s);
@@ -490,6 +507,14 @@
     .party-summary th,
     .party-summary td {
       padding: 6px 3px;
+    }
+  }
+  @container (width < 480px) {
+    .district-summary {
+      font-size: var(--text-xs);
+    }
+    .district-share {
+      display: block;
     }
   }
 </style>
