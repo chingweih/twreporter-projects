@@ -41,6 +41,14 @@
       valueLabel: `${rate.text}%`,
     })),
   )
+  let chartWidth = $state(0)
+  const mobileValuePoints = $derived.by(() => {
+    const valid = data.filter(
+      (point) => point.value !== null && Number.isFinite(point.value),
+    )
+    const ranked = [...valid].sort((a, b) => (a.value ?? 0) - (b.value ?? 0))
+    return new Set([ranked[0]?.x, ranked.at(-1)?.x, valid.at(-1)?.x])
+  })
 </script>
 
 <ElectionGraphic
@@ -53,9 +61,12 @@
   empty={!data.length}
 >
   {#snippet children(entry)}
-    <div class="chart-container">
+    <div class="chart-container" bind:clientWidth={chartWidth}>
       <LineChart
         {...lineChartOptions(entry)}
+        showValue={taipei && chartWidth > 0 && chartWidth <= 580
+          ? (_series, x) => entry.showValue === true && mobileValuePoints.has(x)
+          : entry.showValue}
         yLabel="投票率（%）"
         {data}
         colors={{ [series]: 'var(--elec-red)' }}
