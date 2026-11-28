@@ -147,6 +147,9 @@
         color: `var(${resolvePartyColor(candidate.政黨).colorVar})`,
       }))
   })
+  function shortPartyName(name: string) {
+    return name.replace('中國國民黨', '國民黨').replace('民主進步黨', '民進黨')
+  }
   const legend = $derived.by(() => {
     if (!previous) return rankedCandidates
     const candidates = new Map<string, { label: string; color: string }>()
@@ -157,7 +160,8 @@
           ...result.majorPartyCandidates,
           result.leader,
         ]) {
-          const { label, colorVar } = resolvePartyColor(candidate.政黨)
+          const { label: party, colorVar } = resolvePartyColor(candidate.政黨)
+          const label = shortPartyName(party)
           const color = `var(${colorVar})`
           candidates.set(`${label}:${colorVar}`, { label, color })
         }
@@ -225,12 +229,12 @@
               ({ 政黨 }) => 政黨.trim() === party,
             )}
             <tr>
-              <th scope="row">{party}</th>
+              <th scope="row">{shortPartyName(party)}</th>
               <td>
                 {#if candidate}
                   <span>{formatNumber(candidate.得票數)}票</span>
                   <span class="district-share"
-                    >（{candidate['得票率(%)'].text}%）</span
+                    >({candidate['得票率(%)'].text}%)</span
                   >
                 {:else}
                   —
@@ -246,7 +250,7 @@
                 ? Math.max(row.current - row.previous, 0)
                 : null}
             <tr>
-              <th scope="row">{row.party}</th>
+              <th scope="row">{shortPartyName(row.party)}</th>
               <td>{count === null ? '—' : `${count} 區`}</td>
               {#if year === 2026}<td
                   >{change === null ? '—' : `${change} 區`}</td
@@ -481,6 +485,9 @@
   .party-summary tbody th {
     text-align: left;
   }
+  .party-summary th:first-child {
+    width: 1%;
+  }
   .party-summary tr {
     border-bottom: 1px solid var(--neutral-gray-300);
   }
@@ -510,11 +517,14 @@
     }
   }
   @container (width < 480px) {
+    .maps {
+      --map-gap: 4px;
+    }
     .district-summary {
       font-size: var(--text-xs);
     }
     .district-share {
-      display: block;
+      /* display: block; */
     }
   }
 </style>
