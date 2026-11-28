@@ -235,10 +235,18 @@
         ]) + axisLabelOffset
       : 0,
   )
+  const categoryEdgeGutter = $derived(
+    horizontal && (hasGroupLabels || hasBarLabels || showValues)
+      ? Math.ceil(
+          Math.max(yAxisFontSize ?? themeFontSize, themeFontSize) * 0.6,
+        ) + 2
+      : 0,
+  )
   const topGutter = $derived(
     horizontal
-      ? annotations.filter((annotation) => annotation.label).length *
-          annotationStep +
+      ? categoryEdgeGutter +
+          annotations.filter((annotation) => annotation.label).length *
+            annotationStep +
           (showXAxis && xAxisPosition === 'top'
             ? Math.max(22, (xAxisFontSize ?? themeFontSize) + 8)
             : 0)
@@ -250,6 +258,7 @@
       0,
       containerHeight -
         topGutter -
+        categoryEdgeGutter -
         (showXAxis
           ? horizontal
             ? xAxisPosition === 'top'
