@@ -365,7 +365,8 @@
   }
 
   .comparison {
-    min-height: calc(2 * var(--map-min-height) + var(--map-gap));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: var(--map-min-height);
   }
 
   .map-panel {
@@ -482,10 +483,13 @@
     font-weight: 700;
   }
 
-  @container (width >= 600px) {
-    .comparison {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      min-height: var(--map-min-height);
+  @container (width < 600px) {
+    /* .party-summary {
+      font-size: 12px;
+    } */
+    .party-summary th,
+    .party-summary td {
+      padding: 6px 3px;
     }
   }
 </style>
