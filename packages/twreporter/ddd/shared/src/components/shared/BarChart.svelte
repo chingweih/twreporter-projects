@@ -27,6 +27,7 @@
   }
   const annotationStep = 32
   const axisLabelOffset = 8
+  const categoryBaselineOffset = 0.32
   const estimatedCharacterWidth = 8.5
   const estimatedWideCharacterWidth = 14
 
@@ -611,8 +612,8 @@
                           : undefined}
                         x={-axisLabelOffset - negativeValueGutter}
                         y={center}
-                        text-anchor="end"
-                        dominant-baseline="middle">{bar.label}</text
+                        dy={`${categoryBaselineOffset}em`}
+                        text-anchor="end">{bar.label}</text
                       >
                     {/if}
                   {:else if !stacked}
@@ -657,7 +658,6 @@
                     x={-axisLabelOffset - barLabelGutter - negativeValueGutter}
                     y={group.center}
                     text-anchor="end"
-                    dominant-baseline="middle"
                   >
                     {#each group.label.split('\n') as line, index}
                       <tspan
@@ -665,7 +665,7 @@
                           barLabelGutter -
                           negativeValueGutter}
                         dy={index === 0
-                          ? `${-((group.label.split('\n').length - 1) * 1.2) / 2}em`
+                          ? `${categoryBaselineOffset - ((group.label.split('\n').length - 1) * 1.2) / 2}em`
                           : '1.2em'}>{line}</tspan
                       >
                     {/each}
